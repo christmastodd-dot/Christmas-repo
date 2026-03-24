@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desk Chat</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="join-container">
+        <div class="join-card">
+            <h1>Desk Chat</h1>
+            <input type="text" id="name" placeholder="Display name" maxlength="24" autofocus>
+            <input type="text" id="room" placeholder="Room code" maxlength="32">
+            <button id="join">Join</button>
+        </div>
+    </div>
+    <script>
+        const nameEl = document.getElementById("name");
+        const roomEl = document.getElementById("room");
+        const joinBtn = document.getElementById("join");
+
+        function join() {
+            const name = nameEl.value.trim();
+            const room = roomEl.value.trim();
+            if (!name || !room) return;
+            const params = new URLSearchParams({ name, room });
+            window.location.href = "/chat?" + params.toString();
+        }
+
+        joinBtn.addEventListener("click", join);
+        nameEl.addEventListener("keydown", (e) => { if (e.key === "Enter") roomEl.focus(); });
+        roomEl.addEventListener("keydown", (e) => { if (e.key === "Enter") join(); });
+    </script>
+</body>
+</html>

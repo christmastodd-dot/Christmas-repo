@@ -1,0 +1,365 @@
+/* Desk Chat — client */
+
+const params = new URLSearchParams(window.location.search);
+const myName = params.get("name") || "";
+const roomCode = params.get("room") || "";
+
+if (!myName || !roomCode) {
+    window.location.href = "/";
+}
+
+document.title = "Desk Chat — " + roomCode;
+document.getElementById("room-label").textContent = roomCode;
+
+const messagesEl = document.getElementById("messages");
+const memberList = document.getElementById("member-list");
+const msgInput = document.getElementById("msg-input");
+const sendBtn = document.getElementById("send-btn");
+const tabsEl = document.getElementById("tabs");
+const typingEl = document.getElementById("typing");
+const reconnectingEl = document.getElementById("reconnecting");
+const quietToggle = document.getElementById("quiet-toggle");
+
+// ── State ──
+
+let ws = null;
+let members = [];
+let reconnectDelay = 1000;
+
+// DM state
+let dmConversations = {};   // name -> [{type, sender, text, timestamp}]
+let activeTab = "room";     // "room" or a display name
+let unreadTabs = new Set();
+
+// Typing indicator state
+let typingTimeout = null;
+let lastTypingSent = 0;
+const TYPING_THROTTLE = 2000;
+
+// ── WebSocket ──
+
+function connect() {
+    const protocol = location.protocol === "https:" ? "wss:" : "ws:";
+    const url = `${protocol}//${location.host}/ws/${encodeURIComponent(roomCode)}?name=${encodeURIComponent(myName)}`;
+    ws = new WebSocket(url);
+
+    ws.onopen = () => {
+        reconnectDelay = 1000;
+        reconnectingEl.classList.remove("show");
+    };
+
+    ws.onmessage = (event) => {
+        const msg = JSON.parse(event.data);
+        handleMessage(msg);
+    };
+
+    ws.onclose = () => {
+        reconnectingEl.classList.add("show");
+        setTimeout(() => {
+            reconnectDelay = Math.min(reconnectDelay * 2, 10000);
+            connect();
+        }, reconnectDelay);
+    };
+
+    ws.onerror = () => {};
+}
+
+function send(obj) {
+    if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify(obj));
+    }
+}
+
+// ── Message Handling ──
+
+function handleMessage(msg) {
+    switch (msg.type) {
+        case "message":
+            handleChatMessage(msg);
+            break;
+        case "dm":
+            handleDM(msg);
+            break;
+        case "system":
+            appendSystem(msg.text, msg.timestamp);
+            break;
+        case "members":
+            updateMembers(msg.members);
+            break;
+        case "typing":
+            showTypingIndicator(msg);
+            break;
+    }
+}
+
+function handleChatMessage(msg) {
+    if (activeTab !== "room") {
+        unreadTabs.add("room");
+        renderTabs();
+    }
+    appendMessage(msg.sender, msg.text, msg.timestamp, messagesEl);
+}
+
+function handleDM(msg) {
+    const otherName = msg.sender === myName ? msg.recipient : msg.sender;
+
+    if (!dmConversations[otherName]) {
+        dmConversations[otherName] = [];
+    }
+    dmConversations[otherName].push(msg);
+
+    if (activeTab === otherName) {
+        const container = document.getElementById("dm-messages-" + otherName);
+        if (container) {
+            appendMessage(msg.sender, msg.text, msg.timestamp, container);
+        }
+    } else {
+        unreadTabs.add(otherName);
+    }
+    renderTabs();
+}
+
+function showTypingIndicator(msg) {
+    if (msg.channel === activeTab || (msg.channel === "room" && activeTab === "room")) {
+        if (msg.sender !== myName) {
+            typingEl.textContent = msg.sender + " is typing...";
+            clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(() => { typingEl.textContent = ""; }, 3000);
+        }
+    }
+}
+
+// ── DOM Helpers ──
+
+function appendMessage(sender, text, timestamp, container) {
+    if (!container) container = messagesEl;
+    const atBottom = isAtBottom(container);
+
+    const div = document.createElement("div");
+    div.className = "msg";
+
+    const senderSpan = document.createElement("span");
+    senderSpan.className = "sender";
+    senderSpan.textContent = sender;
+
+    const textSpan = document.createElement("span");
+    textSpan.className = "text";
+    textSpan.textContent = text;
+    linkify(textSpan);
+
+    const timeSpan = document.createElement("span");
+    timeSpan.className = "time";
+    timeSpan.textContent = timestamp;
+
+    div.appendChild(senderSpan);
+    div.appendChild(textSpan);
+    div.appendChild(timeSpan);
+    container.appendChild(div);
+
+    if (atBottom) scrollToBottom(container);
+}
+
+function appendSystem(text, timestamp) {
+    const atBottom = isAtBottom(messagesEl);
+
+    const div = document.createElement("div");
+    div.className = "msg system";
+
+    const textSpan = document.createElement("span");
+    textSpan.className = "text";
+    textSpan.textContent = text;
+
+    const timeSpan = document.createElement("span");
+    timeSpan.className = "time";
+    timeSpan.textContent = timestamp;
+
+    div.appendChild(textSpan);
+    div.appendChild(document.createTextNode(" "));
+    div.appendChild(timeSpan);
+    messagesEl.appendChild(div);
+
+    if (atBottom) scrollToBottom(messagesEl);
+}
+
+function updateMembers(list) {
+    members = list;
+    memberList.innerHTML = "";
+    list.forEach((name) => {
+        const li = document.createElement("li");
+        li.textContent = name;
+        if (name === myName) {
+            li.className = "you";
+        } else {
+            li.className = "clickable";
+            li.addEventListener("click", () => openDM(name));
+        }
+        memberList.appendChild(li);
+    });
+}
+
+function linkify(el) {
+    const text = el.textContent;
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    if (!urlRegex.test(text)) return;
+
+    el.textContent = "";
+    text.split(urlRegex).forEach((part) => {
+        if (urlRegex.test(part)) {
+            const a = document.createElement("a");
+            a.href = part;
+            a.textContent = part;
+            a.target = "_blank";
+            a.rel = "noopener";
+            a.style.color = "#5a7a9a";
+            el.appendChild(a);
+        } else {
+            el.appendChild(document.createTextNode(part));
+        }
+    });
+}
+
+function isAtBottom(el) {
+    return el.scrollTop + el.clientHeight >= el.scrollHeight - 30;
+}
+
+function scrollToBottom(el) {
+    el.scrollTop = el.scrollHeight;
+}
+
+// ── Tabs & DMs ──
+
+function openDM(name) {
+    if (name === myName) return;
+    if (!dmConversations[name]) {
+        dmConversations[name] = [];
+    }
+    switchTab(name);
+}
+
+function switchTab(tab) {
+    activeTab = tab;
+    unreadTabs.delete(tab);
+    typingEl.textContent = "";
+    renderTabs();
+    renderActiveView();
+}
+
+function renderTabs() {
+    tabsEl.innerHTML = "";
+    const dmNames = Object.keys(dmConversations);
+    if (dmNames.length === 0) {
+        tabsEl.style.display = "none";
+        return;
+    }
+    tabsEl.style.display = "flex";
+
+    // Room tab
+    const roomTab = document.createElement("div");
+    roomTab.className = "tab" + (activeTab === "room" ? " active" : "");
+    roomTab.textContent = "Room";
+    if (unreadTabs.has("room")) {
+        const dot = document.createElement("span");
+        dot.className = "unread";
+        roomTab.appendChild(dot);
+    }
+    roomTab.addEventListener("click", () => switchTab("room"));
+    tabsEl.appendChild(roomTab);
+
+    // DM tabs
+    dmNames.forEach((name) => {
+        const tab = document.createElement("div");
+        tab.className = "tab" + (activeTab === name ? " active" : "");
+        tab.textContent = name;
+
+        if (unreadTabs.has(name)) {
+            const dot = document.createElement("span");
+            dot.className = "unread";
+            tab.appendChild(dot);
+        }
+
+        const close = document.createElement("span");
+        close.className = "close-tab";
+        close.textContent = "\u00d7";
+        close.addEventListener("click", (e) => {
+            e.stopPropagation();
+            delete dmConversations[name];
+            unreadTabs.delete(name);
+            if (activeTab === name) switchTab("room");
+            else renderTabs();
+        });
+        tab.appendChild(close);
+
+        tab.addEventListener("click", () => switchTab(name));
+        tabsEl.appendChild(tab);
+    });
+}
+
+function renderActiveView() {
+    // Hide/show the room messages vs DM messages
+    if (activeTab === "room") {
+        messagesEl.style.display = "";
+        // Remove any DM container that's visible
+        document.querySelectorAll(".dm-container").forEach((el) => el.remove());
+        msgInput.placeholder = "Message...";
+    } else {
+        messagesEl.style.display = "none";
+        document.querySelectorAll(".dm-container").forEach((el) => el.remove());
+
+        const container = document.createElement("div");
+        container.className = "messages dm-container";
+        container.id = "dm-messages-" + activeTab;
+        messagesEl.parentNode.insertBefore(container, typingEl);
+
+        // Replay history
+        (dmConversations[activeTab] || []).forEach((msg) => {
+            appendMessage(msg.sender, msg.text, msg.timestamp, container);
+        });
+        scrollToBottom(container);
+        msgInput.placeholder = "Message " + activeTab + "...";
+    }
+}
+
+// ── Input Handling ──
+
+function sendMessage() {
+    const text = msgInput.value.trim();
+    if (!text) return;
+
+    if (activeTab === "room") {
+        send({ type: "message", text });
+    } else {
+        send({ type: "dm", recipient: activeTab, text });
+    }
+    msgInput.value = "";
+}
+
+function sendTyping() {
+    const now = Date.now();
+    if (now - lastTypingSent > TYPING_THROTTLE) {
+        lastTypingSent = now;
+        send({ type: "typing", channel: activeTab });
+    }
+}
+
+sendBtn.addEventListener("click", sendMessage);
+msgInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+    }
+});
+msgInput.addEventListener("input", sendTyping);
+
+// ── Quiet Mode ──
+
+quietToggle.addEventListener("click", () => {
+    document.body.classList.toggle("quiet");
+    quietToggle.textContent = document.body.classList.contains("quiet")
+        ? "Exit quiet mode"
+        : "Quiet mode";
+});
+
+// ── Start ──
+
+connect();
+renderTabs();
