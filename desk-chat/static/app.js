@@ -361,23 +361,6 @@ function sendMessage() {
     const text = msgInput.value.trim();
     if (!text) return;
 
-    // Slash commands
-    if (text.toLowerCase() === "/gavel") {
-        send({ type: "gavel" });
-        msgInput.value = "";
-        return;
-    }
-    if (text.toLowerCase() === "/countdown") {
-        send({ type: "countdown" });
-        msgInput.value = "";
-        return;
-    }
-    if (text.toLowerCase() === "/stop") {
-        send({ type: "countdown_stop" });
-        msgInput.value = "";
-        return;
-    }
-
     if (activeTab === "room") {
         send({ type: "message", text, id: nextMsgId() });
     } else {
@@ -402,6 +385,14 @@ msgInput.addEventListener("keydown", (e) => {
     }
 });
 msgInput.addEventListener("input", sendTyping);
+
+// Action buttons
+document.getElementById("gavel-btn").addEventListener("click", () => {
+    send({ type: "gavel" });
+});
+document.getElementById("countdown-btn").addEventListener("click", () => {
+    send({ type: "countdown" });
+});
 
 // ── Gavel Mode ──
 

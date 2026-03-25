@@ -184,6 +184,36 @@ body {
     transition: bottom 0.1s ease;
 }
 
+.action-buttons {
+    display: flex;
+    gap: 0.25rem;
+    flex-shrink: 0;
+}
+
+.action-btn {
+    background: #25252a;
+    border: 1px solid #333;
+    border-radius: 4px;
+    font-size: 16px;
+    width: 36px;
+    height: 36px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-tap-highlight-color: transparent;
+    padding: 0;
+}
+
+.action-btn:hover {
+    border-color: #5a7a9a;
+    background: #2a2a30;
+}
+
+.action-btn:active {
+    background: #333;
+}
+
 .input-bar input {
     flex: 1;
     padding: 0.5rem 0.75rem;
