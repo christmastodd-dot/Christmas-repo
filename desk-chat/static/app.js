@@ -384,6 +384,24 @@ openDM = function(name) {
     origOpenDM(name);
 };
 
+// ── Mobile keyboard fix ──
+
+if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", () => {
+        // When mobile keyboard opens, the visual viewport shrinks.
+        // Adjust the layout to keep the input bar visible.
+        const vv = window.visualViewport;
+        document.documentElement.style.height = vv.height + "px";
+    });
+}
+
+// Also scroll input into view on focus (fallback for older browsers)
+msgInput.addEventListener("focus", () => {
+    setTimeout(() => {
+        msgInput.scrollIntoView({ block: "end", behavior: "smooth" });
+    }, 300);
+});
+
 // ── Start ──
 
 connect();
