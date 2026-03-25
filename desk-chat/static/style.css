@@ -391,6 +391,60 @@ body.quiet .msg.system .text {
     80% { transform: translateX(4px); }
 }
 
+/* ── Countdown timer ── */
+
+.countdown-timer {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    z-index: 800;
+    background: #25252a;
+    border: 1px solid #444;
+    border-radius: 8px;
+    padding: 0.6rem 1rem;
+    text-align: center;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.5);
+}
+
+.countdown-label {
+    font-size: 10px;
+    color: #666;
+    margin-bottom: 0.2rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.countdown-time {
+    font-size: 32px;
+    font-weight: 700;
+    color: #e0e0e0;
+    font-variant-numeric: tabular-nums;
+}
+
+.countdown-timer.urgent .countdown-time {
+    color: #e85a5a;
+    animation: countdown-pulse 1s ease infinite;
+}
+
+.countdown-timer.done {
+    border-color: #e85a5a;
+    background: #3a2020;
+}
+
+.countdown-timer.done .countdown-time {
+    animation: countdown-pulse 0.5s ease infinite;
+}
+
+.countdown-timer.fade-out {
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+@keyframes countdown-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
 /* ── Reactions ── */
 
 .msg {

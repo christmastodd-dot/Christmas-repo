@@ -134,6 +134,13 @@ async def websocket_endpoint(ws: WebSocket, room_code: str, name: str = Query(""
                     "sender": name,
                 })
 
+            elif msg_type == "countdown":
+                await broadcast(room_code, {
+                    "type": "countdown",
+                    "sender": name,
+                    "seconds": 300,
+                })
+
             elif msg_type == "reaction":
                 msg_id = msg.get("msg_id", "")
                 emoji = msg.get("emoji", "")

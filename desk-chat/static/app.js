@@ -100,6 +100,9 @@ function handleMessage(msg) {
         case "gavel":
             showGavel(msg.sender);
             break;
+        case "countdown":
+            startCountdown(msg.seconds, msg.sender);
+            break;
         case "reaction_update":
             updateReactionDisplay(msg.msg_id, msg.reactions);
             break;
@@ -361,6 +364,11 @@ function sendMessage() {
         msgInput.value = "";
         return;
     }
+    if (text.toLowerCase() === "/countdown") {
+        send({ type: "countdown" });
+        msgInput.value = "";
+        return;
+    }
 
     if (activeTab === "room") {
         send({ type: "message", text, id: nextMsgId() });
@@ -479,6 +487,51 @@ function updateReactionDisplay(msgId, reactionsData) {
         });
         rxRow.appendChild(badge);
     }
+}
+
+// ── Countdown Timer ──
+
+let countdownInterval = null;
+let countdownEl = null;
+
+function startCountdown(seconds, sender) {
+    // Clear any existing countdown
+    if (countdownInterval) clearInterval(countdownInterval);
+    if (countdownEl) countdownEl.remove();
+
+    let remaining = seconds;
+
+    countdownEl = document.createElement("div");
+    countdownEl.className = "countdown-timer";
+    countdownEl.innerHTML = '<div class="countdown-label">started by ' + sender + '</div>'
+        + '<div class="countdown-time"></div>';
+    document.body.appendChild(countdownEl);
+
+    const timeDisplay = countdownEl.querySelector(".countdown-time");
+
+    function update() {
+        const m = Math.floor(remaining / 60);
+        const s = remaining % 60;
+        timeDisplay.textContent = m + ":" + (s < 10 ? "0" : "") + s;
+
+        if (remaining <= 30) {
+            countdownEl.classList.add("urgent");
+        }
+        if (remaining <= 0) {
+            clearInterval(countdownInterval);
+            countdownInterval = null;
+            timeDisplay.textContent = "TIME";
+            countdownEl.classList.add("done");
+            setTimeout(() => {
+                countdownEl.classList.add("fade-out");
+                setTimeout(() => { countdownEl.remove(); countdownEl = null; }, 500);
+            }, 5000);
+        }
+        remaining--;
+    }
+
+    update();
+    countdownInterval = setInterval(update, 1000);
 }
 
 // ── Quiet Mode ──
