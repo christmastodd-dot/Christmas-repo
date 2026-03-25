@@ -103,6 +103,9 @@ function handleMessage(msg) {
         case "countdown":
             startCountdown(msg.seconds, msg.sender);
             break;
+        case "countdown_stop":
+            stopCountdown();
+            break;
         case "reaction_update":
             updateReactionDisplay(msg.msg_id, msg.reactions);
             break;
@@ -369,6 +372,11 @@ function sendMessage() {
         msgInput.value = "";
         return;
     }
+    if (text.toLowerCase() === "/stop") {
+        send({ type: "countdown_stop" });
+        msgInput.value = "";
+        return;
+    }
 
     if (activeTab === "room") {
         send({ type: "message", text, id: nextMsgId() });
@@ -504,8 +512,13 @@ function startCountdown(seconds, sender) {
     countdownEl = document.createElement("div");
     countdownEl.className = "countdown-timer";
     countdownEl.innerHTML = '<div class="countdown-label">started by ' + sender + '</div>'
-        + '<div class="countdown-time"></div>';
+        + '<div class="countdown-time"></div>'
+        + '<div class="countdown-stop">\u00d7</div>';
     document.body.appendChild(countdownEl);
+
+    countdownEl.querySelector(".countdown-stop").addEventListener("click", () => {
+        send({ type: "countdown_stop" });
+    });
 
     const timeDisplay = countdownEl.querySelector(".countdown-time");
 
@@ -532,6 +545,19 @@ function startCountdown(seconds, sender) {
 
     update();
     countdownInterval = setInterval(update, 1000);
+}
+
+function stopCountdown() {
+    if (countdownInterval) {
+        clearInterval(countdownInterval);
+        countdownInterval = null;
+    }
+    if (countdownEl) {
+        countdownEl.classList.add("fade-out");
+        setTimeout(() => {
+            if (countdownEl) { countdownEl.remove(); countdownEl = null; }
+        }, 500);
+    }
 }
 
 // ── Quiet Mode ──

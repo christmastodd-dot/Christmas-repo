@@ -421,6 +421,21 @@ body.quiet .msg.system .text {
     font-variant-numeric: tabular-nums;
 }
 
+.countdown-stop {
+    position: absolute;
+    top: 0.3rem;
+    right: 0.4rem;
+    font-size: 14px;
+    color: #555;
+    cursor: pointer;
+    line-height: 1;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.countdown-stop:hover {
+    color: #e85a5a;
+}
+
 .countdown-timer.urgent .countdown-time {
     color: #e85a5a;
     animation: countdown-pulse 1s ease infinite;
