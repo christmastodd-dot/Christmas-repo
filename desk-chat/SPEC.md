@@ -1,4 +1,4 @@
-# Desk Chat — Browser-Based Floor Session Messenger
+# Cap Chat — Browser-Based Floor Session Messenger
 
 ## Overview
 

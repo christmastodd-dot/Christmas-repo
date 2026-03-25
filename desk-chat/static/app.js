@@ -1,4 +1,4 @@
-/* Desk Chat — client */
+/* Cap Chat — client */
 
 const params = new URLSearchParams(window.location.search);
 const myName = params.get("name") || "";
@@ -8,7 +8,7 @@ if (!myName || !roomCode) {
     window.location.href = "/";
 }
 
-document.title = "Desk Chat — " + roomCode;
+document.title = "Cap Chat — " + roomCode;
 document.getElementById("room-label").textContent = roomCode;
 
 const messagesEl = document.getElementById("messages");

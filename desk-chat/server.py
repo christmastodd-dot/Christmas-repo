@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Desk Chat — lightweight floor session messenger."""
+"""Cap Chat — lightweight floor session messenger."""
 
 from datetime import datetime
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Query
