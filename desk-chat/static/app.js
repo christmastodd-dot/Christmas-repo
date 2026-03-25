@@ -98,13 +98,13 @@ function handleMessage(msg) {
             showTypingIndicator(msg);
             break;
         case "gavel":
-            showGavel(msg.sender);
+            if (msg.sender !== myName) showGavel(msg.sender);
             break;
         case "countdown":
-            startCountdown(msg.seconds, msg.sender);
+            if (msg.sender !== myName) startCountdown(msg.seconds, msg.sender);
             break;
         case "countdown_stop":
-            stopCountdown();
+            if (msg.sender !== myName) stopCountdown();
             break;
         case "reaction_update":
             updateReactionDisplay(msg.msg_id, msg.reactions);
@@ -386,11 +386,17 @@ msgInput.addEventListener("keydown", (e) => {
 });
 msgInput.addEventListener("input", sendTyping);
 
-// Action buttons
-document.getElementById("gavel-btn").addEventListener("click", () => {
+// Action buttons — trigger locally + broadcast to others
+document.getElementById("gavel-btn").addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    showGavel(myName);
     send({ type: "gavel" });
 });
-document.getElementById("countdown-btn").addEventListener("click", () => {
+document.getElementById("countdown-btn").addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    startCountdown(300, myName);
     send({ type: "countdown" });
 });
 
@@ -508,6 +514,7 @@ function startCountdown(seconds, sender) {
     document.body.appendChild(countdownEl);
 
     countdownEl.querySelector(".countdown-stop").addEventListener("click", () => {
+        stopCountdown();
         send({ type: "countdown_stop" });
     });
 
