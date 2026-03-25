@@ -25,6 +25,7 @@ const quietToggle = document.getElementById("quiet-toggle");
 let ws = null;
 let members = [];
 let reconnectDelay = 1000;
+let msgCounter = 0;
 
 // DM state
 let dmConversations = {};   // name -> [{type, sender, text, timestamp}]
@@ -35,6 +36,13 @@ let unreadTabs = new Set();
 let typingTimeout = null;
 let lastTypingSent = 0;
 const TYPING_THROTTLE = 2000;
+
+// Reaction emojis
+const REACTION_EMOJIS = ["\u{1F44D}", "\u{1F44E}", "\u{1F602}", "\u{1F525}", "\u{2764}\uFE0F", "\u{1F64F}"];
+
+function nextMsgId() {
+    return myName + "-" + (++msgCounter) + "-" + Date.now();
+}
 
 // ── WebSocket ──
 
@@ -89,6 +97,12 @@ function handleMessage(msg) {
         case "typing":
             showTypingIndicator(msg);
             break;
+        case "gavel":
+            showGavel(msg.sender);
+            break;
+        case "reaction_update":
+            updateReactionDisplay(msg.msg_id, msg.reactions);
+            break;
     }
 }
 
@@ -97,7 +111,7 @@ function handleChatMessage(msg) {
         unreadTabs.add("room");
         renderTabs();
     }
-    appendMessage(msg.sender, msg.text, msg.timestamp, messagesEl);
+    appendMessage(msg.sender, msg.text, msg.timestamp, messagesEl, msg.id);
 }
 
 function handleDM(msg) {
@@ -131,12 +145,13 @@ function showTypingIndicator(msg) {
 
 // ── DOM Helpers ──
 
-function appendMessage(sender, text, timestamp, container) {
+function appendMessage(sender, text, timestamp, container, msgId) {
     if (!container) container = messagesEl;
     const atBottom = isAtBottom(container);
 
     const div = document.createElement("div");
     div.className = "msg";
+    if (msgId) div.dataset.msgId = msgId;
 
     const senderSpan = document.createElement("span");
     senderSpan.className = "sender";
@@ -151,11 +166,26 @@ function appendMessage(sender, text, timestamp, container) {
     timeSpan.className = "time";
     timeSpan.textContent = timestamp;
 
+    // Reaction button
+    const reactBtn = document.createElement("span");
+    reactBtn.className = "react-btn";
+    reactBtn.textContent = "+";
+    reactBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        showReactionPicker(div, msgId);
+    });
+
     div.appendChild(senderSpan);
     div.appendChild(textSpan);
     div.appendChild(timeSpan);
-    container.appendChild(div);
+    if (msgId) div.appendChild(reactBtn);
 
+    // Reactions row (populated by updates)
+    const rxRow = document.createElement("div");
+    rxRow.className = "reactions-row";
+    div.appendChild(rxRow);
+
+    container.appendChild(div);
     if (atBottom) scrollToBottom(container);
 }
 
@@ -325,8 +355,15 @@ function sendMessage() {
     const text = msgInput.value.trim();
     if (!text) return;
 
+    // Slash commands
+    if (text.toLowerCase() === "/gavel") {
+        send({ type: "gavel" });
+        msgInput.value = "";
+        return;
+    }
+
     if (activeTab === "room") {
-        send({ type: "message", text });
+        send({ type: "message", text, id: nextMsgId() });
     } else {
         send({ type: "dm", recipient: activeTab, text });
     }
@@ -349,6 +386,100 @@ msgInput.addEventListener("keydown", (e) => {
     }
 });
 msgInput.addEventListener("input", sendTyping);
+
+// ── Gavel Mode ──
+
+function showGavel(sender) {
+    const overlay = document.createElement("div");
+    overlay.className = "gavel-overlay";
+
+    const emoji = document.createElement("div");
+    emoji.className = "gavel-emoji";
+    emoji.textContent = "\u{1F528}";
+
+    const label = document.createElement("div");
+    label.className = "gavel-label";
+    label.textContent = "ORDER! — " + sender;
+
+    overlay.appendChild(emoji);
+    overlay.appendChild(label);
+    document.body.appendChild(overlay);
+
+    // Trigger animation
+    requestAnimationFrame(() => overlay.classList.add("active"));
+
+    setTimeout(() => {
+        overlay.classList.remove("active");
+        overlay.classList.add("fade-out");
+        setTimeout(() => overlay.remove(), 500);
+    }, 2000);
+}
+
+// ── Reactions ──
+
+let activePickerEl = null;
+
+function showReactionPicker(msgDiv, msgId) {
+    // Close any existing picker
+    closeReactionPicker();
+    if (!msgId) return;
+
+    const picker = document.createElement("div");
+    picker.className = "reaction-picker";
+
+    REACTION_EMOJIS.forEach((emoji) => {
+        const btn = document.createElement("span");
+        btn.className = "reaction-picker-emoji";
+        btn.textContent = emoji;
+        btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            send({ type: "reaction", msg_id: msgId, emoji });
+            closeReactionPicker();
+        });
+        picker.appendChild(btn);
+    });
+
+    msgDiv.appendChild(picker);
+    activePickerEl = picker;
+
+    // Close picker when clicking elsewhere
+    setTimeout(() => {
+        document.addEventListener("click", closeReactionPicker, { once: true });
+    }, 0);
+}
+
+function closeReactionPicker() {
+    if (activePickerEl) {
+        activePickerEl.remove();
+        activePickerEl = null;
+    }
+}
+
+function updateReactionDisplay(msgId, reactionsData) {
+    const msgDiv = document.querySelector(`.msg[data-msg-id="${msgId}"]`);
+    if (!msgDiv) return;
+
+    let rxRow = msgDiv.querySelector(".reactions-row");
+    if (!rxRow) {
+        rxRow = document.createElement("div");
+        rxRow.className = "reactions-row";
+        msgDiv.appendChild(rxRow);
+    }
+    rxRow.innerHTML = "";
+
+    for (const [emoji, names] of Object.entries(reactionsData)) {
+        if (!names.length) continue;
+        const badge = document.createElement("span");
+        badge.className = "reaction-badge";
+        if (names.includes(myName)) badge.classList.add("mine");
+        badge.textContent = emoji + " " + names.length;
+        badge.title = names.join(", ");
+        badge.addEventListener("click", () => {
+            send({ type: "reaction", msg_id: msgId, emoji });
+        });
+        rxRow.appendChild(badge);
+    }
+}
 
 // ── Quiet Mode ──
 

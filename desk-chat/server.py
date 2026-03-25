@@ -13,6 +13,9 @@ app = FastAPI()
 # room_code -> {ws: display_name}
 rooms: dict[str, dict[WebSocket, str]] = {}
 
+# room_code -> {msg_id: {emoji: set_of_names}}
+reactions: dict[str, dict[str, dict[str, set]]] = {}
+
 
 async def broadcast(room_code: str, message: dict):
     """Send a JSON message to every connection in a room."""
@@ -60,6 +63,8 @@ async def websocket_endpoint(ws: WebSocket, room_code: str, name: str = Query(""
     # Join room
     if room_code not in rooms:
         rooms[room_code] = {}
+    if room_code not in reactions:
+        reactions[room_code] = {}
     rooms[room_code][ws] = name
 
     # Notify room
@@ -89,6 +94,7 @@ async def websocket_endpoint(ws: WebSocket, room_code: str, name: str = Query(""
                     "sender": name,
                     "text": msg["text"].strip(),
                     "timestamp": timestamp(),
+                    "id": msg.get("id", ""),
                 })
 
             elif msg_type == "dm":
@@ -121,6 +127,42 @@ async def websocket_endpoint(ws: WebSocket, room_code: str, name: str = Query(""
                         "sender": name,
                         "channel": name,
                     })
+
+            elif msg_type == "gavel":
+                await broadcast(room_code, {
+                    "type": "gavel",
+                    "sender": name,
+                })
+
+            elif msg_type == "reaction":
+                msg_id = msg.get("msg_id", "")
+                emoji = msg.get("emoji", "")
+                if msg_id and emoji:
+                    room_rx = reactions[room_code]
+                    if msg_id not in room_rx:
+                        room_rx[msg_id] = {}
+                    if emoji not in room_rx[msg_id]:
+                        room_rx[msg_id][emoji] = set()
+
+                    # Toggle: add if not present, remove if already reacted
+                    if name in room_rx[msg_id][emoji]:
+                        room_rx[msg_id][emoji].discard(name)
+                        if not room_rx[msg_id][emoji]:
+                            del room_rx[msg_id][emoji]
+                    else:
+                        room_rx[msg_id][emoji].add(name)
+
+                    # Broadcast updated reactions for this message
+                    rx_data = {}
+                    for em, names in room_rx.get(msg_id, {}).items():
+                        if names:
+                            rx_data[em] = list(names)
+                    await broadcast(room_code, {
+                        "type": "reaction_update",
+                        "msg_id": msg_id,
+                        "reactions": rx_data,
+                    })
+
     except WebSocketDisconnect:
         pass
     finally:
@@ -139,6 +181,7 @@ async def websocket_endpoint(ws: WebSocket, room_code: str, name: str = Query(""
             })
         else:
             rooms.pop(room_code, None)
+            reactions.pop(room_code, None)
 
 
 # Static files & pages
