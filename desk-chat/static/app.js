@@ -359,6 +359,31 @@ quietToggle.addEventListener("click", () => {
         : "Quiet mode";
 });
 
+// ── Mobile sidebar ──
+
+const sidebarToggle = document.getElementById("sidebar-toggle");
+const sidebarEl = document.getElementById("sidebar");
+const sidebarOverlay = document.getElementById("sidebar-overlay");
+
+function closeSidebar() {
+    sidebarEl.classList.remove("open");
+    sidebarOverlay.classList.remove("show");
+}
+
+sidebarToggle.addEventListener("click", () => {
+    const open = sidebarEl.classList.toggle("open");
+    sidebarOverlay.classList.toggle("show", open);
+});
+
+sidebarOverlay.addEventListener("click", closeSidebar);
+
+// Close sidebar when a DM is opened on mobile
+const origOpenDM = openDM;
+openDM = function(name) {
+    closeSidebar();
+    origOpenDM(name);
+};
+
 // ── Start ──
 
 connect();

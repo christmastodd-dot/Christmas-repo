@@ -2,13 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Desk Chat</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
     <div class="chat-layout">
-        <div class="sidebar">
+        <div class="sidebar-toggle" id="sidebar-toggle">&#9776;</div>
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+        <div class="sidebar" id="sidebar">
             <h2>Members</h2>
             <div class="room-code" id="room-label"></div>
             <ul id="member-list"></ul>
