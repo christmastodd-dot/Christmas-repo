@@ -384,22 +384,49 @@ openDM = function(name) {
     origOpenDM(name);
 };
 
-// ── Mobile keyboard fix ──
+// ── Mobile keyboard fix (iOS) ──
+
+const inputBar = document.querySelector(".input-bar");
+let keyboardOpen = false;
 
 if (window.visualViewport) {
-    window.visualViewport.addEventListener("resize", () => {
-        // When mobile keyboard opens, the visual viewport shrinks.
-        // Adjust the layout to keep the input bar visible.
+    const onViewportResize = () => {
         const vv = window.visualViewport;
-        document.documentElement.style.height = vv.height + "px";
-    });
+        // Full layout height minus visible viewport = keyboard + toolbar height
+        const keyboardHeight = window.innerHeight - vv.height;
+
+        if (keyboardHeight > 100) {
+            // Keyboard is open — float input bar above it
+            keyboardOpen = true;
+            inputBar.style.position = "fixed";
+            inputBar.style.left = "0";
+            inputBar.style.right = "0";
+            inputBar.style.bottom = keyboardHeight + "px";
+            inputBar.style.background = "#1a1a1e";
+            inputBar.style.zIndex = "500";
+            inputBar.style.borderTop = "1px solid #2a2a2e";
+        } else {
+            // Keyboard closed — restore normal flow
+            keyboardOpen = false;
+            inputBar.style.position = "";
+            inputBar.style.left = "";
+            inputBar.style.right = "";
+            inputBar.style.bottom = "";
+            inputBar.style.zIndex = "";
+        }
+    };
+
+    window.visualViewport.addEventListener("resize", onViewportResize);
+    window.visualViewport.addEventListener("scroll", onViewportResize);
 }
 
-// Also scroll input into view on focus (fallback for older browsers)
+// Fallback: scroll input into view on focus
 msgInput.addEventListener("focus", () => {
     setTimeout(() => {
-        msgInput.scrollIntoView({ block: "end", behavior: "smooth" });
-    }, 300);
+        if (!keyboardOpen) {
+            msgInput.scrollIntoView({ block: "center", behavior: "smooth" });
+        }
+    }, 400);
 });
 
 // ── Start ──

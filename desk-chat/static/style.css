@@ -181,6 +181,7 @@ body {
     border-top: 1px solid #2a2a2e;
     gap: 0.5rem;
     flex-shrink: 0;
+    transition: bottom 0.1s ease;
 }
 
 .input-bar input {
