@@ -12,25 +12,31 @@
             <h1>Cap Chat</h1>
             <input type="text" id="name" placeholder="Display name" maxlength="24" autofocus>
             <input type="text" id="room" placeholder="Room code" maxlength="32">
+            <input type="password" id="secret" placeholder="Encryption key" maxlength="64">
+            <div class="e2e-hint">Shared secret — never sent to the server</div>
             <button id="join">Join</button>
         </div>
     </div>
     <script>
         const nameEl = document.getElementById("name");
         const roomEl = document.getElementById("room");
+        const secretEl = document.getElementById("secret");
         const joinBtn = document.getElementById("join");
 
         function join() {
             const name = nameEl.value.trim();
             const room = roomEl.value.trim();
-            if (!name || !room) return;
+            const secret = secretEl.value;
+            if (!name || !room || !secret) return;
             const params = new URLSearchParams({ name, room });
-            window.location.href = "/chat?" + params.toString();
+            // Encryption key goes in the hash — never sent to the server
+            window.location.href = "/chat?" + params.toString() + "#" + encodeURIComponent(secret);
         }
 
         joinBtn.addEventListener("click", join);
         nameEl.addEventListener("keydown", (e) => { if (e.key === "Enter") roomEl.focus(); });
-        roomEl.addEventListener("keydown", (e) => { if (e.key === "Enter") join(); });
+        roomEl.addEventListener("keydown", (e) => { if (e.key === "Enter") secretEl.focus(); });
+        secretEl.addEventListener("keydown", (e) => { if (e.key === "Enter") join(); });
     </script>
 </body>
 </html>

@@ -1,15 +1,70 @@
-/* Cap Chat — client */
+/* Cap Chat — client (E2E encrypted) */
 
 const params = new URLSearchParams(window.location.search);
 const myName = params.get("name") || "";
 const roomCode = params.get("room") || "";
+const e2eSecret = decodeURIComponent(window.location.hash.slice(1));
 
-if (!myName || !roomCode) {
+// Clear the hash from the URL bar so it's not visible/bookmarkable
+if (window.location.hash) {
+    history.replaceState(null, "", window.location.pathname + window.location.search);
+}
+
+if (!myName || !roomCode || !e2eSecret) {
     window.location.href = "/";
 }
 
 document.title = "Cap Chat — " + roomCode;
 document.getElementById("room-label").textContent = roomCode;
+
+// ── E2E Encryption (AES-256-GCM via Web Crypto) ──
+
+let cryptoKey = null;
+
+async function deriveKey(secret, salt) {
+    const enc = new TextEncoder();
+    const keyMaterial = await crypto.subtle.importKey(
+        "raw", enc.encode(secret), "PBKDF2", false, ["deriveKey"]
+    );
+    return crypto.subtle.deriveKey(
+        { name: "PBKDF2", salt: enc.encode(salt), iterations: 100000, hash: "SHA-256" },
+        keyMaterial,
+        { name: "AES-GCM", length: 256 },
+        false,
+        ["encrypt", "decrypt"]
+    );
+}
+
+async function encryptText(plaintext) {
+    const enc = new TextEncoder();
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const ciphertext = await crypto.subtle.encrypt(
+        { name: "AES-GCM", iv },
+        cryptoKey,
+        enc.encode(plaintext)
+    );
+    // Combine IV + ciphertext → base64
+    const combined = new Uint8Array(iv.length + ciphertext.byteLength);
+    combined.set(iv);
+    combined.set(new Uint8Array(ciphertext), iv.length);
+    return btoa(String.fromCharCode(...combined));
+}
+
+async function decryptText(encoded) {
+    try {
+        const data = Uint8Array.from(atob(encoded), c => c.charCodeAt(0));
+        const iv = data.slice(0, 12);
+        const ciphertext = data.slice(12);
+        const decrypted = await crypto.subtle.decrypt(
+            { name: "AES-GCM", iv },
+            cryptoKey,
+            ciphertext
+        );
+        return new TextDecoder().decode(decrypted);
+    } catch {
+        return "[decryption failed — wrong key?]";
+    }
+}
 
 const messagesEl = document.getElementById("messages");
 const memberList = document.getElementById("member-list");
@@ -112,26 +167,29 @@ function handleMessage(msg) {
     }
 }
 
-function handleChatMessage(msg) {
+async function handleChatMessage(msg) {
     if (activeTab !== "room") {
         unreadTabs.add("room");
         renderTabs();
     }
-    appendMessage(msg.sender, msg.text, msg.timestamp, messagesEl, msg.id);
+    const plaintext = await decryptText(msg.text);
+    appendMessage(msg.sender, plaintext, msg.timestamp, messagesEl, msg.id);
 }
 
-function handleDM(msg) {
+async function handleDM(msg) {
     const otherName = msg.sender === myName ? msg.recipient : msg.sender;
+
+    const decryptedMsg = { ...msg, text: await decryptText(msg.text) };
 
     if (!dmConversations[otherName]) {
         dmConversations[otherName] = [];
     }
-    dmConversations[otherName].push(msg);
+    dmConversations[otherName].push(decryptedMsg);
 
     if (activeTab === otherName) {
         const container = document.getElementById("dm-messages-" + otherName);
         if (container) {
-            appendMessage(msg.sender, msg.text, msg.timestamp, container);
+            appendMessage(decryptedMsg.sender, decryptedMsg.text, decryptedMsg.timestamp, container);
         }
     } else {
         unreadTabs.add(otherName);
@@ -357,14 +415,16 @@ function renderActiveView() {
 
 // ── Input Handling ──
 
-function sendMessage() {
+async function sendMessage() {
     const text = msgInput.value.trim();
     if (!text) return;
 
+    const encrypted = await encryptText(text);
+
     if (activeTab === "room") {
-        send({ type: "message", text, id: nextMsgId() });
+        send({ type: "message", text: encrypted, id: nextMsgId() });
     } else {
-        send({ type: "dm", recipient: activeTab, text });
+        send({ type: "dm", recipient: activeTab, text: encrypted });
     }
     msgInput.value = "";
 }
@@ -639,5 +699,8 @@ msgInput.addEventListener("focus", () => {
 
 // ── Start ──
 
-connect();
-renderTabs();
+(async () => {
+    cryptoKey = await deriveKey(e2eSecret, "cap-chat-" + roomCode);
+    connect();
+    renderTabs();
+})();

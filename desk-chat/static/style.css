@@ -59,6 +59,14 @@ body {
     color: #666;
 }
 
+.e2e-hint {
+    font-size: 11px;
+    color: #5a7a5a;
+    margin-top: -0.5rem;
+    margin-bottom: 0.75rem;
+    text-align: center;
+}
+
 .join-card button {
     width: 100%;
     padding: 0.6rem;
@@ -108,6 +116,12 @@ body {
     color: #666;
     margin-bottom: 0.75rem;
     word-break: break-all;
+}
+
+.e2e-badge {
+    font-size: 10px;
+    color: #5a7a5a;
+    margin-bottom: 0.75rem;
 }
 
 .sidebar ul {
