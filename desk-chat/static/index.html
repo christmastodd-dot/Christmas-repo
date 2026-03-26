@@ -7,36 +7,144 @@
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-    <div class="join-container">
+    <!-- Landing: Create or Join -->
+    <div class="join-container" id="landing">
         <div class="join-card">
             <h1>Cap Chat</h1>
             <input type="text" id="name" placeholder="Display name" maxlength="24" autofocus>
-            <input type="text" id="room" placeholder="Room code" maxlength="32">
-            <input type="password" id="secret" placeholder="Encryption key" maxlength="64">
-            <div class="e2e-hint">Shared secret — never sent to the server</div>
-            <button id="join">Join</button>
+            <div class="landing-buttons">
+                <button id="create-btn">Create Room</button>
+                <button id="join-btn" class="secondary">Join Room</button>
+            </div>
         </div>
     </div>
+
+    <!-- Create Room: shows generated room code + key -->
+    <div class="join-container" id="create-screen" style="display:none">
+        <div class="join-card">
+            <h1>Room Created</h1>
+            <div class="generated-field">
+                <label>Room Code</label>
+                <div class="copyable" id="gen-room"></div>
+            </div>
+            <div class="generated-field">
+                <label>Encryption Key</label>
+                <div class="copyable" id="gen-key"></div>
+            </div>
+            <div class="e2e-hint">Share both with your participants</div>
+            <button id="copy-invite-btn">Copy Invite Link</button>
+            <button id="enter-room-btn" class="secondary">Enter Room</button>
+            <div class="copied-msg" id="copied-msg"></div>
+        </div>
+    </div>
+
+    <!-- Join Room: enter room code + key -->
+    <div class="join-container" id="join-screen" style="display:none">
+        <div class="join-card">
+            <h1>Join Room</h1>
+            <input type="text" id="join-room" placeholder="Room code" maxlength="32">
+            <input type="password" id="join-secret" placeholder="Encryption key" maxlength="64">
+            <div class="e2e-hint">Enter the code and key shared with you</div>
+            <button id="join-go-btn">Join</button>
+            <button id="join-back-btn" class="secondary">Back</button>
+        </div>
+    </div>
+
     <script>
         const nameEl = document.getElementById("name");
-        const roomEl = document.getElementById("room");
-        const secretEl = document.getElementById("secret");
-        const joinBtn = document.getElementById("join");
+        let displayName = "";
 
-        function join() {
-            const name = nameEl.value.trim();
-            const room = roomEl.value.trim();
-            const secret = secretEl.value;
-            if (!name || !room || !secret) return;
+        function generateId(len) {
+            const chars = "abcdefghjkmnpqrstuvwxyz23456789";
+            const arr = crypto.getRandomValues(new Uint8Array(len));
+            return Array.from(arr, b => chars[b % chars.length]).join("");
+        }
+
+        function goToChat(name, room, secret) {
             const params = new URLSearchParams({ name, room });
-            // Encryption key goes in the hash — never sent to the server
             window.location.href = "/chat?" + params.toString() + "#" + encodeURIComponent(secret);
         }
 
-        joinBtn.addEventListener("click", join);
-        nameEl.addEventListener("keydown", (e) => { if (e.key === "Enter") roomEl.focus(); });
-        roomEl.addEventListener("keydown", (e) => { if (e.key === "Enter") secretEl.focus(); });
-        secretEl.addEventListener("keydown", (e) => { if (e.key === "Enter") join(); });
+        // Check if arriving via invite link with pre-filled params
+        const urlParams = new URLSearchParams(window.location.search);
+        const inviteRoom = urlParams.get("room") || "";
+        const inviteKey = decodeURIComponent(window.location.hash.slice(1));
+
+        if (inviteRoom && inviteKey) {
+            // Pre-fill join screen
+            document.getElementById("landing").style.display = "none";
+            document.getElementById("join-screen").style.display = "";
+            document.getElementById("join-room").value = inviteRoom;
+            document.getElementById("join-secret").value = inviteKey;
+            // Still need name
+            const joinNameInput = document.createElement("input");
+            joinNameInput.type = "text";
+            joinNameInput.placeholder = "Display name";
+            joinNameInput.maxLength = 24;
+            joinNameInput.id = "join-name";
+            joinNameInput.autofocus = true;
+            const joinCard = document.getElementById("join-screen").querySelector(".join-card");
+            joinCard.insertBefore(joinNameInput, joinCard.querySelector("h1").nextSibling);
+            history.replaceState(null, "", window.location.pathname);
+        }
+
+        // Landing
+        document.getElementById("create-btn").addEventListener("click", () => {
+            displayName = nameEl.value.trim();
+            if (!displayName) { nameEl.focus(); return; }
+
+            const roomCode = generateId(6);
+            const encKey = generateId(16);
+
+            document.getElementById("gen-room").textContent = roomCode;
+            document.getElementById("gen-key").textContent = encKey;
+
+            document.getElementById("landing").style.display = "none";
+            document.getElementById("create-screen").style.display = "";
+        });
+
+        document.getElementById("join-btn").addEventListener("click", () => {
+            displayName = nameEl.value.trim();
+            if (!displayName) { nameEl.focus(); return; }
+
+            document.getElementById("landing").style.display = "none";
+            document.getElementById("join-screen").style.display = "";
+        });
+
+        // Create screen
+        document.getElementById("copy-invite-btn").addEventListener("click", () => {
+            const room = document.getElementById("gen-room").textContent;
+            const key = document.getElementById("gen-key").textContent;
+            const link = window.location.origin + "/?room=" + encodeURIComponent(room) + "#" + encodeURIComponent(key);
+            navigator.clipboard.writeText(link).then(() => {
+                const msg = document.getElementById("copied-msg");
+                msg.textContent = "Invite link copied!";
+                setTimeout(() => { msg.textContent = ""; }, 2000);
+            });
+        });
+
+        document.getElementById("enter-room-btn").addEventListener("click", () => {
+            const room = document.getElementById("gen-room").textContent;
+            const key = document.getElementById("gen-key").textContent;
+            goToChat(displayName, room, key);
+        });
+
+        // Join screen
+        document.getElementById("join-go-btn").addEventListener("click", () => {
+            const nameOverride = document.getElementById("join-name");
+            const name = nameOverride ? nameOverride.value.trim() : displayName;
+            const room = document.getElementById("join-room").value.trim();
+            const secret = document.getElementById("join-secret").value;
+            if (!name || !room || !secret) return;
+            goToChat(name, room, secret);
+        });
+
+        document.getElementById("join-back-btn").addEventListener("click", () => {
+            document.getElementById("join-screen").style.display = "none";
+            document.getElementById("landing").style.display = "";
+        });
+
+        nameEl.addEventListener("keydown", (e) => { if (e.key === "Enter") document.getElementById("create-btn").focus(); });
     </script>
 </body>
 </html>

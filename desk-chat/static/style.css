@@ -79,8 +79,61 @@ body {
     margin-top: 0.25rem;
 }
 
+.join-card button.secondary {
+    background: #2a2a30;
+    border: 1px solid #444;
+}
+
+.join-card button.secondary:hover {
+    background: #333;
+    border-color: #555;
+}
+
 .join-card button:hover {
     background: #6a8aaa;
+}
+
+.landing-buttons {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+}
+
+.landing-buttons button {
+    flex: 1;
+}
+
+.generated-field {
+    margin-bottom: 0.75rem;
+}
+
+.generated-field label {
+    font-size: 10px;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.copyable {
+    background: #25252a;
+    border: 1px solid #333;
+    border-radius: 4px;
+    padding: 0.6rem 0.75rem;
+    color: #e0e0e0;
+    font-family: monospace;
+    font-size: 14px;
+    word-break: break-all;
+    user-select: all;
+}
+
+.copied-msg {
+    font-size: 12px;
+    color: #5a7a5a;
+    text-align: center;
+    margin-top: 0.5rem;
+    min-height: 1.2em;
 }
 
 /* ── Chat Page ── */
