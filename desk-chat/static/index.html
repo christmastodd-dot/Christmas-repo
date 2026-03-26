@@ -19,21 +19,19 @@
         </div>
     </div>
 
-    <!-- Create Room: shows generated room code + key -->
+    <!-- Create Room: user picks room code, key is generated -->
     <div class="join-container" id="create-screen" style="display:none">
         <div class="join-card">
-            <h1>Room Created</h1>
+            <h1>Create Room</h1>
+            <input type="text" id="create-room" placeholder="Room code" maxlength="32">
             <div class="generated-field">
-                <label>Room Code</label>
-                <div class="copyable" id="gen-room"></div>
-            </div>
-            <div class="generated-field">
-                <label>Encryption Key</label>
+                <label>Encryption Key (auto-generated)</label>
                 <div class="copyable" id="gen-key"></div>
             </div>
             <div class="e2e-hint">Share both with your participants</div>
             <button id="copy-invite-btn">Copy Invite Link</button>
             <button id="enter-room-btn" class="secondary">Enter Room</button>
+            <button id="create-back-btn" class="secondary">Back</button>
             <div class="copied-msg" id="copied-msg"></div>
         </div>
     </div>
@@ -93,14 +91,12 @@
             displayName = nameEl.value.trim();
             if (!displayName) { nameEl.focus(); return; }
 
-            const roomCode = generateId(6);
             const encKey = generateId(16);
-
-            document.getElementById("gen-room").textContent = roomCode;
             document.getElementById("gen-key").textContent = encKey;
 
             document.getElementById("landing").style.display = "none";
             document.getElementById("create-screen").style.display = "";
+            document.getElementById("create-room").focus();
         });
 
         document.getElementById("join-btn").addEventListener("click", () => {
@@ -113,8 +109,9 @@
 
         // Create screen
         document.getElementById("copy-invite-btn").addEventListener("click", () => {
-            const room = document.getElementById("gen-room").textContent;
+            const room = document.getElementById("create-room").value.trim();
             const key = document.getElementById("gen-key").textContent;
+            if (!room) { document.getElementById("create-room").focus(); return; }
             const link = window.location.origin + "/?room=" + encodeURIComponent(room) + "#" + encodeURIComponent(key);
             navigator.clipboard.writeText(link).then(() => {
                 const msg = document.getElementById("copied-msg");
@@ -124,9 +121,15 @@
         });
 
         document.getElementById("enter-room-btn").addEventListener("click", () => {
-            const room = document.getElementById("gen-room").textContent;
+            const room = document.getElementById("create-room").value.trim();
             const key = document.getElementById("gen-key").textContent;
+            if (!room) { document.getElementById("create-room").focus(); return; }
             goToChat(displayName, room, key);
+        });
+
+        document.getElementById("create-back-btn").addEventListener("click", () => {
+            document.getElementById("create-screen").style.display = "none";
+            document.getElementById("landing").style.display = "";
         });
 
         // Join screen
