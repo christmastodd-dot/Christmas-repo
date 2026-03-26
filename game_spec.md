@@ -13,11 +13,11 @@
 
 ### Concept
 
-The player controls a character who must reach the top of a mountain by moving right and upward through a side-scrolling environment. Along the way, mountain goats charge at the player and try to headbutt them off course. The player must jump over the goats to avoid taking damage.
+The player controls a character who must climb to the top of a mountain. The level scrolls at a diagonal angle — the terrain visually rises from the lower-left to the upper-right so the player feels like they are ascending the entire time, not walking on flat ground. The trail follows a winding uphill slope with rocky switchbacks and visible elevation gain. Along the way, mountain goats charge downhill at the player and try to headbutt them. The player must jump over the goats to avoid taking damage.
 
 ### Core Mechanics
 
-- **Movement:** The player moves continuously to the right (auto-scroll or player-controlled) along a mountain trail that ascends toward the summit.
+- **Movement:** The player moves along an uphill-sloping trail that scrolls diagonally (lower-left to upper-right). The terrain angle conveys a constant sense of climbing. Movement can be auto-scroll or player-controlled.
 - **Jump:** The player can jump to avoid obstacles. A single button/key press triggers the jump.
 - **Lives:** The player starts with **2 lives**.
   - Getting headbutted by a goat removes 1 life.
@@ -27,7 +27,7 @@ The player controls a character who must reach the top of a mountain by moving r
 ### Obstacles
 
 - **Mountain Goats:** 5 goats are spaced throughout the level.
-  - Goats charge toward the player from the right side of the screen.
+  - Goats charge downhill toward the player from further up the slope.
   - The player must jump over them to avoid being hit.
   - Goat positions are fixed at pre-set points along the trail so encounters are predictable and learnable.
 
@@ -38,6 +38,8 @@ The player controls a character who must reach the top of a mountain by moving r
 ### Visual Style
 
 - Bright, colorful mountain environment appropriate for young children.
+- The trail visibly ascends: the ground slopes upward, background layers (distant peaks, clouds, sky) shift with parallax to reinforce the feeling of gaining altitude.
+- Elevation markers or visual cues (tree line fading, snow appearing, thinner clouds) show progress toward the summit.
 - Friendly but mischievous-looking goats (not scary).
 - Clear visual feedback when the player is hit (flash/blink) or when a goat is successfully avoided.
 
@@ -55,14 +57,16 @@ The player controls a character who must reach the top of a mountain by moving r
 **Goal:** Player can move through the level and reach the summit.
 
 **Deliverables:**
-- Side-scrolling mountain environment rendered on screen with a clear path from base to summit.
-- Player character displayed and controllable (move right, jump).
-- Camera follows the player as they progress through the level.
+- Ascending mountain environment rendered on screen — the trail slopes upward diagonally so the player visually climbs, not walks flat.
+- Parallax background layers (distant mountains, sky, clouds) that shift to reinforce the sense of altitude gain.
+- Player character displayed and controllable (move uphill, jump).
+- Camera follows the player along the ascending path.
 - Summit endpoint triggers a "Level Complete" message.
 - Basic placeholder art (shapes/colors are fine).
 
 **Acceptance Criteria:**
-- The player can move from the start of the level to the summit.
+- The player can move from the base to the summit.
+- The terrain clearly slopes upward — the player visually ascends throughout the level, never walks flat.
 - Jumping works reliably and feels responsive.
 - The level takes roughly 1 minute to traverse at a normal pace.
 - A clear "Level Complete" state is reached at the summit.
