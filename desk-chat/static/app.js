@@ -469,22 +469,32 @@ function showGavel(sender) {
     const gavelContainer = document.createElement("div");
     gavelContainer.className = "gavel-visual";
     gavelContainer.innerHTML = `
-        <svg width="180" height="180" viewBox="0 0 100 100" fill="none">
-            <!-- Sound block / base -->
-            <rect x="25" y="78" width="50" height="8" rx="2" fill="#5C3D1A" stroke="#3E2A0F" stroke-width="1"/>
-            <rect x="30" y="74" width="40" height="6" rx="2" fill="#6B4F12" stroke="#3E2A0F" stroke-width="1"/>
-            <!-- Handle -->
-            <line x1="50" y1="45" x2="50" y2="72" stroke="#8B6914" stroke-width="5" stroke-linecap="round"/>
-            <!-- Gavel head -->
-            <rect class="gavel-head" x="30" y="28" width="40" height="18" rx="4" fill="#A07828" stroke="#6B4F12" stroke-width="1.5"/>
-            <!-- Wood grain on head -->
-            <line x1="35" y1="33" x2="65" y2="33" stroke="#8B6914" stroke-width="0.5" opacity="0.5"/>
-            <line x1="35" y1="37" x2="65" y2="37" stroke="#8B6914" stroke-width="0.5" opacity="0.5"/>
-            <line x1="35" y1="41" x2="65" y2="41" stroke="#8B6914" stroke-width="0.5" opacity="0.3"/>
-            <!-- Metal bands -->
-            <rect x="30" y="29" width="4" height="16" rx="1" fill="#888" opacity="0.4"/>
-            <rect x="66" y="29" width="4" height="16" rx="1" fill="#888" opacity="0.4"/>
-        </svg>`;
+        <div class="gavel-scene">
+            <!-- Sound block (stationary) -->
+            <svg class="gavel-base" width="260" height="80" viewBox="0 0 260 80">
+                <path d="M50 50 Q130 10 210 50 L210 65 Q130 30 50 65 Z" fill="#8B5E3C" stroke="#6B3F1F" stroke-width="1.5"/>
+                <path d="M40 60 Q130 25 220 60 L220 72 Q130 40 40 72 Z" fill="#6B3F1F" stroke="#5A2E0E" stroke-width="1"/>
+            </svg>
+            <!-- Gavel (animated) -->
+            <svg class="gavel-arm" width="300" height="200" viewBox="0 0 300 200">
+                <!-- Handle -->
+                <line x1="90" y1="100" x2="230" y2="30" stroke="#9B6B42" stroke-width="12" stroke-linecap="round"/>
+                <!-- Gold knob -->
+                <circle cx="240" cy="24" r="14" fill="#F0A830" stroke="#D4911E" stroke-width="1.5"/>
+                <circle cx="237" cy="21" r="5" fill="#FFD060" opacity="0.6"/>
+                <!-- Gavel head -->
+                <rect x="40" y="72" width="90" height="36" rx="8" fill="#8B5E3C" stroke="#6B3F1F" stroke-width="2" transform="rotate(-30 85 90)"/>
+                <!-- Gold bands on head -->
+                <line x1="52" y1="84" x2="52" y2="108" stroke="#F0A830" stroke-width="3" transform="rotate(-30 85 90)"/>
+                <line x1="60" y1="84" x2="60" y2="108" stroke="#F0A830" stroke-width="2" transform="rotate(-30 85 90)"/>
+                <line x1="118" y1="84" x2="118" y2="108" stroke="#F0A830" stroke-width="3" transform="rotate(-30 85 90)"/>
+                <line x1="110" y1="84" x2="110" y2="108" stroke="#F0A830" stroke-width="2" transform="rotate(-30 85 90)"/>
+                <!-- Wood grain -->
+                <line x1="68" y1="88" x2="104" y2="88" stroke="#7A4F30" stroke-width="0.8" opacity="0.4" transform="rotate(-30 85 90)"/>
+                <line x1="68" y1="96" x2="104" y2="96" stroke="#7A4F30" stroke-width="0.8" opacity="0.4" transform="rotate(-30 85 90)"/>
+                <line x1="68" y1="104" x2="104" y2="104" stroke="#7A4F30" stroke-width="0.8" opacity="0.3" transform="rotate(-30 85 90)"/>
+            </svg>
+        </div>`;
 
     const label = document.createElement("div");
     label.className = "gavel-label";
