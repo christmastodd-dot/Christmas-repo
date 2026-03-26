@@ -458,41 +458,43 @@ body.quiet .msg.system .text {
     transition: opacity 0.5s ease;
 }
 
-.gavel-emoji {
-    font-size: 120px;
-    animation: gavel-slam 0.4s ease-out;
+.gavel-visual {
+    animation: gavel-slam 0.5s ease-out;
+    transform-origin: center bottom;
 }
 
 .gavel-label {
     font-size: 24px;
     font-weight: 700;
     color: #e0e0e0;
-    margin-top: 1rem;
+    margin-top: 0.5rem;
     letter-spacing: 0.15em;
     text-transform: uppercase;
-    animation: gavel-shake 0.3s ease 0.3s;
+    animation: gavel-shake 0.4s ease 0.4s both;
 }
 
 @keyframes gavel-slam {
-    0% { transform: rotate(-45deg) translateY(-80px); opacity: 0; }
-    60% { transform: rotate(10deg) translateY(0); opacity: 1; }
-    80% { transform: rotate(-5deg); }
-    100% { transform: rotate(0deg); }
+    0% { transform: rotate(-60deg) translateY(-60px); opacity: 0; }
+    50% { transform: rotate(5deg) translateY(0); opacity: 1; }
+    65% { transform: rotate(-30deg) translateY(-20px); }
+    85% { transform: rotate(3deg) translateY(0); }
+    100% { transform: rotate(0deg) translateY(0); }
 }
 
 @keyframes gavel-shake {
     0%, 100% { transform: translateX(0); }
-    20% { transform: translateX(-8px); }
-    40% { transform: translateX(8px); }
-    60% { transform: translateX(-4px); }
-    80% { transform: translateX(4px); }
+    15% { transform: translateX(-10px); }
+    30% { transform: translateX(10px); }
+    50% { transform: translateX(-6px); }
+    70% { transform: translateX(6px); }
+    85% { transform: translateX(-2px); }
 }
 
 /* ── Countdown timer ── */
 
 .countdown-timer {
     position: fixed;
-    bottom: 1rem;
+    bottom: 5rem;
     right: 1rem;
     z-index: 800;
     background: #25252a;
@@ -503,11 +505,19 @@ body.quiet .msg.system .text {
     box-shadow: 0 2px 12px rgba(0,0,0,0.5);
 }
 
+.countdown-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: #c0c0c0;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.1rem;
+}
+
 .countdown-label {
     font-size: 10px;
     color: #666;
     margin-bottom: 0.2rem;
-    text-transform: uppercase;
     letter-spacing: 0.05em;
 }
 

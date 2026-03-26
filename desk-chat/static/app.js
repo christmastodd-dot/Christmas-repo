@@ -466,15 +466,31 @@ function showGavel(sender) {
     const overlay = document.createElement("div");
     overlay.className = "gavel-overlay";
 
-    const emoji = document.createElement("div");
-    emoji.className = "gavel-emoji";
-    emoji.textContent = "\u{1F528}";
+    const gavelContainer = document.createElement("div");
+    gavelContainer.className = "gavel-visual";
+    gavelContainer.innerHTML = `
+        <svg width="180" height="180" viewBox="0 0 100 100" fill="none">
+            <!-- Sound block / base -->
+            <rect x="25" y="78" width="50" height="8" rx="2" fill="#5C3D1A" stroke="#3E2A0F" stroke-width="1"/>
+            <rect x="30" y="74" width="40" height="6" rx="2" fill="#6B4F12" stroke="#3E2A0F" stroke-width="1"/>
+            <!-- Handle -->
+            <line x1="50" y1="45" x2="50" y2="72" stroke="#8B6914" stroke-width="5" stroke-linecap="round"/>
+            <!-- Gavel head -->
+            <rect class="gavel-head" x="30" y="28" width="40" height="18" rx="4" fill="#A07828" stroke="#6B4F12" stroke-width="1.5"/>
+            <!-- Wood grain on head -->
+            <line x1="35" y1="33" x2="65" y2="33" stroke="#8B6914" stroke-width="0.5" opacity="0.5"/>
+            <line x1="35" y1="37" x2="65" y2="37" stroke="#8B6914" stroke-width="0.5" opacity="0.5"/>
+            <line x1="35" y1="41" x2="65" y2="41" stroke="#8B6914" stroke-width="0.5" opacity="0.3"/>
+            <!-- Metal bands -->
+            <rect x="30" y="29" width="4" height="16" rx="1" fill="#888" opacity="0.4"/>
+            <rect x="66" y="29" width="4" height="16" rx="1" fill="#888" opacity="0.4"/>
+        </svg>`;
 
     const label = document.createElement("div");
     label.className = "gavel-label";
     label.textContent = "ORDER! — " + sender;
 
-    overlay.appendChild(emoji);
+    overlay.appendChild(gavelContainer);
     overlay.appendChild(label);
     document.body.appendChild(overlay);
 
@@ -568,7 +584,8 @@ function startCountdown(seconds, sender) {
 
     countdownEl = document.createElement("div");
     countdownEl.className = "countdown-timer";
-    countdownEl.innerHTML = '<div class="countdown-label">started by ' + sender + '</div>'
+    countdownEl.innerHTML = '<div class="countdown-title">Debate Limit</div>'
+        + '<div class="countdown-label">started by ' + sender + '</div>'
         + '<div class="countdown-time"></div>'
         + '<div class="countdown-stop">\u00d7</div>';
     document.body.appendChild(countdownEl);

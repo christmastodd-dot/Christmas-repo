@@ -52,10 +52,25 @@
         const nameEl = document.getElementById("name");
         let displayName = "";
 
-        function generateId(len) {
-            const chars = "abcdefghjkmnpqrstuvwxyz23456789";
-            const arr = crypto.getRandomValues(new Uint8Array(len));
-            return Array.from(arr, b => chars[b % chars.length]).join("");
+        const WORDS = [
+            "anchor", "barrel", "canyon", "dagger", "falcon", "garden",
+            "harbor", "island", "justice", "knight", "lantern", "marble",
+            "neptune", "oracle", "pardon", "quorum", "raven", "summit",
+            "thunder", "union", "verdict", "walnut", "zenith", "atlas",
+            "beacon", "cedar", "delta", "ember", "forge", "granite",
+            "herald", "iron", "jasper", "keystone", "liberty", "mason",
+            "noble", "obsidian", "pioneer", "quarry", "ridge", "silver",
+            "timber", "valor", "warden", "yield", "cobalt", "drift"
+        ];
+
+        function generateKey() {
+            const arr = crypto.getRandomValues(new Uint8Array(6));
+            const w1 = WORDS[arr[0] % WORDS.length];
+            const w2 = WORDS[arr[1] % WORDS.length];
+            const w3 = WORDS[arr[2] % WORDS.length];
+            const num = ((arr[3] << 16) | (arr[4] << 8) | arr[5]) % 10000;
+            const pad = String(num).padStart(4, "0");
+            return w1 + "-" + w2 + "-" + w3 + "-" + pad;
         }
 
         function goToChat(name, room, secret) {
@@ -91,7 +106,7 @@
             displayName = nameEl.value.trim();
             if (!displayName) { nameEl.focus(); return; }
 
-            const encKey = generateId(16);
+            const encKey = generateKey();
             document.getElementById("gen-key").textContent = encKey;
 
             document.getElementById("landing").style.display = "none";
