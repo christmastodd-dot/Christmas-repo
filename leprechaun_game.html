@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Lucky Leprechaun: Rainbow Run</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #1a1a2e; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; font-family: monospace; }
+  canvas { display: block; image-rendering: pixelated; border: 3px solid #444; }
+  #instructions { color: #aaa; font-size: 13px; margin-top: 10px; text-align: center; }
+</style>
+</head>
+<body>
+<canvas id="game" width="800" height="500"></canvas>
+<div id="instructions">Arrow Keys / WASD to move &nbsp;|&nbsp; Space / Up to jump &nbsp;|&nbsp; Double-jump allowed</div>
+<script>
+// ─────────────────────────────────────────────
+//  CANVAS SETUP
+// ─────────────────────────────────────────────
+const canvas = document.getElementById('game');
+const ctx    = canvas.getContext('2d');
+const W = canvas.width;
+const H = canvas.height;
+
+// ─────────────────────────────────────────────
+//  CONSTANTS
+// ─────────────────────────────────────────────
+const GRAVITY      = 0.55;
+const JUMP_FORCE   = -13;
+const MOVE_SPEED   = 4;
+const MAX_LIVES    = 3;
+const WORLD_WIDTH  = 5000;
+
+// ─────────────────────────────────────────────
+//  PIXEL ART SPRITES (32×32 grids, palette indices)
+//  0=transparent, 1=skin, 2=green(hat/coat), 3=gold,
+//  4=white, 5=brown/shoe, 6=dark-green, 7=red
+// ─────────────────────────────────────────────
+const PALETTE = {
+  0: null,
+  1: '#f5c5a3',
+  2: '#2e7d32',
+  3: '#ffd600',
+  4: '#ffffff',
+  5: '#5d4037',
+  6: '#1b5e20',
+  7: '#c62828',
+  8: '#ffb300',
+  9: '#ff8f00',
+  A: '#4caf50',
+  B: '#81c784',
+};
+
+// 16×24 leprechaun sprite rows (idle frame)
+const LEP_IDLE = [
+  '0000066660000000',
+  '0000622260000000',
+  '0000633360000000',
+  '0000633360000000',
+  '0006333330600000',
+  '0006333333600000',
+  '0000611160000000',
+  '0001111110000000',
+  '0111111111100000',
+  '0222222222200000',
+  '0222222222200000',
+  '0226222222600000',
+  '0022222222000000',
+  '0002222220000000',
+  '0002222220000000',
+  '0005522550000000',
+  '0005522550000000',
+  '0055000550000000',
+];
+
+// run frame 2 (leg forward)
+const LEP_RUN1 = [
+  '0000066660000000',
+  '0000622260000000',
+  '0000633360000000',
+  '0000633360000000',
+  '0006333330600000',
+  '0006333333600000',
+  '0000611160000000',
+  '0001111110000000',
+  '0111111111100000',
+  '0222222222200000',
+  '0222222222200000',
+  '0226222222600000',
+  '0022222222000000',
+  '0002222220000000',
+  '0055222220000000',
+  '0050522000000000',
+  '0000052200000000',
+  '0000005500000000',
+];
+
+// jump frame
+const LEP_JUMP = [
+  '0000066660000000',
+  '0000622260000000',
+  '0000633360000000',
+  '0000633360000000',
+  '0006333330600000',
+  '0006333333600000',
+  '0000611160000000',
+  '0001111110000000',
+  '0111111111100000',
+  '0222222222200000',
+  '0222222222200000',
+  '6222222222200006',
+  '0622222222006000',
+  '0062222220060000',
+  '0005522000000000',
+  '0000522550000000',
+  '0000005005000000',
+  '0000000000000000',
+];
+
+function drawSprite(sprite, x, y, scale, flipX) {
+  const rows = sprite;
+  const cols = rows[0].length;
+  ctx.save();
+  if (flipX) {
+    ctx.translate(x + cols * scale, y);
+    ctx.scale(-1, 1);
+    ctx.translate(-x, -y);
+  }
+  for (let r = 0; r < rows.length; r++) {
+    for (let c = 0; c < cols; c++) {
+      const ch = rows[r][c];
+      if (ch === '0') continue;
+      ctx.fillStyle = PALETTE[ch];
+      ctx.fillRect(x + c * scale, y + r * scale, scale, scale);
+    }
+  }
+  ctx.restore();
+}
+
+// ─────────────────────────────────────────────
+//  CLOUD DRAWING
+// ─────────────────────────────────────────────
+function drawCloud(x, y, w, h, camX) {
+  const sx = x - camX;
+  // puff circles
+  ctx.fillStyle = '#dce8f5';
+  ctx.beginPath(); ctx.ellipse(sx + w*0.2, y + h*0.5, w*0.25, h*0.55, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(sx + w*0.5, y + h*0.3, w*0.3,  h*0.6,  0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(sx + w*0.8, y + h*0.5, w*0.22, h*0.5,  0, 0, Math.PI*2); ctx.fill();
+  // flat bottom
+  ctx.fillRect(sx, y + h*0.55, w, h*0.45);
+  // subtle highlight
+  ctx.fillStyle = '#eef4fb';
+  ctx.beginPath(); ctx.ellipse(sx + w*0.45, y + h*0.22, w*0.18, h*0.25, 0, 0, Math.PI*2); ctx.fill();
+}
+
+// ─────────────────────────────────────────────
+//  POT OF GOLD DRAWING
+// ─────────────────────────────────────────────
+function drawPot(x, y, camX) {
+  const sx = x - camX;
+  // rainbow above pot
+  const colors = ['#e53935','#fb8c00','#fdd835','#43a047','#1e88e5','#8e24aa'];
+  for (let i = 0; i < colors.length; i++) {
+    ctx.strokeStyle = colors[i];
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.arc(sx + 20, y + 10, 55 - i*8, Math.PI, 0);
+    ctx.stroke();
+  }
+  // pot body
+  ctx.fillStyle = '#212121';
+  ctx.beginPath();
+  ctx.moveTo(sx, y + 20);
+  ctx.lineTo(sx + 5, y + 50);
+  ctx.lineTo(sx + 35, y + 50);
+  ctx.lineTo(sx + 40, y + 20);
+  ctx.closePath();
+  ctx.fill();
+  // pot rim
+  ctx.fillStyle = '#424242';
+  ctx.fillRect(sx - 3, y + 17, 46, 8);
+  // gold coins
+  ctx.fillStyle = '#ffd600';
+  ctx.beginPath(); ctx.ellipse(sx + 20, y + 18, 17, 7, 0, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#ffb300';
+  ctx.beginPath(); ctx.ellipse(sx + 14, y + 16, 5, 5, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(sx + 22, y + 13, 5, 5, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(sx + 30, y + 15, 5, 5, 0, 0, Math.PI*2); ctx.fill();
+}
+
+// ─────────────────────────────────────────────
+//  PARTICLES (coin burst)
+// ─────────────────────────────────────────────
+let particles = [];
+function spawnCoins(x, y) {
+  for (let i = 0; i < 30; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 2 + Math.random() * 5;
+    particles.push({
+      x, y,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed - 3,
+      life: 1,
+      color: Math.random() > 0.5 ? '#ffd600' : '#ffb300',
+      size: 4 + Math.random() * 6,
+    });
+  }
+}
+function updateParticles() {
+  particles = particles.filter(p => p.life > 0);
+  particles.forEach(p => {
+    p.x  += p.vx;
+    p.y  += p.vy;
+    p.vy += 0.2;
+    p.life -= 0.02;
+  });
+}
+function drawParticles(camX) {
+  particles.forEach(p => {
+    ctx.globalAlpha = p.life;
+    ctx.fillStyle = p.color;
+    ctx.fillRect(p.x - camX - p.size/2, p.y - p.size/2, p.size, p.size);
+  });
+  ctx.globalAlpha = 1;
+}
+
+// ─────────────────────────────────────────────
+//  LEVEL 1 LAYOUT
+// ─────────────────────────────────────────────
+// Each cloud: { x, y, w, h }
+// Platform top surface = y, leprechaun lands on y
+const LEVEL1_CLOUDS = [
+  // starting platform (wide, easy landing)
+  { x: 0,    y: 340, w: 220, h: 60 },
+  { x: 280,  y: 320, w: 160, h: 55 },
+  { x: 500,  y: 300, w: 140, h: 55 },
+  { x: 700,  y: 280, w: 150, h: 55 },
+  { x: 910,  y: 310, w: 130, h: 50 },
+  { x: 1100, y: 290, w: 140, h: 50 },
+  { x: 1300, y: 260, w: 130, h: 50 },
+  { x: 1490, y: 300, w: 120, h: 50 },
+  { x: 1680, y: 270, w: 140, h: 50 },
+  { x: 1880, y: 290, w: 130, h: 50 },
+  // final wide platform with pot of gold
+  { x: 2060, y: 270, w: 250, h: 60 },
+];
+
+const POT_X = 2230;
+const POT_Y = 220;
+
+// ─────────────────────────────────────────────
+//  GAME STATE
+// ─────────────────────────────────────────────
+let state; // 'title' | 'playing' | 'dead' | 'win' | 'gameover'
+let lives;
+let player;
+let camX;
+let animFrame;
+let animTick;
+let deadTimer;
+let winTimer;
+let celebrationDone;
+
+function initGame() {
+  lives = MAX_LIVES;
+  resetLevel();
+  state = 'title';
+}
+
+function resetLevel() {
+  const startCloud = LEVEL1_CLOUDS[0];
+  player = {
+    x:       startCloud.x + 60,
+    y:       startCloud.y - 36,
+    vx:      0,
+    vy:      0,
+    w:       26,
+    h:       36,
+    onGround: false,
+    jumpsLeft: 2,
+    facingLeft: false,
+    won:     false,
+  };
+  camX        = 0;
+  animFrame   = 0;
+  animTick    = 0;
+  particles   = [];
+  celebrationDone = false;
+}
+
+function startPlaying() {
+  resetLevel();
+  state = 'playing';
+}
+
+// ─────────────────────────────────────────────
+//  INPUT
+// ─────────────────────────────────────────────
+const keys = {};
+window.addEventListener('keydown', e => {
+  const wasDown = keys[e.code];
+  keys[e.code] = true;
+
+  if (state === 'title' || state === 'gameover') {
+    if (['Space','Enter','ArrowUp','KeyW'].includes(e.code)) {
+      if (state === 'gameover') { lives = MAX_LIVES; }
+      startPlaying();
+    }
+    return;
+  }
+
+  if (state === 'win' && ['Space','Enter'].includes(e.code)) {
+    // restart for now (future: next level)
+    lives = MAX_LIVES;
+    startPlaying();
+    return;
+  }
+
+  if (state === 'dead' && deadTimer <= 0) {
+    startPlaying();
+    return;
+  }
+
+  if (state === 'playing' && !wasDown) {
+    if (['Space','ArrowUp','KeyW'].includes(e.code)) {
+      if (player.jumpsLeft > 0) {
+        player.vy = JUMP_FORCE;
+        player.jumpsLeft--;
+        player.onGround = false;
+      }
+    }
+  }
+});
+window.addEventListener('keyup', e => { keys[e.code] = false; });
+
+// ─────────────────────────────────────────────
+//  PHYSICS & COLLISION
+// ─────────────────────────────────────────────
+function update() {
+  if (state !== 'playing') {
+    if (state === 'dead') {
+      deadTimer -= 1/60;
+      updateParticles();
+    }
+    if (state === 'win') {
+      updateParticles();
+    }
+    return;
+  }
+
+  // horizontal movement
+  const movingLeft  = keys['ArrowLeft']  || keys['KeyA'];
+  const movingRight = keys['ArrowRight'] || keys['KeyD'];
+
+  if (movingLeft)  { player.vx = -MOVE_SPEED; player.facingLeft = true; }
+  else if (movingRight) { player.vx =  MOVE_SPEED; player.facingLeft = false; }
+  else             { player.vx = 0; }
+
+  // gravity
+  player.vy += GRAVITY;
+
+  // move
+  player.x += player.vx;
+  player.y += player.vy;
+
+  // clamp left edge of world
+  if (player.x < 0) player.x = 0;
+
+  // camera follows player, clamped to world
+  const targetCamX = player.x - W * 0.35;
+  camX = Math.max(0, Math.min(targetCamX, WORLD_WIDTH - W));
+
+  // cloud collision (only when falling)
+  player.onGround = false;
+  if (player.vy >= 0) {
+    for (const c of LEVEL1_CLOUDS) {
+      const playerBottom = player.y + player.h;
+      const prevBottom   = playerBottom - player.vy;
+      if (
+        player.x + player.w > c.x &&
+        player.x             < c.x + c.w &&
+        prevBottom <= c.y + 4 &&
+        playerBottom >= c.y
+      ) {
+        player.y       = c.y - player.h;
+        player.vy      = 0;
+        player.onGround = true;
+        player.jumpsLeft = 2;
+      }
+    }
+  }
+
+  // fall off screen → lose life
+  if (player.y > H + 80) {
+    lives--;
+    particles = [];
+    if (lives <= 0) {
+      state = 'gameover';
+    } else {
+      state     = 'dead';
+      deadTimer = 1.5;
+    }
+    return;
+  }
+
+  // reach pot of gold
+  if (
+    !player.won &&
+    player.x + player.w > POT_X &&
+    player.x             < POT_X + 40 &&
+    player.y + player.h > POT_Y &&
+    player.y             < POT_Y + 50
+  ) {
+    player.won = true;
+    spawnCoins(POT_X + 20, POT_Y + 10);
+    state    = 'win';
+    winTimer = 0;
+  }
+
+  // animation tick
+  animTick++;
+  if (animTick % 10 === 0) animFrame = (animFrame + 1) % 2;
+
+  updateParticles();
+}
+
+// ─────────────────────────────────────────────
+//  BACKGROUND DRAWING
+// ─────────────────────────────────────────────
+function drawBackground() {
+  // sky gradient
+  const sky = ctx.createLinearGradient(0, 0, 0, H);
+  sky.addColorStop(0,   '#87ceeb');
+  sky.addColorStop(0.7, '#b0e0f5');
+  sky.addColorStop(1,   '#d4f5c0');
+  ctx.fillStyle = sky;
+  ctx.fillRect(0, 0, W, H);
+
+  // distant rainbow (decorative)
+  const rbColors = ['#e53935','#fb8c00','#fdd835','#43a047','#1e88e5','#8e24aa'];
+  const rbCx = W * 0.75 - (camX * 0.05);
+  const rbCy = H * 0.8;
+  for (let i = 0; i < rbColors.length; i++) {
+    ctx.strokeStyle = rbColors[i];
+    ctx.lineWidth   = 9;
+    ctx.globalAlpha = 0.35;
+    ctx.beginPath();
+    ctx.arc(rbCx, rbCy, 220 - i * 28, Math.PI, 0);
+    ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+
+  // hills (parallax)
+  ctx.fillStyle = '#6dbf5b';
+  const hillOff = -(camX * 0.3) % W;
+  for (let hx = hillOff - W; hx < W * 2; hx += W) {
+    ctx.beginPath();
+    ctx.ellipse(hx + W*0.25, H + 10, 200, 110, 0, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(hx + W*0.6,  H + 10, 260, 130, 0, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(hx + W*0.9,  H + 10, 180, 100, 0, 0, Math.PI*2); ctx.fill();
+  }
+
+  // ground strip
+  ctx.fillStyle = '#5aad48';
+  ctx.fillRect(0, H - 30, W, 30);
+
+  // distant clouds (cosmetic, parallax)
+  ctx.fillStyle = 'rgba(255,255,255,0.5)';
+  const bgCloudOff = -(camX * 0.15) % W;
+  [[bgCloudOff + 80, 60], [bgCloudOff + 350, 90], [bgCloudOff + 600, 50], [bgCloudOff - 200, 110]].forEach(([cx, cy]) => {
+    ctx.beginPath(); ctx.ellipse(cx, cy, 60, 22, 0, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(cx+50, cy+10, 45, 18, 0, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(cx-40, cy+8, 40, 16, 0, 0, Math.PI*2); ctx.fill();
+  });
+}
+
+// ─────────────────────────────────────────────
+//  HUD
+// ─────────────────────────────────────────────
+function drawHUD() {
+  // lives — clover icons
+  ctx.font = 'bold 14px monospace';
+  ctx.fillStyle = '#fff';
+  ctx.strokeStyle = '#333';
+  ctx.lineWidth = 3;
+  ctx.strokeText('LIVES', 12, 28);
+  ctx.fillText('LIVES', 12, 28);
+  for (let i = 0; i < MAX_LIVES; i++) {
+    drawClover(70 + i * 28, 16, i < lives ? '#2ecc40' : '#555');
+  }
+}
+
+function drawClover(x, y, color) {
+  ctx.fillStyle = color;
+  // four lobes
+  const r = 7;
+  ctx.beginPath(); ctx.arc(x,   y-r, r, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(x,   y+r, r, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(x-r, y,   r, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(x+r, y,   r, 0, Math.PI*2); ctx.fill();
+  // stem
+  ctx.fillStyle = color;
+  ctx.fillRect(x-2, y+r, 4, 8);
+}
+
+// ─────────────────────────────────────────────
+//  SCREEN OVERLAYS
+// ─────────────────────────────────────────────
+function drawTitleScreen() {
+  ctx.fillStyle = 'rgba(0,0,0,0.45)';
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#ffd600';
+  ctx.font = 'bold 48px monospace';
+  ctx.strokeStyle = '#5d4037';
+  ctx.lineWidth = 5;
+  ctx.strokeText('Lucky Leprechaun', W/2, 160);
+  ctx.fillText('Lucky Leprechaun', W/2, 160);
+
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 26px monospace';
+  ctx.strokeStyle = '#333';
+  ctx.lineWidth = 3;
+  ctx.strokeText('Rainbow Run', W/2, 200);
+  ctx.fillText('Rainbow Run', W/2, 200);
+
+  // draw small leprechaun on title
+  drawSprite(LEP_IDLE, W/2 - 32, 230, 4, false);
+
+  ctx.fillStyle = '#ffe082';
+  ctx.font = 'bold 18px monospace';
+  ctx.strokeStyle = '#333';
+  ctx.lineWidth = 2;
+  const blink = Math.floor(Date.now() / 500) % 2 === 0;
+  if (blink) {
+    ctx.strokeText('Press SPACE to Start!', W/2, 340);
+    ctx.fillText('Press SPACE to Start!', W/2, 340);
+  }
+
+  ctx.fillStyle = '#ccc';
+  ctx.font = '14px monospace';
+  ctx.fillText('Arrow Keys / WASD to move  |  Space / Up to jump  |  Double-jump!', W/2, 390);
+  ctx.textAlign = 'left';
+}
+
+function drawDeadScreen() {
+  ctx.fillStyle = 'rgba(0,0,0,0.5)';
+  ctx.fillRect(0, 0, W, H);
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#ff5252';
+  ctx.font = 'bold 36px monospace';
+  ctx.strokeStyle = '#333';
+  ctx.lineWidth = 4;
+  ctx.strokeText('Whoops!', W/2, H/2 - 20);
+  ctx.fillText('Whoops!', W/2, H/2 - 20);
+  ctx.fillStyle = '#fff';
+  ctx.font = '18px monospace';
+  if (deadTimer <= 0.5) {
+    ctx.fillText('Press any key to try again...', W/2, H/2 + 20);
+  }
+  ctx.textAlign = 'left';
+}
+
+function drawGameOverScreen() {
+  ctx.fillStyle = 'rgba(0,0,0,0.65)';
+  ctx.fillRect(0, 0, W, H);
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#ff1744';
+  ctx.font = 'bold 52px monospace';
+  ctx.strokeStyle = '#333';
+  ctx.lineWidth = 5;
+  ctx.strokeText('GAME OVER', W/2, H/2 - 30);
+  ctx.fillText('GAME OVER', W/2, H/2 - 30);
+  ctx.fillStyle = '#ffe082';
+  ctx.font = '20px monospace';
+  const blink = Math.floor(Date.now() / 500) % 2 === 0;
+  if (blink) ctx.fillText('Press SPACE to play again!', W/2, H/2 + 30);
+  ctx.textAlign = 'left';
+}
+
+function drawWinScreen() {
+  ctx.fillStyle = 'rgba(0,0,0,0.45)';
+  ctx.fillRect(0, 0, W, H);
+  ctx.textAlign = 'center';
+
+  ctx.fillStyle = '#ffd600';
+  ctx.font = 'bold 48px monospace';
+  ctx.strokeStyle = '#5d4037';
+  ctx.lineWidth = 5;
+  ctx.strokeText('You Found It!', W/2, 160);
+  ctx.fillText('You Found It!', W/2, 160);
+
+  ctx.fillStyle = '#fff';
+  ctx.font = '22px monospace';
+  ctx.strokeStyle = '#333';
+  ctx.lineWidth = 2;
+  ctx.strokeText("The Pot of Gold is yours!", W/2, 210);
+  ctx.fillText("The Pot of Gold is yours!", W/2, 210);
+
+  const blink = Math.floor(Date.now() / 500) % 2 === 0;
+  ctx.fillStyle = '#ffe082';
+  ctx.font = '18px monospace';
+  if (blink) ctx.fillText('Press SPACE to play again!', W/2, 290);
+  ctx.textAlign = 'left';
+}
+
+// ─────────────────────────────────────────────
+//  MAIN DRAW
+// ─────────────────────────────────────────────
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+  drawBackground();
+
+  // draw clouds
+  for (const c of LEVEL1_CLOUDS) {
+    drawCloud(c.x, c.y, c.w, c.h, camX);
+  }
+
+  // draw pot of gold
+  drawPot(POT_X, POT_Y, camX);
+
+  // draw particles
+  drawParticles(camX);
+
+  // draw leprechaun (not on game over / title)
+  if (state === 'playing' || state === 'dead' || state === 'win') {
+    const moving = player.vx !== 0;
+    const sprite = player.onGround
+      ? (moving ? (animFrame === 0 ? LEP_RUN1 : LEP_IDLE) : LEP_IDLE)
+      : LEP_JUMP;
+    const scale = 2;
+    const sx = player.x - camX;
+    const sy = player.y;
+    drawSprite(sprite, sx, sy, scale, player.facingLeft);
+  }
+
+  drawHUD();
+
+  // overlays
+  if (state === 'title')    drawTitleScreen();
+  if (state === 'dead')     drawDeadScreen();
+  if (state === 'gameover') drawGameOverScreen();
+  if (state === 'win')      drawWinScreen();
+}
+
+// ─────────────────────────────────────────────
+//  GAME LOOP
+// ─────────────────────────────────────────────
+function loop() {
+  update();
+  draw();
+  requestAnimationFrame(loop);
+}
+
+// ─────────────────────────────────────────────
+//  BOOT
+// ─────────────────────────────────────────────
+initGame();
+loop();
+</script>
+</body>
+</html>
