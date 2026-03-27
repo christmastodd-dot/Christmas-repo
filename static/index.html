@@ -31,7 +31,7 @@ const NUM_GOATS = 5;
 // State
 let state = 'start'; // start | playing | gameover | win
 let playerWX, playerWY, playerVY, onGround, lives, facingRight;
-let invincibleTimer, tutorialTimer;
+let invincibleTimer, tutorialTimer, playerMoving = false;
 let goats = [];
 let confetti = [];
 let keys = {};
@@ -276,84 +276,120 @@ function drawSummitFlag(camWX, camWY) {
   ctx.beginPath(); ctx.moveTo(sx, sy-80); ctx.lineTo(sx+40, sy-65); ctx.lineTo(sx, sy-50); ctx.closePath(); ctx.fill();
 }
 
-function drawPlayer(sx, sy, right, flash) {
+function drawArm(c, shoulderX, shoulderY, angle, flip) {
+  c.save();
+  c.translate(shoulderX, shoulderY);
+  c.rotate(angle);
+  // Upper arm (jacket green)
+  c.fillStyle = 'rgb(75,130,75)';
+  c.beginPath(); c.roundRect(-3, 0, 7, 13, 2); c.fill();
+  // Forearm
+  c.fillStyle = 'rgb(60,110,60)';
+  c.beginPath(); c.roundRect(-3, 12, 7, 10, 2); c.fill();
+  // Hand
+  c.fillStyle = 'rgb(245,205,170)';
+  c.beginPath(); c.ellipse(0, 24, 4, 4, 0, 0, Math.PI*2); c.fill();
+  c.restore();
+}
+
+function drawPlayer(sx, sy, right, flash, moving) {
   if (flash && Math.floor(performance.now() / 100) % 2 === 0) return;
   const c = ctx;
   const f = right ? 1 : -1;
 
-  // Backpack (drawn behind body)
+  // Walk cycle — arms and legs swing as pendulums from attachment points
+  const walkPhase = moving ? (performance.now() / 260) : 0;
+  const swing = moving ? Math.sin(walkPhase) * 0.32 : 0;
+  // Arm: back arm (opposite side to facing) swings forward, front arm back
+  const backArmAngle  =  swing * f;   // e.g. facing right: left arm swings +
+  const frontArmAngle = -swing * f;   // right arm swings opposite
+
+  // ── 1. Backpack (furthest back) ──────────────────────────────────────────
   c.fillStyle = 'rgb(60,90,50)';
   c.beginPath(); c.roundRect(sx - f*16, sy - 38, 12, 22, 3); c.fill();
   c.fillStyle = 'rgb(50,75,40)';
-  c.fillRect(sx - f*15, sy - 36, 4, 8); // pocket
-  // Backpack straps
+  c.fillRect(sx - f*15, sy - 36, 4, 8);
   c.strokeStyle = 'rgb(80,110,65)'; c.lineWidth = 2;
   c.beginPath(); c.moveTo(sx - f*5, sy - 36); c.lineTo(sx - f*14, sy - 32); c.stroke();
   c.beginPath(); c.moveTo(sx + f*5, sy - 36); c.lineTo(sx - f*14, sy - 24); c.stroke();
 
-  // Jacket / shirt (green)
+  // ── 2. Back arm (behind torso) ───────────────────────────────────────────
+  // facing right → back arm is on the left (sx-12); facing left → right (sx+12)
+  drawArm(c, sx - f*12, sy - 32, backArmAngle, f);
+
+  // ── 3. Torso: jacket + lederhosen ────────────────────────────────────────
   c.fillStyle = 'rgb(80,140,80)';
   c.beginPath(); c.roundRect(sx - 12, sy - 38, 24, 22, 5); c.fill();
-  // Jacket lapels
   c.fillStyle = 'rgb(65,115,65)';
   c.beginPath(); c.moveTo(sx, sy-38); c.lineTo(sx - f*5, sy-30); c.lineTo(sx, sy-28); c.closePath(); c.fill();
 
-  // Lederhosen (brown shorts with suspenders)
   c.fillStyle = 'rgb(130,85,40)';
   c.beginPath(); c.roundRect(sx - 12, sy - 18, 24, 16, 3); c.fill();
-  // Lederhosen bib/front detail
   c.fillStyle = 'rgb(110,70,30)';
   c.fillRect(sx - 5, sy - 18, 10, 10);
   c.fillStyle = 'rgb(180,140,70)';
-  c.fillRect(sx - 4, sy - 17, 8, 1); // decorative stitch
+  c.fillRect(sx - 4, sy - 17, 8, 1);
   c.fillRect(sx - 4, sy - 14, 8, 1);
-  // Suspenders
   c.strokeStyle = 'rgb(110,70,30)'; c.lineWidth = 3;
   c.beginPath(); c.moveTo(sx - 5, sy - 18); c.lineTo(sx - 8, sy - 38); c.stroke();
   c.beginPath(); c.moveTo(sx + 5, sy - 18); c.lineTo(sx + 8, sy - 38); c.stroke();
 
-  // Legs (bare skin below lederhosen)
+  // ── 4. Animated legs (rotate from hip) ───────────────────────────────────
+  const hipY = sy - 2;
+  // Left leg swings back when right arm swings back (natural gait)
+  const leftLegAngle  =  swing;
+  const rightLegAngle = -swing;
+
+  // Left leg
+  c.save();
+  c.translate(sx - 5, hipY);
+  c.rotate(leftLegAngle);
   c.fillStyle = 'rgb(230,195,160)';
-  c.beginPath(); c.roundRect(sx - 10, sy - 4, 8, 10, 2); c.fill();
-  c.beginPath(); c.roundRect(sx + 2, sy - 4, 8, 10, 2); c.fill();
-
-  // Hiking boots
+  c.beginPath(); c.roundRect(-4, 0, 8, 10, 2); c.fill();
   c.fillStyle = 'rgb(90,60,35)';
-  c.beginPath(); c.roundRect(sx - 13, sy + 4, 12, 7, 2); c.fill();
-  c.beginPath(); c.roundRect(sx + 1, sy + 4, 12, 7, 2); c.fill();
-  // Boot soles
+  c.beginPath(); c.roundRect(-5, 9, 11, 7, 2); c.fill();
   c.fillStyle = 'rgb(50,40,30)';
-  c.fillRect(sx - 14, sy + 9, 13, 3);
-  c.fillRect(sx, sy + 9, 13, 3);
+  c.fillRect(-6, 14, 12, 3);
+  c.restore();
 
-  // Head (skin tone)
+  // Right leg
+  c.save();
+  c.translate(sx + 5, hipY);
+  c.rotate(rightLegAngle);
+  c.fillStyle = 'rgb(230,195,160)';
+  c.beginPath(); c.roundRect(-4, 0, 8, 10, 2); c.fill();
+  c.fillStyle = 'rgb(90,60,35)';
+  c.beginPath(); c.roundRect(-5, 9, 11, 7, 2); c.fill();
+  c.fillStyle = 'rgb(50,40,30)';
+  c.fillRect(-6, 14, 12, 3);
+  c.restore();
+
+  // ── 5. Front arm (in front of torso) ─────────────────────────────────────
+  drawArm(c, sx + f*12, sy - 32, frontArmAngle, f);
+
+  // ── 6. Head ──────────────────────────────────────────────────────────────
   c.fillStyle = 'rgb(245,205,170)';
   c.beginPath(); c.arc(sx, sy - 48, 13, 0, Math.PI * 2); c.fill();
 
-  // Alpine hat (green with small feather)
+  // Alpine hat
   c.fillStyle = 'rgb(60,100,55)';
-  c.beginPath(); c.ellipse(sx, sy - 60, 16, 5, 0, 0, Math.PI * 2); c.fill(); // brim
-  c.beginPath(); c.roundRect(sx - 10, sy - 64, 20, 12, [5,5,0,0]); c.fill(); // crown
-  // Hat band
+  c.beginPath(); c.ellipse(sx, sy - 60, 16, 5, 0, 0, Math.PI * 2); c.fill();
+  c.beginPath(); c.roundRect(sx - 10, sy - 64, 20, 12, [5,5,0,0]); c.fill();
   c.fillStyle = 'rgb(180,140,60)';
   c.fillRect(sx - 10, sy - 54, 20, 3);
-  // Feather
   c.strokeStyle = 'rgb(220,200,100)'; c.lineWidth = 1.5;
   c.beginPath(); c.moveTo(sx + f*8, sy - 64); c.bezierCurveTo(sx + f*14, sy - 72, sx + f*10, sy - 78, sx + f*7, sy - 75); c.stroke();
 
   // Face
   const ex = right ? 4 : -4;
-  // Eyes
   c.fillStyle = '#fff';
   c.beginPath(); c.ellipse(sx + ex - 3, sy - 49, 3.5, 4, 0, 0, Math.PI*2); c.fill();
   c.beginPath(); c.ellipse(sx + ex + 4, sy - 49, 3.5, 4, 0, 0, Math.PI*2); c.fill();
   c.fillStyle = '#333';
   c.beginPath(); c.arc(sx + ex - 2, sy - 49, 2, 0, Math.PI*2); c.fill();
   c.beginPath(); c.arc(sx + ex + 5, sy - 49, 2, 0, Math.PI*2); c.fill();
-  // Smile
   c.strokeStyle = 'rgb(180,80,60)'; c.lineWidth = 1.5;
   c.beginPath(); c.arc(sx + ex + 1, sy - 43, 4, 0.1, Math.PI - 0.1); c.stroke();
-  // Rosy cheeks
   c.fillStyle = 'rgba(220,120,100,0.3)';
   c.beginPath(); c.ellipse(sx + ex - 5, sy - 44, 4, 3, 0, 0, Math.PI*2); c.fill();
 }
@@ -369,6 +405,12 @@ function roundRect(x, y, w, h, r) {
 }
 
 function drawGoat(sx, sy, facingLeft) {
+  // Scale goat to 75% height, anchored at hoof ground level (sy+15)
+  ctx.save();
+  ctx.translate(sx, sy + 15);
+  ctx.scale(1, 0.75);
+  ctx.translate(-sx, -(sy + 15));
+
   const flip = facingLeft ? -1 : 1;
 
   // Body — rectangular/blocky (goat not sheep)
@@ -461,6 +503,8 @@ function drawGoat(sx, sy, facingLeft) {
   ctx.beginPath();
   ctx.ellipse(sx - 22*flip, sy - 22, 5, 7, flip * 0.3, 0, Math.PI*2);
   ctx.fill();
+
+  ctx.restore(); // end goat scale
 }
 
 function drawHearts(lives) {
@@ -554,6 +598,7 @@ function update(dt) {
   let moving = false;
   if (keys['ArrowRight'] || keys['KeyD']) { playerWX += PLAYER_SPEED * dt; facingRight = true; moving = true; }
   if (keys['ArrowLeft'] || keys['KeyA']) { playerWX -= PLAYER_SPEED * dt; facingRight = false; moving = true; }
+  playerMoving = moving;
   playerWX = Math.max(0, Math.min(playerWX, LEVEL_LENGTH));
 
   const groundY = trailY(playerWX);
@@ -605,9 +650,12 @@ function rectsOverlap(a, b) {
 function draw(dt) {
   if (state === 'start') { drawStartScreen(); return; }
 
-  const camWX = playerWX;
-  const camWY = playerWY;
   const progress = playerWX / LEVEL_LENGTH;
+  const camWX = playerWX;
+  // Intentionally under-follow Y so the trail visibly rises on screen as
+  // the player climbs — at the summit the player is ~190px from top vs
+  // 390px at the start, giving a real sense of gained altitude.
+  const camWY = playerWY + progress * 200;
 
   drawGradientSky();
   drawClouds(camWX, camWY, progress);
@@ -624,7 +672,7 @@ function draw(dt) {
   }
 
   const [psx, psy] = worldToScreen(playerWX, playerWY, camWX, camWY);
-  drawPlayer(Math.round(psx), Math.round(psy), facingRight, invincibleTimer > 0);
+  drawPlayer(Math.round(psx), Math.round(psy), facingRight, invincibleTimer > 0, playerMoving);
 
   drawHearts(lives);
   drawProgressBar(progress);
