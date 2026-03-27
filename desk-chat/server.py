@@ -16,6 +16,9 @@ rooms: dict[str, dict[WebSocket, str]] = {}
 # room_code -> {msg_id: {emoji: set_of_names}}
 reactions: dict[str, dict[str, dict[str, set]]] = {}
 
+# room_code -> list of bingo phrases (custom per room)
+bingo_phrases: dict[str, list[str]] = {}
+
 
 async def broadcast(room_code: str, message: dict):
     """Send a JSON message to every connection in a room."""
@@ -128,10 +131,21 @@ async def websocket_endpoint(ws: WebSocket, room_code: str, name: str = Query(""
                         "channel": name,
                     })
 
+            elif msg_type == "bingo_phrases":
+                phrases = msg.get("phrases", [])
+                if isinstance(phrases, list) and len(phrases) >= 24:
+                    bingo_phrases[room_code] = phrases
+                    await broadcast(room_code, {
+                        "type": "bingo_phrases",
+                        "sender": name,
+                        "phrases": phrases,
+                    })
+
             elif msg_type == "bingo_start":
                 await broadcast(room_code, {
                     "type": "bingo_start",
                     "sender": name,
+                    "phrases": bingo_phrases.get(room_code, []),
                 })
 
             elif msg_type == "bingo_win":

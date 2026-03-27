@@ -164,8 +164,13 @@ function handleMessage(msg) {
         case "reaction_update":
             updateReactionDisplay(msg.msg_id, msg.reactions);
             break;
+        case "bingo_phrases":
+            if (msg.sender !== myName && msg.phrases && msg.phrases.length >= 24) {
+                bingoPhrases = msg.phrases;
+            }
+            break;
         case "bingo_start":
-            handleBingoStart(msg.sender);
+            handleBingoStart(msg.sender, msg.phrases);
             break;
         case "bingo_win":
             handleBingoWin(msg.sender);
@@ -830,7 +835,7 @@ msgInput.addEventListener("focus", () => {
 
 // ── Legislative Bingo ──
 
-const BINGO_PHRASES = [
+let bingoPhrases = [
     "The Chair recognizes...",
     "Without objection",
     "Roll call vote",
@@ -881,6 +886,7 @@ const BINGO_PHRASES = [
     "Personal privilege",
 ];
 
+const DEFAULT_BINGO_PHRASES = [...bingoPhrases];
 let bingoActive = false;
 let bingoCard = null;
 let bingoMarked = null;
@@ -897,7 +903,7 @@ function shuffleAndPick(arr, n) {
 }
 
 function generateBingoCard() {
-    const phrases = shuffleAndPick(BINGO_PHRASES, 24);
+    const phrases = shuffleAndPick(bingoPhrases, 24);
     // Insert FREE space in center (index 12)
     phrases.splice(12, 0, "FREE");
     return phrases;
@@ -996,8 +1002,12 @@ function startBingoGame() {
     document.getElementById("bingo-btn").classList.add("bingo-active");
 }
 
-function handleBingoStart(sender) {
+function handleBingoStart(sender, phrases) {
     if (sender === myName) return;
+    // Sync phrases if provided
+    if (phrases && phrases.length >= 24) {
+        bingoPhrases = phrases;
+    }
     // Show pulsing notification to join
     if (bingoActive) return; // already playing
     showBingoNotify(sender);
@@ -1095,19 +1105,148 @@ function handleBingoWin(winner) {
     }, 4000);
 }
 
-// Bingo button
+// Bingo button — show menu or toggle card
+let bingoMenuEl = null;
+
+function closeBingoMenu() {
+    if (bingoMenuEl) { bingoMenuEl.remove(); bingoMenuEl = null; }
+}
+
 document.getElementById("bingo-btn").addEventListener("click", (e) => {
     e.preventDefault();
     e.stopPropagation();
+
     if (bingoActive) {
-        // Already playing — toggle card visibility
         openBingoCard();
         return;
     }
-    // Start a new game
-    startBingoGame();
-    send({ type: "bingo_start" });
+
+    // Toggle menu
+    if (bingoMenuEl) { closeBingoMenu(); return; }
+
+    const menu = document.createElement("div");
+    menu.className = "bingo-menu";
+
+    const startBtn = document.createElement("div");
+    startBtn.className = "bingo-menu-item";
+    startBtn.textContent = "Start Game";
+    startBtn.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        closeBingoMenu();
+        startBingoGame();
+        send({ type: "bingo_start" });
+    });
+
+    const editBtn = document.createElement("div");
+    editBtn.className = "bingo-menu-item";
+    editBtn.textContent = "Edit Phrases";
+    editBtn.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        closeBingoMenu();
+        openBingoEditor();
+    });
+
+    menu.appendChild(startBtn);
+    menu.appendChild(editBtn);
+    document.body.appendChild(menu);
+    bingoMenuEl = menu;
+
+    // Position above the button
+    const btnRect = e.currentTarget.getBoundingClientRect();
+    menu.style.bottom = (window.innerHeight - btnRect.top + 4) + "px";
+    menu.style.left = btnRect.left + "px";
+
+    setTimeout(() => {
+        document.addEventListener("click", closeBingoMenu, { once: true });
+    }, 0);
 });
+
+// ── Bingo Phrase Editor ──
+
+let bingoEditorEl = null;
+
+function openBingoEditor() {
+    if (bingoEditorEl) { closeBingoEditor(); return; }
+
+    bingoEditorEl = document.createElement("div");
+    bingoEditorEl.className = "bingo-overlay";
+
+    const panel = document.createElement("div");
+    panel.className = "bingo-editor";
+
+    const title = document.createElement("div");
+    title.className = "bingo-title";
+    title.textContent = "EDIT BINGO PHRASES";
+    panel.appendChild(title);
+
+    const hint = document.createElement("div");
+    hint.className = "bingo-editor-hint";
+    hint.textContent = "One phrase per line. Minimum 24 phrases needed.";
+    panel.appendChild(hint);
+
+    const textarea = document.createElement("textarea");
+    textarea.className = "bingo-editor-textarea";
+    textarea.value = bingoPhrases.join("\n");
+    textarea.spellcheck = false;
+    panel.appendChild(textarea);
+
+    const count = document.createElement("div");
+    count.className = "bingo-editor-count";
+    function updateCount() {
+        const lines = textarea.value.split("\n").filter(l => l.trim()).length;
+        count.textContent = lines + " phrases" + (lines < 24 ? " (need at least 24)" : "");
+        count.style.color = lines < 24 ? "#e85a5a" : "#5a7a5a";
+    }
+    updateCount();
+    textarea.addEventListener("input", updateCount);
+    panel.appendChild(count);
+
+    const buttons = document.createElement("div");
+    buttons.className = "bingo-editor-buttons";
+
+    const saveBtn = document.createElement("button");
+    saveBtn.className = "bingo-editor-save";
+    saveBtn.textContent = "Save & Sync";
+    saveBtn.addEventListener("click", () => {
+        const lines = textarea.value.split("\n").map(l => l.trim()).filter(l => l);
+        if (lines.length < 24) {
+            count.textContent = "Need at least 24 phrases!";
+            count.style.color = "#e85a5a";
+            return;
+        }
+        bingoPhrases = lines;
+        send({ type: "bingo_phrases", phrases: lines });
+        closeBingoEditor();
+    });
+
+    const cancelBtn = document.createElement("button");
+    cancelBtn.className = "bingo-editor-cancel";
+    cancelBtn.textContent = "Cancel";
+    cancelBtn.addEventListener("click", closeBingoEditor);
+
+    const resetBtn = document.createElement("button");
+    resetBtn.className = "bingo-editor-cancel";
+    resetBtn.textContent = "Reset to Default";
+    resetBtn.addEventListener("click", () => {
+        textarea.value = DEFAULT_BINGO_PHRASES.join("\n");
+        updateCount();
+    });
+
+    buttons.appendChild(saveBtn);
+    buttons.appendChild(cancelBtn);
+    buttons.appendChild(resetBtn);
+    panel.appendChild(buttons);
+
+    bingoEditorEl.appendChild(panel);
+    bingoEditorEl.addEventListener("click", (e) => {
+        if (e.target === bingoEditorEl) closeBingoEditor();
+    });
+    document.body.appendChild(bingoEditorEl);
+}
+
+function closeBingoEditor() {
+    if (bingoEditorEl) { bingoEditorEl.remove(); bingoEditorEl = null; }
+}
 
 // ── Start ──
 
