@@ -132,6 +132,7 @@ async def websocket_endpoint(ws: WebSocket, room_code: str, name: str = Query(""
                 await broadcast(room_code, {
                     "type": "celebrate",
                     "sender": name,
+                    "target": msg.get("target", ""),
                 })
 
             elif msg_type == "countdown":

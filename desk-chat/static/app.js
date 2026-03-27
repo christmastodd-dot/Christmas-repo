@@ -153,7 +153,7 @@ function handleMessage(msg) {
             showTypingIndicator(msg);
             break;
         case "celebrate":
-            if (msg.sender !== myName) showCelebration(msg.sender);
+            if (msg.sender !== myName) showCelebration(msg.target, msg.sender);
             break;
         case "countdown":
             if (msg.sender !== myName) startCountdown(msg.seconds, msg.sender);
@@ -447,11 +447,54 @@ msgInput.addEventListener("keydown", (e) => {
 msgInput.addEventListener("input", sendTyping);
 
 // Action buttons — trigger locally + broadcast to others
+let celebratePickerEl = null;
+
+function closeCelebratePicker() {
+    if (celebratePickerEl) {
+        celebratePickerEl.remove();
+        celebratePickerEl = null;
+    }
+}
+
 document.getElementById("celebrate-btn").addEventListener("click", (e) => {
     e.preventDefault();
     e.stopPropagation();
-    showCelebration(myName);
-    send({ type: "celebrate" });
+
+    // Toggle picker
+    if (celebratePickerEl) { closeCelebratePicker(); return; }
+
+    const picker = document.createElement("div");
+    picker.className = "celebrate-picker";
+
+    const title = document.createElement("div");
+    title.className = "celebrate-picker-title";
+    title.textContent = "Celebrate who?";
+    picker.appendChild(title);
+
+    members.forEach((name) => {
+        const btn = document.createElement("div");
+        btn.className = "celebrate-picker-item";
+        btn.textContent = name;
+        btn.addEventListener("click", (ev) => {
+            ev.stopPropagation();
+            closeCelebratePicker();
+            showCelebration(name, myName);
+            send({ type: "celebrate", target: name });
+        });
+        picker.appendChild(btn);
+    });
+
+    document.body.appendChild(picker);
+    celebratePickerEl = picker;
+
+    // Position above the button
+    const btnRect = e.currentTarget.getBoundingClientRect();
+    picker.style.bottom = (window.innerHeight - btnRect.top + 4) + "px";
+    picker.style.left = btnRect.left + "px";
+
+    setTimeout(() => {
+        document.addEventListener("click", closeCelebratePicker, { once: true });
+    }, 0);
 });
 document.getElementById("countdown-btn").addEventListener("click", (e) => {
     e.preventDefault();
@@ -462,7 +505,7 @@ document.getElementById("countdown-btn").addEventListener("click", (e) => {
 
 // ── Celebration Fireworks ──
 
-function showCelebration(sender) {
+function showCelebration(target, sender) {
     const overlay = document.createElement("div");
     overlay.className = "celebrate-overlay";
 
@@ -475,11 +518,16 @@ function showCelebration(sender) {
     label.className = "celebrate-label";
     label.textContent = "CONGRATULATIONS!";
 
+    const targetLabel = document.createElement("div");
+    targetLabel.className = "celebrate-target";
+    targetLabel.textContent = target;
+
     const sub = document.createElement("div");
     sub.className = "celebrate-sub";
-    sub.textContent = "- " + sender;
+    sub.textContent = sender ? "from " + sender : "";
 
     overlay.appendChild(label);
+    overlay.appendChild(targetLabel);
     overlay.appendChild(sub);
     document.body.appendChild(overlay);
 
