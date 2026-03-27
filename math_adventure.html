@@ -3,6 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Math Adventure">
+<link rel="apple-touch-icon" id="touchIcon">
 <title>Math Adventure! 🚀</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -539,6 +543,49 @@
 </style>
 </head>
 <body>
+<script>
+(function() {
+  var c = document.createElement('canvas');
+  c.width = 180; c.height = 180;
+  var g = c.getContext('2d');
+  // Background gradient
+  var bg = g.createLinearGradient(0, 0, 180, 180);
+  bg.addColorStop(0, '#667eea');
+  bg.addColorStop(1, '#764ba2');
+  g.fillStyle = bg;
+  // Rounded rect
+  var r = 36;
+  g.beginPath();
+  g.moveTo(r, 0); g.lineTo(180 - r, 0);
+  g.quadraticCurveTo(180, 0, 180, r);
+  g.lineTo(180, 180 - r);
+  g.quadraticCurveTo(180, 180, 180 - r, 180);
+  g.lineTo(r, 180);
+  g.quadraticCurveTo(0, 180, 0, 180 - r);
+  g.lineTo(0, r);
+  g.quadraticCurveTo(0, 0, r, 0);
+  g.closePath();
+  g.fill();
+  // White circle
+  g.fillStyle = 'rgba(255,255,255,0.15)';
+  g.beginPath(); g.arc(90, 82, 50, 0, Math.PI * 2); g.fill();
+  // Math symbols
+  g.fillStyle = '#fff';
+  g.font = 'bold 52px Arial, sans-serif';
+  g.textAlign = 'center';
+  g.textBaseline = 'middle';
+  g.fillText('+', 55, 68);
+  g.fillText('\u00d7', 125, 68);
+  g.font = 'bold 36px Arial, sans-serif';
+  g.fillText('\u2212', 55, 110);
+  g.fillText('\u00f7', 125, 110);
+  // Title
+  g.font = 'bold 22px Arial, sans-serif';
+  g.fillText('MATH', 90, 156);
+  // Set icon
+  document.getElementById('touchIcon').href = c.toDataURL('image/png');
+})();
+</script>
 
 <!-- START SCREEN -->
 <div id="startScreen" class="screen active">
