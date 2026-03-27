@@ -43,7 +43,7 @@
     grid-template-columns: 1fr 1fr 1fr;
     gap: 14px;
     width: 100%;
-    max-width: 560px;
+    max-width: 580px;
     margin-bottom: 30px;
   }
   .mode-btn {
@@ -347,10 +347,15 @@
       <span>Multiply</span>
       <span class="mode-label">Groups of numbers</span>
     </button>
+    <button class="mode-btn" onclick="startGame('div')">
+      <span class="mode-icon">➗</span>
+      <span>Division</span>
+      <span class="mode-label">Split numbers up</span>
+    </button>
     <button class="mode-btn" onclick="startGame('mix')">
       <span class="mode-icon">🎲</span>
       <span>Mixed!</span>
-      <span class="mode-label">All three types</span>
+      <span class="mode-label">All four types</span>
     </button>
     <button class="mode-btn" onclick="startGame('challenge')">
       <span class="mode-icon">🏆</span>
@@ -483,10 +488,11 @@
     if (mode === 'add') op = '+';
     else if (mode === 'sub') op = '-';
     else if (mode === 'mul') op = 'x';
+    else if (mode === 'div') op = '/';
     else {
-      // Mixed and challenge: randomly pick from all three
+      // Mixed and challenge: randomly pick from all four
       const r = Math.random();
-      op = r < 0.33 ? '+' : r < 0.66 ? '-' : 'x';
+      op = r < 0.25 ? '+' : r < 0.5 ? '-' : r < 0.75 ? 'x' : '/';
     }
 
     if (op === '+') {
@@ -498,11 +504,16 @@
       a = randInt(2, maxNum);
       b = randInt(1, a);
       answer = a - b;
-    } else {
+    } else if (op === 'x') {
       // Multiplication: keep factors small for 2nd graders
       a = randInt(1, mulMax);
       b = randInt(1, mulMax);
       answer = a * b;
+    } else {
+      // Division: generate as multiplication in reverse so answers are always whole numbers
+      answer = randInt(1, mulMax);
+      b = randInt(1, mulMax);
+      a = answer * b;
     }
 
     return { a, b, op, answer };
@@ -541,7 +552,7 @@
     const problem = generateProblem();
     currentAnswer = problem.answer;
 
-    const displayOp = problem.op === 'x' ? '&times;' : problem.op;
+    const displayOp = problem.op === 'x' ? '&times;' : problem.op === '/' ? '&divide;' : problem.op;
     document.getElementById('problemText').innerHTML =
       problem.a + ' <span class="op">' + displayOp + '</span> ' + problem.b + ' = ?';
 
