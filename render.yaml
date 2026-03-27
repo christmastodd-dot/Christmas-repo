@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: math-adventure
+    runtime: static
+    buildCommand: echo "Static site, no build needed"
+    staticPublishPath: .
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /math_adventure.html
