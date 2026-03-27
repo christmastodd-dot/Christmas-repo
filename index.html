@@ -256,7 +256,7 @@ function drawCloud(x, y, w, h, camX) {
 // ─────────────────────────────────────────────
 //  RAINBOW — large arc landing on the final cloud
 // ─────────────────────────────────────────────
-const RAINBOW_COLORS = ['#e53935','#fb8c00','#fdd835','#43a047','#1e88e5','#5e35b1'];
+const RAINBOW_COLORS = ['#f8a0a0','#f8c89a','#f8e8a0','#a0dca0','#a0c8f0','#c8a0e0'];
 const FINAL_CLOUD = { x: 2060, y: 270, w: 250 };
 const RAINBOW_LAND_X = FINAL_CLOUD.x + FINAL_CLOUD.w * 0.55; // right side of final cloud
 const RAINBOW_LAND_Y = FINAL_CLOUD.y + 10;
@@ -607,13 +607,25 @@ function drawHUD() {
 
 function drawClover(x, y, color) {
   ctx.fillStyle = color;
-  const r = 7;
-  ctx.beginPath(); ctx.arc(x,   y-r, r, 0, Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.arc(x,   y+r, r, 0, Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.arc(x-r, y,   r, 0, Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.arc(x+r, y,   r, 0, Math.PI*2); ctx.fill();
-  ctx.fillStyle = color;
-  ctx.fillRect(x-2, y+r, 4, 8);
+  const r = 6;
+  // three heart-shaped leaves
+  ctx.beginPath(); ctx.arc(x - r*0.6, y - r*0.5, r, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(x + r*0.6, y - r*0.5, r, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(x, y - r*1.2, r, 0, Math.PI*2); ctx.fill();
+  // darker vein lines on leaves
+  ctx.strokeStyle = color === '#555' ? '#333' : '#1a6e1a';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - r*0.8, y - r*0.8); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + r*0.8, y - r*0.8); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, y - r*1.6); ctx.stroke();
+  // curved stem
+  ctx.strokeStyle = color === '#555' ? '#444' : '#2e7d32';
+  ctx.lineWidth = 2.5;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(x, y + 1);
+  ctx.quadraticCurveTo(x + 6, y + 10, x + 3, y + 18);
+  ctx.stroke();
 }
 
 // ─────────────────────────────────────────────
