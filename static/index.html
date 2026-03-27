@@ -327,8 +327,9 @@ function drawPlayer(sx, sy, right, flash, moving, walkOffset) {
   const farLegAngle  =  cycle * legAmp;
   const nearLegAngle = -cycle * legAmp;
   // Arms oppose their same-side leg (natural gait).
-  const farArmAngle  = -cycle * armAmp;
-  const nearArmAngle =  cycle * armAmp;
+  // Near arm trails (swings back when near leg kicks back).
+  const farArmAngle  =  cycle * armAmp;
+  const nearArmAngle = -cycle * armAmp;
 
   // Apply whole-body lean + bob.  Pivot at feet (sx, sy) so body tilts
   // from the ground contact point.
