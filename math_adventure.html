@@ -670,12 +670,21 @@
 
   function generateChoices(correct) {
     const choices = new Set([correct]);
-    // Use larger spread for bigger answers so distractors stay plausible
-    const spread = correct > 20 ? randInt(1, 8) : randInt(1, 5);
-    while (choices.size < 4) {
+    // Spread must be at least 4 so we can always find 3 unique distractors
+    const minSpread = correct < 4 ? 5 : 3;
+    const spread = correct > 20 ? randInt(minSpread, 8) : randInt(minSpread, 6);
+    let attempts = 0;
+    while (choices.size < 4 && attempts < 100) {
+      attempts++;
       let offset = randInt(1, spread) * (Math.random() < 0.5 ? 1 : -1);
       let wrong = correct + offset;
       if (wrong >= 0 && wrong !== correct) choices.add(wrong);
+    }
+    // Fallback: fill with sequential numbers if loop exhausted
+    let fallback = correct + 1;
+    while (choices.size < 4) {
+      if (!choices.has(fallback)) choices.add(fallback);
+      fallback++;
     }
     return shuffle([...choices]);
   }
