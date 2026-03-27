@@ -110,7 +110,7 @@
 
 <div id="start-screen">
   <h1>Kid Pong!</h1>
-  <p>Move your paddle with the mouse or touch!</p>
+  <p>Move your paddle with mouse, touch, WASD, or arrow keys!</p>
   <p>First to 5 wins!</p>
   <div id="difficulty">
     <button class="diff-btn" data-speed="0.6">Easy</button>
@@ -196,17 +196,35 @@ function resetBall(dir) {
   ball.vy = ball.speed * Math.sin(angle);
 }
 
-// Mouse / touch controls
+// Input controls
 let mouseY = H / 2;
+let useMouseControl = true;
+let keysDown = {};
+const KEY_SPEED = 6;
+
 canvas.addEventListener('mousemove', e => {
+  useMouseControl = true;
   const rect = canvas.getBoundingClientRect();
   mouseY = (e.clientY - rect.top) * (H / rect.height);
 });
 canvas.addEventListener('touchmove', e => {
+  useMouseControl = true;
   e.preventDefault();
   const rect = canvas.getBoundingClientRect();
   mouseY = (e.touches[0].clientY - rect.top) * (H / rect.height);
 }, { passive: false });
+
+document.addEventListener('keydown', e => {
+  const key = e.key.toLowerCase();
+  if (['w', 's', 'arrowup', 'arrowdown'].includes(key)) {
+    e.preventDefault();
+    keysDown[key] = true;
+    useMouseControl = false;
+  }
+});
+document.addEventListener('keyup', e => {
+  keysDown[e.key.toLowerCase()] = false;
+});
 
 function updateScoreboard() {
   document.getElementById('p1-score').textContent = p1Score;
@@ -349,21 +367,36 @@ function drawBall() {
 
 // --- Game Logic ---
 function moveCpu() {
-  // CPU follows ball with limited speed (easier for kids)
   const cpuCenter = cpu.y + cpu.h / 2;
-  const targetY = ball.y;
-  const cpuSpeed = (2.2 + speedMult * 0.8);
-  if (cpuCenter < targetY - 15) {
+  // Predict where ball will arrive at CPU's x position
+  let targetY = ball.y;
+  if (ball.vx > 0) {
+    const timeToArrive = (cpu.x - ball.x) / ball.vx;
+    targetY = ball.y + ball.vy * timeToArrive;
+    // Bounce prediction off top/bottom walls
+    while (targetY < 0 || targetY > H) {
+      if (targetY < 0) targetY = -targetY;
+      if (targetY > H) targetY = 2 * H - targetY;
+    }
+  }
+  const cpuSpeed = (3.0 + speedMult * 1.2);
+  const deadZone = 8;
+  if (cpuCenter < targetY - deadZone) {
     cpu.y += cpuSpeed;
-  } else if (cpuCenter > targetY + 15) {
+  } else if (cpuCenter > targetY + deadZone) {
     cpu.y -= cpuSpeed;
   }
   cpu.y = Math.max(0, Math.min(H - cpu.h, cpu.y));
 }
 
 function movePlayer() {
-  const target = mouseY - player.h / 2;
-  player.y += (target - player.y) * 0.25;
+  if (useMouseControl) {
+    const target = mouseY - player.h / 2;
+    player.y += (target - player.y) * 0.25;
+  } else {
+    if (keysDown['w'] || keysDown['arrowup']) player.y -= KEY_SPEED;
+    if (keysDown['s'] || keysDown['arrowdown']) player.y += KEY_SPEED;
+  }
   player.y = Math.max(0, Math.min(H - player.h, player.y));
 }
 
