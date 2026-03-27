@@ -2,16 +2,40 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Mountain Climb</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { background: #1a1a2e; display: flex; justify-content: center; align-items: center; height: 100vh; }
-  canvas { display: block; border-radius: 8px; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
+  body { background: #1a1a2e; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; overflow: hidden; touch-action: none; }
+  canvas { display: block; border-radius: 8px; box-shadow: 0 0 30px rgba(0,0,0,0.5); max-width: 100vw; max-height: 70vh; }
+  #touch-controls {
+    display: none; position: fixed; bottom: 0; left: 0; right: 0; height: 28vh;
+    padding: 10px 20px; z-index: 10; pointer-events: none;
+  }
+  #touch-controls.visible { display: flex; justify-content: space-between; align-items: center; }
+  .touch-btn {
+    pointer-events: auto; width: 64px; height: 64px; border-radius: 50%;
+    background: rgba(255,255,255,0.18); border: 2px solid rgba(255,255,255,0.35);
+    color: #fff; font-size: 28px; display: flex; align-items: center; justify-content: center;
+    user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent;
+  }
+  .touch-btn:active { background: rgba(255,255,255,0.35); }
+  .touch-group { display: flex; gap: 12px; pointer-events: auto; }
+  @media (max-width: 600px) {
+    canvas { border-radius: 0; max-height: 60vh; }
+    .touch-btn { width: 56px; height: 56px; font-size: 24px; }
+  }
 </style>
 </head>
 <body>
 <canvas id="game" width="800" height="600"></canvas>
+<div id="touch-controls">
+  <div class="touch-group">
+    <button class="touch-btn" data-key="ArrowLeft">&#9664;</button>
+    <button class="touch-btn" data-key="ArrowRight">&#9654;</button>
+  </div>
+  <button class="touch-btn" data-key="Space">&#9650;</button>
+</div>
 <script>
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
@@ -621,126 +645,180 @@ function drawConfetti(dt) {
 
 // Pre-render the start screen mountain SVG into an offscreen Image
 // Mountain landscape SVG — original work, CC0 Public Domain.
-// Incorporates design elements identified from Wikimedia Commons and FreeSVG.org
-// CC0 sources (Mountain_landscape.svg, Snow-capped Mountains, Mountain Range).
-const mountainSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600"
-     aria-label="Alpine mountain landscape with snow-capped peaks, pine forest and lake">
+const mountainSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
   <defs>
     <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#3a7abf"/>
-      <stop offset="55%" stop-color="#87ceeb"/>
-      <stop offset="100%" stop-color="#cce8f5"/>
+      <stop offset="0%" stop-color="#1e3a5f"/>
+      <stop offset="30%" stop-color="#3a7abf"/>
+      <stop offset="65%" stop-color="#87ceeb"/>
+      <stop offset="100%" stop-color="#f0d8a8"/>
     </linearGradient>
     <linearGradient id="snowG" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#ffffff"/>
-      <stop offset="100%" stop-color="#d6eaf8"/>
+      <stop offset="100%" stop-color="#c8dff0"/>
     </linearGradient>
-    <linearGradient id="peak1" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#c8d4de"/>
-      <stop offset="40%" stop-color="#8a9aaa"/>
-      <stop offset="100%" stop-color="#5a6878"/>
+    <linearGradient id="pk1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#8a9db0"/>
+      <stop offset="50%" stop-color="#5a7088"/>
+      <stop offset="100%" stop-color="#3a4e60"/>
     </linearGradient>
-    <linearGradient id="peak2" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#b8c8d8"/>
-      <stop offset="45%" stop-color="#7a8a9a"/>
-      <stop offset="100%" stop-color="#4e5e6e"/>
+    <linearGradient id="pk2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7a8ea0"/>
+      <stop offset="100%" stop-color="#4a5e70"/>
     </linearGradient>
     <linearGradient id="lake" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#5b9bd5"/>
-      <stop offset="100%" stop-color="#2e6090"/>
+      <stop offset="0%" stop-color="#6aafe0"/>
+      <stop offset="100%" stop-color="#2a5a80"/>
     </linearGradient>
-    <filter id="haze"><feGaussianBlur stdDeviation="2"/></filter>
+    <linearGradient id="glow" cx="0.82" cy="0.12" r="0.35" fx="0.82" fy="0.12"
+        gradientUnits="objectBoundingBox" spreadMethod="pad">
+      <stop offset="0%" stop-color="rgba(255,220,140,0.4)"/>
+      <stop offset="100%" stop-color="rgba(255,220,140,0)"/>
+    </linearGradient>
+    <filter id="haze"><feGaussianBlur stdDeviation="3"/></filter>
+    <filter id="soften"><feGaussianBlur stdDeviation="1.2"/></filter>
   </defs>
 
-  <!-- Sky -->
+  <!-- Sky with warm sunset gradient -->
   <rect width="800" height="600" fill="url(#sky)"/>
 
-  <!-- Sun -->
-  <circle cx="690" cy="75" r="52" fill="rgba(255,240,170,0.15)"/>
-  <circle cx="690" cy="75" r="33" fill="rgba(255,232,140,0.25)"/>
-  <circle cx="690" cy="75" r="21" fill="#ffe87a" opacity="0.6"/>
+  <!-- Sun glow -->
+  <circle cx="660" cy="72" r="140" fill="url(#glow)"/>
+  <circle cx="660" cy="72" r="38" fill="rgba(255,240,180,0.35)"/>
+  <circle cx="660" cy="72" r="22" fill="#ffe87a" opacity="0.7"/>
 
-  <!-- Clouds -->
-  <g fill="white" opacity="0.84">
-    <ellipse cx="125" cy="105" rx="68" ry="21"/><ellipse cx="152" cy="93" rx="44" ry="19"/><ellipse cx="98" cy="112" rx="34" ry="15"/>
-  </g>
-  <g fill="white" opacity="0.74">
-    <ellipse cx="555" cy="88" rx="58" ry="19"/><ellipse cx="582" cy="76" rx="42" ry="17"/>
-  </g>
-  <g fill="white" opacity="0.62">
-    <ellipse cx="338" cy="118" rx="46" ry="15"/><ellipse cx="360" cy="108" rx="30" ry="13"/>
+  <!-- Stars (subtle, upper sky) -->
+  <g fill="white" opacity="0.5">
+    <circle cx="80" cy="28" r="1.2"/><circle cx="200" cy="18" r="1"/><circle cx="310" cy="40" r="1.3"/>
+    <circle cx="450" cy="22" r="0.9"/><circle cx="140" cy="55" r="1.1"/><circle cx="520" cy="35" r="1"/>
   </g>
 
-  <!-- Far hazy ridge -->
-  <polygon points="0,400 90,295 180,350 270,275 365,330 455,260 545,315 635,252 720,298 800,268 800,600 0,600"
-           fill="#8da8bc" opacity="0.4" filter="url(#haze)"/>
+  <!-- Clouds — layered, softer -->
+  <g fill="white" opacity="0.7" filter="url(#soften)">
+    <ellipse cx="120" cy="100" rx="72" ry="18"/><ellipse cx="155" cy="88" rx="50" ry="16"/>
+    <ellipse cx="88" cy="108" rx="38" ry="14"/>
+  </g>
+  <g fill="white" opacity="0.55" filter="url(#soften)">
+    <ellipse cx="540" cy="82" rx="65" ry="16"/><ellipse cx="575" cy="70" rx="48" ry="14"/>
+  </g>
+  <g fill="rgba(255,230,200,0.45)" filter="url(#soften)">
+    <ellipse cx="340" cy="115" rx="50" ry="14"/><ellipse cx="368" cy="105" rx="35" ry="12"/>
+  </g>
 
-  <!-- Mid ridge -->
-  <polygon points="0,460 65,370 148,418 230,348 318,400 408,328 498,382 588,322 672,365 762,318 800,340 800,600 0,600"
-           fill="#6e8898" opacity="0.52"/>
+  <!-- Far hazy ridges (atmospheric depth) -->
+  <polygon points="0,420 70,340 160,380 250,310 340,360 440,285 540,340 640,275 740,320 800,290 800,600 0,600"
+           fill="#7a98b0" opacity="0.35" filter="url(#haze)"/>
+  <polygon points="0,450 90,385 180,420 270,365 360,410 450,345 540,395 630,340 720,380 800,355 800,600 0,600"
+           fill="#6a8898" opacity="0.45" filter="url(#soften)"/>
 
-  <!-- Left partial peak -->
-  <polygon points="-10,600 0,375 118,195 265,470 160,600" fill="url(#peak2)" opacity="0.88"/>
-  <polygon points="118,195 92,262 118,248 144,262" fill="url(#snowG)"/>
+  <!-- Left peak -->
+  <polygon points="-20,600 30,380 130,175 280,480 180,600" fill="url(#pk2)" opacity="0.9"/>
+  <polygon points="130,175 100,252 130,235 160,252" fill="url(#snowG)"/>
+  <polygon points="130,175 108,260 130,245 152,260" fill="white" opacity="0.5"/>
+  <polyline points="80,400 100,325 118,260 130,215" fill="none" stroke="#3a4e5e" stroke-width="1.5" opacity="0.3"/>
 
-  <!-- Right partial peak -->
-  <polygon points="525,600 685,195 800,470 800,600" fill="url(#peak2)"/>
-  <polygon points="685,195 654,268 685,252 716,268" fill="url(#snowG)"/>
-  <polyline points="644,348 663,295 685,255" fill="none" stroke="#506070" stroke-width="1.5" opacity="0.45"/>
-  <polyline points="726,338 705,286 685,255" fill="none" stroke="#506070" stroke-width="1.5" opacity="0.45"/>
+  <!-- Right peak -->
+  <polygon points="520,600 660,185 800,480 800,600" fill="url(#pk2)"/>
+  <polygon points="660,185 628,262 660,245 692,262" fill="url(#snowG)"/>
+  <polygon points="660,185 636,268 660,250 684,268" fill="white" opacity="0.5"/>
+  <polyline points="610,380 630,305 648,250 660,215" fill="none" stroke="#3a4e5e" stroke-width="1.5" opacity="0.3"/>
+  <polyline points="710,375 695,310 675,255 660,215" fill="none" stroke="#3a4e5e" stroke-width="1.5" opacity="0.3"/>
 
-  <!-- Central main peak -->
-  <polygon points="95,600 400,108 705,600" fill="url(#peak1)"/>
-  <!-- Shading flanks -->
-  <polygon points="95,600 400,108 235,600" fill="#5a6a78" opacity="0.17"/>
-  <polygon points="565,600 400,108 705,600" fill="#7888a0" opacity="0.13"/>
-  <!-- Ridge lines -->
-  <polyline points="285,448 308,375 340,305 373,242" fill="none" stroke="#445560" stroke-width="2" opacity="0.33"/>
-  <polyline points="515,452 488,382 458,322 430,262" fill="none" stroke="#445560" stroke-width="2" opacity="0.33"/>
+  <!-- Central main peak — larger, more detailed -->
+  <polygon points="70,600 400,88 730,600" fill="url(#pk1)"/>
+  <!-- Shadow flanks -->
+  <polygon points="70,600 400,88 220,600" fill="#3a4e5e" opacity="0.2"/>
+  <polygon points="580,600 400,88 730,600" fill="#5a7090" opacity="0.15"/>
+  <!-- Rock texture lines -->
+  <polyline points="260,480 290,395 325,310 360,235 385,165" fill="none" stroke="#3a4e5e" stroke-width="1.8" opacity="0.25"/>
+  <polyline points="540,475 510,400 475,320 445,245 420,175" fill="none" stroke="#3a4e5e" stroke-width="1.8" opacity="0.25"/>
+  <polyline points="340,420 365,350 388,265" fill="none" stroke="#4a5e6e" stroke-width="1" opacity="0.2"/>
+  <polyline points="460,415 440,345 418,270" fill="none" stroke="#4a5e6e" stroke-width="1" opacity="0.2"/>
 
-  <!-- Central snow cap -->
-  <polygon points="400,108 356,210 400,192 444,210" fill="white"/>
-  <polygon points="400,108 362,213 400,196 438,213" fill="white" opacity="0.75"/>
-  <polygon points="356,210 336,262 378,238 400,244 422,238 464,262 444,210 400,192" fill="white" opacity="0.58"/>
-  <polygon points="400,108 383,185 400,175 417,185" fill="rgba(255,255,255,0.48)"/>
+  <!-- Central snow cap — larger, more realistic -->
+  <polygon points="400,88 348,205 400,185 452,205" fill="white"/>
+  <polygon points="400,88 355,210 400,190 445,210" fill="white" opacity="0.8"/>
+  <polygon points="348,205 325,270 370,240 400,248 430,240 475,270 452,205 400,185" fill="white" opacity="0.6"/>
+  <polygon points="325,270 310,310 358,278 400,285 442,278 490,310 475,270 400,248" fill="white" opacity="0.35"/>
+  <!-- Snow shimmer -->
+  <polygon points="400,88 385,165 400,155 415,165" fill="rgba(255,255,255,0.6)"/>
 
-  <!-- Alpine lake (reflection of peak) -->
-  <ellipse cx="400" cy="520" rx="115" ry="20" fill="url(#lake)" opacity="0.78"/>
-  <ellipse cx="388" cy="517" rx="55" ry="6" fill="rgba(255,255,255,0.22)"/>
-  <!-- Subtle reflection of peak in lake -->
-  <polygon points="360,510 400,490 440,510 430,530 370,530" fill="#2e6090" opacity="0.25"/>
+  <!-- Alpine meadow -->
+  <polygon points="0,530 80,498 160,520 250,495 340,515 430,490 520,510 610,488 700,505 800,485 800,600 0,600"
+           fill="#3a6e35"/>
+  <polygon points="0,540 100,515 200,530 300,508 400,525 500,502 600,518 700,498 800,512 800,600 0,600"
+           fill="#2e5a28"/>
 
-  <!-- Pine trees — left cluster -->
-  <g fill="#285a22">
-    <polygon points="28,510 41,465 54,510"/><polygon points="22,513 41,457 60,513"/>
-    <polygon points="54,510 66,469 78,510"/><polygon points="49,513 66,461 83,513"/>
-    <polygon points="80,510 92,467 104,510"/><polygon points="75,513 92,459 109,513"/>
+  <!-- Alpine lake -->
+  <ellipse cx="400" cy="530" rx="120" ry="22" fill="url(#lake)" opacity="0.82"/>
+  <ellipse cx="385" cy="527" rx="60" ry="7" fill="rgba(255,255,255,0.2)"/>
+  <!-- Peak reflection -->
+  <polygon points="365,520 400,500 435,520 428,540 372,540" fill="#2a5a80" opacity="0.3"/>
+
+  <!-- Pine trees — left cluster (varied sizes) -->
+  <g fill="#1e4a1a">
+    <polygon points="20,520 30,475 40,520"/><polygon points="16,523 30,468 44,523"/>
+    <polygon points="48,515 60,462 72,515"/><polygon points="43,518 60,455 77,518"/>
+    <polygon points="78,518 88,472 98,518"/><polygon points="74,521 88,465 102,521"/>
+    <polygon points="105,520 115,478 125,520"/><polygon points="101,523 115,471 129,523"/>
+    <polygon points="138,512 150,458 162,512"/><polygon points="133,515 150,450 167,515"/>
+  </g>
+  <g fill="#285a22" opacity="0.7">
+    <polygon points="24,518 30,480 36,518"/><polygon points="52,512 60,467 68,512"/>
+    <polygon points="82,515 88,477 94,515"/><polygon points="140,509 150,462 160,509"/>
   </g>
   <g fill="#3d1f07">
-    <rect x="38" y="510" width="5" height="14"/><rect x="63" y="510" width="5" height="14"/><rect x="89" y="510" width="5" height="14"/>
+    <rect x="27" y="520" width="5" height="12"/><rect x="57" y="515" width="5" height="14"/>
+    <rect x="85" y="518" width="5" height="12"/><rect x="112" y="520" width="5" height="12"/>
+    <rect x="147" y="512" width="5" height="14"/>
   </g>
 
   <!-- Pine trees — right cluster -->
-  <g fill="#285a22">
-    <polygon points="672,510 685,465 698,510"/><polygon points="666,513 685,457 704,513"/>
-    <polygon points="698,510 710,469 722,510"/><polygon points="693,513 710,461 727,513"/>
-    <polygon points="724,510 736,467 748,510"/><polygon points="719,513 736,459 753,513"/>
+  <g fill="#1e4a1a">
+    <polygon points="640,515 652,460 664,515"/><polygon points="635,518 652,452 669,518"/>
+    <polygon points="670,518 682,468 694,518"/><polygon points="665,521 682,460 699,521"/>
+    <polygon points="700,512 714,455 728,512"/><polygon points="695,515 714,448 733,515"/>
+    <polygon points="738,518 748,475 758,518"/><polygon points="734,521 748,468 762,521"/>
+  </g>
+  <g fill="#285a22" opacity="0.7">
+    <polygon points="644,512 652,465 660,512"/>
+    <polygon points="674,515 682,472 690,515"/>
+    <polygon points="704,509 714,460 724,509"/>
   </g>
   <g fill="#3d1f07">
-    <rect x="682" y="510" width="5" height="14"/><rect x="707" y="510" width="5" height="14"/><rect x="733" y="510" width="5" height="14"/>
+    <rect x="649" y="515" width="5" height="14"/><rect x="679" y="518" width="5" height="12"/>
+    <rect x="711" y="512" width="5" height="14"/><rect x="745" y="518" width="5" height="12"/>
   </g>
 
-  <!-- Foreground rocky ground -->
-  <polygon points="0,545 105,518 205,534 305,510 400,527 500,506 600,520 700,502 800,516 800,600 0,600"
-           fill="#4e5e68"/>
-  <!-- Snow patches -->
-  <ellipse cx="195" cy="524" rx="34" ry="8" fill="white" opacity="0.52"/>
-  <ellipse cx="575" cy="512" rx="28" ry="7" fill="white" opacity="0.48"/>
-  <ellipse cx="730" cy="508" rx="22" ry="6" fill="white" opacity="0.44"/>
+  <!-- Scattered front trees -->
+  <g fill="#1e4a1a">
+    <polygon points="195,528 208,478 221,528"/><polygon points="190,531 208,470 226,531"/>
+    <polygon points="570,525 582,472 594,525"/><polygon points="565,528 582,465 599,528"/>
+  </g>
+  <g fill="#3d1f07">
+    <rect x="205" y="528" width="5" height="13"/><rect x="579" y="525" width="5" height="14"/>
+  </g>
+
+  <!-- Foreground path/trail -->
+  <path d="M0,580 Q100,560 200,572 Q300,555 400,565 Q500,550 600,560 Q700,548 800,555 L800,600 L0,600 Z"
+        fill="#5a4a3a" opacity="0.6"/>
+
+  <!-- Wildflowers on meadow -->
+  <g>
+    <circle cx="180" cy="536" r="2.5" fill="#e85070"/><circle cx="185" cy="533" r="2" fill="#ff7090"/>
+    <circle cx="320" cy="525" r="2.5" fill="#f0e040"/><circle cx="325" cy="522" r="2" fill="#ffe060"/>
+    <circle cx="480" cy="520" r="2.5" fill="#e85070"/><circle cx="475" cy="517" r="2" fill="#ff7090"/>
+    <circle cx="620" cy="528" r="2" fill="#f0e040"/><circle cx="360" cy="535" r="2" fill="#a070e0"/>
+    <circle cx="540" cy="528" r="2.5" fill="#a070e0"/><circle cx="250" cy="530" r="2" fill="#ff7090"/>
+  </g>
 </svg>`;
 
 const _mountainImg = new Image();
 _mountainImg.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(mountainSVG);
+
+// Detect touch device
+const isTouchDevice = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+if (isTouchDevice) document.getElementById('touch-controls').classList.add('visible');
 
 // Screens
 function drawStartScreen() {
@@ -751,21 +829,49 @@ function drawStartScreen() {
     drawGradientSky(); // fallback while image loads
   }
 
-  // Semi-transparent title panel
-  ctx.fillStyle = 'rgba(10,20,50,0.52)';
-  ctx.beginPath(); ctx.roundRect(W/2 - 240, 52, 480, 110, 14); ctx.fill();
+  // Frosted glass title panel
+  ctx.fillStyle = 'rgba(10,20,45,0.55)';
+  ctx.beginPath(); ctx.roundRect(W/2 - 250, 42, 500, 130, 18); ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.roundRect(W/2 - 250, 42, 500, 130, 18); ctx.stroke();
 
-  ctx.fillStyle = '#fff'; ctx.font = 'bold 48px Arial';
-  ctx.textAlign = 'center'; ctx.fillText('Mountain Climb', W/2, 108);
-  ctx.fillStyle = 'rgba(200,220,255,0.9)'; ctx.font = '21px Arial';
+  // Title with shadow
+  ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.font = 'bold 52px Arial';
+  ctx.fillText('Mountain Climb', W/2 + 2, 102);
+  ctx.fillStyle = '#fff'; ctx.font = 'bold 52px Arial';
+  ctx.fillText('Mountain Climb', W/2, 100);
+
+  // Subtitle
+  ctx.fillStyle = 'rgba(200,225,255,0.9)'; ctx.font = '20px Arial';
   ctx.fillText('Reach the summit! Jump over the goats!', W/2, 148);
 
-  // Play button
-  const pulse = 0.7 + 0.3 * Math.sin(performance.now() / 400);
-  ctx.fillStyle = `rgba(60,130,255,${pulse})`;
-  ctx.beginPath(); ctx.roundRect(W/2 - 160, 390, 320, 60, 12); ctx.fill();
+  // Play button with glow
+  const t = performance.now() / 1000;
+  const pulse = 0.7 + 0.3 * Math.sin(t * 2.5);
+  const glowSize = 4 + 3 * Math.sin(t * 2.5);
+
+  // Button glow
+  ctx.shadowColor = 'rgba(80,160,255,0.6)';
+  ctx.shadowBlur = glowSize * 3;
+  ctx.fillStyle = `rgba(50,120,240,${pulse})`;
+  ctx.beginPath(); ctx.roundRect(W/2 - 165, 385, 330, 64, 14); ctx.fill();
+  ctx.shadowBlur = 0;
+
+  // Button border
+  ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.roundRect(W/2 - 165, 385, 330, 64, 14); ctx.stroke();
+
+  // Button text
   ctx.fillStyle = '#fff'; ctx.font = 'bold 28px Arial';
-  ctx.fillText('Press SPACE to Play', W/2, 429);
+  const playText = isTouchDevice ? 'Tap to Play' : 'Press SPACE to Play';
+  ctx.fillText(playText, W/2, 425);
+
+  // Controls hint
+  ctx.fillStyle = 'rgba(200,220,255,0.6)'; ctx.font = '15px Arial';
+  const hint = isTouchDevice ? 'Use on-screen controls' : 'Arrow keys to move, SPACE to jump';
+  ctx.fillText(hint, W/2, 480);
+
   ctx.textAlign = 'left';
 }
 
@@ -782,7 +888,7 @@ function drawGameOver() {
   ctx.fillStyle = '#fff'; ctx.font = 'bold 32px Arial';
   ctx.fillText("Nice try! Let's go again!", W/2, 270);
   ctx.fillStyle = 'rgb(200,200,255)'; ctx.font = '22px Arial';
-  ctx.fillText('Press SPACE to try again', W/2, 350);
+  ctx.fillText(isTouchDevice ? 'Tap to try again' : 'Press SPACE to try again', W/2, 350);
   ctx.textAlign = 'left';
 }
 
@@ -795,7 +901,7 @@ function drawWin(dt) {
   ctx.fillStyle = '#fff'; ctx.font = 'bold 32px Arial';
   ctx.fillText('You reached the summit!', W/2, 270);
   ctx.fillStyle = 'rgb(200,255,200)'; ctx.font = '22px Arial';
-  ctx.fillText('Press SPACE to play again', W/2, 350);
+  ctx.fillText(isTouchDevice ? 'Tap to play again' : 'Press SPACE to play again', W/2, 350);
   ctx.textAlign = 'left';
 }
 
@@ -1044,6 +1150,33 @@ document.addEventListener('keydown', e => {
   if (['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code)) e.preventDefault();
 });
 document.addEventListener('keyup', e => { keys[e.code] = false; });
+
+// ── Touch controls ─────────────────────────────────────────────────────────
+// Map touch buttons to key codes
+document.querySelectorAll('.touch-btn').forEach(btn => {
+  const key = btn.dataset.key;
+  btn.addEventListener('touchstart', e => {
+    e.preventDefault();
+    keys[key] = true;
+    // Handle state transitions (same as keydown)
+    if (state === 'start' && key === 'Space') {
+      resetLevel(); state = 'playing'; startMusic();
+    } else if (state === 'playing' && key === 'Space') {
+      if (onGround) { playerVY = JUMP_VELOCITY; onGround = false; }
+    } else if ((state === 'gameover' || state === 'win') && key === 'Space') {
+      stopMusic(); state = 'start';
+    }
+  });
+  btn.addEventListener('touchend', e => { e.preventDefault(); keys[key] = false; });
+  btn.addEventListener('touchcancel', e => { keys[key] = false; });
+});
+
+// Tap canvas to start/restart on mobile
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  if (state === 'start') { resetLevel(); state = 'playing'; startMusic(); }
+  else if (state === 'gameover' || state === 'win') { stopMusic(); state = 'start'; }
+});
 
 // Also stop music on game over (called from update)
 function onGameOver() { stopMusic(); state = 'gameover'; }
