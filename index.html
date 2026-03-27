@@ -212,8 +212,16 @@ function startGame() {
 }
 
 function resetBall(dir) {
-  ball.x = W / 2;
-  ball.y = H / 2;
+  // Start from the paddle that will serve
+  if (dir > 0) {
+    // Serve from player paddle
+    ball.x = player.x + player.w + BALL_R;
+    ball.y = player.y + player.h / 2;
+  } else {
+    // Serve from CPU paddle
+    ball.x = cpu.x - BALL_R;
+    ball.y = cpu.y + cpu.h / 2;
+  }
   // Ball speed: easy=base, medium=+40%, hard=+110%
   let ballSpeedScale = 1;
   if (speedMult === 1) ballSpeedScale = 1.4;
