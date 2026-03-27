@@ -43,7 +43,7 @@ const W = 800, H = 600;
 
 // Constants
 const LEVEL_LENGTH = 7680;
-const SLOPE = 0.30;
+const SLOPE = 0.20;
 const PLAYER_SPEED = 160;
 const JUMP_VELOCITY = -637;  // sqrt(1.5) * 520 → exact 50% taller jump arc
 const GRAVITY = 1400;
@@ -977,7 +977,7 @@ function update(dt) {
     if (!g.active) continue;
     const dist = g.wx - playerWX;
     if (dist > 0 && dist < GOAT_TRIGGER_DIST && !g.charging && g.windupTimer === 0) {
-      if (g.angry) { g.windupTimer = 2.0; }  // angry goat pauses and steams before charging
+      if (g.angry) { g.windupTimer = 0.8; }  // angry goat briefly steams then charges fast
       else { g.charging = true; }
     }
     if (g.angry && g.windupTimer > 0) {
@@ -1040,7 +1040,7 @@ function draw(dt) {
   // Intentionally under-follow Y so the trail visibly rises on screen as
   // the player climbs — at the summit the player is ~190px from top vs
   // 390px at the start, giving a real sense of gained altitude.
-  const camWY = playerWY + progress * 200;
+  const camWY = playerWY + progress * 120;
   // During knockback, gently pan camera toward flying player's X
   if (state === 'knockback') {
     // camera stays locked to playerWX (the stable ground position)
