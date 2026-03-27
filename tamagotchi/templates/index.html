@@ -29,8 +29,7 @@
     align-items: center;
     padding: 16px;
   }
-  h1 { color: var(--accent); font-size: 1.4em; margin-bottom: 8px; text-align: center; }
-  .subtitle { color: var(--dim); font-size: 0.85em; margin-bottom: 16px; text-align: center; }
+  h1 { color: var(--accent); font-size: 1.4em; margin-bottom: 4px; text-align: center; }
 
   /* Welcome screen */
   #welcome {
@@ -38,221 +37,124 @@
     border: 2px solid var(--border);
     border-radius: 12px;
     padding: 32px;
-    max-width: 460px;
+    max-width: 480px;
     width: 100%;
     text-align: center;
   }
-  #welcome pre {
-    color: var(--green);
-    font-size: 0.8em;
-    line-height: 1.3;
-    margin: 16px 0;
-  }
+  #welcome pre { color: var(--green); font-size: 0.85em; line-height: 1.3; margin: 16px 0; }
+  #welcome .desc { color: var(--dim); font-size: 0.9em; margin-bottom: 16px; line-height: 1.5; }
   #welcome input {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    color: var(--text);
-    padding: 10px 16px;
-    font-family: inherit;
-    font-size: 1em;
-    width: 100%;
-    max-width: 260px;
-    margin: 12px 0;
-    text-align: center;
+    background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
+    color: var(--text); padding: 10px 16px; font-family: inherit; font-size: 1em;
+    width: 100%; max-width: 260px; margin: 12px 0; text-align: center;
   }
   #welcome input:focus { outline: none; border-color: var(--accent); }
   #welcome button {
-    background: var(--accent);
-    border: none;
-    border-radius: 6px;
-    color: #fff;
-    padding: 12px 32px;
-    font-family: inherit;
-    font-size: 1em;
-    cursor: pointer;
-    margin-top: 8px;
+    background: var(--accent); border: none; border-radius: 6px; color: #fff;
+    padding: 12px 32px; font-family: inherit; font-size: 1em; cursor: pointer; margin-top: 8px;
   }
   #welcome button:hover { opacity: 0.85; }
 
   /* Game screen */
-  #game { display: none; max-width: 600px; width: 100%; }
+  #game { display: none; max-width: 520px; width: 100%; }
 
-  .header {
-    text-align: center;
-    padding: 8px;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 8px;
-  }
+  .header { text-align: center; padding: 8px 0; margin-bottom: 4px; }
   .header .name { font-size: 1.2em; color: var(--green); }
   .header .info { color: var(--dim); font-size: 0.85em; margin-top: 4px; }
 
   .art-box {
-    background: var(--panel);
-    border: 2px solid var(--border);
-    border-radius: 10px;
-    padding: 12px;
-    margin: 8px 0;
-    text-align: center;
+    background: var(--panel); border: 2px solid var(--border); border-radius: 10px;
+    padding: 8px 12px; margin: 8px 0; text-align: center;
   }
   .art-box pre {
-    display: inline-block;
-    text-align: left;
-    color: var(--green);
-    font-size: 0.78em;
-    line-height: 1.25;
+    display: inline-block; text-align: left; color: var(--green);
+    font-size: 0.78em; line-height: 1.25;
   }
 
-  .stats { margin: 10px 0; }
-  .stat-row {
-    display: flex;
-    align-items: center;
-    margin: 4px 0;
-    font-size: 0.9em;
+  /* Evolution progress bar */
+  .progress-section { margin: 10px 0; }
+  .progress-label {
+    display: flex; justify-content: space-between; font-size: 0.85em;
+    color: var(--dim); margin-bottom: 4px;
   }
-  .stat-label { width: 110px; text-align: right; padding-right: 10px; color: var(--dim); }
-  .stat-bar-bg {
-    flex: 1;
-    height: 16px;
-    background: #0d1b2a;
-    border-radius: 4px;
-    overflow: hidden;
+  .progress-bar-bg {
+    height: 20px; background: #0d1b2a; border-radius: 6px; overflow: hidden;
     position: relative;
   }
-  .stat-bar-fill {
-    height: 100%;
-    border-radius: 4px;
-    transition: width 0.5s ease;
+  .progress-bar-fill {
+    height: 100%; background: linear-gradient(90deg, var(--blue), var(--green));
+    border-radius: 6px; transition: width 0.4s ease;
   }
-  .stat-val { width: 40px; text-align: right; font-size: 0.85em; padding-left: 6px; }
+  .progress-bar-text {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75em; color: var(--text); font-weight: bold;
+  }
 
+  /* Stats row */
+  .stats-row {
+    display: flex; justify-content: space-around; margin: 10px 0;
+    font-size: 0.85em; text-align: center;
+  }
+  .stat-item .stat-val { font-size: 1.3em; font-weight: bold; }
+  .stat-item .stat-label { color: var(--dim); font-size: 0.8em; }
+  .stat-correct .stat-val { color: var(--green); }
+  .stat-wrong .stat-val { color: var(--red); }
+  .stat-streak .stat-val { color: var(--yellow); }
+  .stat-best .stat-val { color: var(--blue); }
+
+  /* Question box */
+  .question-box {
+    background: var(--panel); border: 2px solid var(--border); border-radius: 10px;
+    padding: 20px; margin: 12px 0; text-align: center;
+  }
+  .question-text { font-size: 1.5em; color: var(--yellow); margin-bottom: 16px; }
+  .answer-row { display: flex; gap: 8px; justify-content: center; }
+  .answer-row input {
+    background: var(--bg); border: 2px solid var(--border); border-radius: 8px;
+    color: var(--text); padding: 12px 16px; font-family: inherit; font-size: 1.3em;
+    width: 120px; text-align: center;
+  }
+  .answer-row input:focus { outline: none; border-color: var(--accent); }
+  .answer-row button {
+    background: var(--accent); border: none; border-radius: 8px; color: #fff;
+    padding: 12px 24px; font-family: inherit; font-size: 1.1em; cursor: pointer;
+  }
+  .answer-row button:hover { opacity: 0.85; }
+
+  /* Message box */
   .message-box {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 10px 16px;
-    margin: 8px 0;
-    min-height: 36px;
-    color: var(--yellow);
-    font-size: 0.9em;
-    text-align: center;
+    border-radius: 8px; padding: 10px 16px; margin: 8px 0;
+    min-height: 36px; font-size: 0.95em; text-align: center;
+    transition: all 0.3s;
   }
+  .message-box.correct { background: #0a2e1a; border: 1px solid var(--green); color: var(--green); }
+  .message-box.wrong { background: #2e0a1a; border: 1px solid var(--red); color: var(--red); }
+  .message-box.info { background: var(--panel); border: 1px solid var(--border); color: var(--yellow); }
+  .message-box.empty { background: transparent; border: 1px solid transparent; color: transparent; }
 
-  .tricks-display {
-    color: var(--blue);
-    text-align: center;
-    font-size: 0.85em;
-    margin: 4px 0;
+  /* Streak indicator */
+  .streak-fire {
+    display: inline-block; font-size: 1.1em;
+    animation: pulse 0.5s ease-in-out infinite alternate;
   }
-
-  /* Action buttons */
-  .actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    justify-content: center;
-    margin: 12px 0;
-  }
-  .actions button, .sub-panel button {
-    background: var(--border);
-    border: 1px solid #1a4a8a;
-    border-radius: 6px;
-    color: var(--text);
-    padding: 8px 16px;
-    font-family: inherit;
-    font-size: 0.85em;
-    cursor: pointer;
-    transition: background 0.15s;
-  }
-  .actions button:hover, .sub-panel button:hover { background: #1a4a8a; }
-  .actions button:disabled, .sub-panel button:disabled {
-    opacity: 0.4; cursor: not-allowed;
-  }
-  .actions button.primary { background: var(--accent); border-color: var(--accent); }
-  .actions button.primary:hover { opacity: 0.85; }
-
-  /* Sub-panels (food, shop, inventory, etc) */
-  .sub-panel {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 12px;
-    margin: 8px 0;
-    display: none;
-  }
-  .sub-panel.active { display: block; }
-  .sub-panel h3 { color: var(--accent); font-size: 1em; margin-bottom: 8px; text-align: center; }
-  .sub-panel .item-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 6px 4px;
-    border-bottom: 1px solid #0d1b2a;
-  }
-  .sub-panel .item-row:last-child { border-bottom: none; }
-  .sub-panel .item-info { flex: 1; }
-  .sub-panel .item-name { color: var(--text); }
-  .sub-panel .item-desc { color: var(--dim); font-size: 0.8em; }
-  .sub-panel .item-price { color: var(--yellow); font-size: 0.85em; margin-right: 10px; }
-  .sub-panel .close-btn {
-    display: block;
-    margin: 10px auto 0;
-    background: none;
-    border: 1px solid var(--dim);
-    color: var(--dim);
-  }
-
-  /* Minigame input */
-  .mg-input {
-    display: flex;
-    gap: 8px;
-    justify-content: center;
-    margin-top: 10px;
-  }
-  .mg-input input {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    color: var(--text);
-    padding: 8px 12px;
-    font-family: inherit;
-    font-size: 0.95em;
-    width: 180px;
-    text-align: center;
-  }
-  .mg-input input:focus { outline: none; border-color: var(--accent); }
-  .mg-input button { background: var(--accent); border-color: var(--accent); }
+  @keyframes pulse { from { opacity: 0.7; transform: scale(1); } to { opacity: 1; transform: scale(1.1); } }
 
   /* Evolution overlay */
   #evo-overlay {
-    display: none;
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.85);
-    z-index: 100;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
+    display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.9); z-index: 100;
+    justify-content: center; align-items: center; flex-direction: column;
   }
   #evo-overlay.show { display: flex; }
   #evo-overlay .evo-text {
-    color: var(--yellow);
-    font-size: 1.3em;
-    margin-bottom: 20px;
-    text-align: center;
-    animation: pulse 0.8s ease-in-out infinite alternate;
+    color: var(--yellow); font-size: 1.5em; margin-bottom: 20px; text-align: center;
+    animation: pulse 0.6s ease-in-out infinite alternate;
   }
   #evo-overlay .evo-sparkle {
-    color: var(--green);
-    font-size: 2em;
-    animation: spin 1s linear infinite;
+    font-size: 2.5em; animation: spin 1.5s linear infinite;
   }
-  @keyframes pulse { from { opacity: 0.6; } to { opacity: 1; } }
   @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
-  /* Death screen */
-  .death-screen { text-align: center; color: var(--dim); margin: 20px 0; }
-  .death-screen pre { color: var(--red); display: inline-block; text-align: left; font-size: 0.78em; }
 </style>
 </head>
 <body>
@@ -268,10 +170,13 @@
    ╲ · ·  ·  ╱
     ╰──────╯
 </pre>
-  <p class="subtitle">Your egg is waiting to hatch...<br>Adopt your very own Stitch!</p>
+  <p class="desc">
+    Hatch and raise your own Stitch by solving math problems!<br>
+    Answer 100 problems to hatch your egg, then keep going to evolve.
+  </p>
   <input type="text" id="pet-name" placeholder="Name your pet" maxlength="20" autofocus>
   <br>
-  <button onclick="startGame()">Adopt!</button>
+  <button onclick="startGame()">Start!</button>
 </div>
 
 <!-- Game Screen -->
@@ -283,62 +188,48 @@
 
   <div class="art-box"><pre id="g-art"></pre></div>
 
-  <div id="g-egg-msg" style="text-align:center;color:var(--dim);margin:8px 0;display:none;">Waiting to hatch...</div>
-
-  <div class="stats" id="g-stats"></div>
-
-  <div class="tricks-display" id="g-tricks"></div>
-
-  <div class="message-box" id="g-message"></div>
-
-  <div class="actions" id="g-actions"></div>
-
-  <!-- Sub-panels -->
-  <div class="sub-panel" id="panel-food">
-    <h3>Feed</h3>
-    <div id="food-list"></div>
-    <button class="close-btn" onclick="closePanel('food')">Cancel</button>
-  </div>
-
-  <div class="sub-panel" id="panel-trick">
-    <h3>Teach Trick (-15 happiness)</h3>
-    <div id="trick-list"></div>
-    <button class="close-btn" onclick="closePanel('trick')">Cancel</button>
-  </div>
-
-  <div class="sub-panel" id="panel-shop">
-    <h3 id="shop-title">Shop</h3>
-    <div id="shop-list"></div>
-    <button class="close-btn" onclick="closePanel('shop')">Leave Shop</button>
-  </div>
-
-  <div class="sub-panel" id="panel-inventory">
-    <h3>Inventory</h3>
-    <div id="inv-list"></div>
-    <button class="close-btn" onclick="closePanel('inventory')">Back</button>
-  </div>
-
-  <div class="sub-panel" id="panel-minigame">
-    <h3>Mini-Games (energy -15)</h3>
-    <div id="mg-list"></div>
-    <button class="close-btn" onclick="closePanel('minigame')">Back</button>
-  </div>
-
-  <div class="sub-panel" id="panel-mg-active">
-    <h3 id="mg-active-title"></h3>
-    <div id="mg-active-msg" style="margin:8px 0;text-align:center;"></div>
-    <div class="mg-input">
-      <input type="text" id="mg-answer" placeholder="Your answer..." autofocus>
-      <button onclick="submitMgAnswer()">Go</button>
+  <!-- Evolution progress -->
+  <div class="progress-section" id="progress-section">
+    <div class="progress-label">
+      <span id="progress-label-left"></span>
+      <span id="progress-label-right"></span>
+    </div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progress-fill"></div>
+      <div class="progress-bar-text" id="progress-text"></div>
     </div>
   </div>
 
-  <!-- Death overlay -->
-  <div class="death-screen" id="death-screen" style="display:none;">
-    <pre id="death-art"></pre>
-    <p id="death-text"></p>
-    <br>
-    <button class="primary" onclick="location.reload()" style="background:var(--accent);border:none;border-radius:6px;color:#fff;padding:10px 24px;font-family:inherit;cursor:pointer;">New Game</button>
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-item stat-correct">
+      <div class="stat-val" id="s-correct">0</div>
+      <div class="stat-label">Correct</div>
+    </div>
+    <div class="stat-item stat-wrong">
+      <div class="stat-val" id="s-wrong">0</div>
+      <div class="stat-label">Wrong</div>
+    </div>
+    <div class="stat-item stat-streak">
+      <div class="stat-val" id="s-streak">0</div>
+      <div class="stat-label">Streak</div>
+    </div>
+    <div class="stat-item stat-best">
+      <div class="stat-val" id="s-best">0</div>
+      <div class="stat-label">Best</div>
+    </div>
+  </div>
+
+  <!-- Message -->
+  <div class="message-box empty" id="g-message"></div>
+
+  <!-- Question -->
+  <div class="question-box">
+    <div class="question-text" id="g-question"></div>
+    <div class="answer-row">
+      <input type="text" id="answer-input" placeholder="?" inputmode="numeric" autocomplete="off">
+      <button onclick="submitAnswer()" id="submit-btn">Go!</button>
+    </div>
   </div>
 </div>
 
@@ -350,242 +241,110 @@
 
 <script>
 const socket = io();
-let currentState = null;
-let activePanel = null;
+let lastCorrect = null;  // track if last answer was correct for message styling
 
-// ── Start game ──────────────────────────────────────────────────
 function startGame() {
   const name = document.getElementById('pet-name').value.trim();
   socket.emit('new_game', {name});
   document.getElementById('welcome').style.display = 'none';
   document.getElementById('game').style.display = 'block';
+  document.getElementById('answer-input').focus();
 }
 document.getElementById('pet-name').addEventListener('keydown', e => {
   if (e.key === 'Enter') startGame();
 });
 
-// ── State update ────────────────────────────────────────────────
 socket.on('state', state => {
-  currentState = state;
-  renderState(state);
+  // Header
+  document.getElementById('g-name').textContent = `~ ${state.name} the ${state.species} ~`;
+  document.getElementById('g-info').textContent = `Stage: ${state.stage_label}`;
+
+  // Art
+  document.getElementById('g-art').textContent = state.art;
+
+  // Progress bar
+  const section = document.getElementById('progress-section');
+  if (state.is_final_stage) {
+    document.getElementById('progress-label-left').textContent = 'Fully evolved!';
+    document.getElementById('progress-label-right').textContent = `${state.total_correct} total`;
+    document.getElementById('progress-fill').style.width = '100%';
+    document.getElementById('progress-text').textContent = 'MAX';
+  } else {
+    const labels = {egg:'Egg',baby:'Baby',child:'Child',teen:'Teen',adult:'Adult'};
+    const stages = ['egg','baby','child','teen','adult'];
+    const idx = stages.indexOf(state.stage);
+    const nextLabel = idx + 1 < stages.length ? labels[stages[idx + 1]] : '???';
+    document.getElementById('progress-label-left').textContent = `${state.stage_label} → ${nextLabel}`;
+    document.getElementById('progress-label-right').textContent = `${state.stage_correct} / ${state.stage_needed}`;
+    document.getElementById('progress-fill').style.width = state.progress_pct + '%';
+    document.getElementById('progress-text').textContent = state.progress_pct + '%';
+  }
+
+  // Stats
+  document.getElementById('s-correct').textContent = state.total_correct;
+  document.getElementById('s-wrong').textContent = state.total_wrong;
+
+  let streakHtml = String(state.streak);
+  if (state.streak >= 5) streakHtml += ' <span class="streak-fire">&#x1F525;</span>';
+  document.getElementById('s-streak').innerHTML = streakHtml;
+  document.getElementById('s-best').textContent = state.best_streak;
+
+  // Message
+  const msgEl = document.getElementById('g-message');
+  if (state.message) {
+    msgEl.textContent = state.message;
+    if (lastCorrect === true) msgEl.className = 'message-box correct';
+    else if (lastCorrect === false) msgEl.className = 'message-box wrong';
+    else msgEl.className = 'message-box info';
+  }
+
+  // Question
+  document.getElementById('g-question').textContent = state.question;
 });
 
 socket.on('evolution', data => {
   const labels = {egg:'Egg',baby:'Baby',child:'Child',teen:'Teen',adult:'Adult'};
   const el = document.getElementById('evo-overlay');
-  document.getElementById('evo-text').textContent =
-    `${labels[data.old] || data.old} → ${labels[data.new] || data.new}!`;
+  const oldLabel = labels[data.old] || data.old;
+  const newLabel = labels[data.new] || data.new;
+  let text = `${oldLabel} → ${newLabel}!`;
+  if (data.new === 'baby') text = 'Your egg hatched!';
+  document.getElementById('evo-text').textContent = text;
   el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), 3000);
+  setTimeout(() => {
+    el.classList.remove('show');
+    document.getElementById('answer-input').focus();
+  }, 3000);
 });
 
-function renderState(s) {
-  // Header
-  document.getElementById('g-name').textContent = `~ ${s.name} the ${s.species} ~`;
-  let info = `Stage: ${s.stage_label}  |  Ticks: ${s.ticks_alive}  |  Coins: ${s.coins}`;
-  if (s.evo_remaining !== null) info += `  |  Evolves in: ${s.evo_remaining}`;
-  document.getElementById('g-info').textContent = info;
+function submitAnswer() {
+  const inp = document.getElementById('answer-input');
+  const val = inp.value.trim();
+  if (!val) return;
 
-  // Art
-  document.getElementById('g-art').textContent = s.art;
-
-  // Egg message
-  document.getElementById('g-egg-msg').style.display = s.stage === 'egg' ? 'block' : 'none';
-
-  // Stats
-  const statsDiv = document.getElementById('g-stats');
-  if (s.stage === 'egg') {
-    statsDiv.innerHTML = '';
-  } else {
-    const statDefs = [
-      {key:'hunger', label:'Hunger', color:'var(--green)'},
-      {key:'happiness', label:'Happiness', color:'var(--yellow)'},
-      {key:'energy', label:'Energy', color:'var(--blue)'},
-      {key:'cleanliness', label:'Cleanliness', color:'#a78bfa'},
-      {key:'health', label:'Health', color:'var(--red)'},
-    ];
-    statsDiv.innerHTML = statDefs.map(d => {
-      const v = s.stats[d.key];
-      return `<div class="stat-row">
-        <span class="stat-label">${d.label}</span>
-        <div class="stat-bar-bg">
-          <div class="stat-bar-fill" style="width:${v}%;background:${d.color};"></div>
-        </div>
-        <span class="stat-val">${v}</span>
-      </div>`;
-    }).join('');
-  }
-
-  // Tricks
-  const tricksEl = document.getElementById('g-tricks');
-  tricksEl.textContent = s.tricks_learned.length ? 'Tricks: ' + s.tricks_learned.join(', ') : '';
-
-  // Sleeping
-  if (s.sleeping) {
-    document.getElementById('g-message').textContent =
-      s.message || `${s.name} is sleeping... (${s.sleep_ticks_left} ticks left)`;
-  } else {
-    document.getElementById('g-message').textContent = s.message || '';
-  }
-
-  // Death
-  if (!s.alive) {
-    document.getElementById('g-actions').innerHTML = '';
-    closePanels();
-    const ds = document.getElementById('death-screen');
-    ds.style.display = 'block';
-    document.getElementById('death-art').textContent = s.art;
-    document.getElementById('death-text').textContent =
-      `${s.name} lived for ${s.ticks_alive} ticks and reached the ${s.stage_label} stage. Rest in peace.`;
-    return;
-  }
-
-  // Minigame active
-  if (s.minigame_active) {
-    closePanels();
-    openPanel('mg-active');
-    const titles = {number_guess:'Number Guess', rps:'Rock Paper Scissors', memory:'Memory Sequence'};
-    document.getElementById('mg-active-title').textContent = titles[s.minigame_active] || 'Mini-Game';
-    document.getElementById('mg-active-msg').textContent = s.message || '';
-
-    const inp = document.getElementById('mg-answer');
-    if (s.minigame_active === 'memory' && s.mg_data.phase === 'show') {
-      inp.style.display = 'none';
-      document.querySelector('#panel-mg-active .mg-input button').textContent = 'Ready!';
+  // Optimistic: check if the displayed question can tell us if correct
+  // (server is source of truth, but we set lastCorrect for styling)
+  const questionText = document.getElementById('g-question').textContent;
+  // Try to evaluate locally for instant feedback styling
+  try {
+    // Simple check: extract "a + b = ?" or "a - b = ?"
+    const m = questionText.match(/^(\d+)\s*([+\-])\s*(\d+)\s*=\s*\?$/);
+    if (m) {
+      const a = parseInt(m[1]), op = m[2], b = parseInt(m[3]);
+      const correct = op === '+' ? a + b : a - b;
+      lastCorrect = parseInt(val) === correct;
     } else {
-      inp.style.display = '';
-      document.querySelector('#panel-mg-active .mg-input button').textContent = 'Go';
-      if (s.minigame_active === 'rps') inp.placeholder = 'R, P, or S';
-      else if (s.minigame_active === 'memory') inp.placeholder = 'Symbols separated by spaces';
-      else inp.placeholder = `Number ${s.mg_data?.target ? '' : '1-10'}`;
+      lastCorrect = null; // can't tell locally
     }
-    return;
-  } else {
-    if (activePanel === 'mg-active') closePanel('mg-active');
-  }
+  } catch(e) { lastCorrect = null; }
 
-  // Actions
-  renderActions(s);
-}
-
-function renderActions(s) {
-  const div = document.getElementById('g-actions');
-  const btns = [];
-  if (s.actions.includes('feed')) btns.push(`<button onclick="openPanel('food')">Feed</button>`);
-  if (s.actions.includes('play')) btns.push(`<button onclick="doAction('play')">Play</button>`);
-  if (s.actions.includes('clean')) btns.push(`<button onclick="doAction('clean')">Clean</button>`);
-  if (s.actions.includes('sleep')) btns.push(`<button onclick="doAction('sleep')">Sleep</button>`);
-  if (s.actions.includes('trick')) btns.push(`<button onclick="openPanel('trick')">Teach Trick</button>`);
-  if (s.actions.includes('minigame')) btns.push(`<button onclick="openPanel('minigame')">Mini-Games</button>`);
-  if (s.actions.includes('shop')) btns.push(`<button onclick="openPanel('shop')">Shop</button>`);
-  if (s.actions.includes('inventory')) btns.push(`<button onclick="openPanel('inventory')">Inventory</button>`);
-  div.innerHTML = btns.join('');
-
-  // Populate sub-panels if state has data
-  populateFoodPanel(s);
-  populateTrickPanel(s);
-  populateShopPanel(s);
-  populateInvPanel(s);
-  populateMgPanel(s);
-}
-
-// ── Actions ─────────────────────────────────────────────────────
-function doAction(action, extra) {
-  socket.emit('action', {action, ...extra});
-  closePanels();
-}
-
-// ── Panels ──────────────────────────────────────────────────────
-function openPanel(name) {
-  closePanels();
-  const el = document.getElementById('panel-' + name);
-  if (el) { el.classList.add('active'); activePanel = name; }
-  // Focus minigame input
-  if (name === 'mg-active') {
-    setTimeout(() => document.getElementById('mg-answer')?.focus(), 50);
-  }
-}
-function closePanel(name) {
-  const el = document.getElementById('panel-' + name);
-  if (el) el.classList.remove('active');
-  if (activePanel === name) activePanel = null;
-}
-function closePanels() {
-  document.querySelectorAll('.sub-panel').forEach(el => el.classList.remove('active'));
-  activePanel = null;
-}
-
-function populateFoodPanel(s) {
-  document.getElementById('food-list').innerHTML = s.foods.map((f, i) => {
-    const hap = f.happiness >= 0 ? `+${f.happiness}` : f.happiness;
-    return `<div class="item-row">
-      <div class="item-info"><span class="item-name">${f.name}</span>
-        <div class="item-desc">hunger +${f.hunger}, happy ${hap}</div></div>
-      <button onclick="doAction('feed',{index:${i}})">Feed</button>
-    </div>`;
-  }).join('');
-}
-
-function populateTrickPanel(s) {
-  document.getElementById('trick-list').innerHTML = s.tricks.map((t, i) => {
-    const label = t.learned ? `${t.name} [learned]` : t.name;
-    return `<div class="item-row">
-      <div class="item-info"><span class="item-name">${label}</span></div>
-      <button ${t.learned ? 'disabled' : ''} onclick="doAction('trick',{index:${i}})">Teach</button>
-    </div>`;
-  }).join('');
-}
-
-function populateShopPanel(s) {
-  document.getElementById('shop-title').textContent = `Shop (${s.coins} coins)`;
-  document.getElementById('shop-list').innerHTML = s.shop_items.map((item, i) => {
-    return `<div class="item-row">
-      <div class="item-info"><span class="item-name">${item.name}</span>
-        <div class="item-desc">${item.desc}</div></div>
-      <span class="item-price">${item.price}c</span>
-      <button ${item.affordable ? '' : 'disabled'} onclick="doAction('buy',{index:${i}})">Buy</button>
-    </div>`;
-  }).join('');
-}
-
-function populateInvPanel(s) {
-  if (!s.inv_items.length) {
-    document.getElementById('inv-list').innerHTML = '<p style="text-align:center;color:var(--dim);">Empty</p>';
-    return;
-  }
-  document.getElementById('inv-list').innerHTML = s.inv_items.map(item => {
-    const qtyStr = item.qty !== null ? ` x${item.qty}` : '';
-    const canUse = item.cat === 'food' || item.cat === 'medicine';
-    const btnHtml = canUse
-      ? `<button onclick="doAction('use_item',${JSON.stringify({name:item.name,cat:item.cat,data:item.data})})">Use</button>`
-      : '';
-    return `<div class="item-row">
-      <div class="item-info"><span class="item-name">${item.name}${qtyStr}</span>
-        <div class="item-desc">${item.desc}</div></div>
-      ${btnHtml}
-    </div>`;
-  }).join('');
-}
-
-function populateMgPanel(s) {
-  document.getElementById('mg-list').innerHTML = s.minigames.map((mg, i) => {
-    const cdStr = mg.cooldown > 0 ? ` (${mg.cooldown} ticks)` : '';
-    return `<div class="item-row">
-      <div class="item-info"><span class="item-name">${mg.name}</span>
-        <div class="item-desc">${mg.can_play ? 'Ready!' : mg.reason}${cdStr}</div></div>
-      <button ${mg.can_play ? '' : 'disabled'} onclick="doAction('start_minigame',{index:${i}})">Play</button>
-    </div>`;
-  }).join('');
-}
-
-// ── Minigame input ──────────────────────────────────────────────
-function submitMgAnswer() {
-  const inp = document.getElementById('mg-answer');
-  socket.emit('action', {action: 'mg_answer', answer: inp.value});
+  socket.emit('answer', {answer: val});
   inp.value = '';
+  inp.focus();
 }
-document.getElementById('mg-answer').addEventListener('keydown', e => {
-  if (e.key === 'Enter') submitMgAnswer();
+
+document.getElementById('answer-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') submitAnswer();
 });
 </script>
 </body>
