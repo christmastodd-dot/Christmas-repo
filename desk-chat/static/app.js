@@ -1028,7 +1028,71 @@ function removeBingoNotify() {
 
 function handleBingoWin(winner) {
     closeBingoCard();
-    showCelebration(winner, "BINGO");
+
+    const overlay = document.createElement("div");
+    overlay.className = "celebrate-overlay";
+
+    const canvas = document.createElement("canvas");
+    canvas.className = "fireworks-canvas";
+    overlay.appendChild(canvas);
+
+    const label = document.createElement("div");
+    label.className = "celebrate-label";
+    label.textContent = "BINGO!";
+
+    const targetLabel = document.createElement("div");
+    targetLabel.className = "celebrate-target";
+    targetLabel.textContent = winner + " wins!";
+
+    overlay.appendChild(label);
+    overlay.appendChild(targetLabel);
+    document.body.appendChild(overlay);
+
+    canvas.width = overlay.clientWidth || window.innerWidth;
+    canvas.height = overlay.clientHeight || window.innerHeight;
+    const ctx = canvas.getContext("2d");
+
+    const colors = ["#FF4444", "#FFD700", "#44FF44", "#4488FF", "#FF44FF", "#FF8800", "#00DDFF"];
+    const particles = [];
+
+    function addBurst(x, y) {
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        for (let i = 0; i < 40; i++) {
+            const angle = (Math.PI * 2 * i) / 40 + (Math.random() - 0.5) * 0.3;
+            const speed = 2 + Math.random() * 4;
+            particles.push({ x, y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, life: 1, decay: 0.008 + Math.random() * 0.008, color, size: 2 + Math.random() * 3 });
+        }
+    }
+
+    addBurst(canvas.width * 0.5, canvas.height * 0.35);
+    addBurst(canvas.width * 0.3, canvas.height * 0.3);
+    addBurst(canvas.width * 0.7, canvas.height * 0.25);
+    for (let i = 0; i < 4; i++) {
+        setTimeout(() => addBurst(canvas.width * (0.2 + Math.random() * 0.6), canvas.height * (0.2 + Math.random() * 0.4)), (i + 1) * 400);
+    }
+
+    let animId;
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (let i = particles.length - 1; i >= 0; i--) {
+            const p = particles[i];
+            p.x += p.vx; p.y += p.vy; p.vy += 0.04; p.vx *= 0.99; p.life -= p.decay;
+            if (p.life <= 0) { particles.splice(i, 1); continue; }
+            ctx.globalAlpha = p.life;
+            ctx.fillStyle = p.color;
+            ctx.beginPath(); ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(p.x - p.vx, p.y - p.vy, p.size * p.life * 0.5, 0, Math.PI * 2); ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+        if (particles.length > 0) animId = requestAnimationFrame(animate);
+    }
+    animate();
+
+    setTimeout(() => {
+        overlay.classList.add("fade-out");
+        cancelAnimationFrame(animId);
+        setTimeout(() => overlay.remove(), 600);
+    }, 4000);
 }
 
 // Bingo button
