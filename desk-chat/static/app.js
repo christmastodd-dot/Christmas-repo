@@ -483,9 +483,9 @@ function showCelebration(sender) {
     overlay.appendChild(sub);
     document.body.appendChild(overlay);
 
-    // Size canvas
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    // Size canvas to full screen
+    canvas.width = overlay.clientWidth || window.innerWidth;
+    canvas.height = overlay.clientHeight || window.innerHeight;
     const ctx = canvas.getContext("2d");
 
     // Firework particles
@@ -511,16 +511,22 @@ function showCelebration(sender) {
         }
     }
 
-    // Stagger bursts
+    // Stagger bursts — first three fire immediately
     const burstPositions = [
-        [0.3, 0.3], [0.7, 0.25], [0.5, 0.4],
+        [0.5, 0.35], [0.3, 0.3], [0.7, 0.25],
         [0.2, 0.5], [0.8, 0.45], [0.4, 0.2], [0.6, 0.55]
     ];
-    burstPositions.forEach((pos, i) => {
+    // Fire first burst immediately
+    addBurst(canvas.width * 0.5, canvas.height * 0.35);
+    addBurst(canvas.width * 0.3, canvas.height * 0.3);
+    addBurst(canvas.width * 0.7, canvas.height * 0.25);
+    // Stagger the rest
+    for (let i = 3; i < burstPositions.length; i++) {
+        const pos = burstPositions[i];
         setTimeout(() => {
             addBurst(canvas.width * pos[0], canvas.height * pos[1]);
-        }, i * 300);
-    });
+        }, (i - 2) * 400);
+    }
 
     let animId;
     function animate() {
@@ -549,11 +555,9 @@ function showCelebration(sender) {
         }
     }
 
-    requestAnimationFrame(() => overlay.classList.add("active"));
     animate();
 
     setTimeout(() => {
-        overlay.classList.remove("active");
         overlay.classList.add("fade-out");
         cancelAnimationFrame(animId);
         setTimeout(() => overlay.remove(), 600);

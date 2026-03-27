@@ -444,13 +444,8 @@ body.quiet .msg.system .text {
     align-items: center;
     justify-content: center;
     background: rgba(0, 0, 0, 0.6);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    pointer-events: none;
-}
-
-.celebrate-overlay.active {
     opacity: 1;
+    pointer-events: none;
 }
 
 .celebrate-overlay.fade-out {
