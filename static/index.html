@@ -31,7 +31,7 @@ const NUM_GOATS = 7;         // 5 normal + 1 extra normal + 1 angry boss goat
 // State
 let state = 'start'; // start | playing | knockback | gameover | win
 let playerWX, playerWY, playerVY, onGround, lives, facingRight;
-let invincibleTimer, tutorialTimer, playerMoving = false;
+let invincibleTimer, tutorialTimer, playerMoving = false, walkTimer = 0;
 // Knockback: player flies off mountain then reappears
 let kbX, kbY, kbVX, kbVY, kbTimer;
 let goats = [];
@@ -64,6 +64,7 @@ function resetLevel() {
   facingRight = true;
   invincibleTimer = 0;
   tutorialTimer = 4;
+  walkTimer = 0;
   goats = [];
   const spacing = LEVEL_LENGTH / (NUM_GOATS + 1);
   for (let i = 0; i < NUM_GOATS; i++) {
@@ -302,36 +303,21 @@ function drawPlayer(sx, sy, right, flash, moving, walkOffset) {
   const c = ctx;
   const f = right ? 1 : -1;
 
-  // ── WALK ANIMATION (rebuilt from first principles) ─────────────────────
+  // ── WALK ANIMATION ─────────────────────────────────────────────────────
+  // Time-based: walkOffset is a timer that always counts UP while moving.
+  // rotate(+) = clockwise = limb swings RIGHTWARD on screen.
+  // Multiply by f so "forward" = toward facing direction in both cases.
   //
-  // Canvas: ctx.rotate(+) = clockwise = swings hanging limb RIGHTWARD.
-  // Position-based phase: walkPhase = playerWX * k.  Moving right increases
-  // it, moving left decreases it, so sin() naturally reverses — no flip needed.
-  //
-  // Natural gait rule: opposite limbs swing together.
-  //   right leg + left arm  get angle = +swing
-  //   left leg  + right arm get angle = -swing
-  //
-  // Draw order (back-to-front):
-  //   facing right → left side behind, right side in front
-  //   facing left  → right side behind, left side in front
+  // "near" = side closest to viewer (right when facing right).
+  // Natural gait: near leg + far arm swing forward together.
 
-  const walkPhase = moving ? (walkOffset * 0.065) : 0;
-  const swing = moving ? Math.sin(walkPhase) * 0.35 : 0;
+  const walkCycle = moving ? Math.sin(walkOffset * 8) * 0.35 : 0;
 
-  // Assign angles to the four limbs by NAME (left/right of the character)
-  const rightLegAngle = -swing;
-  const leftLegAngle  =  swing;
-  const leftArmAngle  = -swing;   // paired with right leg
-  const rightArmAngle =  swing;   // paired with left leg
-
-  // Resolve draw order: back = far side, front = near side
-  const backArmAngle  = right ? leftArmAngle  : rightArmAngle;
-  const frontArmAngle = right ? rightArmAngle : leftArmAngle;
-  const backLegX  = right ? sx - 5 : sx + 5;
-  const backLegA  = right ? leftLegAngle  : rightLegAngle;
-  const frontLegX = right ? sx + 5 : sx - 5;
-  const frontLegA = right ? rightLegAngle : leftLegAngle;
+  // near leg forward, far arm forward (opposite-side gait)
+  const nearLegAngle =  walkCycle * f;
+  const farLegAngle  = -walkCycle * f;
+  const nearArmAngle = -walkCycle * f;   // opposite to near leg
+  const farArmAngle  =  walkCycle * f;   // opposite to far leg
 
   // ── 1. Backpack (furthest back) ──────────────────────────────────────────
   c.fillStyle = 'rgb(60,90,50)';
@@ -342,8 +328,8 @@ function drawPlayer(sx, sy, right, flash, moving, walkOffset) {
   c.beginPath(); c.moveTo(sx - f*5, sy - 36); c.lineTo(sx - f*14, sy - 32); c.stroke();
   c.beginPath(); c.moveTo(sx + f*5, sy - 36); c.lineTo(sx - f*14, sy - 24); c.stroke();
 
-  // ── 2. Back arm (behind torso) ───────────────────────────────────────────
-  drawArm(c, sx - f*12, sy - 32, backArmAngle, f);
+  // ── 2. Far arm (behind torso) ────────────────────────────────────────────
+  drawArm(c, sx - f*12, sy - 32, farArmAngle, f);
 
   // ── 3. Torso: jacket + lederhosen ────────────────────────────────────────
   c.fillStyle = 'rgb(80,140,80)';
@@ -365,10 +351,10 @@ function drawPlayer(sx, sy, right, flash, moving, walkOffset) {
   // ── 4. Legs (rotate from hip) ────────────────────────────────────────────
   const hipY = sy - 2;
 
-  // Back leg (far side, drawn first)
+  // Far leg (drawn first, behind)
   c.save();
-  c.translate(backLegX, hipY);
-  c.rotate(backLegA);
+  c.translate(sx - f*5, hipY);
+  c.rotate(farLegAngle);
   c.fillStyle = 'rgb(230,195,160)';
   c.beginPath(); c.roundRect(-4, 0, 8, 10, 2); c.fill();
   c.fillStyle = 'rgb(90,60,35)';
@@ -377,10 +363,10 @@ function drawPlayer(sx, sy, right, flash, moving, walkOffset) {
   c.fillRect(-6, 14, 12, 3);
   c.restore();
 
-  // Front leg (near side, drawn second)
+  // Near leg (drawn second, in front)
   c.save();
-  c.translate(frontLegX, hipY);
-  c.rotate(frontLegA);
+  c.translate(sx + f*5, hipY);
+  c.rotate(nearLegAngle);
   c.fillStyle = 'rgb(230,195,160)';
   c.beginPath(); c.roundRect(-4, 0, 8, 10, 2); c.fill();
   c.fillStyle = 'rgb(90,60,35)';
@@ -389,8 +375,8 @@ function drawPlayer(sx, sy, right, flash, moving, walkOffset) {
   c.fillRect(-6, 14, 12, 3);
   c.restore();
 
-  // ── 5. Front arm (in front of torso) ─────────────────────────────────────
-  drawArm(c, sx + f*12, sy - 32, frontArmAngle, f);
+  // ── 5. Near arm (in front of torso) ──────────────────────────────────────
+  drawArm(c, sx + f*12, sy - 32, nearArmAngle, f);
 
   // ── 6. Head ──────────────────────────────────────────────────────────────
   c.fillStyle = 'rgb(245,205,170)';
@@ -802,6 +788,7 @@ function update(dt) {
   if (keys['ArrowRight'] || keys['KeyD']) { playerWX += PLAYER_SPEED * dt; facingRight = true; moving = true; }
   if (keys['ArrowLeft'] || keys['KeyA']) { playerWX -= PLAYER_SPEED * dt; facingRight = false; moving = true; }
   playerMoving = moving;
+  if (moving) walkTimer += dt;
   playerWX = Math.max(0, Math.min(playerWX, LEVEL_LENGTH));
 
   const groundY = trailY(playerWX);
@@ -914,11 +901,11 @@ function draw(dt) {
     ctx.translate(ksx, ksy);
     ctx.rotate(tumble * Math.PI * 3 * (facingRight ? 1 : -1));
     ctx.translate(-ksx, -ksy);
-    drawPlayer(Math.round(ksx), Math.round(ksy), facingRight, false, false, playerWX);
+    drawPlayer(Math.round(ksx), Math.round(ksy), facingRight, false, false, walkTimer);
     ctx.restore();
   } else {
     const [psx, psy] = worldToScreen(playerWX, playerWY, camWX, camWY);
-    drawPlayer(Math.round(psx), Math.round(psy), facingRight, invincibleTimer > 0, playerMoving, playerWX);
+    drawPlayer(Math.round(psx), Math.round(psy), facingRight, invincibleTimer > 0, playerMoving, walkTimer);
   }
 
   drawHearts(lives);
