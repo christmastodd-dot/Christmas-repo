@@ -204,9 +204,10 @@ function resetBall(dir) {
   ball.x = W / 2;
   ball.y = H / 2;
   const angle = (Math.random() * 0.8 - 0.4); // narrow angle
-  // Ball speed: easy=base, medium & hard=+10%
+  // Ball speed: easy=base, medium=+15%, hard=+30%
   let ballSpeedScale = 1;
-  if (speedMult >= 1) ballSpeedScale = 1.1;
+  if (speedMult === 1) ballSpeedScale = 1.15;
+  else if (speedMult >= 1.4) ballSpeedScale = 1.3;
   ball.speed = BALL_BASE_SPEED * ballSpeedScale;
   ball.vx = ball.speed * dir * Math.cos(angle);
   ball.vy = ball.speed * Math.sin(angle);
@@ -438,7 +439,6 @@ function moveBall() {
     ball.x = player.x + player.w + BALL_R;
     const hitPos = (ball.y - player.y) / player.h - 0.5; // -0.5 to 0.5
     const angle = hitPos * 1.2;
-    ball.speed = Math.min(ball.speed * 1.04, 10);
     ball.vx = ball.speed * Math.cos(angle);
     ball.vy = ball.speed * Math.sin(angle);
   }
@@ -448,7 +448,6 @@ function moveBall() {
     ball.x = cpu.x - BALL_R;
     const hitPos = (ball.y - cpu.y) / cpu.h - 0.5;
     const angle = Math.PI - hitPos * 1.2;
-    ball.speed = Math.min(ball.speed * 1.04, 10);
     ball.vx = ball.speed * Math.cos(angle);
     ball.vy = ball.speed * Math.sin(angle);
   }
@@ -460,7 +459,7 @@ function moveBall() {
     checkWin();
     if (!winCelebrating) {
       scorePause = true;
-      scorePauseTimer = 300; // 5 seconds at 60fps
+      scorePauseTimer = 180; // 3 seconds at 60fps
       scorePauseDir = 1;
       ball.x = W / 2; ball.y = H / 2; ball.vx = 0; ball.vy = 0;
     }
@@ -470,13 +469,13 @@ function moveBall() {
     updateScoreboard();
     // Player scored — fireworks!
     celebrating = true;
-    celebrateTimer = 300; // match the 5s pause
+    celebrateTimer = 180; // match the 3s pause
     spawnFireworks(W / 2, 5);
     document.getElementById('message').textContent = getCheer();
     checkWin();
     if (!winCelebrating) {
       scorePause = true;
-      scorePauseTimer = 300; // 5 seconds at 60fps
+      scorePauseTimer = 180; // 3 seconds at 60fps
       scorePauseDir = -1;
       ball.x = W / 2; ball.y = H / 2; ball.vx = 0; ball.vy = 0;
     }
