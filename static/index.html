@@ -108,16 +108,25 @@ function drawDistantMountains(camWX, camWY) {
   const baseY = H * 0.55;
   const ox = -camWX * px;
   const oy = -camWY * px;
-  const peaks = [[0,180],[150,80],[300,140],[450,60],[600,120],[750,90],[900,160],[1050,70],[1200,130],[1400,100],[1600,150],[1800,65],[2000,110]];
+  // Base pattern with width 2200 for seamless tiling
+  const pattern = [[0,180],[150,80],[300,140],[450,60],[600,120],[750,90],[900,160],[1050,70],[1200,130],[1400,100],[1600,150],[1800,65],[2000,110]];
+  const patternW = 2200;
+  const startTile = Math.floor((ox - W) / patternW) - 1;
+  const endTile = startTile + 4;
+  const pts = [];
+  for (let t = startTile; t <= endTile; t++) {
+    for (const [ppx, ppy] of pattern) {
+      pts.push([ppx + t * patternW + ox, baseY - ppy + oy * 0.3]);
+    }
+  }
+  pts.sort((a, b) => a[0] - b[0]);
   ctx.fillStyle = 'rgb(170,180,200)';
   ctx.beginPath();
-  let first = true;
-  for (const [ppx, ppy] of peaks) {
-    const sx = ((ppx + ox) % (W + 400) + (W + 400)) % (W + 400) - 200;
-    const sy = baseY - ppy + oy * 0.3;
-    if (first) { ctx.moveTo(sx, sy); first = false; } else ctx.lineTo(sx, sy);
-  }
-  ctx.lineTo(W + 200, H); ctx.lineTo(-200, H); ctx.closePath(); ctx.fill();
+  ctx.moveTo(pts[0][0], pts[0][1]);
+  for (const [x, y] of pts) ctx.lineTo(x, y);
+  ctx.lineTo(pts[pts.length-1][0], H + 10);
+  ctx.lineTo(pts[0][0], H + 10);
+  ctx.closePath(); ctx.fill();
 }
 
 function drawMidMountains(camWX, camWY) {
@@ -125,16 +134,24 @@ function drawMidMountains(camWX, camWY) {
   const baseY = H * 0.65;
   const ox = -camWX * px;
   const oy = -camWY * px;
-  const peaks = [[0,140],[200,60],[350,100],[500,50],[700,120],[900,70],[1100,110],[1300,55],[1500,95],[1700,80]];
+  const pattern = [[0,140],[200,60],[350,100],[500,50],[700,120],[900,70],[1100,110],[1300,55],[1500,95],[1700,80]];
+  const patternW = 1800;
+  const startTile = Math.floor((ox - W) / patternW) - 1;
+  const endTile = startTile + 4;
+  const pts = [];
+  for (let t = startTile; t <= endTile; t++) {
+    for (const [ppx, ppy] of pattern) {
+      pts.push([ppx + t * patternW + ox, baseY - ppy + oy * 0.3]);
+    }
+  }
+  pts.sort((a, b) => a[0] - b[0]);
   ctx.fillStyle = 'rgb(130,145,130)';
   ctx.beginPath();
-  let first = true;
-  for (const [ppx, ppy] of peaks) {
-    const sx = ((ppx + ox) % (W + 300) + (W + 300)) % (W + 300) - 150;
-    const sy = baseY - ppy + oy * 0.3;
-    if (first) { ctx.moveTo(sx, sy); first = false; } else ctx.lineTo(sx, sy);
-  }
-  ctx.lineTo(W + 150, H); ctx.lineTo(-150, H); ctx.closePath(); ctx.fill();
+  ctx.moveTo(pts[0][0], pts[0][1]);
+  for (const [x, y] of pts) ctx.lineTo(x, y);
+  ctx.lineTo(pts[pts.length-1][0], H + 10);
+  ctx.lineTo(pts[0][0], H + 10);
+  ctx.closePath(); ctx.fill();
 }
 
 function drawClouds(camWX, camWY, progress) {
@@ -190,26 +207,64 @@ function drawTerrain(camWX, camWY, progress) {
   ctx.moveTo(points[0][0], points[0][1]);
   for (const [x, y] of points) ctx.lineTo(x, y);
   ctx.stroke();
+
+  // Rocky texture: scattered stones at mid and high elevation
+  if (progress > 0.25) {
+    const rng = seededRandom(99 + Math.floor(camWX / 200));
+    const stoneAlpha = Math.min(1, (progress - 0.25) / 0.3);
+    ctx.globalAlpha = stoneAlpha * 0.7;
+    for (let i = 0; i < 18; i++) {
+      const sx = rng() * (W + 200) - 100;
+      const trailPt = points[Math.floor((sx + step) / step)];
+      if (!trailPt) continue;
+      const sy = trailPt[1] + 8 + rng() * 30;
+      const w = 6 + rng() * 14, h = 4 + rng() * 8;
+      ctx.fillStyle = `rgb(${100 + Math.floor(rng()*40)},${90+Math.floor(rng()*30)},${80+Math.floor(rng()*30)})`;
+      ctx.beginPath(); ctx.ellipse(sx, sy, w/2, h/2, rng()*Math.PI, 0, Math.PI*2); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  // Snow patches near summit
+  if (progress > 0.72) {
+    const snowAlpha = Math.min(1, (progress - 0.72) / 0.15);
+    const rng2 = seededRandom(77 + Math.floor(camWX / 150));
+    ctx.globalAlpha = snowAlpha * 0.85;
+    ctx.fillStyle = 'rgb(245,248,255)';
+    for (let i = 0; i < 12; i++) {
+      const sx = rng2() * (W + 100) - 50;
+      const trailPt = points[Math.floor((sx + step) / step)];
+      if (!trailPt) continue;
+      const sy = trailPt[1] + 4 + rng2() * 18;
+      const w = 20 + rng2() * 40, h = 6 + rng2() * 10;
+      ctx.beginPath(); ctx.ellipse(sx, sy, w/2, h/2, 0, 0, Math.PI*2); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
 }
 
 function drawTrees(camWX, camWY, progress) {
-  if (progress > 0.65) return;
-  const density = Math.max(0, 1 - progress * 1.5);
+  if (progress > 0.62) return;
+  const density = Math.max(0, 1 - progress * 1.6);
   const rng = seededRandom(17);
   for (let i = 0; i < 30; i++) {
     const wx = i * 340 + (rng() * 80 - 40);
-    const offset = rng() > 0.5 ? -(50 + rng() * 20) : (50 + rng() * 20);
-    const wy = trailY(wx) + offset;
+    // Always root trees exactly on the trail surface
+    const wy = trailY(wx);
+    // consume a rng call so sequence stays stable regardless of visibility
+    const skipChance = rng();
     const [sx, sy] = worldToScreen(wx, wy, camWX, camWY);
+    // Skip outside view OR by density — but always after consuming rng values
+    if (skipChance > density) continue;
     if (sx < -60 || sx > W + 60) continue;
-    if (rng() > density) continue;
-    // trunk
+    // trunk rooted at sy (trail surface)
     ctx.fillStyle = 'rgb(100,70,40)';
-    ctx.fillRect(sx - 4, sy - 30, 8, 30);
-    // foliage
+    ctx.fillRect(sx - 4, sy - 32, 8, 32);
+    // layered foliage growing upward from trail
     ctx.fillStyle = 'rgb(40,140,50)';
-    ctx.beginPath(); ctx.moveTo(sx, sy-65); ctx.lineTo(sx-20, sy-30); ctx.lineTo(sx+20, sy-30); ctx.closePath(); ctx.fill();
-    ctx.beginPath(); ctx.moveTo(sx, sy-80); ctx.lineTo(sx-15, sy-50); ctx.lineTo(sx+15, sy-50); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(sx, sy-80); ctx.lineTo(sx-22, sy-38); ctx.lineTo(sx+22, sy-38); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = 'rgb(55,160,60)';
+    ctx.beginPath(); ctx.moveTo(sx, sy-95); ctx.lineTo(sx-16, sy-60); ctx.lineTo(sx+16, sy-60); ctx.closePath(); ctx.fill();
   }
 }
 
@@ -224,31 +279,83 @@ function drawSummitFlag(camWX, camWY) {
 function drawPlayer(sx, sy, right, flash) {
   if (flash && Math.floor(performance.now() / 100) % 2 === 0) return;
   const c = ctx;
-  // Body
-  c.fillStyle = 'rgb(50,120,220)';
-  roundRect(sx-14, sy-36, 28, 28, 8);
-  // Head
-  c.beginPath(); c.arc(sx, sy-46, 14, 0, Math.PI*2); c.fill();
+  const f = right ? 1 : -1;
+
+  // Backpack (drawn behind body)
+  c.fillStyle = 'rgb(60,90,50)';
+  c.beginPath(); c.roundRect(sx - f*16, sy - 38, 12, 22, 3); c.fill();
+  c.fillStyle = 'rgb(50,75,40)';
+  c.fillRect(sx - f*15, sy - 36, 4, 8); // pocket
+  // Backpack straps
+  c.strokeStyle = 'rgb(80,110,65)'; c.lineWidth = 2;
+  c.beginPath(); c.moveTo(sx - f*5, sy - 36); c.lineTo(sx - f*14, sy - 32); c.stroke();
+  c.beginPath(); c.moveTo(sx + f*5, sy - 36); c.lineTo(sx - f*14, sy - 24); c.stroke();
+
+  // Jacket / shirt (green)
+  c.fillStyle = 'rgb(80,140,80)';
+  c.beginPath(); c.roundRect(sx - 12, sy - 38, 24, 22, 5); c.fill();
+  // Jacket lapels
+  c.fillStyle = 'rgb(65,115,65)';
+  c.beginPath(); c.moveTo(sx, sy-38); c.lineTo(sx - f*5, sy-30); c.lineTo(sx, sy-28); c.closePath(); c.fill();
+
+  // Lederhosen (brown shorts with suspenders)
+  c.fillStyle = 'rgb(130,85,40)';
+  c.beginPath(); c.roundRect(sx - 12, sy - 18, 24, 16, 3); c.fill();
+  // Lederhosen bib/front detail
+  c.fillStyle = 'rgb(110,70,30)';
+  c.fillRect(sx - 5, sy - 18, 10, 10);
+  c.fillStyle = 'rgb(180,140,70)';
+  c.fillRect(sx - 4, sy - 17, 8, 1); // decorative stitch
+  c.fillRect(sx - 4, sy - 14, 8, 1);
+  // Suspenders
+  c.strokeStyle = 'rgb(110,70,30)'; c.lineWidth = 3;
+  c.beginPath(); c.moveTo(sx - 5, sy - 18); c.lineTo(sx - 8, sy - 38); c.stroke();
+  c.beginPath(); c.moveTo(sx + 5, sy - 18); c.lineTo(sx + 8, sy - 38); c.stroke();
+
+  // Legs (bare skin below lederhosen)
+  c.fillStyle = 'rgb(230,195,160)';
+  c.beginPath(); c.roundRect(sx - 10, sy - 4, 8, 10, 2); c.fill();
+  c.beginPath(); c.roundRect(sx + 2, sy - 4, 8, 10, 2); c.fill();
+
+  // Hiking boots
+  c.fillStyle = 'rgb(90,60,35)';
+  c.beginPath(); c.roundRect(sx - 13, sy + 4, 12, 7, 2); c.fill();
+  c.beginPath(); c.roundRect(sx + 1, sy + 4, 12, 7, 2); c.fill();
+  // Boot soles
+  c.fillStyle = 'rgb(50,40,30)';
+  c.fillRect(sx - 14, sy + 9, 13, 3);
+  c.fillRect(sx, sy + 9, 13, 3);
+
+  // Head (skin tone)
+  c.fillStyle = 'rgb(245,205,170)';
+  c.beginPath(); c.arc(sx, sy - 48, 13, 0, Math.PI * 2); c.fill();
+
+  // Alpine hat (green with small feather)
+  c.fillStyle = 'rgb(60,100,55)';
+  c.beginPath(); c.ellipse(sx, sy - 60, 16, 5, 0, 0, Math.PI * 2); c.fill(); // brim
+  c.beginPath(); c.roundRect(sx - 10, sy - 64, 20, 12, [5,5,0,0]); c.fill(); // crown
+  // Hat band
+  c.fillStyle = 'rgb(180,140,60)';
+  c.fillRect(sx - 10, sy - 54, 20, 3);
+  // Feather
+  c.strokeStyle = 'rgb(220,200,100)'; c.lineWidth = 1.5;
+  c.beginPath(); c.moveTo(sx + f*8, sy - 64); c.bezierCurveTo(sx + f*14, sy - 72, sx + f*10, sy - 78, sx + f*7, sy - 75); c.stroke();
+
+  // Face
+  const ex = right ? 4 : -4;
   // Eyes
-  const exOff = right ? 5 : -5;
   c.fillStyle = '#fff';
-  c.beginPath(); c.arc(sx+exOff-3, sy-48, 4, 0, Math.PI*2); c.fill();
-  c.beginPath(); c.arc(sx+exOff+5, sy-48, 4, 0, Math.PI*2); c.fill();
-  c.fillStyle = '#1e1e1e';
-  c.beginPath(); c.arc(sx+exOff-2, sy-48, 2, 0, Math.PI*2); c.fill();
-  c.beginPath(); c.arc(sx+exOff+6, sy-48, 2, 0, Math.PI*2); c.fill();
-  // Mouth
-  const mx = sx + (right ? 3 : -3);
-  c.strokeStyle = 'rgb(220,80,80)'; c.lineWidth = 2;
-  c.beginPath(); c.arc(mx, sy-40, 5, 0, Math.PI); c.stroke();
-  // Legs
-  c.fillStyle = 'rgb(50,120,220)';
-  roundRect(sx-10, sy-10, 8, 12, 3);
-  roundRect(sx+2, sy-10, 8, 12, 3);
-  // Shoes
-  c.fillStyle = 'rgb(80,60,40)';
-  roundRect(sx-12, sy-2, 10, 5, 2);
-  roundRect(sx+2, sy-2, 10, 5, 2);
+  c.beginPath(); c.ellipse(sx + ex - 3, sy - 49, 3.5, 4, 0, 0, Math.PI*2); c.fill();
+  c.beginPath(); c.ellipse(sx + ex + 4, sy - 49, 3.5, 4, 0, 0, Math.PI*2); c.fill();
+  c.fillStyle = '#333';
+  c.beginPath(); c.arc(sx + ex - 2, sy - 49, 2, 0, Math.PI*2); c.fill();
+  c.beginPath(); c.arc(sx + ex + 5, sy - 49, 2, 0, Math.PI*2); c.fill();
+  // Smile
+  c.strokeStyle = 'rgb(180,80,60)'; c.lineWidth = 1.5;
+  c.beginPath(); c.arc(sx + ex + 1, sy - 43, 4, 0.1, Math.PI - 0.1); c.stroke();
+  // Rosy cheeks
+  c.fillStyle = 'rgba(220,120,100,0.3)';
+  c.beginPath(); c.ellipse(sx + ex - 5, sy - 44, 4, 3, 0, 0, Math.PI*2); c.fill();
 }
 
 function roundRect(x, y, w, h, r) {
@@ -263,24 +370,97 @@ function roundRect(x, y, w, h, r) {
 
 function drawGoat(sx, sy, facingLeft) {
   const flip = facingLeft ? -1 : 1;
-  // Body
-  ctx.fillStyle = 'rgb(240,230,210)';
-  ctx.beginPath(); ctx.ellipse(sx, sy-10, 22, 12, 0, 0, Math.PI*2); ctx.fill();
-  // Head
-  const hx = sx + 22*flip, hy = sy - 22;
-  ctx.beginPath(); ctx.arc(hx, hy, 11, 0, Math.PI*2); ctx.fill();
-  // Horn
-  ctx.strokeStyle = 'rgb(200,180,140)'; ctx.lineWidth = 3;
-  ctx.beginPath(); ctx.arc(hx + 3*flip, hy-10, 8, 0.3, 2.8); ctx.stroke();
-  // Eye
-  ctx.fillStyle = 'rgb(40,40,40)';
-  ctx.beginPath(); ctx.arc(hx + 4*flip, hy-2, 3, 0, Math.PI*2); ctx.fill();
-  // Legs
-  ctx.fillStyle = 'rgb(180,170,155)';
-  for (const off of [-14,-6,6,14]) roundRect(sx+off-3, sy-2, 6, 14, 2);
+
+  // Body — rectangular/blocky (goat not sheep)
+  ctx.fillStyle = 'rgb(235,225,205)';
+  ctx.beginPath();
+  ctx.roundRect(sx - 24, sy - 26, 48, 22, 4);
+  ctx.fill();
+  // Body shading
+  ctx.fillStyle = 'rgba(0,0,0,0.07)';
+  ctx.beginPath(); ctx.roundRect(sx - 24, sy - 26, 48, 10, [4,4,0,0]); ctx.fill();
+
+  // Legs (4 stubby legs)
+  ctx.fillStyle = 'rgb(200,190,175)';
+  for (const off of [-16, -6, 6, 16]) {
+    ctx.fillRect(sx + off - 3, sy - 6, 6, 18);
+  }
   // Hooves
-  ctx.fillStyle = 'rgb(80,70,60)';
-  for (const off of [-14,-6,6,14]) roundRect(sx+off-3, sy+10, 6, 4, 1);
+  ctx.fillStyle = 'rgb(60,50,40)';
+  for (const off of [-16, -6, 6, 16]) {
+    ctx.fillRect(sx + off - 3, sy + 10, 6, 5);
+  }
+
+  // Neck
+  const hx = sx + 20 * flip;
+  const hy = sy - 26;
+  ctx.fillStyle = 'rgb(235,225,205)';
+  ctx.beginPath();
+  ctx.roundRect(hx - 6*flip, hy - 10, 12, 14, 3);
+  ctx.fill();
+
+  // Head — rectangular snout (goat-like)
+  ctx.beginPath();
+  ctx.roundRect(hx - 10, hy - 24, 20, 18, 4);
+  ctx.fill();
+  // Snout
+  ctx.fillStyle = 'rgb(210,200,185)';
+  ctx.beginPath();
+  ctx.roundRect(hx + 2*flip, hy - 16, 10, 10, 3);
+  ctx.fill();
+  // Nostril
+  ctx.fillStyle = 'rgb(160,140,130)';
+  ctx.beginPath(); ctx.ellipse(hx + 5*flip, hy - 10, 2, 1.5, 0, 0, Math.PI*2); ctx.fill();
+
+  // Eye (horizontal-pupil goat eye)
+  ctx.fillStyle = 'rgb(200,160,80)';
+  ctx.beginPath(); ctx.ellipse(hx - 3*flip, hy - 18, 4, 4, 0, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = 'rgb(20,10,0)';
+  ctx.beginPath(); ctx.ellipse(hx - 3*flip, hy - 18, 4, 2, 0, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,0.4)';
+  ctx.beginPath(); ctx.arc(hx - 2*flip, hy - 20, 1.5, 0, Math.PI*2); ctx.fill();
+
+  // Ear
+  ctx.fillStyle = 'rgb(235,225,205)';
+  ctx.beginPath();
+  ctx.ellipse(hx - 9*flip, hy - 20, 4, 6, flip * 0.4, 0, Math.PI*2);
+  ctx.fill();
+  ctx.fillStyle = 'rgb(220,180,180)';
+  ctx.beginPath();
+  ctx.ellipse(hx - 9*flip, hy - 20, 2, 4, flip * 0.4, 0, Math.PI*2);
+  ctx.fill();
+
+  // Horns — swept back, curved (bezier)
+  ctx.strokeStyle = 'rgb(160,130,80)';
+  ctx.lineWidth = 3.5;
+  ctx.lineCap = 'round';
+  // Horn 1
+  ctx.beginPath();
+  ctx.moveTo(hx - 2*flip, hy - 26);
+  ctx.bezierCurveTo(hx - 2*flip - 4*flip, hy - 40, hx - 8*flip - 6*flip, hy - 42, hx - 10*flip - 10*flip, hy - 34);
+  ctx.stroke();
+  // Horn 2 (slightly behind)
+  ctx.strokeStyle = 'rgb(140,110,60)';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.moveTo(hx + 2*flip, hy - 25);
+  ctx.bezierCurveTo(hx + 2*flip - 3*flip, hy - 37, hx - 4*flip - 6*flip, hy - 40, hx - 7*flip - 10*flip, hy - 32);
+  ctx.stroke();
+  ctx.lineCap = 'butt';
+
+  // Beard
+  ctx.strokeStyle = 'rgb(210,200,185)';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(hx + 4*flip, hy - 6);
+  ctx.bezierCurveTo(hx + 5*flip, hy + 2, hx + 3*flip, hy + 6, hx + 4*flip, hy + 9);
+  ctx.stroke();
+
+  // Tail
+  ctx.fillStyle = 'rgb(245,240,230)';
+  ctx.beginPath();
+  ctx.ellipse(sx - 22*flip, sy - 22, 5, 7, flip * 0.3, 0, Math.PI*2);
+  ctx.fill();
 }
 
 function drawHearts(lives) {
@@ -377,9 +557,15 @@ function update(dt) {
   playerWX = Math.max(0, Math.min(playerWX, LEVEL_LENGTH));
 
   const groundY = trailY(playerWX);
-  if (!onGround) playerVY += GRAVITY * dt;
-  playerWY += playerVY * dt;
-  if (playerWY >= groundY) { playerWY = groundY; playerVY = 0; onGround = true; }
+  if (onGround) {
+    // Stick to slope whether moving forward or backward
+    playerWY = groundY;
+    playerVY = 0;
+  } else {
+    playerVY += GRAVITY * dt;
+    playerWY += playerVY * dt;
+    if (playerWY >= groundY) { playerWY = groundY; playerVY = 0; onGround = true; }
+  }
 
   if (invincibleTimer > 0) invincibleTimer -= dt;
   if (tutorialTimer > 0) tutorialTimer -= dt;
