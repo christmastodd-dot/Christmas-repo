@@ -4,7 +4,6 @@
 import os
 import random
 import threading
-import time
 
 from flask import Flask, render_template, session, request
 from flask_socketio import SocketIO, emit
@@ -161,7 +160,7 @@ class GameState:
 
 def tick_loop():
     while True:
-        time.sleep(TICK_INTERVAL)
+        socketio.sleep(TICK_INTERVAL)
         with lock:
             for sid, gs in list(games.items()):
                 if not gs.running or not gs.pet.alive:
@@ -194,11 +193,6 @@ def index():
 
 
 # ── Socket events ────────────────────────────────────────────────────
-
-@socketio.on("connect")
-def on_connect():
-    pass
-
 
 @socketio.on("new_game")
 def on_new_game(data):
@@ -407,10 +401,17 @@ def _handle_minigame_input(gs, data):
             gs.mg_data = {}
 
 
-# ── Start tick thread on import ──────────────────────────────────────
+# ── Start tick thread on first connect ───────────────────────────────
 
-_tick_thread = threading.Thread(target=tick_loop, daemon=True)
-_tick_thread.start()
+_tick_started = False
+
+@socketio.on("connect")
+def on_connect_start_tick():
+    global _tick_started
+    if not _tick_started:
+        _tick_started = True
+        socketio.start_background_task(tick_loop)
+
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
