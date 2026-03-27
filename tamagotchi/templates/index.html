@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
 <title>Stitch Pet Simulator</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.min.js"></script>
 <style>
@@ -19,15 +19,18 @@
     --blue: #53a8e2;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
+  html, body {
     background: var(--bg);
     color: var(--text);
     font-family: 'Courier New', monospace;
-    min-height: 100vh;
+    height: 100%;
+    overflow: hidden;
+  }
+  body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 16px;
+    padding: 8px 16px;
   }
   h1 { color: var(--accent); font-size: 1.4em; margin-bottom: 4px; text-align: center; }
 
@@ -56,18 +59,38 @@
   #welcome button:hover { opacity: 0.85; }
 
   /* Game screen */
-  #game { display: none; max-width: 520px; width: 100%; }
+  #game {
+    max-width: 520px; width: 100%;
+    flex: 1; overflow-y: auto; overflow-x: hidden;
+    flex-direction: column;
+  }
+  #game.hidden { display: none; }
+  #game.active { display: flex; }
 
-  .header { text-align: center; padding: 8px 0; margin-bottom: 4px; }
-  .header .name { font-size: 1.2em; color: var(--green); }
-  .header .info { color: var(--dim); font-size: 0.85em; margin-top: 4px; }
+  .header { text-align: center; padding: 4px 0; flex-shrink: 0; }
+  .header .name { font-size: 1.1em; color: var(--green); }
+  .header .info { color: var(--dim); font-size: 0.8em; margin-top: 2px; }
 
   .art-box {
     background: var(--panel); border: 2px solid var(--border); border-radius: 10px;
-    padding: 16px; margin: 8px 0; text-align: center;
-    min-height: 200px; display: flex; align-items: center; justify-content: center;
+    padding: 8px; margin: 4px 0; text-align: center;
+    min-height: 80px; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 1; overflow: hidden;
   }
-  .art-box svg { transition: all 0.3s ease; }
+  .art-box svg { transition: all 0.3s ease; max-height: 100%; width: auto; }
+
+  /* When keyboard is open (viewport shrinks), collapse the sprite */
+  @media (max-height: 500px) {
+    .art-box { min-height: 50px; max-height: 80px; padding: 4px; margin: 2px 0; }
+    .art-box svg { max-height: 70px; }
+    .header { padding: 2px 0; }
+    .header .name { font-size: 0.9em; }
+    .progress-section { margin: 4px 0; }
+    .stats-row { margin: 4px 0; font-size: 0.75em; }
+    .question-box { padding: 10px; margin: 4px 0; }
+    .question-text { font-size: 1.2em; margin-bottom: 8px; }
+    .message-box { padding: 4px 8px; margin: 4px 0; min-height: 24px; font-size: 0.85em; }
+  }
 
   /* Bounce animation for happy mood */
   @keyframes bounce {
@@ -92,7 +115,7 @@
   .art-box.mood-sad svg { animation: droop 3s ease-in-out infinite; }
 
   /* Evolution progress bar */
-  .progress-section { margin: 10px 0; }
+  .progress-section { margin: 6px 0; flex-shrink: 0; }
   .progress-label {
     display: flex; justify-content: space-between; font-size: 0.85em;
     color: var(--dim); margin-bottom: 4px;
@@ -113,8 +136,8 @@
 
   /* Stats row */
   .stats-row {
-    display: flex; justify-content: space-around; margin: 10px 0;
-    font-size: 0.85em; text-align: center;
+    display: flex; justify-content: space-around; margin: 6px 0;
+    font-size: 0.85em; text-align: center; flex-shrink: 0;
   }
   .stat-item .stat-val { font-size: 1.3em; font-weight: bold; }
   .stat-item .stat-label { color: var(--dim); font-size: 0.8em; }
@@ -126,7 +149,7 @@
   /* Question box */
   .question-box {
     background: var(--panel); border: 2px solid var(--border); border-radius: 10px;
-    padding: 20px; margin: 12px 0; text-align: center;
+    padding: 16px; margin: 6px 0; text-align: center; flex-shrink: 0;
   }
   .question-text { font-size: 1.5em; color: var(--yellow); margin-bottom: 16px; }
   .answer-row { display: flex; gap: 8px; justify-content: center; }
@@ -195,7 +218,7 @@
 </div>
 
 <!-- Game Screen -->
-<div id="game">
+<div id="game" class="hidden">
   <div class="header">
     <div class="name" id="g-name"></div>
     <div class="info" id="g-info"></div>
@@ -514,7 +537,8 @@ function startGame() {
   const name = document.getElementById('pet-name').value.trim();
   socket.emit('new_game', {name});
   document.getElementById('welcome').style.display = 'none';
-  document.getElementById('game').style.display = 'block';
+  document.getElementById('game').classList.remove('hidden');
+  document.getElementById('game').classList.add('active');
   document.getElementById('answer-input').focus();
 }
 document.getElementById('pet-name').addEventListener('keydown', e => {
@@ -600,6 +624,34 @@ function submitAnswer() {
 document.getElementById('answer-input').addEventListener('keydown', e => {
   if (e.key === 'Enter') submitAnswer();
 });
+
+// ── Mobile keyboard handling ────────────────────────────────────────
+// When the keyboard opens on mobile, scroll the question box into view
+// and shrink the sprite area so input stays visible.
+const answerInput = document.getElementById('answer-input');
+const questionBox = document.querySelector('.question-box');
+
+answerInput.addEventListener('focus', () => {
+  // Small delay to let keyboard animate open
+  setTimeout(() => {
+    questionBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 300);
+});
+
+// Use visualViewport API to adjust layout when keyboard opens
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', () => {
+    const vh = window.visualViewport.height;
+    document.documentElement.style.height = vh + 'px';
+    document.body.style.height = vh + 'px';
+    // If input is focused, keep question visible
+    if (document.activeElement === answerInput) {
+      setTimeout(() => {
+        questionBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 50);
+    }
+  });
+}
 </script>
 </body>
 </html>
