@@ -295,25 +295,51 @@ const LEVELS = [
       { x: 2060, y: 270, w: 250, h: 60 },
     ],
   },
-  { // Level 2 — Breezy Heights (stub: same layout for now, replaced in 2A-ii)
+  { // Level 2 — Breezy Heights (3x longer, wider gaps, sunset sky)
     name: 'Breezy Heights',
-    bgType: 'day',
-    worldWidth: 5000,
-    finalCloud: { x: 2060, y: 270, w: 250 },
-    potX: 2230,
-    potY: 220,
+    bgType: 'sunset',
+    worldWidth: 7500,
+    finalCloud: { x: 6800, y: 260, w: 250 },
+    potX: 6970,
+    potY: 210,
     clouds: [
-      { x: 0,    y: 340, w: 220, h: 60 },
-      { x: 280,  y: 320, w: 160, h: 55 },
-      { x: 500,  y: 300, w: 140, h: 55 },
-      { x: 700,  y: 280, w: 150, h: 55 },
-      { x: 910,  y: 310, w: 130, h: 50 },
-      { x: 1100, y: 290, w: 140, h: 50 },
-      { x: 1300, y: 260, w: 130, h: 50 },
-      { x: 1490, y: 300, w: 120, h: 50 },
-      { x: 1680, y: 270, w: 140, h: 50 },
-      { x: 1880, y: 290, w: 130, h: 50 },
-      { x: 2060, y: 270, w: 250, h: 60 },
+      // --- Section 1: Warm-up ---
+      { x: 0,    y: 340, w: 200, h: 60 },
+      { x: 280,  y: 310, w: 150, h: 55 },
+      { x: 500,  y: 280, w: 130, h: 50 },
+      { x: 720,  y: 300, w: 140, h: 50 },
+      { x: 950,  y: 270, w: 120, h: 50 },
+      // --- Section 2: Stepping up ---
+      { x: 1170, y: 290, w: 130, h: 50 },
+      { x: 1400, y: 260, w: 110, h: 45 },
+      { x: 1600, y: 300, w: 140, h: 50 },
+      { x: 1830, y: 270, w: 120, h: 50 },
+      { x: 2050, y: 290, w: 130, h: 50 },
+      // --- Section 3: Wider gaps ---
+      { x: 2300, y: 260, w: 110, h: 45 },
+      { x: 2530, y: 300, w: 150, h: 50 },
+      { x: 2780, y: 270, w: 120, h: 50 },
+      { x: 3020, y: 250, w: 130, h: 50 },
+      { x: 3270, y: 290, w: 110, h: 45 },
+      // --- Section 4: Mid-level rest + challenge ---
+      { x: 3480, y: 310, w: 180, h: 55 },
+      { x: 3740, y: 270, w: 120, h: 50 },
+      { x: 3960, y: 300, w: 130, h: 50 },
+      { x: 4200, y: 260, w: 110, h: 45 },
+      { x: 4420, y: 280, w: 140, h: 50 },
+      // --- Section 5: Harder stretch ---
+      { x: 4680, y: 310, w: 120, h: 50 },
+      { x: 4910, y: 270, w: 110, h: 45 },
+      { x: 5140, y: 300, w: 130, h: 50 },
+      { x: 5390, y: 260, w: 120, h: 50 },
+      { x: 5620, y: 290, w: 110, h: 45 },
+      // --- Section 6: Final approach ---
+      { x: 5860, y: 270, w: 130, h: 50 },
+      { x: 6100, y: 300, w: 120, h: 50 },
+      { x: 6340, y: 260, w: 110, h: 45 },
+      { x: 6570, y: 280, w: 140, h: 50 },
+      // --- Final platform ---
+      { x: 6800, y: 260, w: 250, h: 60 },
     ],
   },
 ];
@@ -523,14 +549,24 @@ function update() {
 //  BACKGROUND DRAWING
 // ─────────────────────────────────────────────
 function drawBackground() {
+  const bg = levelData.bgType;
   const sky = ctx.createLinearGradient(0, 0, 0, H);
-  sky.addColorStop(0,   '#87ceeb');
-  sky.addColorStop(0.7, '#b0e0f5');
-  sky.addColorStop(1,   '#d4f5c0');
+
+  if (bg === 'sunset') {
+    sky.addColorStop(0,   '#2d1b69');
+    sky.addColorStop(0.3, '#c2185b');
+    sky.addColorStop(0.6, '#ff6f00');
+    sky.addColorStop(1,   '#ffb300');
+  } else {
+    sky.addColorStop(0,   '#87ceeb');
+    sky.addColorStop(0.7, '#b0e0f5');
+    sky.addColorStop(1,   '#d4f5c0');
+  }
   ctx.fillStyle = sky;
   ctx.fillRect(0, 0, W, H);
 
-  ctx.fillStyle = '#6dbf5b';
+  // hills (parallax) — darker for sunset
+  ctx.fillStyle = bg === 'sunset' ? '#4a2c0a' : '#6dbf5b';
   const hillOff = -(camX * 0.3) % W;
   for (let hx = hillOff - W; hx < W * 2; hx += W) {
     ctx.beginPath();
@@ -541,10 +577,11 @@ function drawBackground() {
     ctx.ellipse(hx + W*0.9,  H + 10, 180, 100, 0, 0, Math.PI*2); ctx.fill();
   }
 
-  ctx.fillStyle = '#5aad48';
+  ctx.fillStyle = bg === 'sunset' ? '#3e2409' : '#5aad48';
   ctx.fillRect(0, H - 30, W, 30);
 
-  ctx.fillStyle = 'rgba(255,255,255,0.5)';
+  // distant clouds (cosmetic, parallax) — warm tint for sunset
+  ctx.fillStyle = bg === 'sunset' ? 'rgba(255,180,100,0.4)' : 'rgba(255,255,255,0.5)';
   const bgCloudOff = -(camX * 0.15) % W;
   [[bgCloudOff + 80, 60], [bgCloudOff + 350, 90], [bgCloudOff + 600, 50], [bgCloudOff - 200, 110]].forEach(([cx, cy]) => {
     ctx.beginPath(); ctx.ellipse(cx, cy, 60, 22, 0, 0, Math.PI*2); ctx.fill();
