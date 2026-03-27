@@ -304,18 +304,13 @@ function drawPlayer(sx, sy, right, flash, moving, walkOffset) {
 
   // Walk cycle tied to world X position — phase advances/reverses with movement.
   const walkPhase = moving ? (walkOffset * 0.065) : 0;
-  // Negate so limbs swing forward when moving right (uphill)
-  const swing = moving ? -Math.sin(walkPhase) * 0.30 : 0;
+  const swing = moving ? Math.sin(walkPhase) * 0.30 : 0;
 
-  // Natural gait: left arm travels WITH right leg, right arm WITH left leg.
-  // back arm  = the arm on the opposite side from the facing direction (drawn behind torso)
-  // front arm = the arm on the same side as the facing direction (drawn in front)
-  // facing right → back arm is the left arm; its paired leg is the right leg (angle = -swing)
-  // facing left  → back arm is the right arm; its paired leg is the left leg (angle = +swing)
-  // In both cases the back arm angle = -swing and front arm angle = +swing (no f needed —
-  // position-based phase naturally reverses when the player moves in the opposite direction).
-  const backArmAngle  = -swing;
-  const frontArmAngle =  swing;
+  // Natural opposite-side gait: left arm with right leg, right arm with left leg.
+  // back arm (left when facing right) swings WITH front leg (right) → same sign as swing
+  // front arm (right when facing right) swings WITH back leg (left) → opposite sign
+  const backArmAngle  =  swing;
+  const frontArmAngle = -swing;
 
   // ── 1. Backpack (furthest back) ──────────────────────────────────────────
   c.fillStyle = 'rgb(60,90,50)';
