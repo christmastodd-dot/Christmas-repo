@@ -116,6 +116,19 @@
     canvas { border-radius: 0; max-height: 60vh; }
     .touch-btn { width: 56px; height: 56px; font-size: 24px; }
   }
+  /* Landscape on mobile: overlay controls on top of full-screen game */
+  @media (orientation: landscape) and (max-height: 500px) {
+    canvas { max-height: 100vh; max-width: 100vw; border-radius: 0; box-shadow: none; }
+    #touch-controls {
+      height: 100vh; padding: 0 16px;
+      align-items: flex-end; padding-bottom: 16px;
+    }
+    .touch-btn {
+      background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.25);
+      width: 58px; height: 58px; font-size: 24px;
+    }
+    .touch-btn:active { background: rgba(255,255,255,0.3); }
+  }
 </style>
 </head>
 <body>
