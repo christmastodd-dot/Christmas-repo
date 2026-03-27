@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Flask + Socket.IO web frontend — math-driven pet evolution."""
+"""Flask + Socket.IO web frontend — math-driven pet evolution with care."""
 
 import os
 import threading
@@ -7,7 +7,10 @@ import threading
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO, emit
 
-from tamagotchi.config import STAGES, STAGE_THRESHOLDS, STAGE_LABELS, MATH_STREAK_THRESHOLD
+from tamagotchi.config import (
+    STAGES, STAGE_THRESHOLDS, STAGE_LABELS, MATH_STREAK_THRESHOLD,
+    TICK_INTERVAL,
+)
 from tamagotchi.pet import Pet
 from tamagotchi.math_problems import generate_problem
 
@@ -19,6 +22,7 @@ socketio = SocketIO(app, cors_allowed_origins="*", async_mode="gevent")
 
 games = {}  # sid -> GameState
 lock = threading.Lock()
+tick_running = False
 
 
 class GameState:
@@ -40,6 +44,7 @@ class GameState:
         mood = pet.get_mood()
         threshold = STAGE_THRESHOLDS.get(pet.stage)
         progress_pct = pet.progress_pct()
+        is_egg = pet.stage == "egg"
 
         return {
             "name": pet.name,
@@ -57,7 +62,31 @@ class GameState:
             "question": self.current_question,
             "message": self.message,
             "is_final_stage": threshold is None,
+            "is_egg": is_egg,
+            "stats": pet.stats_dict(),
         }
+
+
+# ── Tick loop for stat decay ─────────────────────────────────────────
+
+def tick_loop():
+    while True:
+        socketio.sleep(TICK_INTERVAL)
+        with lock:
+            sids = list(games.keys())
+        for sid in sids:
+            with lock:
+                gs = games.get(sid)
+            if gs and gs.pet.stage != "egg":
+                gs.pet.tick()
+                socketio.emit("state", gs.get_state(), to=sid)
+
+
+def ensure_tick_running():
+    global tick_running
+    if not tick_running:
+        tick_running = True
+        socketio.start_background_task(tick_loop)
 
 
 # ── Routes ───────────────────────────────────────────────────────────
@@ -78,6 +107,7 @@ def on_new_game(data):
     gs.message = f"{name}'s egg is here! Answer math problems to help it hatch!"
     with lock:
         games[sid] = gs
+    ensure_tick_running()
     emit("state", gs.get_state())
     gs.message = ""
 
@@ -129,6 +159,21 @@ def on_answer(data):
     # Generate next problem
     gs._generate_problem()
 
+    emit("state", gs.get_state())
+    gs.message = ""
+
+
+@socketio.on("care")
+def on_care(data):
+    sid = request.sid
+    with lock:
+        gs = games.get(sid)
+    if not gs:
+        return
+
+    action = (data.get("action") or "").strip()
+    success, message = gs.pet.care(action)
+    gs.message = message
     emit("state", gs.get_state())
     gs.message = ""
 

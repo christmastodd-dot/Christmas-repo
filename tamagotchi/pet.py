@@ -1,9 +1,10 @@
-"""Pet class — evolves by answering math problems."""
+"""Pet class — evolves by answering math problems, needs care to stay happy."""
 
 import time
 
 from tamagotchi.config import (
     STAGES, STAGE_THRESHOLDS,
+    STAT_MAX, STAT_START, CARE_AMOUNTS, DECAY_PER_TICK, CARE_COOLDOWN,
 )
 
 
@@ -23,6 +24,13 @@ class Pet:
         self.streak = 0          # current streak of correct answers
         self.best_streak = 0
 
+        # Care stats (only active after hatching)
+        self.hunger = STAT_START
+        self.happiness = STAT_START
+        self.hygiene = STAT_START
+        self.energy = STAT_START
+        self.last_care = {}  # action -> timestamp of last use
+
         # Evolution event flag
         self.just_evolved = False
         self.evolved_from = None
@@ -30,13 +38,55 @@ class Pet:
     def get_mood(self):
         if self.stage == "egg":
             return "egg"
-        if self.streak >= 5:
+        avg = self.stat_average()
+        if avg >= 70:
             return "happy"
-        if self.streak >= 2:
+        if avg >= 40:
             return "neutral"
-        if self.total_wrong > 0 and self.total_wrong > self.total_correct:
-            return "sad"
-        return "neutral"
+        return "sad"
+
+    def stat_average(self):
+        return (self.hunger + self.happiness + self.hygiene + self.energy) / 4
+
+    def care(self, action):
+        """Perform a care action. Returns (success, message)."""
+        if self.stage == "egg":
+            return False, "The egg doesn't need that yet!"
+
+        if action not in CARE_AMOUNTS:
+            return False, "Unknown action."
+
+        now = time.time()
+        last = self.last_care.get(action, 0)
+        remaining = CARE_COOLDOWN - (now - last)
+        if remaining > 0:
+            return False, f"Wait {int(remaining + 1)}s before doing that again."
+
+        amounts = CARE_AMOUNTS[action]
+        changed = []
+        for stat, amount in amounts.items():
+            old = getattr(self, stat)
+            new = min(STAT_MAX, old + amount)
+            setattr(self, stat, new)
+            changed.append(stat)
+
+        self.last_care[action] = now
+
+        messages = {
+            "feed": f"Yum! {self.name} gobbles it up!",
+            "play": f"{self.name} bounces around happily!",
+            "clean": f"{self.name} is squeaky clean!",
+            "sleep": f"{self.name} takes a cozy nap... Zzz",
+        }
+        return True, messages.get(action, "Done!")
+
+    def tick(self):
+        """Decay stats over time. Called periodically."""
+        if self.stage == "egg":
+            return
+        for stat, amount in DECAY_PER_TICK.items():
+            old = getattr(self, stat)
+            setattr(self, stat, max(0, old - amount))
 
     def next_stage(self):
         idx = STAGES.index(self.stage)
@@ -55,6 +105,11 @@ class Pet:
                 self.stage = new_stage
                 self.stage_correct = 0
                 self.just_evolved = True
+                # Boost stats on evolution
+                self.hunger = STAT_START
+                self.happiness = STAT_MAX
+                self.hygiene = STAT_START
+                self.energy = STAT_START
 
     def answer_correct(self):
         self.total_correct += 1
@@ -62,6 +117,8 @@ class Pet:
         self.streak += 1
         if self.streak > self.best_streak:
             self.best_streak = self.streak
+        # Answering correctly gives a small happiness boost
+        self.happiness = min(STAT_MAX, self.happiness + 5)
         self._try_evolve()
 
     def answer_wrong(self):
@@ -74,6 +131,14 @@ class Pet:
             return 100
         return int((self.stage_correct / threshold) * 100)
 
+    def stats_dict(self):
+        return {
+            "hunger": self.hunger,
+            "happiness": self.happiness,
+            "hygiene": self.hygiene,
+            "energy": self.energy,
+        }
+
     def to_dict(self):
         return {
             "name": self.name,
@@ -84,6 +149,10 @@ class Pet:
             "total_wrong": self.total_wrong,
             "streak": self.streak,
             "best_streak": self.best_streak,
+            "hunger": self.hunger,
+            "happiness": self.happiness,
+            "hygiene": self.hygiene,
+            "energy": self.energy,
             "save_time": time.time(),
         }
 
@@ -97,4 +166,8 @@ class Pet:
         pet.total_wrong = data.get("total_wrong", 0)
         pet.streak = data.get("streak", 0)
         pet.best_streak = data.get("best_streak", 0)
+        pet.hunger = data.get("hunger", STAT_START)
+        pet.happiness = data.get("happiness", STAT_START)
+        pet.hygiene = data.get("hygiene", STAT_START)
+        pet.energy = data.get("energy", STAT_START)
         return pet

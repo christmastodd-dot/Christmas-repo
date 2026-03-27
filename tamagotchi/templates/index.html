@@ -146,6 +146,51 @@
   .stat-streak .stat-val { color: var(--yellow); }
   .stat-best .stat-val { color: var(--blue); }
 
+  /* Care section */
+  .care-section {
+    margin: 6px 0; flex-shrink: 0;
+    transition: opacity 0.3s;
+  }
+  .care-section.hidden { display: none; }
+
+  .care-bars {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px;
+    margin-bottom: 8px;
+  }
+  .care-bar {
+    display: flex; align-items: center; gap: 6px; font-size: 0.8em;
+  }
+  .care-bar .care-icon { width: 18px; text-align: center; flex-shrink: 0; }
+  .care-bar .care-track {
+    flex: 1; height: 10px; background: #0d1b2a; border-radius: 5px;
+    overflow: hidden;
+  }
+  .care-bar .care-fill {
+    height: 100%; border-radius: 5px; transition: width 0.4s ease, background 0.4s;
+  }
+  .care-fill.high { background: var(--green); }
+  .care-fill.mid  { background: var(--yellow); }
+  .care-fill.low  { background: var(--red); }
+
+  .care-buttons {
+    display: flex; gap: 6px; justify-content: center;
+  }
+  .care-btn {
+    background: var(--panel); border: 2px solid var(--border); border-radius: 8px;
+    color: var(--text); padding: 8px 14px; font-family: inherit; font-size: 0.85em;
+    cursor: pointer; transition: all 0.2s; flex: 1; max-width: 100px; text-align: center;
+  }
+  .care-btn:active { transform: scale(0.95); }
+  .care-btn:hover { border-color: var(--accent); background: #1a2844; }
+  .care-btn .care-btn-icon { font-size: 1.2em; display: block; margin-bottom: 2px; }
+
+  @media (max-height: 500px) {
+    .care-bars { gap: 2px 8px; margin-bottom: 4px; }
+    .care-bar .care-track { height: 7px; }
+    .care-btn { padding: 4px 8px; font-size: 0.75em; }
+    .care-btn .care-btn-icon { font-size: 1em; }
+  }
+
   /* Question box */
   .question-box {
     background: var(--panel); border: 2px solid var(--border); border-radius: 10px;
@@ -316,6 +361,21 @@
     <div class="stat-item stat-wrong"><div class="stat-val" id="s-wrong">0</div><div class="stat-label">Wrong</div></div>
     <div class="stat-item stat-streak"><div class="stat-val" id="s-streak">0</div><div class="stat-label">Streak</div></div>
     <div class="stat-item stat-best"><div class="stat-val" id="s-best">0</div><div class="stat-label">Best</div></div>
+  </div>
+
+  <div class="care-section hidden" id="care-section">
+    <div class="care-bars">
+      <div class="care-bar"><span class="care-icon">&#x1F354;</span><div class="care-track"><div class="care-fill high" id="bar-hunger" style="width:80%"></div></div></div>
+      <div class="care-bar"><span class="care-icon">&#x1F3BE;</span><div class="care-track"><div class="care-fill high" id="bar-happiness" style="width:80%"></div></div></div>
+      <div class="care-bar"><span class="care-icon">&#x1F6BF;</span><div class="care-track"><div class="care-fill high" id="bar-hygiene" style="width:80%"></div></div></div>
+      <div class="care-bar"><span class="care-icon">&#x1F4A4;</span><div class="care-track"><div class="care-fill high" id="bar-energy" style="width:80%"></div></div></div>
+    </div>
+    <div class="care-buttons">
+      <button class="care-btn" onclick="doCare('feed')"><span class="care-btn-icon">&#x1F354;</span>Feed</button>
+      <button class="care-btn" onclick="doCare('play')"><span class="care-btn-icon">&#x1F3BE;</span>Play</button>
+      <button class="care-btn" onclick="doCare('clean')"><span class="care-btn-icon">&#x1F6BF;</span>Clean</button>
+      <button class="care-btn" onclick="doCare('sleep')"><span class="care-btn-icon">&#x1F4A4;</span>Sleep</button>
+    </div>
   </div>
 
   <div class="message-box empty" id="g-message"></div>
@@ -659,6 +719,21 @@ socket.on('state', state => {
   document.getElementById('s-streak').innerHTML = streakHtml;
   document.getElementById('s-best').textContent = state.best_streak;
 
+  // Care stats
+  const careSection = document.getElementById('care-section');
+  if (state.is_egg) {
+    careSection.classList.add('hidden');
+  } else {
+    careSection.classList.remove('hidden');
+    const stats = state.stats;
+    for (const key of ['hunger', 'happiness', 'hygiene', 'energy']) {
+      const bar = document.getElementById('bar-' + key);
+      const val = stats[key];
+      bar.style.width = val + '%';
+      bar.className = 'care-fill ' + (val >= 60 ? 'high' : val >= 30 ? 'mid' : 'low');
+    }
+  }
+
   const msgEl = document.getElementById('g-message');
   if (state.message) {
     msgEl.textContent = state.message;
@@ -669,6 +744,11 @@ socket.on('state', state => {
 
   document.getElementById('g-question').textContent = state.question;
 });
+
+function doCare(action) {
+  lastCorrect = null;  // care messages use 'info' style
+  socket.emit('care', {action});
+}
 
 // ── Pokemon-style evolution sequence ────────────────────────────────
 
