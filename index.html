@@ -152,6 +152,9 @@ let celebrating = false;
 let celebrateTimer = 0;
 let winCelebrating = false;
 let winTimer = 0;
+let scorePause = false;
+let scorePauseTimer = 0;
+let scorePauseDir = 1;
 
 // Generate background stars
 for (let i = 0; i < 60; i++) {
@@ -456,18 +459,28 @@ function moveBall() {
     p2Score++;
     updateScoreboard();
     checkWin();
-    if (!winCelebrating) { resetBall(1); }
+    if (!winCelebrating) {
+      scorePause = true;
+      scorePauseTimer = 300; // 5 seconds at 60fps
+      scorePauseDir = 1;
+      ball.x = W / 2; ball.y = H / 2; ball.vx = 0; ball.vy = 0;
+    }
   }
   if (ball.x > W + BALL_R) {
     p1Score++;
     updateScoreboard();
     // Player scored — fireworks!
     celebrating = true;
-    celebrateTimer = 90;
+    celebrateTimer = 300; // match the 5s pause
     spawnFireworks(W / 2, 5);
     document.getElementById('message').textContent = getCheer();
     checkWin();
-    if (!winCelebrating) { resetBall(-1); }
+    if (!winCelebrating) {
+      scorePause = true;
+      scorePauseTimer = 300; // 5 seconds at 60fps
+      scorePauseDir = -1;
+      ball.x = W / 2; ball.y = H / 2; ball.vx = 0; ball.vy = 0;
+    }
   }
 }
 
@@ -558,14 +571,35 @@ function loop() {
 
   movePlayer();
   moveCpu();
-  moveBall();
 
-  drawPaddle(player, '#ff69b4', '#ff1493');
-  drawPaddle(cpu, '#6495ed', '#4169e1');
-  drawBall();
-
-  updateFireworks();
-  drawFireworks();
+  if (scorePause) {
+    scorePauseTimer--;
+    // Draw paddles but not ball during pause
+    drawPaddle(player, '#ff69b4', '#ff1493');
+    drawPaddle(cpu, '#6495ed', '#4169e1');
+    // Show countdown
+    const secondsLeft = Math.ceil(scorePauseTimer / 60);
+    ctx.textAlign = 'center';
+    ctx.font = 'bold 64px Segoe UI, sans-serif';
+    ctx.fillStyle = '#e0b0ff';
+    ctx.shadowColor = '#8a2be2';
+    ctx.shadowBlur = 20;
+    ctx.fillText(secondsLeft, W / 2, H / 2 + 20);
+    ctx.shadowBlur = 0;
+    updateFireworks();
+    drawFireworks();
+    if (scorePauseTimer <= 0) {
+      scorePause = false;
+      resetBall(scorePauseDir);
+    }
+  } else {
+    moveBall();
+    drawPaddle(player, '#ff69b4', '#ff1493');
+    drawPaddle(cpu, '#6495ed', '#4169e1');
+    drawBall();
+    updateFireworks();
+    drawFireworks();
+  }
 
   requestAnimationFrame(loop);
 }
