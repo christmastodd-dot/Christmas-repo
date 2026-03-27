@@ -791,6 +791,7 @@ body.quiet .msg.system .text {
     align-items: center;
     justify-content: center;
     padding: 1rem;
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
 }
 
 .bingo-card {
@@ -915,9 +916,11 @@ body.quiet .msg.system .text {
     border-radius: 12px;
     padding: 1rem;
     max-width: 500px;
-    width: 100%;
+    width: calc(100% - 2rem);
     max-height: 85vh;
+    max-height: 85dvh;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .bingo-editor-hint {
@@ -928,17 +931,19 @@ body.quiet .msg.system .text {
 
 .bingo-editor-textarea {
     width: 100%;
-    min-height: 300px;
+    min-height: 250px;
     background: #1a1a1e;
     border: 1px solid #333;
     border-radius: 6px;
     color: #d4d4d4;
-    font-size: 13px;
+    font-size: 16px;
     font-family: inherit;
     padding: 0.75rem;
     resize: vertical;
     outline: none;
     line-height: 1.6;
+    -webkit-appearance: none;
+    box-sizing: border-box;
 }
 
 .bingo-editor-textarea:focus {

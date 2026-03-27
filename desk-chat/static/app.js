@@ -1154,11 +1154,20 @@ document.getElementById("bingo-btn").addEventListener("click", (e) => {
     // Position above the button
     const btnRect = e.currentTarget.getBoundingClientRect();
     menu.style.bottom = (window.innerHeight - btnRect.top + 4) + "px";
-    menu.style.left = btnRect.left + "px";
+    menu.style.left = Math.max(8, btnRect.left) + "px";
+
+    // Ensure menu is on screen
+    requestAnimationFrame(() => {
+        const menuRect = menu.getBoundingClientRect();
+        if (menuRect.top < 0) {
+            menu.style.bottom = "auto";
+            menu.style.top = "8px";
+        }
+    });
 
     setTimeout(() => {
         document.addEventListener("click", closeBingoMenu, { once: true });
-    }, 0);
+    }, 10);
 });
 
 // ── Bingo Phrase Editor ──
