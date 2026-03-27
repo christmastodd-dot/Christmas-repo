@@ -281,12 +281,6 @@ body {
     background: #333;
 }
 
-.celebrate-action-btn {
-    font-size: 20px;
-    width: 44px;
-    height: 44px;
-}
-
 .input-bar input {
     flex: 1;
     padding: 0.5rem 0.75rem;
