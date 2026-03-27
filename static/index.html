@@ -324,12 +324,12 @@ function drawPlayer(sx, sy, right, flash, moving, walkOffset) {
 
   // Far leg (drawn in front) kicks forward; near leg kicks back.
   // "Forward" relative to the LEANED body = positive rotation.
-  const farLegAngle  =  cycle * legAmp;
-  const nearLegAngle = -cycle * legAmp;
+  const farLegAngle  = -cycle * legAmp;
+  const nearLegAngle =  cycle * legAmp;
   // Arms oppose their same-side leg (natural gait).
   // Near arm trails (swings back when near leg kicks back).
-  const farArmAngle  =  cycle * armAmp;
-  const nearArmAngle = -cycle * armAmp;
+  const farArmAngle  = -cycle * armAmp;
+  const nearArmAngle =  cycle * armAmp;
 
   // Apply whole-body lean + bob.  Pivot at feet (sx, sy) so body tilts
   // from the ground contact point.
