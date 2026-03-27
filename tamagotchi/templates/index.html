@@ -118,6 +118,38 @@
   }
   .art-box.mood-sad svg { animation: droop 3s ease-in-out infinite; }
 
+  /* Hungry — eager bounce, faster than happy */
+  @keyframes hungryBounce {
+    0%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-5px); }
+    60% { transform: translateY(0); }
+    80% { transform: translateY(-3px); }
+  }
+  .art-box.mood-hungry svg { animation: hungryBounce 1.2s ease-in-out infinite; }
+
+  /* Sleepy — slow sway/nod */
+  @keyframes sleepySway {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    25% { transform: translateY(2px) rotate(-2deg); }
+    75% { transform: translateY(3px) rotate(2deg); }
+  }
+  .art-box.mood-sleepy svg { animation: sleepySway 3s ease-in-out infinite; }
+
+  /* Bored — completely still, no animation */
+  .art-box.mood-bored svg { animation: none; }
+
+  /* Mood label */
+  .mood-label {
+    text-align: center; font-size: 0.8em; margin: 2px 0; flex-shrink: 0;
+    min-height: 1.2em;
+  }
+  .mood-label.m-happy { color: var(--green); }
+  .mood-label.m-neutral { color: var(--dim); }
+  .mood-label.m-hungry { color: var(--yellow); }
+  .mood-label.m-sleepy { color: var(--blue); }
+  .mood-label.m-bored { color: var(--dim); }
+  .mood-label.m-egg { color: var(--dim); }
+
   /* Evolution progress bar */
   .progress-section { margin: 6px 0; flex-shrink: 0; }
   .progress-label {
@@ -408,6 +440,7 @@
   </div>
 
   <div class="art-box" id="art-box"></div>
+  <div class="mood-label" id="mood-label"></div>
 
   <div class="progress-section">
     <div class="progress-label">
@@ -517,28 +550,40 @@ function svgEgg() {
 }
 
 function svgBaby(mood) {
-  const eyes = mood === 'happy'
-    ? `<circle cx="58" cy="72" r="7" fill="${C.eye}"/><circle cx="58" cy="73" r="4" fill="${C.pupil}"/>
+  let eyes, mouth, extras = '';
+  if (mood === 'happy') {
+    eyes = `<circle cx="58" cy="72" r="7" fill="${C.eye}"/><circle cx="58" cy="73" r="4" fill="${C.pupil}"/>
        <circle cx="92" cy="72" r="7" fill="${C.eye}"/><circle cx="92" cy="73" r="4" fill="${C.pupil}"/>
-       <circle cx="56" cy="70" r="2" fill="#fff"/>
-       <circle cx="90" cy="70" r="2" fill="#fff"/>`
-    : mood === 'sad'
-    ? `<circle cx="58" cy="74" r="7" fill="${C.eye}"/><circle cx="58" cy="76" r="4" fill="${C.pupil}"/>
-       <circle cx="92" cy="74" r="7" fill="${C.eye}"/><circle cx="92" cy="76" r="4" fill="${C.pupil}"/>
-       <ellipse cx="58" cy="68" rx="9" ry="4" fill="${C.body}"/>
-       <ellipse cx="92" cy="68" rx="9" ry="4" fill="${C.body}"/>`
-    : `<circle cx="58" cy="72" r="7" fill="${C.eye}"/><circle cx="58" cy="72" r="4" fill="${C.pupil}"/>
+       <circle cx="56" cy="70" r="2" fill="#fff"/><circle cx="90" cy="70" r="2" fill="#fff"/>`;
+    mouth = `<path d="M67 88 Q75 98 83 88" fill="none" stroke="${C.mouth}" stroke-width="2.5" stroke-linecap="round"/>`;
+    extras = `<circle cx="48" cy="84" r="6" fill="${C.blush}" opacity="0.4"/><circle cx="102" cy="84" r="6" fill="${C.blush}" opacity="0.4"/>`;
+  } else if (mood === 'hungry') {
+    eyes = `<circle cx="58" cy="70" r="8" fill="${C.eye}"/><circle cx="58" cy="71" r="5" fill="${C.pupil}"/>
+       <circle cx="92" cy="70" r="8" fill="${C.eye}"/><circle cx="92" cy="71" r="5" fill="${C.pupil}"/>
+       <circle cx="56" cy="67" r="2.5" fill="#fff"/><circle cx="90" cy="67" r="2.5" fill="#fff"/>`;
+    mouth = `<ellipse cx="75" cy="92" rx="7" ry="9" fill="${C.mouth}" opacity="0.8"/>
+       <ellipse cx="75" cy="90" rx="5" ry="4" fill="#FF6B8A"/>`;
+    extras = `<circle cx="44" cy="88" r="4" fill="${C.blush}" opacity="0.3"/><circle cx="106" cy="88" r="4" fill="${C.blush}" opacity="0.3"/>`;
+  } else if (mood === 'sleepy') {
+    eyes = `<ellipse cx="58" cy="73" rx="7" ry="3" fill="${C.eye}"/><ellipse cx="58" cy="74" rx="4" ry="2" fill="${C.pupil}"/>
+       <ellipse cx="92" cy="73" rx="7" ry="3" fill="${C.eye}"/><ellipse cx="92" cy="74" rx="4" ry="2" fill="${C.pupil}"/>
+       <ellipse cx="58" cy="71" rx="8" ry="4" fill="${C.body}"/>
+       <ellipse cx="92" cy="71" rx="8" ry="4" fill="${C.body}"/>`;
+    mouth = `<path d="M70 89 Q75 92 80 89" fill="none" stroke="${C.mouth}" stroke-width="2" stroke-linecap="round"/>`;
+    extras = `<text x="105" y="62" font-size="10" fill="${C.blue}" opacity="0.7" font-weight="bold">z</text>
+       <text x="112" y="54" font-size="8" fill="${C.blue}" opacity="0.5" font-weight="bold">z</text>`;
+  } else if (mood === 'bored') {
+    eyes = `<circle cx="58" cy="72" r="7" fill="${C.eye}"/><circle cx="60" cy="72" r="4" fill="${C.pupil}"/>
+       <circle cx="92" cy="72" r="7" fill="${C.eye}"/><circle cx="94" cy="72" r="4" fill="${C.pupil}"/>
+       <ellipse cx="58" cy="68" rx="9" ry="3" fill="${C.body}"/>
+       <ellipse cx="92" cy="68" rx="9" ry="3" fill="${C.body}"/>`;
+    mouth = `<line x1="68" y1="91" x2="82" y2="90" stroke="${C.mouth}" stroke-width="2.5" stroke-linecap="round"/>`;
+  } else {
+    eyes = `<circle cx="58" cy="72" r="7" fill="${C.eye}"/><circle cx="58" cy="72" r="4" fill="${C.pupil}"/>
        <circle cx="92" cy="72" r="7" fill="${C.eye}"/><circle cx="92" cy="72" r="4" fill="${C.pupil}"/>`;
-
-  const mouth = mood === 'happy'
-    ? `<path d="M67 88 Q75 98 83 88" fill="none" stroke="${C.mouth}" stroke-width="2.5" stroke-linecap="round"/>`
-    : mood === 'sad'
-    ? `<path d="M67 93 Q75 85 83 93" fill="none" stroke="${C.mouth}" stroke-width="2.5" stroke-linecap="round"/>`
-    : `<line x1="68" y1="90" x2="82" y2="90" stroke="${C.mouth}" stroke-width="2.5" stroke-linecap="round"/>`;
-
-  const blush = mood === 'happy'
-    ? `<circle cx="48" cy="84" r="6" fill="${C.blush}" opacity="0.4"/><circle cx="102" cy="84" r="6" fill="${C.blush}" opacity="0.4"/>`
-    : '';
+    mouth = `<line x1="68" y1="90" x2="82" y2="90" stroke="${C.mouth}" stroke-width="2.5" stroke-linecap="round"/>`;
+  }
+  const blush = extras;
 
   return `<svg viewBox="0 0 160 170" xmlns="http://www.w3.org/2000/svg">
     <!-- Shadow -->
@@ -566,29 +611,41 @@ function svgBaby(mood) {
 }
 
 function svgChild(mood) {
-  const eyes = mood === 'happy'
-    ? `<circle cx="55" cy="78" r="9" fill="${C.eye}"/><circle cx="55" cy="80" r="5" fill="${C.pupil}"/>
+  let eyes, mouth, extras = '';
+  if (mood === 'happy') {
+    eyes = `<circle cx="55" cy="78" r="9" fill="${C.eye}"/><circle cx="55" cy="80" r="5" fill="${C.pupil}"/>
        <circle cx="95" cy="78" r="9" fill="${C.eye}"/><circle cx="95" cy="80" r="5" fill="${C.pupil}"/>
-       <circle cx="52" cy="75" r="2.5" fill="#fff"/>
-       <circle cx="92" cy="75" r="2.5" fill="#fff"/>`
-    : mood === 'sad'
-    ? `<circle cx="55" cy="80" r="9" fill="${C.eye}"/><circle cx="55" cy="82" r="5" fill="${C.pupil}"/>
-       <circle cx="95" cy="80" r="9" fill="${C.eye}"/><circle cx="95" cy="82" r="5" fill="${C.pupil}"/>
-       <ellipse cx="55" cy="73" rx="11" ry="5" fill="${C.body}"/>
-       <ellipse cx="95" cy="73" rx="11" ry="5" fill="${C.body}"/>`
-    : `<circle cx="55" cy="78" r="9" fill="${C.eye}"/><circle cx="55" cy="78" r="5" fill="${C.pupil}"/>
+       <circle cx="52" cy="75" r="2.5" fill="#fff"/><circle cx="92" cy="75" r="2.5" fill="#fff"/>`;
+    mouth = `<path d="M62 98 Q75 112 88 98" fill="${C.mouth}" opacity="0.8"/>
+       <path d="M65 98 Q75 106 85 98" fill="#FF6B8A"/>`;
+    extras = `<circle cx="42" cy="92" r="7" fill="${C.blush}" opacity="0.35"/><circle cx="108" cy="92" r="7" fill="${C.blush}" opacity="0.35"/>`;
+  } else if (mood === 'hungry') {
+    eyes = `<circle cx="55" cy="76" r="10" fill="${C.eye}"/><circle cx="55" cy="77" r="6" fill="${C.pupil}"/>
+       <circle cx="95" cy="76" r="10" fill="${C.eye}"/><circle cx="95" cy="77" r="6" fill="${C.pupil}"/>
+       <circle cx="52" cy="73" r="3" fill="#fff"/><circle cx="92" cy="73" r="3" fill="#fff"/>`;
+    mouth = `<ellipse cx="75" cy="103" rx="8" ry="10" fill="${C.mouth}" opacity="0.8"/>
+       <ellipse cx="75" cy="101" rx="6" ry="5" fill="#FF6B8A"/>`;
+    extras = `<circle cx="40" cy="96" r="5" fill="${C.blush}" opacity="0.3"/><circle cx="110" cy="96" r="5" fill="${C.blush}" opacity="0.3"/>`;
+  } else if (mood === 'sleepy') {
+    eyes = `<ellipse cx="55" cy="80" rx="9" ry="4" fill="${C.eye}"/><ellipse cx="55" cy="81" rx="5" ry="2.5" fill="${C.pupil}"/>
+       <ellipse cx="95" cy="80" rx="9" ry="4" fill="${C.eye}"/><ellipse cx="95" cy="81" rx="5" ry="2.5" fill="${C.pupil}"/>
+       <ellipse cx="55" cy="78" rx="10" ry="5" fill="${C.body}"/>
+       <ellipse cx="95" cy="78" rx="10" ry="5" fill="${C.body}"/>`;
+    mouth = `<path d="M68 99 Q75 103 82 99" fill="none" stroke="${C.mouth}" stroke-width="2" stroke-linecap="round"/>`;
+    extras = `<text x="115" y="65" font-size="12" fill="${C.blue}" opacity="0.7" font-weight="bold">z</text>
+       <text x="124" y="55" font-size="9" fill="${C.blue}" opacity="0.5" font-weight="bold">z</text>`;
+  } else if (mood === 'bored') {
+    eyes = `<circle cx="55" cy="78" r="9" fill="${C.eye}"/><circle cx="58" cy="78" r="5" fill="${C.pupil}"/>
+       <circle cx="95" cy="78" r="9" fill="${C.eye}"/><circle cx="98" cy="78" r="5" fill="${C.pupil}"/>
+       <ellipse cx="55" cy="73" rx="11" ry="4" fill="${C.body}"/>
+       <ellipse cx="95" cy="73" rx="11" ry="4" fill="${C.body}"/>`;
+    mouth = `<line x1="66" y1="101" x2="84" y2="100" stroke="${C.mouth}" stroke-width="2.5" stroke-linecap="round"/>`;
+  } else {
+    eyes = `<circle cx="55" cy="78" r="9" fill="${C.eye}"/><circle cx="55" cy="78" r="5" fill="${C.pupil}"/>
        <circle cx="95" cy="78" r="9" fill="${C.eye}"/><circle cx="95" cy="78" r="5" fill="${C.pupil}"/>`;
-
-  const mouth = mood === 'happy'
-    ? `<path d="M62 98 Q75 112 88 98" fill="${C.mouth}" opacity="0.8"/>
-       <path d="M65 98 Q75 106 85 98" fill="#FF6B8A"/>`
-    : mood === 'sad'
-    ? `<path d="M65 105 Q75 95 85 105" fill="none" stroke="${C.mouth}" stroke-width="2.5" stroke-linecap="round"/>`
-    : `<line x1="66" y1="100" x2="84" y2="100" stroke="${C.mouth}" stroke-width="2.5" stroke-linecap="round"/>`;
-
-  const blush = mood === 'happy'
-    ? `<circle cx="42" cy="92" r="7" fill="${C.blush}" opacity="0.35"/><circle cx="108" cy="92" r="7" fill="${C.blush}" opacity="0.35"/>`
-    : '';
+    mouth = `<line x1="66" y1="100" x2="84" y2="100" stroke="${C.mouth}" stroke-width="2.5" stroke-linecap="round"/>`;
+  }
+  const blush = extras;
 
   return `<svg viewBox="-5 -10 190 225" xmlns="http://www.w3.org/2000/svg">
     <ellipse cx="90" cy="198" rx="42" ry="8" fill="#0005"/>
@@ -616,31 +673,42 @@ function svgChild(mood) {
 }
 
 function svgTeen(mood) {
-  const eyes = mood === 'happy'
-    ? `<circle cx="58" cy="72" r="10" fill="${C.eye}"/><circle cx="58" cy="74" r="6" fill="${C.pupil}"/>
+  let eyes, mouth, extras = '';
+  if (mood === 'happy') {
+    eyes = `<circle cx="58" cy="72" r="10" fill="${C.eye}"/><circle cx="58" cy="74" r="6" fill="${C.pupil}"/>
        <circle cx="102" cy="72" r="10" fill="${C.eye}"/><circle cx="102" cy="74" r="6" fill="${C.pupil}"/>
-       <circle cx="55" cy="69" r="3" fill="#fff"/>
-       <circle cx="99" cy="69" r="3" fill="#fff"/>`
-    : mood === 'sad'
-    ? `<circle cx="58" cy="74" r="10" fill="${C.eye}"/><circle cx="58" cy="77" r="6" fill="${C.pupil}"/>
-       <circle cx="102" cy="74" r="10" fill="${C.eye}"/><circle cx="102" cy="77" r="6" fill="${C.pupil}"/>
-       <ellipse cx="58" cy="67" rx="12" ry="5" fill="${C.body}"/>
-       <ellipse cx="102" cy="67" rx="12" ry="5" fill="${C.body}"/>`
-    : `<circle cx="58" cy="72" r="10" fill="${C.eye}"/><circle cx="58" cy="72" r="6" fill="${C.pupil}"/>
+       <circle cx="55" cy="69" r="3" fill="#fff"/><circle cx="99" cy="69" r="3" fill="#fff"/>`;
+    mouth = `<path d="M65 95 Q80 115 95 95" fill="${C.mouth}" opacity="0.8"/>
+       <path d="M68 95 Q80 108 92 95" fill="#FF6B8A"/>`;
+    extras = `<circle cx="42" cy="88" r="8" fill="${C.blush}" opacity="0.3"/><circle cx="118" cy="88" r="8" fill="${C.blush}" opacity="0.3"/>`;
+  } else if (mood === 'hungry') {
+    eyes = `<circle cx="58" cy="70" r="11" fill="${C.eye}"/><circle cx="58" cy="71" r="7" fill="${C.pupil}"/>
+       <circle cx="102" cy="70" r="11" fill="${C.eye}"/><circle cx="102" cy="71" r="7" fill="${C.pupil}"/>
+       <circle cx="55" cy="66" r="3" fill="#fff"/><circle cx="99" cy="66" r="3" fill="#fff"/>`;
+    mouth = `<ellipse cx="80" cy="100" rx="9" ry="12" fill="${C.mouth}" opacity="0.8"/>
+       <ellipse cx="80" cy="98" rx="7" ry="5" fill="#FF6B8A"/>`;
+    extras = `<circle cx="40" cy="92" r="6" fill="${C.blush}" opacity="0.3"/><circle cx="120" cy="92" r="6" fill="${C.blush}" opacity="0.3"/>`;
+  } else if (mood === 'sleepy') {
+    eyes = `<ellipse cx="58" cy="74" rx="10" ry="4" fill="${C.eye}"/><ellipse cx="58" cy="75" rx="6" ry="2.5" fill="${C.pupil}"/>
+       <ellipse cx="102" cy="74" rx="10" ry="4" fill="${C.eye}"/><ellipse cx="102" cy="75" rx="6" ry="2.5" fill="${C.pupil}"/>
+       <ellipse cx="58" cy="72" rx="11" ry="5" fill="${C.body}"/>
+       <ellipse cx="102" cy="72" rx="11" ry="5" fill="${C.body}"/>`;
+    mouth = `<path d="M72 97 Q80 101 88 97" fill="none" stroke="${C.mouth}" stroke-width="2.5" stroke-linecap="round"/>`;
+    extras = `<text x="125" y="58" font-size="14" fill="${C.blue}" opacity="0.7" font-weight="bold">z</text>
+       <text x="136" y="46" font-size="11" fill="${C.blue}" opacity="0.5" font-weight="bold">z</text>`;
+  } else if (mood === 'bored') {
+    eyes = `<circle cx="58" cy="72" r="10" fill="${C.eye}"/><circle cx="61" cy="72" r="6" fill="${C.pupil}"/>
+       <circle cx="102" cy="72" r="10" fill="${C.eye}"/><circle cx="105" cy="72" r="6" fill="${C.pupil}"/>
+       <ellipse cx="58" cy="66" rx="12" ry="4" fill="${C.body}"/>
+       <ellipse cx="102" cy="66" rx="12" ry="4" fill="${C.body}"/>`;
+    mouth = `<line x1="70" y1="99" x2="90" y2="98" stroke="${C.mouth}" stroke-width="2.5" stroke-linecap="round"/>`;
+  } else {
+    eyes = `<circle cx="58" cy="72" r="10" fill="${C.eye}"/><circle cx="58" cy="72" r="6" fill="${C.pupil}"/>
        <circle cx="102" cy="72" r="10" fill="${C.eye}"/><circle cx="102" cy="72" r="6" fill="${C.pupil}"/>
-       <circle cx="55" cy="69" r="2.5" fill="#fff"/>
-       <circle cx="99" cy="69" r="2.5" fill="#fff"/>`;
-
-  const mouth = mood === 'happy'
-    ? `<path d="M65 95 Q80 115 95 95" fill="${C.mouth}" opacity="0.8"/>
-       <path d="M68 95 Q80 108 92 95" fill="#FF6B8A"/>`
-    : mood === 'sad'
-    ? `<path d="M68 102 Q80 92 92 102" fill="none" stroke="${C.mouth}" stroke-width="3" stroke-linecap="round"/>`
-    : `<path d="M68 98 Q80 102 92 98" fill="none" stroke="${C.mouth}" stroke-width="2.5" stroke-linecap="round"/>`;
-
-  const blush = mood === 'happy'
-    ? `<circle cx="42" cy="88" r="8" fill="${C.blush}" opacity="0.3"/><circle cx="118" cy="88" r="8" fill="${C.blush}" opacity="0.3"/>`
-    : '';
+       <circle cx="55" cy="69" r="2.5" fill="#fff"/><circle cx="99" cy="69" r="2.5" fill="#fff"/>`;
+    mouth = `<path d="M68 98 Q80 102 92 98" fill="none" stroke="${C.mouth}" stroke-width="2.5" stroke-linecap="round"/>`;
+  }
+  const blush = extras;
 
   return `<svg viewBox="-15 -15 230 260" xmlns="http://www.w3.org/2000/svg">
     <ellipse cx="100" cy="228" rx="48" ry="9" fill="#0005"/>
@@ -672,32 +740,43 @@ function svgTeen(mood) {
 }
 
 function svgAdult(mood) {
-  const eyes = mood === 'happy'
-    ? `<circle cx="60" cy="72" r="12" fill="${C.eye}"/><circle cx="60" cy="75" r="7" fill="${C.pupil}"/>
+  let eyes, mouth, extras = '';
+  if (mood === 'happy') {
+    eyes = `<circle cx="60" cy="72" r="12" fill="${C.eye}"/><circle cx="60" cy="75" r="7" fill="${C.pupil}"/>
        <circle cx="120" cy="72" r="12" fill="${C.eye}"/><circle cx="120" cy="75" r="7" fill="${C.pupil}"/>
-       <circle cx="56" cy="68" r="3.5" fill="#fff"/>
-       <circle cx="116" cy="68" r="3.5" fill="#fff"/>`
-    : mood === 'sad'
-    ? `<circle cx="60" cy="74" r="12" fill="${C.eye}"/><circle cx="60" cy="78" r="7" fill="${C.pupil}"/>
-       <circle cx="120" cy="74" r="12" fill="${C.eye}"/><circle cx="120" cy="78" r="7" fill="${C.pupil}"/>
-       <ellipse cx="60" cy="66" rx="14" ry="6" fill="${C.body}"/>
-       <ellipse cx="120" cy="66" rx="14" ry="6" fill="${C.body}"/>`
-    : `<circle cx="60" cy="72" r="12" fill="${C.eye}"/><circle cx="60" cy="72" r="7" fill="${C.pupil}"/>
-       <circle cx="120" cy="72" r="12" fill="${C.eye}"/><circle cx="120" cy="72" r="7" fill="${C.pupil}"/>
-       <circle cx="56" cy="68" r="3" fill="#fff"/>
-       <circle cx="116" cy="68" r="3" fill="#fff"/>`;
-
-  const mouth = mood === 'happy'
-    ? `<path d="M70 97 Q90 120 110 97" fill="${C.mouth}" opacity="0.85"/>
+       <circle cx="56" cy="68" r="3.5" fill="#fff"/><circle cx="116" cy="68" r="3.5" fill="#fff"/>`;
+    mouth = `<path d="M70 97 Q90 120 110 97" fill="${C.mouth}" opacity="0.85"/>
        <path d="M74 97 Q90 114 106 97" fill="#FF6B8A"/>
-       <path d="M82 97 Q90 93 98 97" fill="#fff" opacity="0.5"/>`
-    : mood === 'sad'
-    ? `<path d="M75 108 Q90 95 105 108" fill="none" stroke="${C.mouth}" stroke-width="3" stroke-linecap="round"/>`
-    : `<path d="M75 102 Q90 108 105 102" fill="none" stroke="${C.mouth}" stroke-width="3" stroke-linecap="round"/>`;
-
-  const blush = mood === 'happy'
-    ? `<circle cx="42" cy="90" r="9" fill="${C.blush}" opacity="0.3"/><circle cx="138" cy="90" r="9" fill="${C.blush}" opacity="0.3"/>`
-    : '';
+       <path d="M82 97 Q90 93 98 97" fill="#fff" opacity="0.5"/>`;
+    extras = `<circle cx="42" cy="90" r="9" fill="${C.blush}" opacity="0.3"/><circle cx="138" cy="90" r="9" fill="${C.blush}" opacity="0.3"/>`;
+  } else if (mood === 'hungry') {
+    eyes = `<circle cx="60" cy="70" r="13" fill="${C.eye}"/><circle cx="60" cy="71" r="8" fill="${C.pupil}"/>
+       <circle cx="120" cy="70" r="13" fill="${C.eye}"/><circle cx="120" cy="71" r="8" fill="${C.pupil}"/>
+       <circle cx="56" cy="65" r="4" fill="#fff"/><circle cx="116" cy="65" r="4" fill="#fff"/>`;
+    mouth = `<ellipse cx="90" cy="102" rx="10" ry="14" fill="${C.mouth}" opacity="0.85"/>
+       <ellipse cx="90" cy="100" rx="8" ry="6" fill="#FF6B8A"/>`;
+    extras = `<circle cx="40" cy="92" r="7" fill="${C.blush}" opacity="0.3"/><circle cx="140" cy="92" r="7" fill="${C.blush}" opacity="0.3"/>`;
+  } else if (mood === 'sleepy') {
+    eyes = `<ellipse cx="60" cy="74" rx="12" ry="5" fill="${C.eye}"/><ellipse cx="60" cy="75" rx="7" ry="3" fill="${C.pupil}"/>
+       <ellipse cx="120" cy="74" rx="12" ry="5" fill="${C.eye}"/><ellipse cx="120" cy="75" rx="7" ry="3" fill="${C.pupil}"/>
+       <ellipse cx="60" cy="72" rx="13" ry="6" fill="${C.body}"/>
+       <ellipse cx="120" cy="72" rx="13" ry="6" fill="${C.body}"/>`;
+    mouth = `<path d="M80 101 Q90 106 100 101" fill="none" stroke="${C.mouth}" stroke-width="2.5" stroke-linecap="round"/>`;
+    extras = `<text x="145" y="55" font-size="16" fill="${C.blue}" opacity="0.7" font-weight="bold">z</text>
+       <text x="158" y="42" font-size="12" fill="${C.blue}" opacity="0.5" font-weight="bold">z</text>`;
+  } else if (mood === 'bored') {
+    eyes = `<circle cx="60" cy="72" r="12" fill="${C.eye}"/><circle cx="64" cy="72" r="7" fill="${C.pupil}"/>
+       <circle cx="120" cy="72" r="12" fill="${C.eye}"/><circle cx="124" cy="72" r="7" fill="${C.pupil}"/>
+       <ellipse cx="60" cy="65" rx="14" ry="5" fill="${C.body}"/>
+       <ellipse cx="120" cy="65" rx="14" ry="5" fill="${C.body}"/>`;
+    mouth = `<line x1="78" y1="103" x2="102" y2="102" stroke="${C.mouth}" stroke-width="3" stroke-linecap="round"/>`;
+  } else {
+    eyes = `<circle cx="60" cy="72" r="12" fill="${C.eye}"/><circle cx="60" cy="72" r="7" fill="${C.pupil}"/>
+       <circle cx="120" cy="72" r="12" fill="${C.eye}"/><circle cx="120" cy="72" r="7" fill="${C.pupil}"/>
+       <circle cx="56" cy="68" r="3" fill="#fff"/><circle cx="116" cy="68" r="3" fill="#fff"/>`;
+    mouth = `<path d="M75 102 Q90 108 105 102" fill="none" stroke="${C.mouth}" stroke-width="3" stroke-linecap="round"/>`;
+  }
+  const blush = extras;
 
   return `<svg viewBox="-25 -25 280 300" xmlns="http://www.w3.org/2000/svg">
     <ellipse cx="110" cy="258" rx="55" ry="10" fill="#0005"/>
@@ -792,6 +871,15 @@ socket.on('state', state => {
   const artBox = document.getElementById('art-box');
   artBox.innerHTML = getSprite(state.stage, state.mood);
   artBox.className = 'art-box mood-' + state.mood;
+
+  // Mood label
+  const moodLabel = document.getElementById('mood-label');
+  const moodTexts = {
+    egg: '', happy: 'Feeling great!', neutral: '',
+    hungry: 'Hungry...', sleepy: 'Sleepy... zzz', bored: 'Bored...'
+  };
+  moodLabel.textContent = moodTexts[state.mood] || '';
+  moodLabel.className = 'mood-label m-' + state.mood;
 
   // Progress
   if (state.is_final_stage) {

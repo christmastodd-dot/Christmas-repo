@@ -44,12 +44,18 @@ class Pet:
     def get_mood(self):
         if self.stage == "egg":
             return "egg"
+        # Check for specific unmet needs (threshold: below 35)
+        if self.hunger < 35:
+            return "hungry"
+        if self.energy < 35:
+            return "sleepy"
+        if self.happiness < 35:
+            return "bored"
+        # General mood based on average
         avg = self.stat_average()
         if avg >= 70:
             return "happy"
-        if avg >= 40:
-            return "neutral"
-        return "sad"
+        return "neutral"
 
     def stat_average(self):
         return (self.hunger + self.happiness + self.hygiene + self.energy) / 4
