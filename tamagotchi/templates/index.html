@@ -943,6 +943,7 @@ function submitAnswer() {
   } catch(e) { lastCorrect = null; }
   socket.emit('answer', {answer: val});
   inp.value = '';
+  inp.focus();  // keep keyboard open for next answer
 }
 
 document.getElementById('answer-input').addEventListener('keydown', e => {
@@ -952,6 +953,11 @@ document.getElementById('answer-input').addEventListener('keydown', e => {
 // ── Mobile keyboard handling ────────────────────────────────────────
 const answerInput = document.getElementById('answer-input');
 const questionBox = document.querySelector('.question-box');
+
+// Tap the sprite to dismiss keyboard
+document.getElementById('art-box').addEventListener('click', () => {
+  answerInput.blur();
+});
 
 // When input gets focus (user taps it), scroll question into view
 answerInput.addEventListener('focus', () => {
