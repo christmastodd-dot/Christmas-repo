@@ -363,51 +363,15 @@ function drawPlayer(sx, sy, right, flash, moving, walkOffset) {
   c.translate(-sx, -sy);
   const by = sy + bob; // bobbed Y for all body parts
 
-  // ── 1. Backpack (furthest back) ──────────────────────────────────────────
-  c.fillStyle = 'rgb(60,90,50)';
-  c.beginPath(); c.roundRect(sx - f*16, by - 38, 12, 22, 3); c.fill();
-  c.fillStyle = 'rgb(50,75,40)';
-  c.fillRect(sx - f*15, by - 36, 4, 8);
-  c.strokeStyle = 'rgb(80,110,65)'; c.lineWidth = 2;
-  c.beginPath(); c.moveTo(sx - f*5, by - 36); c.lineTo(sx - f*14, by - 32); c.stroke();
-  c.beginPath(); c.moveTo(sx + f*5, by - 36); c.lineTo(sx - f*14, by - 24); c.stroke();
+  // ── CHARACTER DRAWN FROM BEHIND (2/3 rear profile view) ──────────────────
+  // Viewer sees the character's back. Backpack is prominent, no face visible.
+  // Draw order: far arm → far leg → torso → near leg → backpack → near arm → head (rear)
 
-  // ── 2. Near arm (behind torso) ───────────────────────────────────────────
-  drawArm(c, sx - f*12, by - 32, nearArmAngle, f);
+  // ── 1. Far arm (furthest from viewer, behind everything) ─────────────────
+  drawArm(c, sx + f*10, by - 32, farArmAngle, f);
 
-  // ── 3. Torso: jacket + lederhosen ────────────────────────────────────────
-  c.fillStyle = 'rgb(80,140,80)';
-  c.beginPath(); c.roundRect(sx - 12, by - 38, 24, 22, 5); c.fill();
-  c.fillStyle = 'rgb(65,115,65)';
-  c.beginPath(); c.moveTo(sx, by-38); c.lineTo(sx - f*5, by-30); c.lineTo(sx, by-28); c.closePath(); c.fill();
-
-  c.fillStyle = 'rgb(130,85,40)';
-  c.beginPath(); c.roundRect(sx - 12, by - 18, 24, 16, 3); c.fill();
-  c.fillStyle = 'rgb(110,70,30)';
-  c.fillRect(sx - 5, by - 18, 10, 10);
-  c.fillStyle = 'rgb(180,140,70)';
-  c.fillRect(sx - 4, by - 17, 8, 1);
-  c.fillRect(sx - 4, by - 14, 8, 1);
-  c.strokeStyle = 'rgb(110,70,30)'; c.lineWidth = 3;
-  c.beginPath(); c.moveTo(sx - 5, by - 18); c.lineTo(sx - 8, by - 38); c.stroke();
-  c.beginPath(); c.moveTo(sx + 5, by - 18); c.lineTo(sx + 8, by - 38); c.stroke();
-
-  // ── 4. Legs (rotate from hip) ────────────────────────────────────────────
+  // ── 2. Far leg (behind torso) ────────────────────────────────────────────
   const hipY = by - 2;
-
-  // Near leg (drawn first, behind)
-  c.save();
-  c.translate(sx - f*5, hipY);
-  c.rotate(nearLegAngle);
-  c.fillStyle = 'rgb(230,195,160)';
-  c.beginPath(); c.roundRect(-4, 0, 8, 10, 2); c.fill();
-  c.fillStyle = 'rgb(90,60,35)';
-  c.beginPath(); c.roundRect(-5, 9, 11, 7, 2); c.fill();
-  c.fillStyle = 'rgb(50,40,30)';
-  c.fillRect(-6, 14, 12, 3);
-  c.restore();
-
-  // Far leg (drawn second, in front)
   c.save();
   c.translate(sx + f*5, hipY);
   c.rotate(farLegAngle);
@@ -419,34 +383,96 @@ function drawPlayer(sx, sy, right, flash, moving, walkOffset) {
   c.fillRect(-6, 14, 12, 3);
   c.restore();
 
-  // ── 5. Far arm (in front of torso) ───────────────────────────────────────
-  drawArm(c, sx + f*12, by - 32, farArmAngle, f);
+  // ── 3. Torso: jacket back + lederhosen ───────────────────────────────────
+  // Back of jacket (slightly darker, no lapel detail)
+  c.fillStyle = 'rgb(70,125,70)';
+  c.beginPath(); c.roundRect(sx - 12, by - 38, 24, 22, 5); c.fill();
+  // Jacket seam down the back
+  c.strokeStyle = 'rgb(55,100,55)'; c.lineWidth = 1.5;
+  c.beginPath(); c.moveTo(sx, by - 37); c.lineTo(sx, by - 18); c.stroke();
 
-  // ── 6. Head ──────────────────────────────────────────────────────────────
-  c.fillStyle = 'rgb(245,205,170)';
+  // Lederhosen
+  c.fillStyle = 'rgb(130,85,40)';
+  c.beginPath(); c.roundRect(sx - 12, by - 18, 24, 16, 3); c.fill();
+  c.fillStyle = 'rgb(110,70,30)';
+  c.fillRect(sx - 5, by - 18, 10, 10);
+  c.fillStyle = 'rgb(180,140,70)';
+  c.fillRect(sx - 4, by - 17, 8, 1);
+  c.fillRect(sx - 4, by - 14, 8, 1);
+  // Suspender straps (seen from behind — V shape)
+  c.strokeStyle = 'rgb(110,70,30)'; c.lineWidth = 3;
+  c.beginPath(); c.moveTo(sx - 5, by - 18); c.lineTo(sx - 3, by - 35); c.stroke();
+  c.beginPath(); c.moveTo(sx + 5, by - 18); c.lineTo(sx + 3, by - 35); c.stroke();
+
+  // ── 4. Near leg (in front of torso) ──────────────────────────────────────
+  c.save();
+  c.translate(sx - f*5, hipY);
+  c.rotate(nearLegAngle);
+  c.fillStyle = 'rgb(230,195,160)';
+  c.beginPath(); c.roundRect(-4, 0, 8, 10, 2); c.fill();
+  c.fillStyle = 'rgb(90,60,35)';
+  c.beginPath(); c.roundRect(-5, 9, 11, 7, 2); c.fill();
+  c.fillStyle = 'rgb(50,40,30)';
+  c.fillRect(-6, 14, 12, 3);
+  c.restore();
+
+  // ── 5. Backpack (prominent — faces the viewer) ───────────────────────────
+  // Main body
+  c.fillStyle = 'rgb(60,90,50)';
+  c.beginPath(); c.roundRect(sx - 11, by - 38, 22, 24, 4); c.fill();
+  // Top flap
+  c.fillStyle = 'rgb(55,82,45)';
+  c.beginPath(); c.roundRect(sx - 10, by - 40, 20, 8, [4,4,0,0]); c.fill();
+  // Buckle/clasp
+  c.fillStyle = 'rgb(180,160,100)';
+  c.fillRect(sx - 3, by - 33, 6, 3);
+  c.fillStyle = 'rgb(140,120,70)';
+  c.fillRect(sx - 2, by - 32, 4, 1);
+  // Side pocket
+  c.fillStyle = 'rgb(50,78,40)';
+  c.beginPath(); c.roundRect(sx - 9, by - 24, 8, 8, 2); c.fill();
+  c.beginPath(); c.roundRect(sx + 1, by - 24, 8, 8, 2); c.fill();
+  // Straps visible from behind (going over shoulders)
+  c.strokeStyle = 'rgb(80,110,65)'; c.lineWidth = 3;
+  c.beginPath(); c.moveTo(sx - 9, by - 36); c.lineTo(sx - 12, by - 40); c.stroke();
+  c.beginPath(); c.moveTo(sx + 9, by - 36); c.lineTo(sx + 12, by - 40); c.stroke();
+  // Bedroll on top
+  c.fillStyle = 'rgb(120,90,65)';
+  c.beginPath(); c.ellipse(sx, by - 42, 10, 4, 0, 0, Math.PI*2); c.fill();
+  c.strokeStyle = 'rgb(100,75,50)'; c.lineWidth = 1;
+  c.beginPath(); c.ellipse(sx, by - 42, 10, 4, 0, 0, Math.PI*2); c.stroke();
+
+  // ── 6. Near arm (closest to viewer, in front) ───────────────────────────
+  drawArm(c, sx - f*10, by - 32, nearArmAngle, f);
+
+  // ── 7. Head from behind (no face) ───────────────────────────────────────
+  // Back of head
+  c.fillStyle = 'rgb(185,145,110)';
   c.beginPath(); c.arc(sx, by - 48, 13, 0, Math.PI * 2); c.fill();
+  // Hair on back of head
+  c.fillStyle = 'rgb(120,80,40)';
+  c.beginPath();
+  c.arc(sx, by - 50, 12, -2.8, -0.3);
+  c.lineTo(sx + 10, by - 44);
+  c.arc(sx, by - 48, 13, -0.2, Math.PI + 0.2, true);
+  c.closePath(); c.fill();
+  // Neck
+  c.fillStyle = 'rgb(185,145,110)';
+  c.fillRect(sx - 4, by - 38, 8, 5);
 
-  // Alpine hat
+  // Alpine hat (seen from behind)
   c.fillStyle = 'rgb(60,100,55)';
   c.beginPath(); c.ellipse(sx, by - 60, 16, 5, 0, 0, Math.PI * 2); c.fill();
   c.beginPath(); c.roundRect(sx - 10, by - 64, 20, 12, [5,5,0,0]); c.fill();
+  // Hat band
   c.fillStyle = 'rgb(180,140,60)';
   c.fillRect(sx - 10, by - 54, 20, 3);
-  c.strokeStyle = 'rgb(220,200,100)'; c.lineWidth = 1.5;
-  c.beginPath(); c.moveTo(sx + f*8, by - 64); c.bezierCurveTo(sx + f*14, by - 72, sx + f*10, by - 78, sx + f*7, by - 75); c.stroke();
-
-  // Face
-  const ex = right ? 4 : -4;
-  c.fillStyle = '#fff';
-  c.beginPath(); c.ellipse(sx + ex - 3, by - 49, 3.5, 4, 0, 0, Math.PI*2); c.fill();
-  c.beginPath(); c.ellipse(sx + ex + 4, by - 49, 3.5, 4, 0, 0, Math.PI*2); c.fill();
-  c.fillStyle = '#333';
-  c.beginPath(); c.arc(sx + ex - 2, by - 49, 2, 0, Math.PI*2); c.fill();
-  c.beginPath(); c.arc(sx + ex + 5, by - 49, 2, 0, Math.PI*2); c.fill();
-  c.strokeStyle = 'rgb(180,80,60)'; c.lineWidth = 1.5;
-  c.beginPath(); c.arc(sx + ex + 1, by - 43, 4, 0.1, Math.PI - 0.1); c.stroke();
-  c.fillStyle = 'rgba(220,120,100,0.3)';
-  c.beginPath(); c.ellipse(sx + ex - 5, by - 44, 4, 3, 0, 0, Math.PI*2); c.fill();
+  // Feather (sticking up from back)
+  c.strokeStyle = 'rgb(200,180,80)'; c.lineWidth = 1.5;
+  c.beginPath(); c.moveTo(sx, by - 64); c.bezierCurveTo(sx + 3, by - 74, sx - 2, by - 80, sx + 1, by - 77); c.stroke();
+  // Ear peeking out on the near side
+  c.fillStyle = 'rgb(205,165,130)';
+  c.beginPath(); c.ellipse(sx - f*13, by - 48, 4, 5, 0, 0, Math.PI*2); c.fill();
 
   c.restore(); // end whole-body lean
 }
