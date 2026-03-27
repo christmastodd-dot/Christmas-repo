@@ -149,6 +149,8 @@
   .mood-label.m-sleepy { color: var(--blue); }
   .mood-label.m-bored { color: var(--dim); }
   .mood-label.m-egg { color: var(--dim); }
+  .mood-label.collapsed { max-height: 0; overflow: hidden; opacity: 0; margin: 0;
+    transition: max-height 0.3s ease, opacity 0.3s ease; }
 
   /* Evolution progress bar */
   .progress-section { margin: 6px 0; flex-shrink: 0; }
@@ -1247,29 +1249,37 @@ document.getElementById('answer-input').addEventListener('keydown', e => {
 const answerInput = document.getElementById('answer-input');
 const questionBox = document.querySelector('.question-box');
 
-// Tap the sprite to dismiss keyboard
-document.getElementById('art-box').addEventListener('click', () => {
-  answerInput.blur();
-});
+// ── Answering mode ──────────────────────────────────────────────────
+// Stay in compact mode (care/stats/shop collapsed) until user taps sprite.
+let answeringMode = false;
 
-// When input gets focus, collapse care section and scroll question into view
-const careSection = document.getElementById('care-section');
-const statsRow = document.querySelector('.stats-row');
-const shopSectionEl = document.getElementById('shop-section');
-answerInput.addEventListener('focus', () => {
-  careSection.classList.add('collapsed');
-  statsRow.classList.add('collapsed');
-  shopSectionEl.classList.add('collapsed');
+function enterAnsweringMode() {
+  if (answeringMode) return;
+  answeringMode = true;
+  document.getElementById('care-section').classList.add('collapsed');
+  document.querySelector('.stats-row').classList.add('collapsed');
+  document.getElementById('shop-section').classList.add('collapsed');
+  document.getElementById('mood-label').classList.add('collapsed');
   setTimeout(() => {
     questionBox.scrollIntoView({ behavior: 'smooth', block: 'end' });
   }, 300);
-});
+}
 
-// When input loses focus, expand sections back
-answerInput.addEventListener('blur', () => {
-  careSection.classList.remove('collapsed');
-  statsRow.classList.remove('collapsed');
-  shopSectionEl.classList.remove('collapsed');
+function exitAnsweringMode() {
+  answeringMode = false;
+  answerInput.blur();
+  document.getElementById('care-section').classList.remove('collapsed');
+  document.querySelector('.stats-row').classList.remove('collapsed');
+  document.getElementById('shop-section').classList.remove('collapsed');
+  document.getElementById('mood-label').classList.remove('collapsed');
+}
+
+// Tap input or question box → enter answering mode
+answerInput.addEventListener('focus', () => enterAnsweringMode());
+
+// Tap the sprite → exit answering mode
+document.getElementById('art-box').addEventListener('click', () => {
+  exitAnsweringMode();
 });
 
 // Adjust layout when mobile keyboard opens/closes
