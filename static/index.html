@@ -29,9 +29,11 @@ const INVINCIBILITY_TIME = 1.5;
 const NUM_GOATS = 5;
 
 // State
-let state = 'start'; // start | playing | gameover | win
+let state = 'start'; // start | playing | knockback | gameover | win
 let playerWX, playerWY, playerVY, onGround, lives, facingRight;
 let invincibleTimer, tutorialTimer, playerMoving = false;
+// Knockback: player flies off mountain then reappears
+let kbX, kbY, kbVX, kbVY, kbTimer;
 let goats = [];
 let confetti = [];
 let keys = {};
@@ -75,6 +77,7 @@ function resetLevel() {
       height: 36
     });
   }
+  kbTimer = 0;
   confetti = [];
 }
 
@@ -187,12 +190,11 @@ function drawTerrain(camWX, camWY, progress) {
     const [, sy] = worldToScreen(wx, wy, camWX, camWY);
     points.push([sx, sy]);
   }
-  // Ground color based on progress
+  // Ground is rocky throughout — no grass. Transitions to snow near summit.
   let col;
-  const grass = [90,180,80], rock = [140,130,120], snow = [245,245,255];
-  if (progress < 0.3) col = grass;
-  else if (progress < 0.7) col = lerpColor(grass, rock, (progress-0.3)/0.4);
-  else col = lerpColor(rock, snow, (progress-0.7)/0.3);
+  const rock = [140,130,120], snow = [245,245,255];
+  if (progress < 0.75) col = rock;
+  else col = lerpColor(rock, snow, (progress - 0.75) / 0.25);
 
   ctx.fillStyle = `rgb(${Math.round(col[0])},${Math.round(col[1])},${Math.round(col[2])})`;
   ctx.beginPath();
@@ -292,13 +294,14 @@ function drawArm(c, shoulderX, shoulderY, angle, flip) {
   c.restore();
 }
 
-function drawPlayer(sx, sy, right, flash, moving) {
+function drawPlayer(sx, sy, right, flash, moving, walkOffset) {
   if (flash && Math.floor(performance.now() / 100) % 2 === 0) return;
   const c = ctx;
   const f = right ? 1 : -1;
 
-  // Walk cycle — arms and legs swing as pendulums from attachment points
-  const walkPhase = moving ? (performance.now() / 260) : 0;
+  // Walk cycle tied to world X position so it advances/reverses with movement
+  // — eliminates the moonwalk effect caused by time-based phases.
+  const walkPhase = moving ? (walkOffset * 0.065) : 0;
   const swing = moving ? Math.sin(walkPhase) * 0.32 : 0;
   // Arm: back arm (opposite side to facing) swings forward, front arm back
   const backArmAngle  =  swing * f;   // e.g. facing right: left arm swings +
@@ -543,23 +546,135 @@ function drawConfetti(dt) {
   }
 }
 
+// Pre-render the start screen mountain SVG into an offscreen Image
+const mountainSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#4a90d9"/>
+      <stop offset="60%" stop-color="#87ceeb"/>
+      <stop offset="100%" stop-color="#c8e6f5"/>
+    </linearGradient>
+    <linearGradient id="peak1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#e8eef5"/>
+      <stop offset="30%" stop-color="#c8d0d8"/>
+      <stop offset="100%" stop-color="#7a8a96"/>
+    </linearGradient>
+    <linearGradient id="peak2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#dde4ec"/>
+      <stop offset="35%" stop-color="#b0bcc8"/>
+      <stop offset="100%" stop-color="#6e7e8a"/>
+    </linearGradient>
+    <linearGradient id="peak3" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f0f4f8"/>
+      <stop offset="25%" stop-color="#d0d8e0"/>
+      <stop offset="100%" stop-color="#8a9aaa"/>
+    </linearGradient>
+    <filter id="atmos">
+      <feGaussianBlur stdDeviation="1.5"/>
+    </filter>
+  </defs>
+
+  <!-- Sky -->
+  <rect width="800" height="600" fill="url(#sky)"/>
+
+  <!-- Sun glow -->
+  <circle cx="680" cy="80" r="55" fill="rgba(255,240,180,0.18)"/>
+  <circle cx="680" cy="80" r="34" fill="rgba(255,235,150,0.28)"/>
+  <circle cx="680" cy="80" r="22" fill="rgba(255,230,120,0.55)"/>
+
+  <!-- Clouds -->
+  <g opacity="0.82">
+    <ellipse cx="130" cy="110" rx="70" ry="22" fill="white"/>
+    <ellipse cx="155" cy="97" rx="42" ry="20" fill="white"/>
+    <ellipse cx="105" cy="100" rx="32" ry="16" fill="white"/>
+  </g>
+  <g opacity="0.72">
+    <ellipse cx="560" cy="90" rx="55" ry="18" fill="white"/>
+    <ellipse cx="585" cy="78" rx="35" ry="17" fill="white"/>
+  </g>
+  <g opacity="0.6">
+    <ellipse cx="340" cy="125" rx="45" ry="14" fill="white"/>
+    <ellipse cx="358" cy="115" rx="28" ry="13" fill="white"/>
+  </g>
+
+  <!-- Far background ridge (hazy) -->
+  <polygon points="0,420 80,310 160,360 240,290 340,340 430,270 520,320 610,260 700,310 800,280 800,600 0,600"
+           fill="#9ab0c2" opacity="0.45" filter="url(#atmos)"/>
+
+  <!-- Mid background ridge -->
+  <polygon points="0,480 60,380 140,430 220,360 310,410 400,340 490,390 580,330 670,375 760,325 800,350 800,600 0,600"
+           fill="#7a94a8" opacity="0.55"/>
+
+  <!-- Right mountain (partial) -->
+  <polygon points="520,520 680,200 800,480 800,600 520,600"
+           fill="url(#peak2)"/>
+  <!-- Right snow cap -->
+  <polygon points="680,200 648,270 680,255 712,270" fill="white" opacity="0.92"/>
+  <polygon points="680,200 655,268 680,248 705,268" fill="white" opacity="0.7"/>
+  <!-- Right rocky detail -->
+  <polyline points="640,350 660,300 680,260" fill="none" stroke="#606e7a" stroke-width="1.5" opacity="0.5"/>
+  <polyline points="720,340 700,290 680,260" fill="none" stroke="#606e7a" stroke-width="1.5" opacity="0.5"/>
+
+  <!-- Left mountain (partial) -->
+  <polygon points="0,520 0,380 120,200 260,480 0,520"
+           fill="url(#peak2)" opacity="0.9"/>
+  <!-- Left snow -->
+  <polygon points="120,200 95,265 120,252 145,265" fill="white" opacity="0.88"/>
+
+  <!-- Main central peak -->
+  <polygon points="100,600 400,120 700,600" fill="url(#peak1)"/>
+  <!-- Central rocky flanks detail -->
+  <polygon points="100,600 400,120 240,600" fill="#6e7e8c" opacity="0.18"/>
+  <polygon points="560,600 400,120 700,600" fill="#8090a0" opacity="0.14"/>
+  <!-- Rocky outcrop lines -->
+  <polyline points="290,450 310,380 340,310 370,250" fill="none" stroke="#556070" stroke-width="2" opacity="0.35"/>
+  <polyline points="510,460 480,390 455,330 430,270" fill="none" stroke="#556070" stroke-width="2" opacity="0.35"/>
+  <polyline points="340,490 360,420 385,360" fill="none" stroke="#778090" stroke-width="1.2" opacity="0.28"/>
+
+  <!-- Snow cap central peak -->
+  <polygon points="400,120 358,215 400,195 442,215" fill="white"/>
+  <polygon points="400,120 365,218 400,200 435,218" fill="white" opacity="0.78"/>
+  <!-- Snow drape down ridges -->
+  <polygon points="358,215 340,265 380,240 400,245 420,240 460,265 442,215 400,195" fill="white" opacity="0.6"/>
+  <!-- Snow highlight -->
+  <polygon points="400,120 382,190 400,180 418,190" fill="rgba(255,255,255,0.5)"/>
+
+  <!-- Foreground rocky base -->
+  <polygon points="0,560 100,530 200,545 300,520 400,535 500,515 600,530 700,510 800,525 800,600 0,600"
+           fill="#5a6a72"/>
+  <!-- Snow patches on foreground -->
+  <ellipse cx="200" cy="535" rx="35" ry="9" fill="white" opacity="0.55"/>
+  <ellipse cx="580" cy="524" rx="28" ry="7" fill="white" opacity="0.5"/>
+  <ellipse cx="730" cy="518" rx="22" ry="6" fill="white" opacity="0.45"/>
+</svg>`;
+
+const _mountainImg = new Image();
+_mountainImg.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(mountainSVG);
+
 // Screens
 function drawStartScreen() {
-  drawGradientSky();
-  ctx.fillStyle = 'rgb(130,145,130)';
-  ctx.beginPath(); ctx.moveTo(200,500); ctx.lineTo(400,180); ctx.lineTo(600,500); ctx.closePath(); ctx.fill();
-  ctx.fillStyle = 'rgb(245,245,255)';
-  ctx.beginPath(); ctx.moveTo(400,180); ctx.lineTo(370,240); ctx.lineTo(430,240); ctx.closePath(); ctx.fill();
+  // Mountain SVG background
+  if (_mountainImg.complete && _mountainImg.naturalWidth > 0) {
+    ctx.drawImage(_mountainImg, 0, 0, W, H);
+  } else {
+    drawGradientSky(); // fallback while image loads
+  }
 
-  ctx.fillStyle = 'rgb(50,50,100)'; ctx.font = 'bold 48px Arial';
-  ctx.textAlign = 'center'; ctx.fillText('Mountain Climb', W/2, 100);
-  ctx.fillStyle = 'rgb(80,80,120)'; ctx.font = '22px Arial';
-  ctx.fillText('Reach the summit! Jump over the goats!', W/2, 150);
+  // Semi-transparent title panel
+  ctx.fillStyle = 'rgba(10,20,50,0.52)';
+  ctx.beginPath(); ctx.roundRect(W/2 - 240, 52, 480, 110, 14); ctx.fill();
 
-  const pulse = 180 + 75 * Math.sin(performance.now() / 400);
-  ctx.fillStyle = `rgb(${Math.round(pulse)},${Math.round(pulse)},255)`;
-  ctx.font = 'bold 32px Arial';
-  ctx.fillText('Press SPACE to Play', W/2, 430);
+  ctx.fillStyle = '#fff'; ctx.font = 'bold 48px Arial';
+  ctx.textAlign = 'center'; ctx.fillText('Mountain Climb', W/2, 108);
+  ctx.fillStyle = 'rgba(200,220,255,0.9)'; ctx.font = '21px Arial';
+  ctx.fillText('Reach the summit! Jump over the goats!', W/2, 148);
+
+  // Play button
+  const pulse = 0.7 + 0.3 * Math.sin(performance.now() / 400);
+  ctx.fillStyle = `rgba(60,130,255,${pulse})`;
+  ctx.beginPath(); ctx.roundRect(W/2 - 160, 390, 320, 60, 12); ctx.fill();
+  ctx.fillStyle = '#fff'; ctx.font = 'bold 28px Arial';
+  ctx.fillText('Press SPACE to Play', W/2, 429);
   ctx.textAlign = 'left';
 }
 
@@ -595,6 +710,11 @@ function drawWin(dt) {
 
 // Update
 function update(dt) {
+  if (state === 'knockback') {
+    updateKnockback(dt);
+    return;
+  }
+
   let moving = false;
   if (keys['ArrowRight'] || keys['KeyD']) { playerWX += PLAYER_SPEED * dt; facingRight = true; moving = true; }
   if (keys['ArrowLeft'] || keys['KeyA']) { playerWX -= PLAYER_SPEED * dt; facingRight = false; moving = true; }
@@ -603,7 +723,6 @@ function update(dt) {
 
   const groundY = trailY(playerWX);
   if (onGround) {
-    // Stick to slope whether moving forward or backward
     playerWY = groundY;
     playerVY = 0;
   } else {
@@ -624,7 +743,7 @@ function update(dt) {
     if (g.wx < playerWX - 300) g.active = false;
   }
 
-  // Collision
+  // Collision → knockback
   const pRect = { x: playerWX - 14, y: playerWY - 48, w: 28, h: 50 };
   if (invincibleTimer <= 0) {
     for (const g of goats) {
@@ -632,14 +751,35 @@ function update(dt) {
       const gRect = { x: g.wx - g.width/2, y: g.wy - g.height, w: g.width, h: g.height };
       if (rectsOverlap(pRect, gRect)) {
         lives--;
-        invincibleTimer = INVINCIBILITY_TIME;
         g.active = false;
         if (lives <= 0) { state = 'gameover'; return; }
+        // Launch knockback — fly back and down the slope
+        kbX = playerWX; kbY = playerWY;
+        kbVX = -(facingRight ? 1 : -1) * 300;  // pushed back
+        kbVY = -500;                             // launched upward
+        kbTimer = 2.0;
+        state = 'knockback';
+        return;
       }
     }
   }
 
   if (playerWX >= LEVEL_LENGTH) { state = 'win'; initConfetti(); }
+}
+
+function updateKnockback(dt) {
+  kbVY += GRAVITY * dt;
+  kbX += kbVX * dt;
+  kbY += kbVY * dt;
+  kbTimer -= dt;
+  if (kbTimer <= 0) {
+    // Reappear on the trail a little behind where they were hit
+    playerWY = trailY(playerWX);
+    playerVY = 0;
+    onGround = true;
+    invincibleTimer = INVINCIBILITY_TIME;
+    state = 'playing';
+  }
 }
 
 function rectsOverlap(a, b) {
@@ -656,13 +796,17 @@ function draw(dt) {
   // the player climbs — at the summit the player is ~190px from top vs
   // 390px at the start, giving a real sense of gained altitude.
   const camWY = playerWY + progress * 200;
+  // During knockback, gently pan camera toward flying player's X
+  if (state === 'knockback') {
+    // camera stays locked to playerWX (the stable ground position)
+    // so the trail stays visible while the player flies off
+  }
 
   drawGradientSky();
   drawClouds(camWX, camWY, progress);
   drawDistantMountains(camWX, camWY);
   drawMidMountains(camWX, camWY);
   drawTerrain(camWX, camWY, progress);
-  drawTrees(camWX, camWY, progress);
   drawSummitFlag(camWX, camWY);
 
   for (const g of goats) {
@@ -671,8 +815,20 @@ function draw(dt) {
     if (sx > -60 && sx < W + 60) drawGoat(Math.round(sx), Math.round(sy), true);
   }
 
-  const [psx, psy] = worldToScreen(playerWX, playerWY, camWX, camWY);
-  drawPlayer(Math.round(psx), Math.round(psy), facingRight, invincibleTimer > 0, playerMoving);
+  if (state === 'knockback') {
+    // Draw the player tumbling off the mountain
+    const [ksx, ksy] = worldToScreen(kbX, kbY, camWX, camWY);
+    const tumble = (2.0 - kbTimer) / 2.0; // 0→1 as timer counts down
+    ctx.save();
+    ctx.translate(ksx, ksy);
+    ctx.rotate(tumble * Math.PI * 3 * (facingRight ? 1 : -1));
+    ctx.translate(-ksx, -ksy);
+    drawPlayer(Math.round(ksx), Math.round(ksy), facingRight, false, false, playerWX);
+    ctx.restore();
+  } else {
+    const [psx, psy] = worldToScreen(playerWX, playerWY, camWX, camWY);
+    drawPlayer(Math.round(psx), Math.round(psy), facingRight, invincibleTimer > 0, playerMoving, playerWX);
+  }
 
   drawHearts(lives);
   drawProgressBar(progress);
@@ -695,7 +851,7 @@ function gameLoop(timestamp) {
   const dt = Math.min((timestamp - lastTime) / 1000, 0.05);
   lastTime = timestamp;
 
-  if (state === 'playing') update(dt);
+  if (state === 'playing' || state === 'knockback') update(dt);
   draw(dt);
   requestAnimationFrame(gameLoop);
 }
