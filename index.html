@@ -6,7 +6,7 @@
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { background: #1a1a2e; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; font-family: monospace; }
-  canvas { display: block; image-rendering: pixelated; border: 3px solid #444; }
+  canvas { display: block; image-rendering: pixelated; border: 3px solid #444; cursor: pointer; }
   #instructions { color: #aaa; font-size: 13px; margin-top: 10px; text-align: center; }
 </style>
 </head>
@@ -23,6 +23,84 @@ const W = canvas.width;
 const H = canvas.height;
 
 // ─────────────────────────────────────────────
+//  AUDIO — Irish background music (Web Audio chiptune)
+// ─────────────────────────────────────────────
+let audioCtx = null;
+let musicPlaying = false;
+
+// Simple Irish jig melody using Web Audio
+function startMusic() {
+  if (musicPlaying) return;
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  musicPlaying = true;
+  playJig();
+}
+
+function playJig() {
+  if (!audioCtx || !musicPlaying) return;
+  // Irish jig in 6/8 time — notes as [freq, duration]
+  // D major pentatonic jig melody
+  const BPM = 180;
+  const eighth = 60 / BPM / 2;
+  const melody = [
+    // Bar 1
+    [587, eighth], [523, eighth], [587, eighth], [659, eighth], [587, eighth], [523, eighth],
+    // Bar 2
+    [440, eighth], [392, eighth], [440, eighth], [523, eighth], [440, eighth], [392, eighth],
+    // Bar 3
+    [349, eighth], [392, eighth], [440, eighth], [523, eighth], [587, eighth], [659, eighth],
+    // Bar 4
+    [587, eighth], [523, eighth], [440, eighth], [392, eighth], [349, eighth], [392, eighth],
+    // Bar 5
+    [440, eighth], [523, eighth], [587, eighth], [659, eighth], [698, eighth], [659, eighth],
+    // Bar 6
+    [587, eighth], [523, eighth], [440, eighth], [523, eighth], [587, eighth], [523, eighth],
+    // Bar 7
+    [440, eighth], [392, eighth], [349, eighth], [392, eighth], [440, eighth], [523, eighth],
+    // Bar 8
+    [587, eighth*2], [440, eighth*2], [349, eighth*2],
+  ];
+
+  let t = audioCtx.currentTime + 0.05;
+  melody.forEach(([freq, dur]) => {
+    // melody voice
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'square';
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0.08, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + dur * 0.9);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start(t);
+    osc.stop(t + dur);
+
+    // harmony (fifth below, quieter)
+    const osc2 = audioCtx.createOscillator();
+    const gain2 = audioCtx.createGain();
+    osc2.type = 'triangle';
+    osc2.frequency.value = freq * 0.667;
+    gain2.gain.setValueAtTime(0.04, t);
+    gain2.gain.exponentialRampToValueAtTime(0.001, t + dur * 0.9);
+    osc2.connect(gain2);
+    gain2.connect(audioCtx.destination);
+    osc2.start(t);
+    osc2.stop(t + dur);
+
+    t += dur;
+  });
+
+  // Loop the jig
+  const totalDur = melody.reduce((sum, [,d]) => sum + d, 0);
+  setTimeout(() => { if (musicPlaying) playJig(); }, totalDur * 1000);
+}
+
+function stopMusic() {
+  musicPlaying = false;
+  if (audioCtx) { audioCtx.close(); audioCtx = null; }
+}
+
+// ─────────────────────────────────────────────
 //  CONSTANTS
 // ─────────────────────────────────────────────
 const GRAVITY      = 0.55;
@@ -32,9 +110,10 @@ const MAX_LIVES    = 3;
 const WORLD_WIDTH  = 5000;
 
 // ─────────────────────────────────────────────
-//  PIXEL ART SPRITES (32×32 grids, palette indices)
-//  0=transparent, 1=skin, 2=green(hat/coat), 3=gold,
-//  4=white, 5=brown/shoe, 6=dark-green, 7=red
+//  PIXEL ART SPRITES
+//  0=transparent, 1=skin, 2=green(coat), 3=gold,
+//  5=brown, 6=dark-green(hat), C=orange(beard),
+//  D=dark(eyes/shoes), E=brown(pants), F=buckle-gold
 // ─────────────────────────────────────────────
 const PALETTE = {
   0: null,
@@ -49,71 +128,94 @@ const PALETTE = {
   9: '#ff8f00',
   A: '#4caf50',
   B: '#81c784',
+  C: '#e65100',
+  D: '#111111',
+  E: '#795548',
+  F: '#ffc107',
 };
 
-// 16×24 leprechaun sprite rows (idle frame)
+// 16×18 improved leprechaun — hat with buckle, eyes, orange beard, brown pants, dark shoes
 const LEP_IDLE = [
   '0000066660000000',
-  '0000622260000000',
-  '0000633360000000',
-  '0000633360000000',
-  '0006333330600000',
-  '0006333333600000',
-  '0000611160000000',
-  '0001111110000000',
-  '0111111111100000',
-  '0222222222200000',
-  '0222222222200000',
-  '0226222222600000',
-  '0022222222000000',
-  '0002222220000000',
-  '0002222220000000',
-  '0005522550000000',
-  '0005522550000000',
-  '0055000550000000',
+  '0000666666000000',
+  '0000F66F66000000',
+  '0066666666660000',
+  '0000111111000000',
+  '0001D11D11000000',
+  '0001111111000000',
+  '00011CCCC1000000',
+  '00000CCCC0000000',
+  '0002222222000000',
+  '0022232322200000',
+  '0022222222200000',
+  '0022222222200000',
+  '0002222222000000',
+  '0000EE0EE0000000',
+  '0000EE0EE0000000',
+  '0000DD0DD0000000',
+  '0000DD0DD0000000',
 ];
 
-// run frame 2 (leg forward)
 const LEP_RUN1 = [
   '0000066660000000',
-  '0000622260000000',
-  '0000633360000000',
-  '0000633360000000',
-  '0006333330600000',
-  '0006333333600000',
-  '0000611160000000',
-  '0001111110000000',
-  '0111111111100000',
-  '0222222222200000',
-  '0222222222200000',
-  '0226222222600000',
-  '0022222222000000',
-  '0002222220000000',
-  '0055222220000000',
-  '0050522000000000',
-  '0000052200000000',
-  '0000005500000000',
+  '0000666666000000',
+  '0000F66F66000000',
+  '0066666666660000',
+  '0000111111000000',
+  '0001D11D11000000',
+  '0001111111000000',
+  '00011CCCC1000000',
+  '00000CCCC0000000',
+  '0002222222000000',
+  '0022232322200000',
+  '0022222222200000',
+  '0022222222200000',
+  '0002222222000000',
+  '00EE000EE0000000',
+  '0EE0000EE0000000',
+  '0DD00000DD000000',
+  '0000000000000000',
 ];
 
-// jump frame
+const LEP_RUN2 = [
+  '0000066660000000',
+  '0000666666000000',
+  '0000F66F66000000',
+  '0066666666660000',
+  '0000111111000000',
+  '0001D11D11000000',
+  '0001111111000000',
+  '00011CCCC1000000',
+  '00000CCCC0000000',
+  '0002222222000000',
+  '0022232322200000',
+  '0022222222200000',
+  '0022222222200000',
+  '0002222222000000',
+  '0000EE000EE00000',
+  '0000EE0000EE0000',
+  '00000DD0000DD000',
+  '0000000000000000',
+];
+
 const LEP_JUMP = [
   '0000066660000000',
-  '0000622260000000',
-  '0000633360000000',
-  '0000633360000000',
-  '0006333330600000',
-  '0006333333600000',
-  '0000611160000000',
-  '0001111110000000',
-  '0111111111100000',
+  '0000666666000000',
+  '0000F66F66000000',
+  '0066666666660000',
+  '0000111111000000',
+  '0001D11D11000000',
+  '0001111111000000',
+  '00011CCCC1000000',
+  '00000CCCC0000000',
+  '0022222222200000',
+  '0022232322200000',
+  '2222222222220000',
   '0222222222200000',
-  '0222222222200000',
-  '6222222222200006',
-  '0622222222006000',
-  '0062222220060000',
-  '0005522000000000',
-  '0000522550000000',
-  '0000005005000000',
+  '0022222222000000',
+  '000EE0000E000000',
+  '000DD000EE000000',
+  '00000000DD000000',
   '0000000000000000',
 ];
 
@@ -142,32 +244,67 @@ function drawSprite(sprite, x, y, scale, flipX) {
 // ─────────────────────────────────────────────
 function drawCloud(x, y, w, h, camX) {
   const sx = x - camX;
-  // puff circles
   ctx.fillStyle = '#dce8f5';
   ctx.beginPath(); ctx.ellipse(sx + w*0.2, y + h*0.5, w*0.25, h*0.55, 0, 0, Math.PI*2); ctx.fill();
   ctx.beginPath(); ctx.ellipse(sx + w*0.5, y + h*0.3, w*0.3,  h*0.6,  0, 0, Math.PI*2); ctx.fill();
   ctx.beginPath(); ctx.ellipse(sx + w*0.8, y + h*0.5, w*0.22, h*0.5,  0, 0, Math.PI*2); ctx.fill();
-  // flat bottom
   ctx.fillRect(sx, y + h*0.55, w, h*0.45);
-  // subtle highlight
   ctx.fillStyle = '#eef4fb';
   ctx.beginPath(); ctx.ellipse(sx + w*0.45, y + h*0.22, w*0.18, h*0.25, 0, 0, Math.PI*2); ctx.fill();
 }
 
 // ─────────────────────────────────────────────
-//  POT OF GOLD DRAWING
+//  RAINBOW — large arc landing on the final cloud
+// ─────────────────────────────────────────────
+const RAINBOW_COLORS = ['#e53935','#fb8c00','#fdd835','#43a047','#1e88e5','#5e35b1'];
+const FINAL_CLOUD = { x: 2060, y: 270, w: 250 };
+const RAINBOW_LAND_X = FINAL_CLOUD.x + FINAL_CLOUD.w * 0.55; // right side of final cloud
+const RAINBOW_LAND_Y = FINAL_CLOUD.y + 10;
+const RAINBOW_RADIUS = 420;
+// Arc center: right foot of arc is at (landX, landY), so cx = landX - R
+const RAINBOW_CX = RAINBOW_LAND_X - RAINBOW_RADIUS;
+const RAINBOW_CY = RAINBOW_LAND_Y;
+
+function drawRainbow(camX) {
+  const sx = RAINBOW_CX - camX;
+  ctx.save();
+  ctx.globalAlpha = 0.85;
+  for (let i = 0; i < RAINBOW_COLORS.length; i++) {
+    ctx.strokeStyle = RAINBOW_COLORS[i];
+    ctx.lineWidth = 14;
+    ctx.beginPath();
+    ctx.arc(sx, RAINBOW_CY, RAINBOW_RADIUS - i * 16, Math.PI, 0);
+    ctx.stroke();
+  }
+  // soft glow behind the rainbow
+  ctx.globalAlpha = 0.12;
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = RAINBOW_COLORS.length * 16 + 20;
+  ctx.beginPath();
+  ctx.arc(sx, RAINBOW_CY, RAINBOW_RADIUS - RAINBOW_COLORS.length * 8, Math.PI, 0);
+  ctx.stroke();
+  ctx.restore();
+}
+
+// ─────────────────────────────────────────────
+//  POT OF GOLD DRAWING (no mini-rainbow, the big one lands here)
 // ─────────────────────────────────────────────
 function drawPot(x, y, camX) {
   const sx = x - camX;
-  // rainbow above pot
-  const colors = ['#e53935','#fb8c00','#fdd835','#43a047','#1e88e5','#8e24aa'];
-  for (let i = 0; i < colors.length; i++) {
-    ctx.strokeStyle = colors[i];
-    ctx.lineWidth = 5;
-    ctx.beginPath();
-    ctx.arc(sx + 20, y + 10, 55 - i*8, Math.PI, 0);
-    ctx.stroke();
+  // sparkle effect
+  const t = Date.now() / 200;
+  for (let i = 0; i < 5; i++) {
+    const angle = t + i * 1.3;
+    const dist = 20 + Math.sin(t * 0.5 + i) * 8;
+    const px = sx + 20 + Math.cos(angle) * dist;
+    const py = y + 5 + Math.sin(angle) * dist * 0.5;
+    ctx.globalAlpha = 0.5 + Math.sin(t + i * 2) * 0.3;
+    ctx.fillStyle = '#ffd600';
+    ctx.fillRect(px - 2, py - 2, 4, 4);
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(px - 1, py - 1, 2, 2);
   }
+  ctx.globalAlpha = 1;
   // pot body
   ctx.fillStyle = '#212121';
   ctx.beginPath();
@@ -180,13 +317,16 @@ function drawPot(x, y, camX) {
   // pot rim
   ctx.fillStyle = '#424242';
   ctx.fillRect(sx - 3, y + 17, 46, 8);
-  // gold coins
+  // gold coins overflowing
   ctx.fillStyle = '#ffd600';
-  ctx.beginPath(); ctx.ellipse(sx + 20, y + 18, 17, 7, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(sx + 20, y + 18, 18, 8, 0, 0, Math.PI*2); ctx.fill();
   ctx.fillStyle = '#ffb300';
-  ctx.beginPath(); ctx.ellipse(sx + 14, y + 16, 5, 5, 0, 0, Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.ellipse(sx + 22, y + 13, 5, 5, 0, 0, Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.ellipse(sx + 30, y + 15, 5, 5, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(sx + 12, y + 14, 6, 6, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(sx + 22, y + 11, 6, 6, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(sx + 32, y + 13, 5, 5, 0, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#ffe082';
+  ctx.beginPath(); ctx.ellipse(sx + 17, y + 8, 4, 4, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(sx + 27, y + 9, 4, 4, 0, 0, Math.PI*2); ctx.fill();
 }
 
 // ─────────────────────────────────────────────
@@ -228,10 +368,7 @@ function drawParticles(camX) {
 // ─────────────────────────────────────────────
 //  LEVEL 1 LAYOUT
 // ─────────────────────────────────────────────
-// Each cloud: { x, y, w, h }
-// Platform top surface = y, leprechaun lands on y
 const LEVEL1_CLOUDS = [
-  // starting platform (wide, easy landing)
   { x: 0,    y: 340, w: 220, h: 60 },
   { x: 280,  y: 320, w: 160, h: 55 },
   { x: 500,  y: 300, w: 140, h: 55 },
@@ -242,8 +379,7 @@ const LEVEL1_CLOUDS = [
   { x: 1490, y: 300, w: 120, h: 50 },
   { x: 1680, y: 270, w: 140, h: 50 },
   { x: 1880, y: 290, w: 130, h: 50 },
-  // final wide platform with pot of gold
-  { x: 2060, y: 270, w: 250, h: 60 },
+  { x: FINAL_CLOUD.x, y: FINAL_CLOUD.y, w: FINAL_CLOUD.w, h: 60 },
 ];
 
 const POT_X = 2230;
@@ -252,7 +388,7 @@ const POT_Y = 220;
 // ─────────────────────────────────────────────
 //  GAME STATE
 // ─────────────────────────────────────────────
-let state; // 'title' | 'playing' | 'dead' | 'win' | 'gameover'
+let state;
 let lives;
 let player;
 let camX;
@@ -292,6 +428,7 @@ function resetLevel() {
 function startPlaying() {
   resetLevel();
   state = 'playing';
+  startMusic();
 }
 
 // ─────────────────────────────────────────────
@@ -311,7 +448,6 @@ window.addEventListener('keydown', e => {
   }
 
   if (state === 'win' && ['Space','Enter'].includes(e.code)) {
-    // restart for now (future: next level)
     lives = MAX_LIVES;
     startPlaying();
     return;
@@ -334,6 +470,9 @@ window.addEventListener('keydown', e => {
 });
 window.addEventListener('keyup', e => { keys[e.code] = false; });
 
+// Also start music on click (for autoplay policy)
+canvas.addEventListener('click', () => { if (state === 'title') startPlaying(); });
+
 // ─────────────────────────────────────────────
 //  PHYSICS & COLLISION
 // ─────────────────────────────────────────────
@@ -349,7 +488,6 @@ function update() {
     return;
   }
 
-  // horizontal movement
   const movingLeft  = keys['ArrowLeft']  || keys['KeyA'];
   const movingRight = keys['ArrowRight'] || keys['KeyD'];
 
@@ -357,21 +495,15 @@ function update() {
   else if (movingRight) { player.vx =  MOVE_SPEED; player.facingLeft = false; }
   else             { player.vx = 0; }
 
-  // gravity
   player.vy += GRAVITY;
-
-  // move
   player.x += player.vx;
   player.y += player.vy;
 
-  // clamp left edge of world
   if (player.x < 0) player.x = 0;
 
-  // camera follows player, clamped to world
   const targetCamX = player.x - W * 0.35;
   camX = Math.max(0, Math.min(targetCamX, WORLD_WIDTH - W));
 
-  // cloud collision (only when falling)
   player.onGround = false;
   if (player.vy >= 0) {
     for (const c of LEVEL1_CLOUDS) {
@@ -391,7 +523,6 @@ function update() {
     }
   }
 
-  // fall off screen → lose life
   if (player.y > H + 80) {
     lives--;
     particles = [];
@@ -404,7 +535,6 @@ function update() {
     return;
   }
 
-  // reach pot of gold
   if (
     !player.won &&
     player.x + player.w > POT_X &&
@@ -418,9 +548,8 @@ function update() {
     winTimer = 0;
   }
 
-  // animation tick
   animTick++;
-  if (animTick % 10 === 0) animFrame = (animFrame + 1) % 2;
+  if (animTick % 8 === 0) animFrame = (animFrame + 1) % 4;
 
   updateParticles();
 }
@@ -429,27 +558,12 @@ function update() {
 //  BACKGROUND DRAWING
 // ─────────────────────────────────────────────
 function drawBackground() {
-  // sky gradient
   const sky = ctx.createLinearGradient(0, 0, 0, H);
   sky.addColorStop(0,   '#87ceeb');
   sky.addColorStop(0.7, '#b0e0f5');
   sky.addColorStop(1,   '#d4f5c0');
   ctx.fillStyle = sky;
   ctx.fillRect(0, 0, W, H);
-
-  // distant rainbow (decorative)
-  const rbColors = ['#e53935','#fb8c00','#fdd835','#43a047','#1e88e5','#8e24aa'];
-  const rbCx = W * 0.75 - (camX * 0.05);
-  const rbCy = H * 0.8;
-  for (let i = 0; i < rbColors.length; i++) {
-    ctx.strokeStyle = rbColors[i];
-    ctx.lineWidth   = 9;
-    ctx.globalAlpha = 0.35;
-    ctx.beginPath();
-    ctx.arc(rbCx, rbCy, 220 - i * 28, Math.PI, 0);
-    ctx.stroke();
-  }
-  ctx.globalAlpha = 1;
 
   // hills (parallax)
   ctx.fillStyle = '#6dbf5b';
@@ -463,7 +577,6 @@ function drawBackground() {
     ctx.ellipse(hx + W*0.9,  H + 10, 180, 100, 0, 0, Math.PI*2); ctx.fill();
   }
 
-  // ground strip
   ctx.fillStyle = '#5aad48';
   ctx.fillRect(0, H - 30, W, 30);
 
@@ -481,7 +594,6 @@ function drawBackground() {
 //  HUD
 // ─────────────────────────────────────────────
 function drawHUD() {
-  // lives — clover icons
   ctx.font = 'bold 14px monospace';
   ctx.fillStyle = '#fff';
   ctx.strokeStyle = '#333';
@@ -495,13 +607,11 @@ function drawHUD() {
 
 function drawClover(x, y, color) {
   ctx.fillStyle = color;
-  // four lobes
   const r = 7;
   ctx.beginPath(); ctx.arc(x,   y-r, r, 0, Math.PI*2); ctx.fill();
   ctx.beginPath(); ctx.arc(x,   y+r, r, 0, Math.PI*2); ctx.fill();
   ctx.beginPath(); ctx.arc(x-r, y,   r, 0, Math.PI*2); ctx.fill();
   ctx.beginPath(); ctx.arc(x+r, y,   r, 0, Math.PI*2); ctx.fill();
-  // stem
   ctx.fillStyle = color;
   ctx.fillRect(x-2, y+r, 4, 8);
 }
@@ -518,18 +628,18 @@ function drawTitleScreen() {
   ctx.font = 'bold 48px monospace';
   ctx.strokeStyle = '#5d4037';
   ctx.lineWidth = 5;
-  ctx.strokeText('Lucky Leprechaun', W/2, 160);
-  ctx.fillText('Lucky Leprechaun', W/2, 160);
+  ctx.strokeText('Lucky Leprechaun', W/2, 150);
+  ctx.fillText('Lucky Leprechaun', W/2, 150);
 
   ctx.fillStyle = '#fff';
   ctx.font = 'bold 26px monospace';
   ctx.strokeStyle = '#333';
   ctx.lineWidth = 3;
-  ctx.strokeText('Rainbow Run', W/2, 200);
-  ctx.fillText('Rainbow Run', W/2, 200);
+  ctx.strokeText('Rainbow Run', W/2, 190);
+  ctx.fillText('Rainbow Run', W/2, 190);
 
-  // draw small leprechaun on title
-  drawSprite(LEP_IDLE, W/2 - 32, 230, 4, false);
+  // draw leprechaun on title
+  drawSprite(LEP_IDLE, W/2 - 32, 220, 4, false);
 
   ctx.fillStyle = '#ffe082';
   ctx.font = 'bold 18px monospace';
@@ -537,13 +647,13 @@ function drawTitleScreen() {
   ctx.lineWidth = 2;
   const blink = Math.floor(Date.now() / 500) % 2 === 0;
   if (blink) {
-    ctx.strokeText('Press SPACE to Start!', W/2, 340);
-    ctx.fillText('Press SPACE to Start!', W/2, 340);
+    ctx.strokeText('Press SPACE or Click to Start!', W/2, 330);
+    ctx.fillText('Press SPACE or Click to Start!', W/2, 330);
   }
 
   ctx.fillStyle = '#ccc';
   ctx.font = '14px monospace';
-  ctx.fillText('Arrow Keys / WASD to move  |  Space / Up to jump  |  Double-jump!', W/2, 390);
+  ctx.fillText('Arrow Keys / WASD to move  |  Space / Up to jump  |  Double-jump!', W/2, 375);
   ctx.textAlign = 'left';
 }
 
@@ -615,23 +725,27 @@ function draw() {
   ctx.clearRect(0, 0, W, H);
   drawBackground();
 
-  // draw clouds
+  // draw big rainbow (behind clouds, in front of background)
+  drawRainbow(camX);
+
   for (const c of LEVEL1_CLOUDS) {
     drawCloud(c.x, c.y, c.w, c.h, camX);
   }
 
-  // draw pot of gold
   drawPot(POT_X, POT_Y, camX);
-
-  // draw particles
   drawParticles(camX);
 
-  // draw leprechaun (not on game over / title)
   if (state === 'playing' || state === 'dead' || state === 'win') {
     const moving = player.vx !== 0;
-    const sprite = player.onGround
-      ? (moving ? (animFrame === 0 ? LEP_RUN1 : LEP_IDLE) : LEP_IDLE)
-      : LEP_JUMP;
+    let sprite;
+    if (!player.onGround) {
+      sprite = LEP_JUMP;
+    } else if (moving) {
+      const frames = [LEP_RUN1, LEP_IDLE, LEP_RUN2, LEP_IDLE];
+      sprite = frames[animFrame % 4];
+    } else {
+      sprite = LEP_IDLE;
+    }
     const scale = 2;
     const sx = player.x - camX;
     const sy = player.y;
@@ -640,7 +754,6 @@ function draw() {
 
   drawHUD();
 
-  // overlays
   if (state === 'title')    drawTitleScreen();
   if (state === 'dead')     drawDeadScreen();
   if (state === 'gameover') drawGameOverScreen();
