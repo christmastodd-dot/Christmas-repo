@@ -23,6 +23,7 @@ body {
     align-items: center;
     justify-content: center;
     height: 100vh;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
 .join-card {
@@ -245,6 +246,9 @@ body {
 .input-bar {
     display: flex;
     padding: 0.5rem 0.75rem;
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+    padding-left: max(0.75rem, env(safe-area-inset-left));
+    padding-right: max(0.75rem, env(safe-area-inset-right));
     border-top: 1px solid #2a2a2e;
     gap: 0.5rem;
     flex-shrink: 0;
@@ -955,6 +959,9 @@ body.quiet .msg.system .text {
 
     .input-bar {
         padding: 0.4rem;
+        padding-bottom: max(0.4rem, env(safe-area-inset-bottom));
+        padding-left: max(0.4rem, env(safe-area-inset-left));
+        padding-right: max(0.4rem, env(safe-area-inset-right));
         gap: 0.4rem;
         position: sticky;
         bottom: 0;
