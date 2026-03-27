@@ -464,26 +464,6 @@ body.quiet .msg.system .text {
     align-items: center;
 }
 
-.gavel-scene {
-    position: relative;
-    width: 300px;
-    height: 240px;
-}
-
-.gavel-base {
-    position: absolute;
-    bottom: 0;
-    left: 20px;
-}
-
-.gavel-arm {
-    position: absolute;
-    top: 0;
-    left: 0;
-    transform-origin: 85px 170px;
-    animation: gavel-strike 0.8s ease-in-out;
-}
-
 .gavel-label {
     font-size: 24px;
     font-weight: 700;
@@ -491,26 +471,6 @@ body.quiet .msg.system .text {
     margin-top: 0.5rem;
     letter-spacing: 0.15em;
     text-transform: uppercase;
-    animation: gavel-shake 0.4s ease 0.6s both;
-}
-
-@keyframes gavel-strike {
-    0% { transform: rotate(-50deg); }
-    35% { transform: rotate(5deg); }
-    45% { transform: rotate(0deg); }
-    55% { transform: rotate(-35deg); }
-    80% { transform: rotate(3deg); }
-    90% { transform: rotate(0deg); }
-    100% { transform: rotate(0deg); }
-}
-
-@keyframes gavel-shake {
-    0%, 100% { transform: translateX(0); }
-    15% { transform: translateX(-10px); }
-    30% { transform: translateX(10px); }
-    50% { transform: translateX(-6px); }
-    70% { transform: translateX(6px); }
-    85% { transform: translateX(-2px); }
 }
 
 /* ── Countdown timer ── */
