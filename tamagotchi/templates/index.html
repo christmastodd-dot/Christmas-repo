@@ -427,9 +427,17 @@
     Addition, subtraction, multiplication, and division.<br>
     Answer correctly to hatch your egg and evolve!
   </p>
-  <input type="text" id="pet-name" placeholder="Name your pet" maxlength="20" autofocus>
-  <br>
-  <button onclick="startGame()">Start!</button>
+  <div id="new-game-section">
+    <input type="text" id="pet-name" placeholder="Name your pet" maxlength="20" autofocus>
+    <br>
+    <button onclick="startGame()">New Game</button>
+  </div>
+  <div id="continue-section" style="display:none">
+    <p class="desc" id="continue-info"></p>
+    <button onclick="continueGame()" style="margin-bottom:8px">Continue</button>
+    <br>
+    <button onclick="showNewGame()" style="background:transparent; border:1px solid var(--border); color:var(--dim); font-size:0.85em; padding:8px 20px">New Pet</button>
+  </div>
 </div>
 
 <!-- Game Screen -->
@@ -846,22 +854,72 @@ socket.on('disconnect', (reason) => {
   }
 });
 socket.on('no_game', () => {
-  // Server lost our session — show welcome screen to restart
+  // Server lost our session — try to reload from save, else show welcome
+  const save = localStorage.getItem('stitch_save');
+  if (save) {
+    try {
+      socket.emit('load_game', {save: JSON.parse(save)});
+      return;
+    } catch(e) {}
+  }
   document.getElementById('game').classList.add('hidden');
   document.getElementById('game').classList.remove('active');
   document.getElementById('welcome').style.display = '';
 });
 
-function startGame() {
-  const name = document.getElementById('pet-name').value.trim();
-  socket.emit('new_game', {name});
+// Save to localStorage whenever server sends save data
+socket.on('save', data => {
+  localStorage.setItem('stitch_save', JSON.stringify(data));
+});
+
+function enterGame() {
   document.getElementById('welcome').style.display = 'none';
   document.getElementById('game').classList.remove('hidden');
   document.getElementById('game').classList.add('active');
 }
+
+function startGame() {
+  const name = document.getElementById('pet-name').value.trim();
+  localStorage.removeItem('stitch_save');
+  socket.emit('new_game', {name});
+  enterGame();
+}
+
+function continueGame() {
+  const save = localStorage.getItem('stitch_save');
+  if (save) {
+    socket.emit('load_game', {save: JSON.parse(save)});
+    enterGame();
+  }
+}
+
+function showNewGame() {
+  document.getElementById('continue-section').style.display = 'none';
+  document.getElementById('new-game-section').style.display = '';
+  document.getElementById('pet-name').focus();
+}
+
 document.getElementById('pet-name').addEventListener('keydown', e => {
   if (e.key === 'Enter') startGame();
 });
+
+// On load, check for existing save
+(function checkSave() {
+  const save = localStorage.getItem('stitch_save');
+  if (save) {
+    try {
+      const data = JSON.parse(save);
+      const labels = {egg:'Egg',baby:'Baby',child:'Child',teen:'Teen',adult:'Adult'};
+      const stage = labels[data.stage] || data.stage;
+      document.getElementById('continue-info').textContent =
+        `${data.name} the ${stage} is waiting for you!`;
+      document.getElementById('continue-section').style.display = '';
+      document.getElementById('new-game-section').style.display = 'none';
+    } catch(e) {
+      localStorage.removeItem('stitch_save');
+    }
+  }
+})();
 
 socket.on('state', state => {
   document.getElementById('g-name').textContent = `~ ${state.name} the ${state.species} ~`;

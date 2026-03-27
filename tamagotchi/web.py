@@ -84,6 +84,7 @@ def tick_loop():
             if gs and gs.pet.stage != "egg":
                 gs.pet.tick()
                 socketio.emit("state", gs.get_state(), to=sid)
+                socketio.emit("save", gs.pet.to_dict(), to=sid)
 
 
 def ensure_tick_running():
@@ -109,6 +110,28 @@ def on_new_game(data):
     pet = Pet(name)
     gs = GameState(sid, pet)
     gs.message = f"{name}'s egg is here! Answer math problems to help it hatch!"
+    with lock:
+        games[sid] = gs
+    ensure_tick_running()
+    emit("state", gs.get_state())
+    emit("save", pet.to_dict())
+    gs.message = ""
+
+
+@socketio.on("load_game")
+def on_load_game(data):
+    sid = request.sid
+    save_data = data.get("save")
+    if not save_data or not isinstance(save_data, dict):
+        emit("no_game")
+        return
+    try:
+        pet = Pet.from_dict(save_data)
+    except Exception:
+        emit("no_game")
+        return
+    gs = GameState(sid, pet)
+    gs.message = f"Welcome back, {pet.name}!"
     with lock:
         games[sid] = gs
     ensure_tick_running()
@@ -165,6 +188,7 @@ def on_answer(data):
     gs._generate_problem()
 
     emit("state", gs.get_state())
+    emit("save", pet.to_dict())
     gs.message = ""
 
 
@@ -181,6 +205,7 @@ def on_care(data):
     success, message = gs.pet.care(action)
     gs.message = message
     emit("state", gs.get_state())
+    emit("save", gs.pet.to_dict())
     gs.message = ""
 
 
@@ -196,6 +221,7 @@ def on_buy(data):
     success, message = gs.pet.buy_item(item_id)
     gs.message = message
     emit("state", gs.get_state())
+    emit("save", gs.pet.to_dict())
     gs.message = ""
 
 
@@ -211,6 +237,7 @@ def on_use_item(data):
     success, message = gs.pet.use_item(item_id)
     gs.message = message
     emit("state", gs.get_state())
+    emit("save", gs.pet.to_dict())
     gs.message = ""
 
 
