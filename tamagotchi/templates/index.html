@@ -807,6 +807,7 @@ function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
 async function playEvolution(oldStage, newStage, petName) {
   evoInProgress = true;
+  document.getElementById('answer-input').blur();
 
   const labels = {egg:'Egg',baby:'Baby',child:'Child',teen:'Teen',adult:'Adult'};
   const overlay = document.getElementById('evo-overlay');
