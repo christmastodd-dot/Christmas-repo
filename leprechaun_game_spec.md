@@ -115,21 +115,60 @@ A sparkling winged unicorn appears on a special rainbow-colored cloud platform. 
 
 **Done when:** A player can move, jump across Level 1's clouds, lose lives by falling, and complete the level by reaching the pot of gold.
 
-### Milestone 2 — Moving Platforms, Levels 2-3 & Unicorn Power-Up
-**Goal:** Expand to three playable levels with moving clouds and the unicorn power-up.
+### Milestone 2 — Level 2: Breezy Heights (3 sub-milestones)
+
+Level 2 is 3x longer than Level 1 (~30 cloud platforms across ~7000px). It introduces moving clouds, Mario-style crow enemies, and the unicorn power-up, all set against a sunset sky.
+
+#### Milestone 2A — Level System & Level 2 Base Layout
+**Goal:** Multi-level architecture and a playable Level 2 with static + moving clouds and a sunset background.
 
 **Deliverables:**
-- Horizontal and vertical cloud movement patterns
-- Level 2 layout with drifting clouds and sunset background
-- Level 3 layout with mixed movement clouds and storm background with lightning flashes
-- Level progression system: completing a level advances to the next
-- Unicorn power-up collectible and 10-second flight mechanic
-- Rainbow trail particle effect behind the unicorn
-- Star-ring countdown timer for power-up duration
-- Graceful power-up expiration (drop to nearest cloud)
-- One unicorn placed in Level 2, one in Level 3
+- Level system: `LEVELS` array with per-level config (clouds, pot position, world width, background type, obstacles, unicorns)
+- `currentLevel` state variable; `resetLevel()` loads the active level's data
+- Level 2 cloud layout: ~30 platforms across ~7000px of world
+  - Mix of large, medium, and small clouds
+  - ~10 clouds drift horizontally (sinusoidal, varying speed/range)
+  - ~4 clouds bob vertically
+  - Remaining clouds are static rest points between moving sections
+- Moving-cloud player carry: when the leprechaun stands on a moving cloud, they move with it
+- Sunset background: gradient sky (deep purple → pink → orange → gold), silhouetted hills, warm-tinted decorative clouds
+- Per-level rainbow arc and pot of gold positioned at the Level 2 final cloud
+- Level indicator in HUD ("Level 1", "Level 2")
 
-**Done when:** A player can play through Levels 1-3 in sequence, use the unicorn power-up to fly, and experience increasing difficulty with moving platforms.
+**Done when:** Player can complete Level 1, transition to Level 2, and navigate 30 platforms (some moving) across the longer world with the sunset background.
+
+#### Milestone 2B — Crow Enemies (Mario-style obstacles)
+**Goal:** Add patrolling crow enemies to Level 2 that the player can stomp or be hurt by.
+
+**Deliverables:**
+- Crow enemy: small pixel-art bird (procedural canvas drawing) that patrols back and forth on a cloud
+- ~6-8 crows placed on various clouds throughout Level 2
+- Crows walk along their cloud surface, reversing direction at the edges
+- Crows on moving clouds ride with the cloud
+- **Stomp mechanic (Mario-style):** if the player lands on a crow from above (falling, vy > 0), the crow is defeated — it disappears with a poof particle effect and the player bounces upward
+- **Side/bottom hit:** if the player touches a crow from the side or below, the player loses a life (same as falling)
+- Defeated crows stay gone until the level is restarted
+- No crows in Level 1 (keep it as the gentle intro)
+
+**Done when:** Crows patrol on Level 2 clouds, can be stomped Mario-style for a satisfying bounce, and hurt the player on side contact.
+
+#### Milestone 2C — Unicorn Power-Up
+**Goal:** Add the flying unicorn power-up to Level 2.
+
+**Deliverables:**
+- Unicorn collectible: a glowing rainbow orb floating above a specific cloud (~midpoint of Level 2), with a gentle bob animation and sparkle particles
+- On contact: the leprechaun activates flight mode for **10 seconds**
+- **Flight mode:**
+  - No gravity; free movement in all 4 directions (arrow keys / WASD)
+  - Slightly faster speed than walking
+  - Rainbow trail: colored particles left behind the player as they fly, fading over ~1 second
+  - Invulnerable to crows while flying
+- **Countdown timer:** circular arc drawn around the player that shrinks as time runs out; color shifts from green → yellow → red in the last 3 seconds
+- **Expiration:** when the timer hits zero, flight ends; the player gets a 1-second slow-fall grace period (reduced gravity) to land on a cloud before normal physics resume
+- One unicorn pickup in Level 2 (placed before a difficult section of moving clouds)
+- Unicorn pickup does not respawn once collected (resets on death/restart)
+
+**Done when:** Player can collect the unicorn orb, fly freely for 10 seconds with a rainbow trail, see the countdown timer, and land gracefully when it expires.
 
 ### Milestone 3 — Disappearing Clouds, Levels 4-5 & Polish
 **Goal:** Complete all five levels with full difficulty progression and visual polish.
