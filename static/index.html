@@ -320,10 +320,10 @@ function drawPlayer(sx, sy, right, flash, moving, walkOffset) {
   const swing = moving ? Math.sin(walkPhase) * 0.35 : 0;
 
   // Assign angles to the four limbs by NAME (left/right of the character)
-  const rightLegAngle =  swing;
-  const leftLegAngle  = -swing;
-  const leftArmAngle  =  swing;   // paired with right leg
-  const rightArmAngle = -swing;   // paired with left leg
+  const rightLegAngle = -swing;
+  const leftLegAngle  =  swing;
+  const leftArmAngle  = -swing;   // paired with right leg
+  const rightArmAngle =  swing;   // paired with left leg
 
   // Resolve draw order: back = far side, front = near side
   const backArmAngle  = right ? leftArmAngle  : rightArmAngle;
