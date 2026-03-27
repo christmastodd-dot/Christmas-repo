@@ -255,6 +255,102 @@
     box-shadow: none;
   }
 
+  /* Speed high score section */
+  .speed-results { width: 100%; margin-top: 10px; display: none; }
+  .speed-results.visible { display: block; }
+  .speed-time {
+    font-size: clamp(1.4rem, 4vw, 1.8rem);
+    font-weight: bold;
+    color: #764ba2;
+    margin-bottom: 12px;
+  }
+  .name-input-row {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .name-input {
+    border: 2px solid #ddd;
+    border-radius: 14px;
+    padding: 12px 16px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    width: 160px;
+    text-align: center;
+    outline: none;
+    font-family: inherit;
+    color: #333;
+  }
+  .name-input:focus { border-color: #764ba2; }
+  .save-score-btn {
+    background: linear-gradient(135deg, #43e97b, #38f9d7);
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    padding: 12px 20px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.12s;
+  }
+  .save-score-btn:active { transform: scale(0.93); }
+  .save-score-btn:disabled { opacity: 0.5; }
+  .saved-msg { color: #43e97b; font-weight: bold; font-size: 1rem; margin-top: 4px; }
+
+  /* Leaderboard */
+  .leaderboard-card {
+    background: #fff;
+    border-radius: 24px;
+    padding: 30px 20px;
+    width: 100%;
+    max-width: 500px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    text-align: center;
+  }
+  .leaderboard-title {
+    font-size: clamp(1.6rem, 5vw, 2.2rem);
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  .leaderboard-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  .leaderboard-table th {
+    color: #999;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    padding: 8px 6px;
+    border-bottom: 2px solid #eee;
+  }
+  .leaderboard-table td {
+    padding: 10px 6px;
+    font-size: clamp(1rem, 3vw, 1.15rem);
+    border-bottom: 1px solid #f0f0f0;
+    color: #444;
+  }
+  .leaderboard-table tr:first-child td { color: #764ba2; font-weight: bold; }
+  .rank-col { width: 40px; }
+  .time-col { font-variant-numeric: tabular-nums; font-weight: bold; }
+  .no-scores { color: #bbb; font-size: 1.1rem; padding: 30px 0; }
+  .view-leaderboard-btn {
+    background: rgba(255,255,255,0.2);
+    color: #fff;
+    border: none;
+    border-radius: 16px;
+    padding: 12px 28px;
+    font-size: clamp(1rem, 3vw, 1.2rem);
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.12s;
+    margin-top: 5px;
+  }
+  .view-leaderboard-btn:active { transform: scale(0.95); }
+
   /* Level badge */
   .level-badge {
     background: linear-gradient(135deg, #ffd700, #ffaa00);
@@ -383,6 +479,7 @@
       <span class="mode-label">10 questions, beat the clock!</span>
     </button>
   </div>
+  <button class="view-leaderboard-btn" onclick="showLeaderboard()">⚡ Speed Leaderboard</button>
 </div>
 
 <!-- GAME SCREEN -->
@@ -422,13 +519,32 @@
         <div class="label">Score</div>
       </div>
     </div>
+    <div class="speed-results" id="speedResults">
+      <div class="speed-time" id="speedTime"></div>
+      <div class="name-input-row" id="nameInputRow">
+        <input class="name-input" id="playerName" type="text" placeholder="Your name" maxlength="12" autocomplete="off">
+        <button class="save-score-btn" id="saveBtn" onclick="saveHighScore()">Save</button>
+      </div>
+      <div class="saved-msg" id="savedMsg"></div>
+    </div>
     <button class="play-again-btn" onclick="showStart()">Play Again!</button>
     <button class="play-again-btn secondary" onclick="startGame(lastMode)">Same Mode</button>
   </div>
 </div>
 
+<!-- LEADERBOARD SCREEN -->
+<div id="leaderboardScreen" class="screen">
+  <div class="leaderboard-card">
+    <div class="leaderboard-title">⚡ Speed Leaderboard</div>
+    <div id="leaderboardBody"></div>
+    <button class="play-again-btn" onclick="showStart()">Back to Menu</button>
+    <button class="play-again-btn secondary" onclick="startGame('speed')">Play Speed</button>
+  </div>
+</div>
+
 <script>
   let totalQuestions, gameTime;
+  let speedStartTime, speedElapsed;
 
   let mode, score, questionNum, streak, bestStreak, correctCount;
   let timeLeft, timerInterval;
@@ -461,6 +577,8 @@
     correctCount = 0;
     difficulty = 1;
     timeLeft = gameTime;
+    speedStartTime = Date.now();
+    speedElapsed = 0;
     results = [];
 
     // Build progress dots
@@ -676,8 +794,81 @@
     document.getElementById('resultStreak').textContent = bestStreak;
     document.getElementById('resultScore').textContent = score;
 
+    // Speed mode: show elapsed time and save option
+    const speedSection = document.getElementById('speedResults');
+    if (mode === 'speed') {
+      speedElapsed = ((Date.now() - speedStartTime) / 1000);
+      document.getElementById('speedTime').textContent = 'Time: ' + formatTime(speedElapsed);
+      document.getElementById('nameInputRow').style.display = 'flex';
+      document.getElementById('savedMsg').textContent = '';
+      document.getElementById('saveBtn').disabled = false;
+      // Pre-fill last used name
+      const lastN = localStorage.getItem('mathAdventureLastName');
+      if (lastN) document.getElementById('playerName').value = lastN;
+      speedSection.classList.add('visible');
+    } else {
+      speedSection.classList.remove('visible');
+    }
+
     showScreen('resultsScreen');
     if (pct >= 0.65) launchConfetti();
+  }
+
+  function formatTime(seconds) {
+    const m = Math.floor(seconds / 60);
+    const s = Math.floor(seconds % 60);
+    const ms = Math.floor((seconds % 1) * 10);
+    return (m > 0 ? m + ':' : '') + (m > 0 ? String(s).padStart(2, '0') : s) + '.' + ms + 's';
+  }
+
+  function getHighScores() {
+    try { return JSON.parse(localStorage.getItem('mathAdventureSpeedScores') || '[]'); }
+    catch { return []; }
+  }
+
+  function saveHighScore() {
+    const nameEl = document.getElementById('playerName');
+    const name = nameEl.value.trim() || 'Player';
+    localStorage.setItem('mathAdventureLastName', name);
+
+    const scores = getHighScores();
+    scores.push({ name, time: speedElapsed, correct: correctCount, total: totalQuestions, date: Date.now() });
+    // Sort by fastest time (only count completed rounds with all correct, then by time)
+    scores.sort((a, b) => {
+      // Prioritize higher correct count, then faster time
+      if (b.correct !== a.correct) return b.correct - a.correct;
+      return a.time - b.time;
+    });
+    // Keep top 10
+    if (scores.length > 10) scores.length = 10;
+    localStorage.setItem('mathAdventureSpeedScores', JSON.stringify(scores));
+
+    document.getElementById('saveBtn').disabled = true;
+    document.getElementById('savedMsg').textContent = 'Saved!';
+  }
+
+  function showLeaderboard() {
+    const scores = getHighScores();
+    const body = document.getElementById('leaderboardBody');
+
+    if (scores.length === 0) {
+      body.innerHTML = '<div class="no-scores">No scores yet! Play Speed mode to set a record.</div>';
+    } else {
+      let html = '<table class="leaderboard-table"><tr><th class="rank-col">#</th><th>Name</th><th>Score</th><th>Time</th></tr>';
+      scores.forEach((s, i) => {
+        const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1);
+        html += '<tr><td class="rank-col">' + medal + '</td><td>' + escapeHtml(s.name) + '</td><td>' + s.correct + '/' + s.total + '</td><td class="time-col">' + formatTime(s.time) + '</td></tr>';
+      });
+      html += '</table>';
+      body.innerHTML = html;
+    }
+    showScreen('leaderboardScreen');
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
   }
 
   function launchConfetti() {
