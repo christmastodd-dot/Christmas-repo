@@ -281,6 +281,15 @@ body {
     background: #333;
 }
 
+.gavel-action-btn {
+    width: 44px;
+    height: 44px;
+}
+
+.gavel-action-btn img {
+    display: block;
+}
+
 .input-bar input {
     flex: 1;
     padding: 0.5rem 0.75rem;

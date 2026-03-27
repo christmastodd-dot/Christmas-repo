@@ -468,27 +468,12 @@ function showGavel(sender) {
 
     const gavelContainer = document.createElement("div");
     gavelContainer.className = "gavel-visual";
-    gavelContainer.innerHTML = `
-        <svg width="200" height="200" viewBox="0 0 200 200">
-            <!-- Handle -->
-            <line x1="70" y1="95" x2="165" y2="30" stroke="#9B6B42" stroke-width="14" stroke-linecap="round"/>
-            <!-- Gold knob at end of handle -->
-            <circle cx="172" cy="24" r="12" fill="#F0A830" stroke="#D4911E" stroke-width="1.5"/>
-            <circle cx="169" cy="21" r="4" fill="#FFD060" opacity="0.6"/>
-            <!-- Gavel head -->
-            <rect x="22" y="68" width="85" height="38" rx="8" fill="#8B5E3C" stroke="#6B3F1F" stroke-width="2" transform="rotate(-35 64 87)"/>
-            <!-- Gold bands -->
-            <line x1="32" y1="78" x2="32" y2="108" stroke="#F0A830" stroke-width="4" transform="rotate(-35 64 87)"/>
-            <line x1="40" y1="78" x2="40" y2="108" stroke="#E8A020" stroke-width="2" transform="rotate(-35 64 87)"/>
-            <line x1="98" y1="78" x2="98" y2="108" stroke="#F0A830" stroke-width="4" transform="rotate(-35 64 87)"/>
-            <line x1="90" y1="78" x2="90" y2="108" stroke="#E8A020" stroke-width="2" transform="rotate(-35 64 87)"/>
-            <!-- Wood grain -->
-            <line x1="50" y1="85" x2="82" y2="85" stroke="#7A4F30" stroke-width="0.8" opacity="0.4" transform="rotate(-35 64 87)"/>
-            <line x1="50" y1="93" x2="82" y2="93" stroke="#7A4F30" stroke-width="0.8" opacity="0.4" transform="rotate(-35 64 87)"/>
-            <!-- Sound block base -->
-            <path d="M42 155 Q100 130 158 155 L158 168 Q100 145 42 168 Z" fill="#8B5E3C" stroke="#6B3F1F" stroke-width="1.5"/>
-            <path d="M35 165 Q100 142 165 165 L165 178 Q100 158 35 178 Z" fill="#6B3F1F" stroke="#5A2E0E" stroke-width="1"/>
-        </svg>`;
+    const img = document.createElement("img");
+    img.src = "/static/gavel.svg";
+    img.width = 220;
+    img.height = 220;
+    img.alt = "Gavel";
+    gavelContainer.appendChild(img);
 
     const label = document.createElement("div");
     label.className = "gavel-label";
