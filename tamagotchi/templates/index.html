@@ -41,7 +41,7 @@
     width: 100%;
     text-align: center;
   }
-  #welcome pre { color: var(--green); font-size: 0.85em; line-height: 1.3; margin: 16px 0; }
+  #welcome .egg-welcome { margin: 20px auto; }
   #welcome .desc { color: var(--dim); font-size: 0.9em; margin-bottom: 16px; line-height: 1.5; }
   #welcome input {
     background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
@@ -64,12 +64,32 @@
 
   .art-box {
     background: var(--panel); border: 2px solid var(--border); border-radius: 10px;
-    padding: 8px 12px; margin: 8px 0; text-align: center;
+    padding: 16px; margin: 8px 0; text-align: center;
+    min-height: 200px; display: flex; align-items: center; justify-content: center;
   }
-  .art-box pre {
-    display: inline-block; text-align: left; color: var(--green);
-    font-size: 0.78em; line-height: 1.25;
+  .art-box svg { transition: all 0.3s ease; }
+
+  /* Bounce animation for happy mood */
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
   }
+  .art-box.mood-happy svg { animation: bounce 1s ease-in-out infinite; }
+
+  /* Wobble for egg */
+  @keyframes wobble {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(3deg); }
+    75% { transform: rotate(-3deg); }
+  }
+  .art-box.mood-egg svg { animation: wobble 2s ease-in-out infinite; }
+
+  /* Sad droop */
+  @keyframes droop {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(3px) rotate(-2deg); }
+  }
+  .art-box.mood-sad svg { animation: droop 3s ease-in-out infinite; }
 
   /* Evolution progress bar */
   .progress-section { margin: 10px 0; }
@@ -133,7 +153,6 @@
   .message-box.info { background: var(--panel); border: 1px solid var(--border); color: var(--yellow); }
   .message-box.empty { background: transparent; border: 1px solid transparent; color: transparent; }
 
-  /* Streak indicator */
   .streak-fire {
     display: inline-block; font-size: 1.1em;
     animation: pulse 0.5s ease-in-out infinite alternate;
@@ -148,11 +167,13 @@
   }
   #evo-overlay.show { display: flex; }
   #evo-overlay .evo-text {
-    color: var(--yellow); font-size: 1.5em; margin-bottom: 20px; text-align: center;
+    color: var(--yellow); font-size: 1.5em; margin: 20px; text-align: center;
     animation: pulse 0.6s ease-in-out infinite alternate;
   }
-  #evo-overlay .evo-sparkle {
-    font-size: 2.5em; animation: spin 1.5s linear infinite;
+  .evo-sprite { margin: 20px; }
+  #evo-overlay .evo-sparkles {
+    font-size: 2em;
+    animation: spin 1.5s linear infinite;
   }
   @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 </style>
@@ -162,14 +183,7 @@
 <!-- Welcome Screen -->
 <div id="welcome">
   <h1>~ STITCH PET SIMULATOR ~</h1>
-<pre>
-    ╭──────╮
-   ╱ ·  · · ╲
-  │  · ♥ ·  · │
-  │ ·  ·  · · │
-   ╲ · ·  ·  ╱
-    ╰──────╯
-</pre>
+  <div class="egg-welcome" id="welcome-egg"></div>
   <p class="desc">
     Hatch and raise your own Stitch by solving math problems!<br>
     Addition, subtraction, multiplication, and division.<br>
@@ -187,10 +201,9 @@
     <div class="info" id="g-info"></div>
   </div>
 
-  <div class="art-box"><pre id="g-art"></pre></div>
+  <div class="art-box" id="art-box"></div>
 
-  <!-- Evolution progress -->
-  <div class="progress-section" id="progress-section">
+  <div class="progress-section">
     <div class="progress-label">
       <span id="progress-label-left"></span>
       <span id="progress-label-right"></span>
@@ -201,48 +214,301 @@
     </div>
   </div>
 
-  <!-- Stats -->
   <div class="stats-row">
-    <div class="stat-item stat-correct">
-      <div class="stat-val" id="s-correct">0</div>
-      <div class="stat-label">Correct</div>
-    </div>
-    <div class="stat-item stat-wrong">
-      <div class="stat-val" id="s-wrong">0</div>
-      <div class="stat-label">Wrong</div>
-    </div>
-    <div class="stat-item stat-streak">
-      <div class="stat-val" id="s-streak">0</div>
-      <div class="stat-label">Streak</div>
-    </div>
-    <div class="stat-item stat-best">
-      <div class="stat-val" id="s-best">0</div>
-      <div class="stat-label">Best</div>
-    </div>
+    <div class="stat-item stat-correct"><div class="stat-val" id="s-correct">0</div><div class="stat-label">Correct</div></div>
+    <div class="stat-item stat-wrong"><div class="stat-val" id="s-wrong">0</div><div class="stat-label">Wrong</div></div>
+    <div class="stat-item stat-streak"><div class="stat-val" id="s-streak">0</div><div class="stat-label">Streak</div></div>
+    <div class="stat-item stat-best"><div class="stat-val" id="s-best">0</div><div class="stat-label">Best</div></div>
   </div>
 
-  <!-- Message -->
   <div class="message-box empty" id="g-message"></div>
 
-  <!-- Question -->
   <div class="question-box">
     <div class="question-text" id="g-question"></div>
     <div class="answer-row">
       <input type="text" id="answer-input" placeholder="?" inputmode="numeric" autocomplete="off">
-      <button onclick="submitAnswer()" id="submit-btn">Go!</button>
+      <button onclick="submitAnswer()">Go!</button>
     </div>
   </div>
 </div>
 
 <!-- Evolution Overlay -->
 <div id="evo-overlay">
-  <div class="evo-sparkle">✦ ♥ ✧</div>
+  <div class="evo-sparkles">&#x2728; &#x2B50; &#x2728;</div>
+  <div class="evo-sprite" id="evo-sprite"></div>
   <div class="evo-text" id="evo-text"></div>
 </div>
 
 <script>
+// ── SVG Sprite Definitions ──────────────────────────────────────────
+// Each sprite is a function returning an SVG string.
+// Stitch-like blue alien creature that grows across 5 stages.
+
+const C = {
+  body: '#4A7CFF',
+  bodyDark: '#3562D9',
+  belly: '#B8D4FF',
+  earInner: '#FFB5C5',
+  nose: '#2D1B69',
+  eye: '#fff',
+  pupil: '#111',
+  mouth: '#2D1B69',
+  blush: '#FF9EC0',
+  eggBase: '#F5E6D3',
+  eggSpot: '#FFB5C5',
+  eggCrack: '#D4C4B0',
+};
+
+function svgEgg() {
+  return `<svg viewBox="0 0 160 200" width="140" height="175" xmlns="http://www.w3.org/2000/svg">
+    <!-- Shadow -->
+    <ellipse cx="80" cy="190" rx="50" ry="8" fill="#0005"/>
+    <!-- Egg body -->
+    <ellipse cx="80" cy="110" rx="52" ry="68" fill="${C.eggBase}"/>
+    <ellipse cx="80" cy="110" rx="52" ry="68" fill="none" stroke="${C.eggCrack}" stroke-width="2"/>
+    <!-- Spots -->
+    <circle cx="60" cy="85" r="8" fill="${C.eggSpot}" opacity="0.6"/>
+    <circle cx="100" cy="100" r="6" fill="${C.eggSpot}" opacity="0.5"/>
+    <circle cx="75" cy="130" r="7" fill="${C.eggSpot}" opacity="0.4"/>
+    <circle cx="95" cy="75" r="5" fill="${C.eggSpot}" opacity="0.5"/>
+    <!-- Heart -->
+    <text x="80" y="115" text-anchor="middle" font-size="20" fill="${C.eggSpot}" opacity="0.7">&#x2665;</text>
+    <!-- Shine -->
+    <ellipse cx="65" cy="80" rx="10" ry="15" fill="#fff" opacity="0.25" transform="rotate(-20 65 80)"/>
+  </svg>`;
+}
+
+function svgBaby(mood) {
+  const eyes = mood === 'happy'
+    ? `<circle cx="58" cy="72" r="7" fill="${C.eye}"/><circle cx="58" cy="73" r="4" fill="${C.pupil}"/>
+       <circle cx="92" cy="72" r="7" fill="${C.eye}"/><circle cx="92" cy="73" r="4" fill="${C.pupil}"/>
+       <circle cx="56" cy="70" r="2" fill="#fff"/>
+       <circle cx="90" cy="70" r="2" fill="#fff"/>`
+    : mood === 'sad'
+    ? `<circle cx="58" cy="74" r="7" fill="${C.eye}"/><circle cx="58" cy="76" r="4" fill="${C.pupil}"/>
+       <circle cx="92" cy="74" r="7" fill="${C.eye}"/><circle cx="92" cy="76" r="4" fill="${C.pupil}"/>
+       <ellipse cx="58" cy="68" rx="9" ry="4" fill="${C.body}"/>
+       <ellipse cx="92" cy="68" rx="9" ry="4" fill="${C.body}"/>`
+    : `<circle cx="58" cy="72" r="7" fill="${C.eye}"/><circle cx="58" cy="72" r="4" fill="${C.pupil}"/>
+       <circle cx="92" cy="72" r="7" fill="${C.eye}"/><circle cx="92" cy="72" r="4" fill="${C.pupil}"/>`;
+
+  const mouth = mood === 'happy'
+    ? `<path d="M67 88 Q75 98 83 88" fill="none" stroke="${C.mouth}" stroke-width="2.5" stroke-linecap="round"/>`
+    : mood === 'sad'
+    ? `<path d="M67 93 Q75 85 83 93" fill="none" stroke="${C.mouth}" stroke-width="2.5" stroke-linecap="round"/>`
+    : `<line x1="68" y1="90" x2="82" y2="90" stroke="${C.mouth}" stroke-width="2.5" stroke-linecap="round"/>`;
+
+  const blush = mood === 'happy'
+    ? `<circle cx="48" cy="84" r="6" fill="${C.blush}" opacity="0.4"/><circle cx="102" cy="84" r="6" fill="${C.blush}" opacity="0.4"/>`
+    : '';
+
+  return `<svg viewBox="0 0 160 170" width="140" height="150" xmlns="http://www.w3.org/2000/svg">
+    <!-- Shadow -->
+    <ellipse cx="75" cy="158" rx="35" ry="7" fill="#0005"/>
+    <!-- Ears -->
+    <ellipse cx="38" cy="50" rx="18" ry="28" fill="${C.body}" transform="rotate(-15 38 50)"/>
+    <ellipse cx="38" cy="50" rx="12" ry="20" fill="${C.earInner}" transform="rotate(-15 38 50)"/>
+    <ellipse cx="112" cy="50" rx="18" ry="28" fill="${C.body}" transform="rotate(15 112 50)"/>
+    <ellipse cx="112" cy="50" rx="12" ry="20" fill="${C.earInner}" transform="rotate(15 112 50)"/>
+    <!-- Body -->
+    <ellipse cx="75" cy="100" rx="40" ry="48" fill="${C.body}"/>
+    <!-- Belly -->
+    <ellipse cx="75" cy="110" rx="25" ry="30" fill="${C.belly}"/>
+    <!-- Eyes -->
+    ${eyes}
+    <!-- Nose -->
+    <ellipse cx="75" cy="82" rx="4" ry="3" fill="${C.nose}"/>
+    <!-- Mouth -->
+    ${mouth}
+    ${blush}
+    <!-- Feet -->
+    <ellipse cx="60" cy="148" rx="14" ry="8" fill="${C.body}"/>
+    <ellipse cx="90" cy="148" rx="14" ry="8" fill="${C.body}"/>
+  </svg>`;
+}
+
+function svgChild(mood) {
+  const eyes = mood === 'happy'
+    ? `<circle cx="55" cy="78" r="9" fill="${C.eye}"/><circle cx="55" cy="80" r="5" fill="${C.pupil}"/>
+       <circle cx="95" cy="78" r="9" fill="${C.eye}"/><circle cx="95" cy="80" r="5" fill="${C.pupil}"/>
+       <circle cx="52" cy="75" r="2.5" fill="#fff"/>
+       <circle cx="92" cy="75" r="2.5" fill="#fff"/>`
+    : mood === 'sad'
+    ? `<circle cx="55" cy="80" r="9" fill="${C.eye}"/><circle cx="55" cy="82" r="5" fill="${C.pupil}"/>
+       <circle cx="95" cy="80" r="9" fill="${C.eye}"/><circle cx="95" cy="82" r="5" fill="${C.pupil}"/>
+       <ellipse cx="55" cy="73" rx="11" ry="5" fill="${C.body}"/>
+       <ellipse cx="95" cy="73" rx="11" ry="5" fill="${C.body}"/>`
+    : `<circle cx="55" cy="78" r="9" fill="${C.eye}"/><circle cx="55" cy="78" r="5" fill="${C.pupil}"/>
+       <circle cx="95" cy="78" r="9" fill="${C.eye}"/><circle cx="95" cy="78" r="5" fill="${C.pupil}"/>`;
+
+  const mouth = mood === 'happy'
+    ? `<path d="M62 98 Q75 112 88 98" fill="${C.mouth}" opacity="0.8"/>
+       <path d="M65 98 Q75 106 85 98" fill="#FF6B8A"/>`
+    : mood === 'sad'
+    ? `<path d="M65 105 Q75 95 85 105" fill="none" stroke="${C.mouth}" stroke-width="2.5" stroke-linecap="round"/>`
+    : `<line x1="66" y1="100" x2="84" y2="100" stroke="${C.mouth}" stroke-width="2.5" stroke-linecap="round"/>`;
+
+  const blush = mood === 'happy'
+    ? `<circle cx="42" cy="92" r="7" fill="${C.blush}" opacity="0.35"/><circle cx="108" cy="92" r="7" fill="${C.blush}" opacity="0.35"/>`
+    : '';
+
+  return `<svg viewBox="0 0 180 210" width="160" height="185" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="90" cy="198" rx="42" ry="8" fill="#0005"/>
+    <!-- Ears (bigger) -->
+    <ellipse cx="30" cy="48" rx="22" ry="38" fill="${C.body}" transform="rotate(-20 30 48)"/>
+    <ellipse cx="30" cy="48" rx="15" ry="28" fill="${C.earInner}" transform="rotate(-20 30 48)"/>
+    <ellipse cx="150" cy="48" rx="22" ry="38" fill="${C.body}" transform="rotate(20 150 48)"/>
+    <ellipse cx="150" cy="48" rx="15" ry="28" fill="${C.earInner}" transform="rotate(20 150 48)"/>
+    <!-- Head + body -->
+    <ellipse cx="90" cy="80" rx="45" ry="40" fill="${C.body}"/>
+    <ellipse cx="90" cy="130" rx="42" ry="55" fill="${C.body}"/>
+    <!-- Belly -->
+    <ellipse cx="90" cy="135" rx="28" ry="38" fill="${C.belly}"/>
+    ${eyes}
+    <ellipse cx="75" cy="90" rx="5" ry="3.5" fill="${C.nose}"/>
+    ${mouth}
+    ${blush}
+    <!-- Arms -->
+    <ellipse cx="48" cy="130" rx="12" ry="20" fill="${C.body}" transform="rotate(15 48 130)"/>
+    <ellipse cx="132" cy="130" rx="12" ry="20" fill="${C.body}" transform="rotate(-15 132 130)"/>
+    <!-- Feet -->
+    <ellipse cx="70" cy="185" rx="18" ry="10" fill="${C.body}"/>
+    <ellipse cx="110" cy="185" rx="18" ry="10" fill="${C.body}"/>
+  </svg>`;
+}
+
+function svgTeen(mood) {
+  const eyes = mood === 'happy'
+    ? `<circle cx="58" cy="72" r="10" fill="${C.eye}"/><circle cx="58" cy="74" r="6" fill="${C.pupil}"/>
+       <circle cx="102" cy="72" r="10" fill="${C.eye}"/><circle cx="102" cy="74" r="6" fill="${C.pupil}"/>
+       <circle cx="55" cy="69" r="3" fill="#fff"/>
+       <circle cx="99" cy="69" r="3" fill="#fff"/>`
+    : mood === 'sad'
+    ? `<circle cx="58" cy="74" r="10" fill="${C.eye}"/><circle cx="58" cy="77" r="6" fill="${C.pupil}"/>
+       <circle cx="102" cy="74" r="10" fill="${C.eye}"/><circle cx="102" cy="77" r="6" fill="${C.pupil}"/>
+       <ellipse cx="58" cy="67" rx="12" ry="5" fill="${C.body}"/>
+       <ellipse cx="102" cy="67" rx="12" ry="5" fill="${C.body}"/>`
+    : `<circle cx="58" cy="72" r="10" fill="${C.eye}"/><circle cx="58" cy="72" r="6" fill="${C.pupil}"/>
+       <circle cx="102" cy="72" r="10" fill="${C.eye}"/><circle cx="102" cy="72" r="6" fill="${C.pupil}"/>
+       <circle cx="55" cy="69" r="2.5" fill="#fff"/>
+       <circle cx="99" cy="69" r="2.5" fill="#fff"/>`;
+
+  const mouth = mood === 'happy'
+    ? `<path d="M65 95 Q80 115 95 95" fill="${C.mouth}" opacity="0.8"/>
+       <path d="M68 95 Q80 108 92 95" fill="#FF6B8A"/>`
+    : mood === 'sad'
+    ? `<path d="M68 102 Q80 92 92 102" fill="none" stroke="${C.mouth}" stroke-width="3" stroke-linecap="round"/>`
+    : `<path d="M68 98 Q80 102 92 98" fill="none" stroke="${C.mouth}" stroke-width="2.5" stroke-linecap="round"/>`;
+
+  const blush = mood === 'happy'
+    ? `<circle cx="42" cy="88" r="8" fill="${C.blush}" opacity="0.3"/><circle cx="118" cy="88" r="8" fill="${C.blush}" opacity="0.3"/>`
+    : '';
+
+  return `<svg viewBox="0 0 200 240" width="170" height="205" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="100" cy="228" rx="48" ry="9" fill="#0005"/>
+    <!-- Ears (tall) -->
+    <ellipse cx="25" cy="38" rx="24" ry="45" fill="${C.body}" transform="rotate(-22 25 38)"/>
+    <ellipse cx="25" cy="38" rx="16" ry="34" fill="${C.earInner}" transform="rotate(-22 25 38)"/>
+    <ellipse cx="175" cy="38" rx="24" ry="45" fill="${C.body}" transform="rotate(22 175 38)"/>
+    <ellipse cx="175" cy="38" rx="16" ry="34" fill="${C.earInner}" transform="rotate(22 175 38)"/>
+    <!-- Head -->
+    <ellipse cx="100" cy="75" rx="50" ry="42" fill="${C.body}"/>
+    <!-- Body (taller, leaner) -->
+    <ellipse cx="100" cy="145" rx="40" ry="65" fill="${C.body}"/>
+    <ellipse cx="100" cy="150" rx="26" ry="42" fill="${C.belly}"/>
+    ${eyes}
+    <ellipse cx="80" cy="86" rx="5" ry="3.5" fill="${C.nose}"/>
+    ${mouth}
+    ${blush}
+    <!-- Arms -->
+    <ellipse cx="55" cy="140" rx="14" ry="28" fill="${C.body}" transform="rotate(12 55 140)"/>
+    <ellipse cx="55" cy="158" rx="8" ry="6" fill="${C.bodyDark}"/>
+    <ellipse cx="145" cy="140" rx="14" ry="28" fill="${C.body}" transform="rotate(-12 145 140)"/>
+    <ellipse cx="145" cy="158" rx="8" ry="6" fill="${C.bodyDark}"/>
+    <!-- Legs -->
+    <ellipse cx="80" cy="210" rx="16" ry="12" fill="${C.body}"/>
+    <ellipse cx="120" cy="210" rx="16" ry="12" fill="${C.body}"/>
+    <!-- Chest markings -->
+    <path d="M88 120 L100 112 L112 120" fill="none" stroke="${C.bodyDark}" stroke-width="2" opacity="0.4"/>
+  </svg>`;
+}
+
+function svgAdult(mood) {
+  const eyes = mood === 'happy'
+    ? `<circle cx="60" cy="72" r="12" fill="${C.eye}"/><circle cx="60" cy="75" r="7" fill="${C.pupil}"/>
+       <circle cx="120" cy="72" r="12" fill="${C.eye}"/><circle cx="120" cy="75" r="7" fill="${C.pupil}"/>
+       <circle cx="56" cy="68" r="3.5" fill="#fff"/>
+       <circle cx="116" cy="68" r="3.5" fill="#fff"/>`
+    : mood === 'sad'
+    ? `<circle cx="60" cy="74" r="12" fill="${C.eye}"/><circle cx="60" cy="78" r="7" fill="${C.pupil}"/>
+       <circle cx="120" cy="74" r="12" fill="${C.eye}"/><circle cx="120" cy="78" r="7" fill="${C.pupil}"/>
+       <ellipse cx="60" cy="66" rx="14" ry="6" fill="${C.body}"/>
+       <ellipse cx="120" cy="66" rx="14" ry="6" fill="${C.body}"/>`
+    : `<circle cx="60" cy="72" r="12" fill="${C.eye}"/><circle cx="60" cy="72" r="7" fill="${C.pupil}"/>
+       <circle cx="120" cy="72" r="12" fill="${C.eye}"/><circle cx="120" cy="72" r="7" fill="${C.pupil}"/>
+       <circle cx="56" cy="68" r="3" fill="#fff"/>
+       <circle cx="116" cy="68" r="3" fill="#fff"/>`;
+
+  const mouth = mood === 'happy'
+    ? `<path d="M70 97 Q90 120 110 97" fill="${C.mouth}" opacity="0.85"/>
+       <path d="M74 97 Q90 114 106 97" fill="#FF6B8A"/>
+       <path d="M82 97 Q90 93 98 97" fill="#fff" opacity="0.5"/>`
+    : mood === 'sad'
+    ? `<path d="M75 108 Q90 95 105 108" fill="none" stroke="${C.mouth}" stroke-width="3" stroke-linecap="round"/>`
+    : `<path d="M75 102 Q90 108 105 102" fill="none" stroke="${C.mouth}" stroke-width="3" stroke-linecap="round"/>`;
+
+  const blush = mood === 'happy'
+    ? `<circle cx="42" cy="90" r="9" fill="${C.blush}" opacity="0.3"/><circle cx="138" cy="90" r="9" fill="${C.blush}" opacity="0.3"/>`
+    : '';
+
+  return `<svg viewBox="0 0 220 270" width="185" height="225" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="110" cy="258" rx="55" ry="10" fill="#0005"/>
+    <!-- Ears (large, proud) -->
+    <ellipse cx="18" cy="30" rx="28" ry="50" fill="${C.body}" transform="rotate(-25 18 30)"/>
+    <ellipse cx="18" cy="30" rx="19" ry="38" fill="${C.earInner}" transform="rotate(-25 18 30)"/>
+    <ellipse cx="202" cy="30" rx="28" ry="50" fill="${C.body}" transform="rotate(25 202 30)"/>
+    <ellipse cx="202" cy="30" rx="19" ry="38" fill="${C.earInner}" transform="rotate(25 202 30)"/>
+    <!-- Head -->
+    <ellipse cx="110" cy="75" rx="55" ry="48" fill="${C.body}"/>
+    <!-- Body (strong) -->
+    <ellipse cx="110" cy="160" rx="48" ry="72" fill="${C.body}"/>
+    <ellipse cx="110" cy="165" rx="32" ry="50" fill="${C.belly}"/>
+    ${eyes}
+    <ellipse cx="90" cy="88" rx="6" ry="4" fill="${C.nose}"/>
+    ${mouth}
+    ${blush}
+    <!-- Arms (muscular) -->
+    <path d="M62 125 Q40 140 35 170 Q32 180 42 178 Q52 175 58 160 Q62 148 62 135" fill="${C.body}"/>
+    <ellipse cx="40" cy="175" rx="10" ry="8" fill="${C.bodyDark}"/>
+    <path d="M158 125 Q180 140 185 170 Q188 180 178 178 Q168 175 162 160 Q158 148 158 135" fill="${C.body}"/>
+    <ellipse cx="180" cy="175" rx="10" ry="8" fill="${C.bodyDark}"/>
+    <!-- Legs -->
+    <ellipse cx="85" cy="238" rx="20" ry="14" fill="${C.body}"/>
+    <ellipse cx="135" cy="238" rx="20" ry="14" fill="${C.body}"/>
+    <!-- Chest markings -->
+    <path d="M95 130 L110 118 L125 130" fill="none" stroke="${C.bodyDark}" stroke-width="2.5" opacity="0.35"/>
+    <path d="M98 140 L110 132 L122 140" fill="none" stroke="${C.bodyDark}" stroke-width="2" opacity="0.25"/>
+  </svg>`;
+}
+
+// ── Sprite lookup ───────────────────────────────────────────────────
+
+function getSprite(stage, mood) {
+  if (stage === 'egg') return svgEgg();
+  if (stage === 'baby') return svgBaby(mood);
+  if (stage === 'child') return svgChild(mood);
+  if (stage === 'teen') return svgTeen(mood);
+  if (stage === 'adult') return svgAdult(mood);
+  return svgEgg();
+}
+
+// ── Show welcome egg ────────────────────────────────────────────────
+document.getElementById('welcome-egg').innerHTML = svgEgg();
+
+// ── Socket logic ────────────────────────────────────────────────────
+
 const socket = io();
-let lastCorrect = null;  // track if last answer was correct for message styling
+let lastCorrect = null;
 
 function startGame() {
   const name = document.getElementById('pet-name').value.trim();
@@ -256,15 +522,15 @@ document.getElementById('pet-name').addEventListener('keydown', e => {
 });
 
 socket.on('state', state => {
-  // Header
   document.getElementById('g-name').textContent = `~ ${state.name} the ${state.species} ~`;
   document.getElementById('g-info').textContent = `Stage: ${state.stage_label}`;
 
-  // Art
-  document.getElementById('g-art').textContent = state.art;
+  // Sprite
+  const artBox = document.getElementById('art-box');
+  artBox.innerHTML = getSprite(state.stage, state.mood);
+  artBox.className = 'art-box mood-' + state.mood;
 
-  // Progress bar
-  const section = document.getElementById('progress-section');
+  // Progress
   if (state.is_final_stage) {
     document.getElementById('progress-label-left').textContent = 'Fully evolved!';
     document.getElementById('progress-label-right').textContent = `${state.total_correct} total`;
@@ -275,22 +541,19 @@ socket.on('state', state => {
     const stages = ['egg','baby','child','teen','adult'];
     const idx = stages.indexOf(state.stage);
     const nextLabel = idx + 1 < stages.length ? labels[stages[idx + 1]] : '???';
-    document.getElementById('progress-label-left').textContent = `${state.stage_label} → ${nextLabel}`;
+    document.getElementById('progress-label-left').textContent = `${state.stage_label} \u2192 ${nextLabel}`;
     document.getElementById('progress-label-right').textContent = `${state.stage_correct} / ${state.stage_needed}`;
     document.getElementById('progress-fill').style.width = state.progress_pct + '%';
     document.getElementById('progress-text').textContent = state.progress_pct + '%';
   }
 
-  // Stats
   document.getElementById('s-correct').textContent = state.total_correct;
   document.getElementById('s-wrong').textContent = state.total_wrong;
-
   let streakHtml = String(state.streak);
   if (state.streak >= 5) streakHtml += ' <span class="streak-fire">&#x1F525;</span>';
   document.getElementById('s-streak').innerHTML = streakHtml;
   document.getElementById('s-best').textContent = state.best_streak;
 
-  // Message
   const msgEl = document.getElementById('g-message');
   if (state.message) {
     msgEl.textContent = state.message;
@@ -299,18 +562,16 @@ socket.on('state', state => {
     else msgEl.className = 'message-box info';
   }
 
-  // Question
   document.getElementById('g-question').textContent = state.question;
 });
 
 socket.on('evolution', data => {
   const labels = {egg:'Egg',baby:'Baby',child:'Child',teen:'Teen',adult:'Adult'};
   const el = document.getElementById('evo-overlay');
-  const oldLabel = labels[data.old] || data.old;
-  const newLabel = labels[data.new] || data.new;
-  let text = `${oldLabel} → ${newLabel}!`;
+  let text = `${labels[data.old]} \u2192 ${labels[data.new]}!`;
   if (data.new === 'baby') text = 'Your egg hatched!';
   document.getElementById('evo-text').textContent = text;
+  document.getElementById('evo-sprite').innerHTML = getSprite(data.new, 'happy');
   el.classList.add('show');
   setTimeout(() => {
     el.classList.remove('show');
@@ -322,23 +583,15 @@ function submitAnswer() {
   const inp = document.getElementById('answer-input');
   const val = inp.value.trim();
   if (!val) return;
-
-  // Optimistic: check if the displayed question can tell us if correct
-  // (server is source of truth, but we set lastCorrect for styling)
   const questionText = document.getElementById('g-question').textContent;
-  // Try to evaluate locally for instant feedback styling
   try {
-    // Simple check: extract "a + b = ?" or "a - b = ?"
-    const m = questionText.match(/^(\d+)\s*([+\-])\s*(\d+)\s*=\s*\?$/);
+    const m = questionText.match(/^(\d+)\s*([+\-x\/])\s*(\d+)\s*=\s*\?$/);
     if (m) {
       const a = parseInt(m[1]), op = m[2], b = parseInt(m[3]);
-      const correct = op === '+' ? a + b : a - b;
+      const correct = op === '+' ? a + b : op === '-' ? a - b : op === 'x' ? a * b : Math.floor(a / b);
       lastCorrect = parseInt(val) === correct;
-    } else {
-      lastCorrect = null; // can't tell locally
-    }
+    } else { lastCorrect = null; }
   } catch(e) { lastCorrect = null; }
-
   socket.emit('answer', {answer: val});
   inp.value = '';
   inp.focus();

@@ -10,7 +10,6 @@ from flask_socketio import SocketIO, emit
 from tamagotchi.config import STAGES, STAGE_THRESHOLDS, STAGE_LABELS, MATH_STREAK_THRESHOLD
 from tamagotchi.pet import Pet
 from tamagotchi.math_problems import generate_problem
-from tamagotchi.display import STAGE_ART, DEAD_ART, STAGE_LABELS as DISPLAY_LABELS
 
 app = Flask(__name__, template_folder=os.path.join(os.path.dirname(__file__), "templates"))
 app.secret_key = os.environ.get("SECRET_KEY", "stitch-pet-secret-key-change-me")
@@ -39,11 +38,7 @@ class GameState:
     def get_state(self):
         pet = self.pet
         mood = pet.get_mood()
-        art = self._get_art(mood)
-
         threshold = STAGE_THRESHOLDS.get(pet.stage)
-        progress = pet.stage_correct
-        needed = threshold if threshold else pet.stage_correct
         progress_pct = pet.progress_pct()
 
         return {
@@ -52,7 +47,6 @@ class GameState:
             "stage": pet.stage,
             "stage_label": STAGE_LABELS.get(pet.stage, pet.stage.title()),
             "mood": mood,
-            "art": art,
             "total_correct": pet.total_correct,
             "total_wrong": pet.total_wrong,
             "streak": pet.streak,
@@ -64,10 +58,6 @@ class GameState:
             "message": self.message,
             "is_final_stage": threshold is None,
         }
-
-    def _get_art(self, mood):
-        stage_arts = STAGE_ART.get(self.pet.stage, STAGE_ART.get("child", {}))
-        return stage_arts.get(mood, stage_arts.get("neutral", stage_arts.get("egg", "")))
 
 
 # ── Routes ───────────────────────────────────────────────────────────
