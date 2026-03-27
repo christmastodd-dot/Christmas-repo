@@ -336,6 +336,28 @@
   .leaderboard-table tr:first-child td { color: #764ba2; font-weight: bold; }
   .rank-col { width: 40px; }
   .time-col { font-variant-numeric: tabular-nums; font-weight: bold; }
+  .lb-tabs {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+  .lb-tab {
+    background: #f0ecf5;
+    border: none;
+    border-radius: 12px;
+    padding: 8px 16px;
+    font-size: clamp(0.85rem, 2.5vw, 1rem);
+    font-weight: bold;
+    color: #999;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+  .lb-tab.active {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: #fff;
+  }
+  .lb-tab:active { transform: scale(0.95); }
   .no-scores { color: #bbb; font-size: 1.1rem; padding: 30px 0; }
   .view-leaderboard-btn {
     background: rgba(255,255,255,0.2);
@@ -473,10 +495,20 @@
       <span>Challenge</span>
       <span class="mode-label">Gets harder as you go!</span>
     </button>
-    <button class="mode-btn" onclick="startGame('speed')">
-      <span class="mode-icon">⚡</span>
-      <span>Speed</span>
+    <button class="mode-btn" onclick="startGame('speed-add')">
+      <span class="mode-icon">⚡➕</span>
+      <span>Speed Add</span>
       <span class="mode-label">10 questions, beat the clock!</span>
+    </button>
+    <button class="mode-btn" onclick="startGame('speed-sub')">
+      <span class="mode-icon">⚡➖</span>
+      <span>Speed Sub</span>
+      <span class="mode-label">10 questions, beat the clock!</span>
+    </button>
+    <button class="mode-btn" onclick="startGame('speed-mix')">
+      <span class="mode-icon">⚡🎲</span>
+      <span>Speed Mix</span>
+      <span class="mode-label">10 questions, all types!</span>
     </button>
   </div>
   <button class="view-leaderboard-btn" onclick="showLeaderboard()">⚡ Speed Leaderboard</button>
@@ -568,8 +600,9 @@
   function startGame(m) {
     mode = m;
     lastMode = m;
-    totalQuestions = (m === 'speed') ? 10 : 20;
-    gameTime = (m === 'speed') ? 120 : 600;
+    const isSpeed = m.startsWith('speed');
+    totalQuestions = isSpeed ? 10 : 20;
+    gameTime = isSpeed ? 120 : 600;
     score = 0;
     questionNum = 0;
     streak = 0;
@@ -627,15 +660,15 @@
     let a, b, op, answer;
     const isChallenge = mode === 'challenge';
     const maxNum = isChallenge ? Math.min(10 + difficulty * 5, 50) : 20;
-    const mulMax = isChallenge ? Math.min(3 + difficulty, 12) : 10;
+    const mulMax = isChallenge ? Math.min(3 + difficulty, 12) : 5;
 
     // Pick operation
-    if (mode === 'add') op = '+';
-    else if (mode === 'sub') op = '-';
+    if (mode === 'add' || mode === 'speed-add') op = '+';
+    else if (mode === 'sub' || mode === 'speed-sub') op = '-';
     else if (mode === 'mul') op = 'x';
     else if (mode === 'div') op = '/';
     else {
-      // Mixed and challenge: randomly pick from all four
+      // Mixed, challenge, speed-mix: randomly pick from all four
       const r = Math.random();
       op = r < 0.25 ? '+' : r < 0.5 ? '-' : r < 0.75 ? 'x' : '/';
     }
@@ -805,7 +838,8 @@
 
     // Speed mode: show elapsed time and save option
     const speedSection = document.getElementById('speedResults');
-    if (mode === 'speed') {
+    const isSpeed = mode.startsWith('speed');
+    if (isSpeed) {
       speedElapsed = ((Date.now() - speedStartTime) / 1000);
       document.getElementById('speedTime').textContent = 'Time: ' + formatTime(speedElapsed);
       document.getElementById('nameInputRow').style.display = 'flex';
@@ -830,8 +864,16 @@
     return (m > 0 ? m + ':' : '') + (m > 0 ? String(s).padStart(2, '0') : s) + '.' + ms + 's';
   }
 
-  function getHighScores() {
-    try { return JSON.parse(localStorage.getItem('mathAdventureSpeedScores') || '[]'); }
+  const speedModes = {
+    'speed-add': { key: 'SpeedAdd', label: 'Addition' },
+    'speed-sub': { key: 'SpeedSub', label: 'Subtraction' },
+    'speed-mix': { key: 'SpeedMix', label: 'Mixed' }
+  };
+  let leaderboardTab = 'speed-add';
+
+  function getHighScores(m) {
+    const k = speedModes[m] ? speedModes[m].key : 'SpeedMix';
+    try { return JSON.parse(localStorage.getItem('mathAdventure' + k + 'Scores') || '[]'); }
     catch { return []; }
   }
 
@@ -840,37 +882,44 @@
     const name = nameEl.value.trim() || 'Player';
     localStorage.setItem('mathAdventureLastName', name);
 
-    const scores = getHighScores();
+    const scores = getHighScores(mode);
     scores.push({ name, time: speedElapsed, correct: correctCount, total: totalQuestions, date: Date.now() });
-    // Sort by fastest time (only count completed rounds with all correct, then by time)
     scores.sort((a, b) => {
-      // Prioritize higher correct count, then faster time
       if (b.correct !== a.correct) return b.correct - a.correct;
       return a.time - b.time;
     });
-    // Keep top 10
     if (scores.length > 10) scores.length = 10;
-    localStorage.setItem('mathAdventureSpeedScores', JSON.stringify(scores));
+    const k = speedModes[mode] ? speedModes[mode].key : 'SpeedMix';
+    localStorage.setItem('mathAdventure' + k + 'Scores', JSON.stringify(scores));
 
     document.getElementById('saveBtn').disabled = true;
     document.getElementById('savedMsg').textContent = 'Saved!';
   }
 
-  function showLeaderboard() {
-    const scores = getHighScores();
+  function showLeaderboard(tab) {
+    leaderboardTab = tab || leaderboardTab || 'speed-add';
     const body = document.getElementById('leaderboardBody');
 
+    // Build tabs
+    let tabsHtml = '<div class="lb-tabs">';
+    for (const [m, info] of Object.entries(speedModes)) {
+      tabsHtml += '<button class="lb-tab' + (m === leaderboardTab ? ' active' : '') + '" onclick="showLeaderboard(\'' + m + '\')">' + info.label + '</button>';
+    }
+    tabsHtml += '</div>';
+
+    const scores = getHighScores(leaderboardTab);
+    let tableHtml;
     if (scores.length === 0) {
-      body.innerHTML = '<div class="no-scores">No scores yet! Play Speed mode to set a record.</div>';
+      tableHtml = '<div class="no-scores">No scores yet! Play Speed ' + speedModes[leaderboardTab].label + ' to set a record.</div>';
     } else {
-      let html = '<table class="leaderboard-table"><tr><th class="rank-col">#</th><th>Name</th><th>Score</th><th>Time</th></tr>';
+      tableHtml = '<table class="leaderboard-table"><tr><th class="rank-col">#</th><th>Name</th><th>Score</th><th>Time</th></tr>';
       scores.forEach((s, i) => {
         const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1);
-        html += '<tr><td class="rank-col">' + medal + '</td><td>' + escapeHtml(s.name) + '</td><td>' + s.correct + '/' + s.total + '</td><td class="time-col">' + formatTime(s.time) + '</td></tr>';
+        tableHtml += '<tr><td class="rank-col">' + medal + '</td><td>' + escapeHtml(s.name) + '</td><td>' + s.correct + '/' + s.total + '</td><td class="time-col">' + formatTime(s.time) + '</td></tr>';
       });
-      html += '</table>';
-      body.innerHTML = html;
+      tableHtml += '</table>';
     }
+    body.innerHTML = tabsHtml + tableHtml;
     showScreen('leaderboardScreen');
   }
 
