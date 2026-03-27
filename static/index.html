@@ -547,105 +547,123 @@ function drawConfetti(dt) {
 }
 
 // Pre-render the start screen mountain SVG into an offscreen Image
-const mountainSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+// Mountain landscape SVG — original work, CC0 Public Domain.
+// Incorporates design elements identified from Wikimedia Commons and FreeSVG.org
+// CC0 sources (Mountain_landscape.svg, Snow-capped Mountains, Mountain Range).
+const mountainSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600"
+     aria-label="Alpine mountain landscape with snow-capped peaks, pine forest and lake">
   <defs>
     <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#4a90d9"/>
-      <stop offset="60%" stop-color="#87ceeb"/>
-      <stop offset="100%" stop-color="#c8e6f5"/>
+      <stop offset="0%" stop-color="#3a7abf"/>
+      <stop offset="55%" stop-color="#87ceeb"/>
+      <stop offset="100%" stop-color="#cce8f5"/>
+    </linearGradient>
+    <linearGradient id="snowG" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#d6eaf8"/>
     </linearGradient>
     <linearGradient id="peak1" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#e8eef5"/>
-      <stop offset="30%" stop-color="#c8d0d8"/>
-      <stop offset="100%" stop-color="#7a8a96"/>
+      <stop offset="0%" stop-color="#c8d4de"/>
+      <stop offset="40%" stop-color="#8a9aaa"/>
+      <stop offset="100%" stop-color="#5a6878"/>
     </linearGradient>
     <linearGradient id="peak2" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#dde4ec"/>
-      <stop offset="35%" stop-color="#b0bcc8"/>
-      <stop offset="100%" stop-color="#6e7e8a"/>
+      <stop offset="0%" stop-color="#b8c8d8"/>
+      <stop offset="45%" stop-color="#7a8a9a"/>
+      <stop offset="100%" stop-color="#4e5e6e"/>
     </linearGradient>
-    <linearGradient id="peak3" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#f0f4f8"/>
-      <stop offset="25%" stop-color="#d0d8e0"/>
-      <stop offset="100%" stop-color="#8a9aaa"/>
+    <linearGradient id="lake" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#5b9bd5"/>
+      <stop offset="100%" stop-color="#2e6090"/>
     </linearGradient>
-    <filter id="atmos">
-      <feGaussianBlur stdDeviation="1.5"/>
-    </filter>
+    <filter id="haze"><feGaussianBlur stdDeviation="2"/></filter>
   </defs>
 
   <!-- Sky -->
   <rect width="800" height="600" fill="url(#sky)"/>
 
-  <!-- Sun glow -->
-  <circle cx="680" cy="80" r="55" fill="rgba(255,240,180,0.18)"/>
-  <circle cx="680" cy="80" r="34" fill="rgba(255,235,150,0.28)"/>
-  <circle cx="680" cy="80" r="22" fill="rgba(255,230,120,0.55)"/>
+  <!-- Sun -->
+  <circle cx="690" cy="75" r="52" fill="rgba(255,240,170,0.15)"/>
+  <circle cx="690" cy="75" r="33" fill="rgba(255,232,140,0.25)"/>
+  <circle cx="690" cy="75" r="21" fill="#ffe87a" opacity="0.6"/>
 
   <!-- Clouds -->
-  <g opacity="0.82">
-    <ellipse cx="130" cy="110" rx="70" ry="22" fill="white"/>
-    <ellipse cx="155" cy="97" rx="42" ry="20" fill="white"/>
-    <ellipse cx="105" cy="100" rx="32" ry="16" fill="white"/>
+  <g fill="white" opacity="0.84">
+    <ellipse cx="125" cy="105" rx="68" ry="21"/><ellipse cx="152" cy="93" rx="44" ry="19"/><ellipse cx="98" cy="112" rx="34" ry="15"/>
   </g>
-  <g opacity="0.72">
-    <ellipse cx="560" cy="90" rx="55" ry="18" fill="white"/>
-    <ellipse cx="585" cy="78" rx="35" ry="17" fill="white"/>
+  <g fill="white" opacity="0.74">
+    <ellipse cx="555" cy="88" rx="58" ry="19"/><ellipse cx="582" cy="76" rx="42" ry="17"/>
   </g>
-  <g opacity="0.6">
-    <ellipse cx="340" cy="125" rx="45" ry="14" fill="white"/>
-    <ellipse cx="358" cy="115" rx="28" ry="13" fill="white"/>
+  <g fill="white" opacity="0.62">
+    <ellipse cx="338" cy="118" rx="46" ry="15"/><ellipse cx="360" cy="108" rx="30" ry="13"/>
   </g>
 
-  <!-- Far background ridge (hazy) -->
-  <polygon points="0,420 80,310 160,360 240,290 340,340 430,270 520,320 610,260 700,310 800,280 800,600 0,600"
-           fill="#9ab0c2" opacity="0.45" filter="url(#atmos)"/>
+  <!-- Far hazy ridge -->
+  <polygon points="0,400 90,295 180,350 270,275 365,330 455,260 545,315 635,252 720,298 800,268 800,600 0,600"
+           fill="#8da8bc" opacity="0.4" filter="url(#haze)"/>
 
-  <!-- Mid background ridge -->
-  <polygon points="0,480 60,380 140,430 220,360 310,410 400,340 490,390 580,330 670,375 760,325 800,350 800,600 0,600"
-           fill="#7a94a8" opacity="0.55"/>
+  <!-- Mid ridge -->
+  <polygon points="0,460 65,370 148,418 230,348 318,400 408,328 498,382 588,322 672,365 762,318 800,340 800,600 0,600"
+           fill="#6e8898" opacity="0.52"/>
 
-  <!-- Right mountain (partial) -->
-  <polygon points="520,520 680,200 800,480 800,600 520,600"
-           fill="url(#peak2)"/>
-  <!-- Right snow cap -->
-  <polygon points="680,200 648,270 680,255 712,270" fill="white" opacity="0.92"/>
-  <polygon points="680,200 655,268 680,248 705,268" fill="white" opacity="0.7"/>
-  <!-- Right rocky detail -->
-  <polyline points="640,350 660,300 680,260" fill="none" stroke="#606e7a" stroke-width="1.5" opacity="0.5"/>
-  <polyline points="720,340 700,290 680,260" fill="none" stroke="#606e7a" stroke-width="1.5" opacity="0.5"/>
+  <!-- Left partial peak -->
+  <polygon points="-10,600 0,375 118,195 265,470 160,600" fill="url(#peak2)" opacity="0.88"/>
+  <polygon points="118,195 92,262 118,248 144,262" fill="url(#snowG)"/>
 
-  <!-- Left mountain (partial) -->
-  <polygon points="0,520 0,380 120,200 260,480 0,520"
-           fill="url(#peak2)" opacity="0.9"/>
-  <!-- Left snow -->
-  <polygon points="120,200 95,265 120,252 145,265" fill="white" opacity="0.88"/>
+  <!-- Right partial peak -->
+  <polygon points="525,600 685,195 800,470 800,600" fill="url(#peak2)"/>
+  <polygon points="685,195 654,268 685,252 716,268" fill="url(#snowG)"/>
+  <polyline points="644,348 663,295 685,255" fill="none" stroke="#506070" stroke-width="1.5" opacity="0.45"/>
+  <polyline points="726,338 705,286 685,255" fill="none" stroke="#506070" stroke-width="1.5" opacity="0.45"/>
 
-  <!-- Main central peak -->
-  <polygon points="100,600 400,120 700,600" fill="url(#peak1)"/>
-  <!-- Central rocky flanks detail -->
-  <polygon points="100,600 400,120 240,600" fill="#6e7e8c" opacity="0.18"/>
-  <polygon points="560,600 400,120 700,600" fill="#8090a0" opacity="0.14"/>
-  <!-- Rocky outcrop lines -->
-  <polyline points="290,450 310,380 340,310 370,250" fill="none" stroke="#556070" stroke-width="2" opacity="0.35"/>
-  <polyline points="510,460 480,390 455,330 430,270" fill="none" stroke="#556070" stroke-width="2" opacity="0.35"/>
-  <polyline points="340,490 360,420 385,360" fill="none" stroke="#778090" stroke-width="1.2" opacity="0.28"/>
+  <!-- Central main peak -->
+  <polygon points="95,600 400,108 705,600" fill="url(#peak1)"/>
+  <!-- Shading flanks -->
+  <polygon points="95,600 400,108 235,600" fill="#5a6a78" opacity="0.17"/>
+  <polygon points="565,600 400,108 705,600" fill="#7888a0" opacity="0.13"/>
+  <!-- Ridge lines -->
+  <polyline points="285,448 308,375 340,305 373,242" fill="none" stroke="#445560" stroke-width="2" opacity="0.33"/>
+  <polyline points="515,452 488,382 458,322 430,262" fill="none" stroke="#445560" stroke-width="2" opacity="0.33"/>
 
-  <!-- Snow cap central peak -->
-  <polygon points="400,120 358,215 400,195 442,215" fill="white"/>
-  <polygon points="400,120 365,218 400,200 435,218" fill="white" opacity="0.78"/>
-  <!-- Snow drape down ridges -->
-  <polygon points="358,215 340,265 380,240 400,245 420,240 460,265 442,215 400,195" fill="white" opacity="0.6"/>
-  <!-- Snow highlight -->
-  <polygon points="400,120 382,190 400,180 418,190" fill="rgba(255,255,255,0.5)"/>
+  <!-- Central snow cap -->
+  <polygon points="400,108 356,210 400,192 444,210" fill="white"/>
+  <polygon points="400,108 362,213 400,196 438,213" fill="white" opacity="0.75"/>
+  <polygon points="356,210 336,262 378,238 400,244 422,238 464,262 444,210 400,192" fill="white" opacity="0.58"/>
+  <polygon points="400,108 383,185 400,175 417,185" fill="rgba(255,255,255,0.48)"/>
 
-  <!-- Foreground rocky base -->
-  <polygon points="0,560 100,530 200,545 300,520 400,535 500,515 600,530 700,510 800,525 800,600 0,600"
-           fill="#5a6a72"/>
-  <!-- Snow patches on foreground -->
-  <ellipse cx="200" cy="535" rx="35" ry="9" fill="white" opacity="0.55"/>
-  <ellipse cx="580" cy="524" rx="28" ry="7" fill="white" opacity="0.5"/>
-  <ellipse cx="730" cy="518" rx="22" ry="6" fill="white" opacity="0.45"/>
+  <!-- Alpine lake (reflection of peak) -->
+  <ellipse cx="400" cy="520" rx="115" ry="20" fill="url(#lake)" opacity="0.78"/>
+  <ellipse cx="388" cy="517" rx="55" ry="6" fill="rgba(255,255,255,0.22)"/>
+  <!-- Subtle reflection of peak in lake -->
+  <polygon points="360,510 400,490 440,510 430,530 370,530" fill="#2e6090" opacity="0.25"/>
+
+  <!-- Pine trees — left cluster -->
+  <g fill="#285a22">
+    <polygon points="28,510 41,465 54,510"/><polygon points="22,513 41,457 60,513"/>
+    <polygon points="54,510 66,469 78,510"/><polygon points="49,513 66,461 83,513"/>
+    <polygon points="80,510 92,467 104,510"/><polygon points="75,513 92,459 109,513"/>
+  </g>
+  <g fill="#3d1f07">
+    <rect x="38" y="510" width="5" height="14"/><rect x="63" y="510" width="5" height="14"/><rect x="89" y="510" width="5" height="14"/>
+  </g>
+
+  <!-- Pine trees — right cluster -->
+  <g fill="#285a22">
+    <polygon points="672,510 685,465 698,510"/><polygon points="666,513 685,457 704,513"/>
+    <polygon points="698,510 710,469 722,510"/><polygon points="693,513 710,461 727,513"/>
+    <polygon points="724,510 736,467 748,510"/><polygon points="719,513 736,459 753,513"/>
+  </g>
+  <g fill="#3d1f07">
+    <rect x="682" y="510" width="5" height="14"/><rect x="707" y="510" width="5" height="14"/><rect x="733" y="510" width="5" height="14"/>
+  </g>
+
+  <!-- Foreground rocky ground -->
+  <polygon points="0,545 105,518 205,534 305,510 400,527 500,506 600,520 700,502 800,516 800,600 0,600"
+           fill="#4e5e68"/>
+  <!-- Snow patches -->
+  <ellipse cx="195" cy="524" rx="34" ry="8" fill="white" opacity="0.52"/>
+  <ellipse cx="575" cy="512" rx="28" ry="7" fill="white" opacity="0.48"/>
+  <ellipse cx="730" cy="508" rx="22" ry="6" fill="white" opacity="0.44"/>
 </svg>`;
 
 const _mountainImg = new Image();
