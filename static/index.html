@@ -302,15 +302,36 @@ function drawPlayer(sx, sy, right, flash, moving, walkOffset) {
   const c = ctx;
   const f = right ? 1 : -1;
 
-  // Walk cycle tied to world X position — phase advances/reverses with movement.
-  const walkPhase = moving ? (walkOffset * 0.065) : 0;
-  const swing = moving ? Math.sin(walkPhase) * 0.30 : 0;
+  // ── WALK ANIMATION (rebuilt from first principles) ─────────────────────
+  //
+  // Canvas: ctx.rotate(+) = clockwise = swings hanging limb RIGHTWARD.
+  // Position-based phase: walkPhase = playerWX * k.  Moving right increases
+  // it, moving left decreases it, so sin() naturally reverses — no flip needed.
+  //
+  // Natural gait rule: opposite limbs swing together.
+  //   right leg + left arm  get angle = +swing
+  //   left leg  + right arm get angle = -swing
+  //
+  // Draw order (back-to-front):
+  //   facing right → left side behind, right side in front
+  //   facing left  → right side behind, left side in front
 
-  // Natural opposite-side gait: left arm with right leg, right arm with left leg.
-  // back arm (left when facing right) swings WITH front leg (right) → same sign as swing
-  // front arm (right when facing right) swings WITH back leg (left) → opposite sign
-  const backArmAngle  =  swing;
-  const frontArmAngle = -swing;
+  const walkPhase = moving ? (walkOffset * 0.065) : 0;
+  const swing = moving ? Math.sin(walkPhase) * 0.35 : 0;
+
+  // Assign angles to the four limbs by NAME (left/right of the character)
+  const rightLegAngle =  swing;
+  const leftLegAngle  = -swing;
+  const leftArmAngle  =  swing;   // paired with right leg
+  const rightArmAngle = -swing;   // paired with left leg
+
+  // Resolve draw order: back = far side, front = near side
+  const backArmAngle  = right ? leftArmAngle  : rightArmAngle;
+  const frontArmAngle = right ? rightArmAngle : leftArmAngle;
+  const backLegX  = right ? sx - 5 : sx + 5;
+  const backLegA  = right ? leftLegAngle  : rightLegAngle;
+  const frontLegX = right ? sx + 5 : sx - 5;
+  const frontLegA = right ? rightLegAngle : leftLegAngle;
 
   // ── 1. Backpack (furthest back) ──────────────────────────────────────────
   c.fillStyle = 'rgb(60,90,50)';
@@ -322,7 +343,6 @@ function drawPlayer(sx, sy, right, flash, moving, walkOffset) {
   c.beginPath(); c.moveTo(sx + f*5, sy - 36); c.lineTo(sx - f*14, sy - 24); c.stroke();
 
   // ── 2. Back arm (behind torso) ───────────────────────────────────────────
-  // facing right → back arm is on the left (sx-12); facing left → right (sx+12)
   drawArm(c, sx - f*12, sy - 32, backArmAngle, f);
 
   // ── 3. Torso: jacket + lederhosen ────────────────────────────────────────
@@ -342,23 +362,13 @@ function drawPlayer(sx, sy, right, flash, moving, walkOffset) {
   c.beginPath(); c.moveTo(sx - 5, sy - 18); c.lineTo(sx - 8, sy - 38); c.stroke();
   c.beginPath(); c.moveTo(sx + 5, sy - 18); c.lineTo(sx + 8, sy - 38); c.stroke();
 
-  // ── 4. Animated legs (rotate from hip) ───────────────────────────────────
+  // ── 4. Legs (rotate from hip) ────────────────────────────────────────────
   const hipY = sy - 2;
-  // Right leg swings forward when facing right (natural gait — front leg is right when facing right)
-  const rightLegAngle =  swing;
-  const leftLegAngle  = -swing;
 
-  // Draw back leg first (behind torso), front leg second (on top)
-  // Facing right → left leg is behind, right leg is in front
-  // Facing left  → right leg is behind, left leg is in front
-  const [backLegX, backLegAngle, frontLegX, frontLegAngle] = right
-    ? [sx - 5, leftLegAngle,  sx + 5, rightLegAngle]
-    : [sx + 5, rightLegAngle, sx - 5, leftLegAngle];
-
-  // Back leg
+  // Back leg (far side, drawn first)
   c.save();
   c.translate(backLegX, hipY);
-  c.rotate(backLegAngle);
+  c.rotate(backLegA);
   c.fillStyle = 'rgb(230,195,160)';
   c.beginPath(); c.roundRect(-4, 0, 8, 10, 2); c.fill();
   c.fillStyle = 'rgb(90,60,35)';
@@ -367,10 +377,10 @@ function drawPlayer(sx, sy, right, flash, moving, walkOffset) {
   c.fillRect(-6, 14, 12, 3);
   c.restore();
 
-  // Front leg
+  // Front leg (near side, drawn second)
   c.save();
   c.translate(frontLegX, hipY);
-  c.rotate(frontLegAngle);
+  c.rotate(frontLegA);
   c.fillStyle = 'rgb(230,195,160)';
   c.beginPath(); c.roundRect(-4, 0, 8, 10, 2); c.fill();
   c.fillStyle = 'rgb(90,60,35)';
