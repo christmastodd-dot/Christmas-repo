@@ -456,6 +456,86 @@
     .result-stat .num { font-size: 1.2rem; }
     .play-again-btn { padding: 10px 30px; font-size: 1rem; }
   }
+
+  /* Times table hint */
+  .hint-btn {
+    background: rgba(255,255,255,0.2);
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    padding: 8px 14px;
+    font-size: clamp(0.85rem, 2.5vw, 1rem);
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.12s;
+    display: none;
+  }
+  .hint-btn.visible { display: inline-block; }
+  .hint-btn:active { transform: scale(0.93); }
+
+  .times-table-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 300;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
+  .times-table-overlay.open { display: flex; }
+  .times-table-card {
+    background: #fff;
+    border-radius: 20px;
+    padding: 20px;
+    max-width: 95vw;
+    max-height: 85vh;
+    overflow: auto;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    position: relative;
+  }
+  .times-table-close {
+    position: absolute;
+    top: 10px;
+    right: 14px;
+    background: none;
+    border: none;
+    font-size: 1.8rem;
+    cursor: pointer;
+    color: #999;
+    line-height: 1;
+  }
+  .times-table-close:active { color: #333; }
+  .times-table-title {
+    font-size: clamp(1.1rem, 3.5vw, 1.4rem);
+    font-weight: bold;
+    color: #764ba2;
+    margin-bottom: 12px;
+    text-align: center;
+  }
+  .times-table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+  .times-table th, .times-table td {
+    padding: clamp(4px, 1.2vw, 8px);
+    text-align: center;
+    font-size: clamp(0.7rem, 2vw, 0.95rem);
+    border: 1px solid #eee;
+    min-width: 28px;
+  }
+  .times-table th {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: #fff;
+    font-weight: bold;
+  }
+  .times-table .corner {
+    background: #764ba2;
+    color: rgba(255,255,255,0.6);
+    font-size: clamp(0.6rem, 1.5vw, 0.8rem);
+  }
+  .times-table td { color: #444; }
+  .times-table tr:nth-child(even) td { background: #f9f7ff; }
 </style>
 </head>
 <body>
@@ -521,6 +601,7 @@
     <div class="stat-badge" id="scoreDisplay">0</div>
     <div class="timer-bar"><div class="timer-fill" id="timerFill"></div></div>
     <div class="stat-badge" id="questionCount">1/20</div>
+    <button class="hint-btn" id="hintBtn" onclick="openTimesTable()">&#215; Table</button>
   </div>
   <div class="progress-dots" id="progressDots"></div>
   <div class="streak-display" id="streakDisplay"></div>
@@ -625,6 +706,7 @@
 
     updateScore();
     updateTimer();
+    updateHintBtn();
     showScreen('gameScreen');
     nextQuestion();
 
@@ -929,6 +1011,37 @@
     return div.innerHTML;
   }
 
+  // Times table hint
+  const showHintModes = ['mul', 'mix', 'challenge', 'speed-mix'];
+  function updateHintBtn() {
+    const btn = document.getElementById('hintBtn');
+    btn.classList.toggle('visible', showHintModes.includes(mode));
+  }
+
+  function buildTimesTable() {
+    const table = document.getElementById('timesTableGrid');
+    if (table.rows.length > 0) return; // already built
+    let html = '<tr><th class="corner">&times;</th>';
+    for (let i = 1; i <= 10; i++) html += '<th>' + i + '</th>';
+    html += '</tr>';
+    for (let r = 1; r <= 10; r++) {
+      html += '<tr><th>' + r + '</th>';
+      for (let c = 1; c <= 10; c++) html += '<td>' + (r * c) + '</td>';
+      html += '</tr>';
+    }
+    table.innerHTML = html;
+  }
+
+  function openTimesTable() {
+    buildTimesTable();
+    document.getElementById('timesTableOverlay').classList.add('open');
+  }
+
+  function closeTimesTable(e) {
+    if (e && e.target !== document.getElementById('timesTableOverlay')) return;
+    document.getElementById('timesTableOverlay').classList.remove('open');
+  }
+
   function launchConfetti() {
     const colors = ['#667eea', '#764ba2', '#43e97b', '#ffd700', '#f85032', '#38f9d7', '#ff6b6b'];
     for (let i = 0; i < 50; i++) {
@@ -946,5 +1059,13 @@
     }
   }
 </script>
+
+<div class="times-table-overlay" id="timesTableOverlay" onclick="closeTimesTable(event)">
+  <div class="times-table-card" id="timesTableCard">
+    <button class="times-table-close" onclick="closeTimesTable()">&times;</button>
+    <div class="times-table-title">Times Table</div>
+    <table class="times-table" id="timesTableGrid"></table>
+  </div>
+</div>
 </body>
 </html>
