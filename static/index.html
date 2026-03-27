@@ -314,10 +314,10 @@ function drawPlayer(sx, sy, right, flash, moving, walkOffset) {
   const walkCycle = moving ? Math.sin(walkOffset * 8) * 0.35 : 0;
 
   // near leg forward, far arm forward (opposite-side gait)
-  const nearLegAngle =  walkCycle * f;
-  const farLegAngle  = -walkCycle * f;
-  const nearArmAngle = -walkCycle * f;   // opposite to near leg
-  const farArmAngle  =  walkCycle * f;   // opposite to far leg
+  const nearLegAngle = -walkCycle * f;
+  const farLegAngle  =  walkCycle * f;
+  const nearArmAngle =  walkCycle * f;   // opposite to near leg
+  const farArmAngle  = -walkCycle * f;   // opposite to far leg
 
   // ── 1. Backpack (furthest back) ──────────────────────────────────────────
   c.fillStyle = 'rgb(60,90,50)';
