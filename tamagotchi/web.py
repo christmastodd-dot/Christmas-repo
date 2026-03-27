@@ -9,7 +9,7 @@ from flask_socketio import SocketIO, emit
 
 from tamagotchi.config import (
     STAGES, STAGE_THRESHOLDS, STAGE_LABELS, MATH_STREAK_THRESHOLD,
-    TICK_INTERVAL,
+    TICK_INTERVAL, SHOP_ITEMS,
 )
 from tamagotchi.pet import Pet
 from tamagotchi.math_problems import generate_problem
@@ -64,6 +64,8 @@ class GameState:
             "is_final_stage": threshold is None,
             "is_egg": is_egg,
             "stats": pet.stats_dict(),
+            "coins": pet.coins,
+            "inventory": pet.inventory,
         }
 
 
@@ -175,6 +177,36 @@ def on_care(data):
 
     action = (data.get("action") or "").strip()
     success, message = gs.pet.care(action)
+    gs.message = message
+    emit("state", gs.get_state())
+    gs.message = ""
+
+
+@socketio.on("buy")
+def on_buy(data):
+    sid = request.sid
+    with lock:
+        gs = games.get(sid)
+    if not gs:
+        emit("no_game")
+        return
+    item_id = (data.get("item") or "").strip()
+    success, message = gs.pet.buy_item(item_id)
+    gs.message = message
+    emit("state", gs.get_state())
+    gs.message = ""
+
+
+@socketio.on("use_item")
+def on_use_item(data):
+    sid = request.sid
+    with lock:
+        gs = games.get(sid)
+    if not gs:
+        emit("no_game")
+        return
+    item_id = (data.get("item") or "").strip()
+    success, message = gs.pet.use_item(item_id)
     gs.message = message
     emit("state", gs.get_state())
     gs.message = ""

@@ -5,6 +5,8 @@ import time
 from tamagotchi.config import (
     STAGES, STAGE_THRESHOLDS,
     STAT_MAX, STAT_START, CARE_AMOUNTS, DECAY_PER_TICK, CARE_COOLDOWN,
+    COINS_PER_CORRECT, COINS_STREAK_BONUS, MATH_STREAK_THRESHOLD,
+    SHOP_ITEMS,
 )
 
 
@@ -30,6 +32,10 @@ class Pet:
         self.hygiene = STAT_START
         self.energy = STAT_START
         self.last_care = {}  # action -> timestamp of last use
+
+        # Economy
+        self.coins = 0
+        self.inventory = {}  # item_id -> quantity
 
         # Evolution event flag
         self.just_evolved = False
@@ -119,11 +125,43 @@ class Pet:
             self.best_streak = self.streak
         # Answering correctly gives a small happiness boost
         self.happiness = min(STAT_MAX, self.happiness + 5)
+        # Award coins
+        self.coins += COINS_PER_CORRECT
+        if self.streak > 0 and self.streak % MATH_STREAK_THRESHOLD == 0:
+            self.coins += COINS_STREAK_BONUS
         self._try_evolve()
 
     def answer_wrong(self):
         self.total_wrong += 1
         self.streak = 0
+
+    def buy_item(self, item_id):
+        """Buy an item from the shop. Returns (success, message)."""
+        if item_id not in SHOP_ITEMS:
+            return False, "Item not found."
+        item = SHOP_ITEMS[item_id]
+        if self.coins < item["cost"]:
+            return False, f"Not enough coins! Need {item['cost']}, have {self.coins}."
+        self.coins -= item["cost"]
+        self.inventory[item_id] = self.inventory.get(item_id, 0) + 1
+        return True, f"Bought {item['label']}! ({self.coins} coins left)"
+
+    def use_item(self, item_id):
+        """Use an item from inventory. Returns (success, message)."""
+        if self.stage == "egg":
+            return False, "The egg can't use items yet!"
+        if self.inventory.get(item_id, 0) <= 0:
+            return False, "You don't have that item!"
+        item = SHOP_ITEMS.get(item_id)
+        if not item:
+            return False, "Item not found."
+        self.inventory[item_id] -= 1
+        if self.inventory[item_id] <= 0:
+            del self.inventory[item_id]
+        for stat, amount in item["effects"].items():
+            old = getattr(self, stat)
+            setattr(self, stat, min(STAT_MAX, old + amount))
+        return True, f"{self.name} used {item['label']}!"
 
     def progress_pct(self):
         threshold = STAGE_THRESHOLDS.get(self.stage)
@@ -137,6 +175,7 @@ class Pet:
             "happiness": self.happiness,
             "hygiene": self.hygiene,
             "energy": self.energy,
+            "coins": self.coins,
         }
 
     def to_dict(self):
@@ -153,6 +192,8 @@ class Pet:
             "happiness": self.happiness,
             "hygiene": self.hygiene,
             "energy": self.energy,
+            "coins": self.coins,
+            "inventory": dict(self.inventory),
             "save_time": time.time(),
         }
 
@@ -170,4 +211,6 @@ class Pet:
         pet.happiness = data.get("happiness", STAT_START)
         pet.hygiene = data.get("hygiene", STAT_START)
         pet.energy = data.get("energy", STAT_START)
+        pet.coins = data.get("coins", 0)
+        pet.inventory = data.get("inventory", {})
         return pet

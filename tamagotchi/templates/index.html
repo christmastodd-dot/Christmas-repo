@@ -196,6 +196,61 @@
     .care-btn .care-btn-icon { font-size: 1em; }
   }
 
+  /* Coins display */
+  .coins-display {
+    text-align: center; font-size: 0.9em; color: var(--yellow);
+    margin: 2px 0; flex-shrink: 0;
+  }
+
+  /* Shop toggle */
+  .shop-toggle {
+    background: var(--panel); border: 2px solid var(--border); border-radius: 8px;
+    color: var(--yellow); padding: 6px 16px; font-family: inherit; font-size: 0.85em;
+    cursor: pointer; display: block; width: 100%; text-align: center;
+    margin: 4px 0; flex-shrink: 0;
+  }
+  .shop-toggle:hover { border-color: var(--yellow); }
+
+  /* Shop panel */
+  .shop-panel {
+    max-height: 0; overflow: hidden; transition: max-height 0.3s ease;
+    flex-shrink: 0;
+  }
+  .shop-panel.open { max-height: 500px; }
+  .shop-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
+    padding: 8px 0;
+  }
+  .shop-item {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 8px;
+    padding: 8px; text-align: center; cursor: pointer; transition: all 0.2s;
+  }
+  .shop-item:hover { border-color: var(--yellow); }
+  .shop-item:active { transform: scale(0.97); }
+  .shop-item.cant-afford { opacity: 0.4; }
+  .shop-item .si-icon { font-size: 1.4em; }
+  .shop-item .si-name { font-size: 0.8em; margin: 2px 0; }
+  .shop-item .si-desc { font-size: 0.7em; color: var(--dim); }
+  .shop-item .si-cost { font-size: 0.8em; color: var(--yellow); margin-top: 2px; }
+
+  /* Inventory */
+  .inv-row {
+    display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;
+    padding: 4px 0; flex-shrink: 0;
+  }
+  .inv-btn {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    color: var(--text); padding: 4px 10px; font-family: inherit; font-size: 0.8em;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .inv-btn:hover { border-color: var(--green); }
+  .inv-btn:active { transform: scale(0.95); }
+
+  .shop-section { flex-shrink: 0; }
+  .shop-section.hidden { display: none; }
+  .shop-section.collapsed { max-height: 0; overflow: hidden; opacity: 0; margin: 0;
+    transition: max-height 0.3s ease, opacity 0.3s ease; }
+
   /* Question box */
   .question-box {
     background: var(--panel); border: 2px solid var(--border); border-radius: 10px;
@@ -380,6 +435,15 @@
       <button class="care-btn" onclick="doCare('play')"><span class="care-btn-icon">&#x1F3BE;</span>Play</button>
       <button class="care-btn" onclick="doCare('clean')"><span class="care-btn-icon">&#x1F6BF;</span>Clean</button>
       <button class="care-btn" onclick="doCare('sleep')"><span class="care-btn-icon">&#x1F4A4;</span>Sleep</button>
+    </div>
+  </div>
+
+  <div class="shop-section hidden" id="shop-section">
+    <div class="coins-display" id="coins-display"></div>
+    <div class="inv-row" id="inv-row"></div>
+    <button class="shop-toggle" id="shop-toggle" onclick="toggleShop()">Shop</button>
+    <div class="shop-panel" id="shop-panel">
+      <div class="shop-grid" id="shop-grid"></div>
     </div>
   </div>
 
@@ -751,10 +815,13 @@ socket.on('state', state => {
 
   // Care stats
   const careSection = document.getElementById('care-section');
+  const shopSection = document.getElementById('shop-section');
   if (state.is_egg) {
     careSection.classList.add('hidden');
+    shopSection.classList.add('hidden');
   } else {
     careSection.classList.remove('hidden');
+    shopSection.classList.remove('hidden');
     const stats = state.stats;
     for (const key of ['hunger', 'happiness', 'hygiene', 'energy']) {
       const bar = document.getElementById('bar-' + key);
@@ -763,6 +830,12 @@ socket.on('state', state => {
       bar.className = 'care-fill ' + (val >= 60 ? 'high' : val >= 30 ? 'mid' : 'low');
     }
   }
+
+  // Shop & Inventory
+  currentCoins = state.coins || 0;
+  document.getElementById('coins-display').textContent = '\uD83E\uDE99 ' + currentCoins + ' coins';
+  renderShop();
+  renderInventory(state.inventory);
 
   const msgEl = document.getElementById('g-message');
   if (state.message) {
@@ -778,6 +851,70 @@ socket.on('state', state => {
 function doCare(action) {
   lastCorrect = null;  // care messages use 'info' style
   socket.emit('care', {action});
+}
+
+// ── Shop & Inventory ────────────────────────────────────────────────
+
+const SHOP_ITEMS = {
+  pizza:     {label:"Pizza",         icon:"\uD83C\uDF55", cost:3,  desc:"+50 hunger"},
+  cake:      {label:"Birthday Cake", icon:"\uD83C\uDF82", cost:5,  desc:"+40 hunger, +20 happy"},
+  ball:      {label:"Beach Ball",    icon:"\uD83C\uDFD6\uFE0F", cost:3,  desc:"+50 happiness"},
+  ukulele:   {label:"Ukulele",       icon:"\uD83E\uDE95", cost:6,  desc:"+40 happy, +20 energy"},
+  soap:      {label:"Bubble Bath",   icon:"\uD83D\uDEC1", cost:3,  desc:"+50 hygiene"},
+  blanket:   {label:"Cozy Blanket",  icon:"\uD83C\uDF19", cost:4,  desc:"+50 energy"},
+  superfood: {label:"Super Smoothie",icon:"\uD83E\uDD66", cost:10, desc:"+30 all stats"},
+};
+
+let shopOpen = false;
+let currentCoins = 0;
+
+function toggleShop() {
+  shopOpen = !shopOpen;
+  const panel = document.getElementById('shop-panel');
+  const btn = document.getElementById('shop-toggle');
+  panel.classList.toggle('open', shopOpen);
+  btn.textContent = shopOpen ? 'Close Shop' : 'Shop';
+}
+
+function renderShop() {
+  const grid = document.getElementById('shop-grid');
+  grid.innerHTML = '';
+  for (const [id, item] of Object.entries(SHOP_ITEMS)) {
+    const canAfford = currentCoins >= item.cost;
+    const div = document.createElement('div');
+    div.className = 'shop-item' + (canAfford ? '' : ' cant-afford');
+    div.innerHTML = `<div class="si-icon">${item.icon}</div>` +
+      `<div class="si-name">${item.label}</div>` +
+      `<div class="si-desc">${item.desc}</div>` +
+      `<div class="si-cost">\uD83E\uDE99 ${item.cost}</div>`;
+    div.onclick = () => { if (canAfford) buyItem(id); };
+    grid.appendChild(div);
+  }
+}
+
+function renderInventory(inventory) {
+  const row = document.getElementById('inv-row');
+  row.innerHTML = '';
+  for (const [id, qty] of Object.entries(inventory || {})) {
+    if (qty <= 0) continue;
+    const item = SHOP_ITEMS[id];
+    if (!item) continue;
+    const btn = document.createElement('button');
+    btn.className = 'inv-btn';
+    btn.innerHTML = `${item.icon} ${item.label} x${qty}`;
+    btn.onclick = () => useItem(id);
+    row.appendChild(btn);
+  }
+}
+
+function buyItem(itemId) {
+  lastCorrect = null;
+  socket.emit('buy', {item: itemId});
+}
+
+function useItem(itemId) {
+  lastCorrect = null;
+  socket.emit('use_item', {item: itemId});
 }
 
 // ── Pokemon-style evolution sequence ────────────────────────────────
@@ -968,9 +1105,11 @@ document.getElementById('art-box').addEventListener('click', () => {
 // When input gets focus, collapse care section and scroll question into view
 const careSection = document.getElementById('care-section');
 const statsRow = document.querySelector('.stats-row');
+const shopSectionEl = document.getElementById('shop-section');
 answerInput.addEventListener('focus', () => {
   careSection.classList.add('collapsed');
   statsRow.classList.add('collapsed');
+  shopSectionEl.classList.add('collapsed');
   setTimeout(() => {
     questionBox.scrollIntoView({ behavior: 'smooth', block: 'end' });
   }, 300);
@@ -980,6 +1119,7 @@ answerInput.addEventListener('focus', () => {
 answerInput.addEventListener('blur', () => {
   careSection.classList.remove('collapsed');
   statsRow.classList.remove('collapsed');
+  shopSectionEl.classList.remove('collapsed');
 });
 
 // Adjust layout when mobile keyboard opens/closes
