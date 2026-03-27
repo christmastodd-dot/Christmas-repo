@@ -185,20 +185,94 @@
   /* Evolution overlay */
   #evo-overlay {
     display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.9); z-index: 100;
+    background: #000; z-index: 100;
     justify-content: center; align-items: center; flex-direction: column;
+    overflow: hidden;
   }
   #evo-overlay.show { display: flex; }
-  #evo-overlay .evo-text {
-    color: var(--yellow); font-size: 1.5em; margin: 20px; text-align: center;
-    animation: pulse 0.6s ease-in-out infinite alternate;
+
+  .evo-text {
+    color: var(--yellow); font-size: 1.4em; text-align: center;
+    font-family: 'Courier New', monospace; font-weight: bold;
+    opacity: 0; transition: opacity 0.4s;
+    text-shadow: 0 0 10px rgba(240,192,64,0.5);
   }
-  .evo-sprite { margin: 20px; }
-  #evo-overlay .evo-sparkles {
-    font-size: 2em;
-    animation: spin 1.5s linear infinite;
+  .evo-text.visible { opacity: 1; }
+
+  .evo-stage {
+    position: relative; width: 220px; height: 240px;
+    display: flex; align-items: center; justify-content: center;
+    margin: 16px 0;
   }
-  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  .evo-stage .evo-old, .evo-stage .evo-new {
+    position: absolute; transition: opacity 0.1s;
+  }
+  .evo-stage .evo-new { opacity: 0; }
+
+  /* White silhouette filter for morph flashing */
+  .evo-silhouette svg { filter: brightness(0) invert(1) drop-shadow(0 0 12px #fff); }
+
+  /* Glow pulse during morphing */
+  .evo-stage.morphing {
+    animation: evoGlow 0.4s ease-in-out infinite alternate;
+  }
+  @keyframes evoGlow {
+    from { filter: drop-shadow(0 0 8px rgba(255,255,255,0.3)); }
+    to   { filter: drop-shadow(0 0 24px rgba(255,255,255,0.9)); }
+  }
+
+  /* White flash */
+  .evo-flash {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: #fff; z-index: 101; opacity: 0; pointer-events: none;
+    transition: opacity 0.15s;
+  }
+  .evo-flash.bang { opacity: 1; }
+
+  /* Sparkle particles */
+  .evo-particle {
+    position: absolute; width: 6px; height: 6px;
+    border-radius: 50%; pointer-events: none;
+    animation: sparkleFloat var(--dur) ease-out forwards;
+  }
+  @keyframes sparkleFloat {
+    0%   { opacity: 1; transform: translate(0, 0) scale(1); }
+    100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0); }
+  }
+
+  /* Reveal bounce for new sprite */
+  .evo-reveal svg {
+    animation: evoReveal 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+  @keyframes evoReveal {
+    0%   { transform: scale(0.3); opacity: 0; }
+    60%  { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  /* Stars that orbit during reveal */
+  .evo-stars {
+    position: absolute; width: 260px; height: 260px;
+    animation: evoSpin 2s linear infinite;
+  }
+  .evo-stars span {
+    position: absolute; font-size: 1.2em;
+    animation: evoTwinkle 0.8s ease-in-out infinite alternate;
+  }
+  .evo-stars span:nth-child(1) { top: 0; left: 50%; transform: translateX(-50%); }
+  .evo-stars span:nth-child(2) { top: 50%; right: 0; transform: translateY(-50%); animation-delay: 0.2s; }
+  .evo-stars span:nth-child(3) { bottom: 0; left: 50%; transform: translateX(-50%); animation-delay: 0.4s; }
+  .evo-stars span:nth-child(4) { top: 50%; left: 0; transform: translateY(-50%); animation-delay: 0.6s; }
+  @keyframes evoSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  @keyframes evoTwinkle { from { opacity: 0.4; } to { opacity: 1; } }
+
+  /* "B" button prompt */
+  .evo-continue {
+    color: var(--dim); font-size: 0.85em; margin-top: 12px;
+    opacity: 0; transition: opacity 0.4s;
+    cursor: pointer;
+  }
+  .evo-continue.visible { opacity: 1; animation: pulse 1s ease-in-out infinite alternate; }
 </style>
 </head>
 <body>
@@ -257,10 +331,18 @@
 
 <!-- Evolution Overlay -->
 <div id="evo-overlay">
-  <div class="evo-sparkles">&#x2728; &#x2B50; &#x2728;</div>
-  <div class="evo-sprite" id="evo-sprite"></div>
-  <div class="evo-text" id="evo-text"></div>
+  <div class="evo-text" id="evo-text-top"></div>
+  <div class="evo-stage" id="evo-stage">
+    <div class="evo-old" id="evo-old"></div>
+    <div class="evo-new" id="evo-new"></div>
+    <div class="evo-stars" id="evo-stars" style="display:none">
+      <span>&#x2B50;</span><span>&#x2728;</span><span>&#x2B50;</span><span>&#x2728;</span>
+    </div>
+  </div>
+  <div class="evo-text" id="evo-text-bottom"></div>
+  <div class="evo-continue" id="evo-continue">Tap to continue</div>
 </div>
+<div class="evo-flash" id="evo-flash"></div>
 
 <script>
 // ── SVG Sprite Definitions ──────────────────────────────────────────
@@ -589,18 +671,158 @@ socket.on('state', state => {
   document.getElementById('g-question').textContent = state.question;
 });
 
-socket.on('evolution', data => {
+// ── Pokemon-style evolution sequence ────────────────────────────────
+
+let evoInProgress = false;
+
+function spawnParticles(container, count) {
+  const colors = ['#FFD700', '#FFF', '#87CEEB', '#FF69B4', '#90EE90'];
+  for (let i = 0; i < count; i++) {
+    const p = document.createElement('div');
+    p.className = 'evo-particle';
+    p.style.background = colors[Math.floor(Math.random() * colors.length)];
+    p.style.left = '50%';
+    p.style.top = '50%';
+    const angle = Math.random() * Math.PI * 2;
+    const dist = 60 + Math.random() * 100;
+    p.style.setProperty('--dx', Math.cos(angle) * dist + 'px');
+    p.style.setProperty('--dy', Math.sin(angle) * dist + 'px');
+    p.style.setProperty('--dur', (0.6 + Math.random() * 0.8) + 's');
+    p.style.animationDelay = (Math.random() * 0.3) + 's';
+    container.appendChild(p);
+    setTimeout(() => p.remove(), 1500);
+  }
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+async function playEvolution(oldStage, newStage, petName) {
+  evoInProgress = true;
+
   const labels = {egg:'Egg',baby:'Baby',child:'Child',teen:'Teen',adult:'Adult'};
-  const el = document.getElementById('evo-overlay');
-  let text = `${labels[data.old]} \u2192 ${labels[data.new]}!`;
-  if (data.new === 'baby') text = 'Your egg hatched!';
-  document.getElementById('evo-text').textContent = text;
-  document.getElementById('evo-sprite').innerHTML = getSprite(data.new, 'happy');
-  el.classList.add('show');
-  setTimeout(() => {
-    el.classList.remove('show');
-    document.getElementById('answer-input').focus();
-  }, 3000);
+  const overlay = document.getElementById('evo-overlay');
+  const flash = document.getElementById('evo-flash');
+  const textTop = document.getElementById('evo-text-top');
+  const textBottom = document.getElementById('evo-text-bottom');
+  const stage = document.getElementById('evo-stage');
+  const oldEl = document.getElementById('evo-old');
+  const newEl = document.getElementById('evo-new');
+  const stars = document.getElementById('evo-stars');
+  const cont = document.getElementById('evo-continue');
+
+  // Reset everything
+  textTop.className = 'evo-text';
+  textBottom.className = 'evo-text';
+  textTop.textContent = '';
+  textBottom.textContent = '';
+  oldEl.className = 'evo-old';
+  newEl.className = 'evo-new';
+  newEl.style.opacity = '0';
+  oldEl.style.opacity = '1';
+  stage.classList.remove('morphing');
+  stars.style.display = 'none';
+  cont.className = 'evo-continue';
+
+  // Set sprites
+  oldEl.innerHTML = getSprite(oldStage, 'happy');
+  newEl.innerHTML = getSprite(newStage, 'happy');
+
+  // Phase 1: Fade in overlay with old sprite
+  overlay.classList.add('show');
+  await sleep(600);
+
+  // Phase 2: "What? [Name] is evolving!"
+  const isHatch = newStage === 'baby';
+  textTop.textContent = isHatch ? `What? The egg is hatching!` : `What? ${petName} is evolving!`;
+  textTop.classList.add('visible');
+  await sleep(1500);
+
+  // Phase 3: Morphing — flash between old (silhouette) and new (silhouette)
+  // Classic Pokemon: starts slow, speeds up
+  stage.classList.add('morphing');
+  oldEl.classList.add('evo-silhouette');
+  newEl.classList.add('evo-silhouette');
+
+  const morphCycles = [
+    // [showNew, duration] — starts slow, speeds up
+    [false, 400], [true, 400],
+    [false, 350], [true, 350],
+    [false, 280], [true, 280],
+    [false, 200], [true, 200],
+    [false, 150], [true, 150],
+    [false, 100], [true, 100],
+    [false, 80],  [true, 80],
+    [false, 60],  [true, 60],
+    [false, 50],  [true, 50],  [false, 50],  [true, 50],
+    [false, 40],  [true, 40],  [false, 40],  [true, 40],
+    [true, 40],   [true, 40],  [true, 40],
+  ];
+
+  for (const [showNew, dur] of morphCycles) {
+    oldEl.style.opacity = showNew ? '0' : '1';
+    newEl.style.opacity = showNew ? '1' : '0';
+    // Spawn occasional particles during morph
+    if (Math.random() < 0.3) spawnParticles(stage, 3);
+    await sleep(dur);
+  }
+
+  stage.classList.remove('morphing');
+
+  // Phase 4: White flash
+  flash.classList.add('bang');
+  await sleep(200);
+  flash.classList.remove('bang');
+
+  // Phase 5: Reveal new sprite (no silhouette, with bounce)
+  oldEl.style.opacity = '0';
+  newEl.style.opacity = '1';
+  oldEl.classList.remove('evo-silhouette');
+  newEl.classList.remove('evo-silhouette');
+  newEl.classList.add('evo-reveal');
+  stars.style.display = 'block';
+
+  // Burst of particles
+  spawnParticles(stage, 20);
+
+  await sleep(400);
+
+  // Phase 6: Show congratulation text
+  textTop.textContent = isHatch
+    ? `${petName} hatched from the egg!`
+    : `Congratulations!`;
+  textBottom.textContent = isHatch
+    ? `Welcome to the world!`
+    : `${petName} evolved into ${labels[newStage]}!`;
+  textBottom.classList.add('visible');
+
+  // More particles over time
+  await sleep(600);
+  spawnParticles(stage, 12);
+
+  await sleep(800);
+  cont.classList.add('visible');
+
+  // Wait for tap/click/key to dismiss
+  await new Promise(resolve => {
+    function dismiss() {
+      overlay.removeEventListener('click', dismiss);
+      document.removeEventListener('keydown', dismiss);
+      resolve();
+    }
+    overlay.addEventListener('click', dismiss);
+    document.addEventListener('keydown', dismiss);
+  });
+
+  // Phase 7: Fade out
+  overlay.classList.remove('show');
+  stars.style.display = 'none';
+  evoInProgress = false;
+  document.getElementById('answer-input').focus();
+}
+
+socket.on('evolution', data => {
+  const petName = document.getElementById('g-name').textContent.replace(/^~\s*/, '').replace(/\s*the.*$/, '') || 'Your pet';
+  playEvolution(data.old, data.new, petName);
 });
 
 function submitAnswer() {
