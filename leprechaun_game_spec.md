@@ -119,23 +119,52 @@ A sparkling winged unicorn appears on a special rainbow-colored cloud platform. 
 
 Level 2 is 3x longer than Level 1 (~30 cloud platforms across ~7000px). It introduces moving clouds, Mario-style crow enemies, and the unicorn power-up, all set against a sunset sky.
 
-#### Milestone 2A — Level System & Level 2 Base Layout
-**Goal:** Multi-level architecture and a playable Level 2 with static + moving clouds and a sunset background.
+#### Milestone 2A — Level System & Level 2 Base Layout (3 sub-parts)
+
+##### 2A-i — Level System & Progression
+**Goal:** Refactor the single-level game into a multi-level architecture.
 
 **Deliverables:**
-- Level system: `LEVELS` array with per-level config (clouds, pot position, world width, background type, obstacles, unicorns)
-- `currentLevel` state variable; `resetLevel()` loads the active level's data
-- Level 2 cloud layout: ~30 platforms across ~7000px of world
-  - Mix of large, medium, and small clouds
-  - ~10 clouds drift horizontally (sinusoidal, varying speed/range)
-  - ~4 clouds bob vertically
-  - Remaining clouds are static rest points between moving sections
-- Moving-cloud player carry: when the leprechaun stands on a moving cloud, they move with it
-- Sunset background: gradient sky (deep purple → pink → orange → gold), silhouetted hills, warm-tinted decorative clouds
-- Per-level rainbow arc and pot of gold positioned at the Level 2 final cloud
+- `LEVELS` array with per-level config objects (clouds, pot position, final cloud, world width, background type)
+- `currentLevel` index variable (0-based)
+- `resetLevel()` reads from `LEVELS[currentLevel]` instead of hardcoded constants
+- Level 1 data extracted from existing constants into `LEVELS[0]` — no gameplay change
+- Level 2 stub entry in `LEVELS[1]` (can reuse Level 1 layout temporarily)
+- "Level Complete" transition screen: shown when pot of gold is reached if more levels remain; press Space to advance
+- "Game Complete" screen: shown after final level
+- Lives persist across levels; game over resets to Level 1
 - Level indicator in HUD ("Level 1", "Level 2")
 
-**Done when:** Player can complete Level 1, transition to Level 2, and navigate 30 platforms (some moving) across the longer world with the sunset background.
+**Done when:** Player beats Level 1, sees "Level Complete", presses Space, and loads Level 2 (stub). Existing Level 1 gameplay is unchanged.
+
+##### 2A-ii — Level 2 Layout & Sunset Background
+**Goal:** Build the actual Level 2 world — 3x longer with a sunset sky.
+
+**Deliverables:**
+- Level 2 cloud layout: ~30 platforms across ~7000px
+  - All static for now (moving clouds come in 2A-iii)
+  - Mix of large (w:180-250), medium (w:120-160), and small (w:90-120) clouds
+  - Gaps slightly wider than Level 1, with occasional rest platforms
+- Sunset background function: gradient sky (deep purple → rose → orange → gold), darker hills, warm-tinted decorative clouds
+- Background selection based on `level.bgType` ('day' or 'sunset')
+- Per-level rainbow arc and pot of gold positioned at Level 2's final cloud
+- Level 2 `worldWidth` set to ~7500
+
+**Done when:** Player can play through Level 2's full 30-platform layout with the sunset background and reach the pot of gold.
+
+##### 2A-iii — Moving Clouds & Player Carry
+**Goal:** Make selected Level 2 clouds move and carry the player with them.
+
+**Deliverables:**
+- Cloud movement system: each cloud can have optional `moveType` ('h' or 'v'), `moveRange` (pixels), and `moveSpeed` (multiplier)
+- `updateClouds()` function: tracks `originX`/`originY`, applies sinusoidal movement, records per-frame `dx`/`dy` deltas
+- Player carry: when standing on a moving cloud, the player's position updates by the cloud's `dx`/`dy` each frame
+- ~10 Level 2 clouds set to drift horizontally (range 40-80px, speed 1.0-2.0)
+- ~4 Level 2 clouds set to bob vertically (range 25-45px, speed 0.8-1.5)
+- Static clouds remain as rest points between moving sections
+- Level 1 clouds remain fully static (no movement config)
+
+**Done when:** Moving clouds drift/bob smoothly, the player rides them without slipping off, and the mix of static + moving platforms feels like a step up in difficulty from Level 1.
 
 #### Milestone 2B — Crow Enemies (Mario-style obstacles)
 **Goal:** Add patrolling crow enemies to Level 2 that the player can stomp or be hurt by.
