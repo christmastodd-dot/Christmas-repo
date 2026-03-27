@@ -11,8 +11,11 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html, body { overflow: hidden; touch-action: none; }
   body { background: #1a1a2e; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; font-family: monospace; }
+  #game-wrap { position: relative; display: flex; align-items: center; justify-content: center; }
   canvas { display: block; image-rendering: pixelated; border: 3px solid #444; cursor: pointer; }
   #instructions { color: #aaa; font-size: 13px; margin-top: 6px; text-align: center; }
+
+  /* touch controls — below canvas by default (portrait) */
   #touch-controls {
     display: none;
     width: 100%; max-width: 800px;
@@ -20,13 +23,15 @@
     justify-content: space-between;
     align-items: center;
     gap: 10px;
+    padding: 0 10px;
     -webkit-user-select: none; user-select: none;
+    z-index: 10;
   }
   .touch-btn {
     background: rgba(255,255,255,0.15);
     border: 2px solid rgba(255,255,255,0.3);
     border-radius: 16px;
-    color: #fff;
+    color: rgba(255,255,255,0.7);
     font-family: monospace;
     font-size: 28px;
     font-weight: bold;
@@ -36,15 +41,42 @@
     -webkit-user-select: none; user-select: none;
     touch-action: none;
   }
-  .touch-btn:active { background: rgba(255,255,255,0.35); }
+  .touch-btn:active { background: rgba(255,255,255,0.35); color: #fff; }
   .touch-btn-arrow { width: 72px; height: 72px; }
   .touch-btn-jump  { flex: 1; height: 72px; font-size: 22px; }
   .touch-group { display: flex; gap: 10px; }
+
+  /* landscape overlay mode */
+  @media (orientation: landscape) and (max-height: 500px) {
+    body { justify-content: flex-start; }
+    #instructions { display: none !important; }
+    #game-wrap { width: 100vw; height: 100vh; }
+    canvas { border: none; }
+    #touch-controls {
+      position: absolute !important;
+      bottom: 12px;
+      left: 0; right: 0;
+      margin: 0 auto;
+      max-width: 100%;
+      padding: 0 16px;
+    }
+    .touch-btn {
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(255,255,255,0.18);
+      color: rgba(255,255,255,0.45);
+      height: 60px !important;
+    }
+    .touch-btn:active {
+      background: rgba(255,255,255,0.22);
+      color: rgba(255,255,255,0.8);
+    }
+    .touch-btn-arrow { width: 64px; }
+  }
 </style>
 </head>
 <body>
+<div id="game-wrap">
 <canvas id="game" width="800" height="500"></canvas>
-<div id="instructions">Arrow Keys / WASD to move &nbsp;|&nbsp; Space / Up to jump &nbsp;|&nbsp; Double-jump allowed</div>
 <div id="touch-controls">
   <div class="touch-group">
     <button class="touch-btn touch-btn-arrow" id="btn-left">&larr;</button>
@@ -52,6 +84,8 @@
   </div>
   <button class="touch-btn touch-btn-jump" id="btn-jump">JUMP</button>
 </div>
+</div>
+<div id="instructions">Arrow Keys / WASD to move &nbsp;|&nbsp; Space / Up to jump &nbsp;|&nbsp; Double-jump allowed</div>
 <script>
 // ─────────────────────────────────────────────
 //  CANVAS SETUP & RESPONSIVE SCALING
@@ -70,16 +104,26 @@ if (isTouchDevice) {
   instrDiv.style.display = 'none';
 }
 
-// responsive canvas: fit to screen width, maintain aspect ratio
+// responsive canvas: fit to screen, landscape fills viewport
 function resizeCanvas() {
-  const maxW = Math.min(window.innerWidth - 6, 800);
-  const scale = maxW / W;
-  canvas.style.width  = (W * scale) + 'px';
-  canvas.style.height = (H * scale) + 'px';
-  if (touchControls) touchControls.style.maxWidth = (W * scale) + 'px';
+  const landscape = window.innerWidth > window.innerHeight && window.innerHeight <= 500;
+  if (landscape && isTouchDevice) {
+    // fill viewport in landscape
+    const scaleW = window.innerWidth / W;
+    const scaleH = window.innerHeight / H;
+    const scale = Math.min(scaleW, scaleH);
+    canvas.style.width  = (W * scale) + 'px';
+    canvas.style.height = (H * scale) + 'px';
+  } else {
+    const maxW = Math.min(window.innerWidth - 6, 800);
+    const scale = maxW / W;
+    canvas.style.width  = (W * scale) + 'px';
+    canvas.style.height = (H * scale) + 'px';
+  }
 }
 resizeCanvas();
 window.addEventListener('resize', resizeCanvas);
+window.addEventListener('orientationchange', () => setTimeout(resizeCanvas, 100));
 
 // ─────────────────────────────────────────────
 //  TOUCH INPUT
