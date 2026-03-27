@@ -203,14 +203,13 @@ function startGame() {
 function resetBall(dir) {
   ball.x = W / 2;
   ball.y = H / 2;
-  const angle = (Math.random() * 0.8 - 0.4); // narrow angle
-  // Ball speed: easy=base, medium=+40%, hard=+100%
+  // Ball speed: easy=base, medium=+40%, hard=+110%
   let ballSpeedScale = 1;
   if (speedMult === 1) ballSpeedScale = 1.4;
-  else if (speedMult >= 1.4) ballSpeedScale = 2.0;
+  else if (speedMult >= 1.4) ballSpeedScale = 2.1;
   ball.speed = BALL_BASE_SPEED * ballSpeedScale;
-  ball.vx = ball.speed * dir * Math.cos(angle);
-  ball.vy = ball.speed * Math.sin(angle);
+  ball.vx = ball.speed * dir;
+  ball.vy = 0;
 }
 
 // Input controls
@@ -395,8 +394,8 @@ function moveCpu() {
       if (targetY < 0) targetY = -targetY;
       if (targetY > H) targetY = 2 * H - targetY;
     }
-    // Add inaccuracy — more on easy, less on hard
-    const errorRange = (1.5 - speedMult) * 100; // easy: ~90px error, medium: ~50px, hard: ~10px
+    // Add inaccuracy — more on easy, moderate on hard
+    const errorRange = (1.5 - speedMult) * 100 + 30; // easy: ~120px, medium: ~80px, hard: ~40px
     targetY += (Math.sin(Date.now() * 0.003) * errorRange);
   } else {
     // Ball heading away — drift lazily toward center
