@@ -3,7 +3,98 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Mountain Climb">
+<link rel="apple-touch-icon" id="apple-icon" href="">
 <title>Mountain Climb</title>
+<script>
+// Generate 180x180 goat head icon for iOS home screen
+(function() {
+  const s = 180, c = document.createElement('canvas');
+  c.width = s; c.height = s;
+  const x = c.getContext('2d');
+  const cx = s/2, cy = s/2 + 8;
+
+  // Background — green circle
+  x.fillStyle = '#2d6e28';
+  x.beginPath(); x.arc(s/2, s/2, s/2, 0, Math.PI*2); x.fill();
+
+  // --- Goat head ---
+  // Head shape — rectangular snout
+  x.fillStyle = '#ebe1cd';
+  x.beginPath();
+  x.roundRect(cx - 32, cy - 28, 64, 52, 14);
+  x.fill();
+
+  // Snout — lighter, protruding
+  x.fillStyle = '#d8cebb';
+  x.beginPath();
+  x.roundRect(cx - 18, cy + 8, 36, 24, 10);
+  x.fill();
+
+  // Nostrils
+  x.fillStyle = '#a09080';
+  x.beginPath(); x.ellipse(cx - 8, cy + 20, 4, 3, 0, 0, Math.PI*2); x.fill();
+  x.beginPath(); x.ellipse(cx + 8, cy + 20, 4, 3, 0, 0, Math.PI*2); x.fill();
+
+  // Eyes — golden with horizontal pupils
+  for (const side of [-1, 1]) {
+    const ex = cx + side * 18, ey = cy - 10;
+    x.fillStyle = '#c8a050';
+    x.beginPath(); x.ellipse(ex, ey, 10, 10, 0, 0, Math.PI*2); x.fill();
+    x.fillStyle = '#1a0a00';
+    x.beginPath(); x.ellipse(ex, ey, 9, 5, 0, 0, Math.PI*2); x.fill();
+    x.fillStyle = 'rgba(255,255,255,0.35)';
+    x.beginPath(); x.arc(ex - 3, ey - 4, 3, 0, Math.PI*2); x.fill();
+  }
+
+  // Ears — floppy, angled outward
+  for (const side of [-1, 1]) {
+    x.fillStyle = '#ebe1cd';
+    x.beginPath();
+    x.ellipse(cx + side * 38, cy - 8, 14, 8, side * 0.6, 0, Math.PI*2);
+    x.fill();
+    x.fillStyle = '#e0c0b0';
+    x.beginPath();
+    x.ellipse(cx + side * 38, cy - 8, 9, 5, side * 0.6, 0, Math.PI*2);
+    x.fill();
+  }
+
+  // Horns — swept back, curved
+  x.lineCap = 'round';
+  for (const side of [-1, 1]) {
+    x.strokeStyle = '#a08850';
+    x.lineWidth = 8;
+    x.beginPath();
+    x.moveTo(cx + side * 20, cy - 28);
+    x.bezierCurveTo(cx + side * 28, cy - 58, cx + side * 42, cy - 62, cx + side * 48, cy - 46);
+    x.stroke();
+    x.strokeStyle = '#c0a860';
+    x.lineWidth = 5;
+    x.beginPath();
+    x.moveTo(cx + side * 20, cy - 28);
+    x.bezierCurveTo(cx + side * 28, cy - 56, cx + side * 40, cy - 60, cx + side * 46, cy - 46);
+    x.stroke();
+  }
+  x.lineCap = 'butt';
+
+  // Beard
+  x.fillStyle = '#d8d0c0';
+  x.beginPath();
+  x.moveTo(cx - 6, cy + 30);
+  x.quadraticCurveTo(cx, cy + 48, cx + 6, cy + 30);
+  x.closePath(); x.fill();
+
+  // Angry eyebrows (gives character)
+  x.strokeStyle = '#4a3020'; x.lineWidth = 4; x.lineCap = 'round';
+  x.beginPath(); x.moveTo(cx - 28, cy - 16); x.lineTo(cx - 10, cy - 22); x.stroke();
+  x.beginPath(); x.moveTo(cx + 28, cy - 16); x.lineTo(cx + 10, cy - 22); x.stroke();
+  x.lineCap = 'butt';
+
+  // Set as apple-touch-icon
+  document.getElementById('apple-icon').href = c.toDataURL('image/png');
+})();
+</script>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { background: #1a1a2e; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; overflow: hidden; touch-action: none; }
