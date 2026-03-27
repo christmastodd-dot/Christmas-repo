@@ -6,7 +6,7 @@ from tamagotchi.config import (
     STAGES, STAGE_THRESHOLDS,
     STAT_MAX, STAT_START, CARE_AMOUNTS, DECAY_PER_TICK, CARE_COOLDOWN,
     COINS_PER_CORRECT, COINS_STREAK_BONUS, MATH_STREAK_THRESHOLD,
-    SHOP_ITEMS,
+    SHOP_ITEMS, SLEEP_DURATION, SLEEP_ENERGY_PER_TICK,
 )
 
 
@@ -33,6 +33,10 @@ class Pet:
         self.energy = STAT_START
         self.last_care = {}  # action -> timestamp of last use
 
+        # Sleep state
+        self.sleeping = False
+        self.sleep_until = 0
+
         # Economy
         self.coins = 0
         self.inventory = {}  # item_id -> quantity
@@ -44,6 +48,8 @@ class Pet:
     def get_mood(self):
         if self.stage == "egg":
             return "egg"
+        if self.sleeping:
+            return "sleeping"
         # Check for specific unmet needs (threshold: below 35)
         if self.hunger < 35:
             return "hungry"
@@ -68,19 +74,27 @@ class Pet:
         if action not in CARE_AMOUNTS:
             return False, "Unknown action."
 
+        # Check sleeping state before cooldown
+        if action == "sleep" and self.sleeping:
+            return False, f"{self.name} is already sleeping!"
+
         now = time.time()
         last = self.last_care.get(action, 0)
         remaining = CARE_COOLDOWN - (now - last)
         if remaining > 0:
             return False, f"Wait {int(remaining + 1)}s before doing that again."
 
+        # Special handling for sleep
+        if action == "sleep":
+            self.sleeping = True
+            self.sleep_until = now + SLEEP_DURATION
+            self.last_care[action] = now
+            return True, f"{self.name} curls up for a nap... Zzz"
+
         amounts = CARE_AMOUNTS[action]
-        changed = []
         for stat, amount in amounts.items():
             old = getattr(self, stat)
-            new = min(STAT_MAX, old + amount)
-            setattr(self, stat, new)
-            changed.append(stat)
+            setattr(self, stat, min(STAT_MAX, old + amount))
 
         self.last_care[action] = now
 
@@ -88,7 +102,6 @@ class Pet:
             "feed": f"Yum! {self.name} gobbles it up!",
             "play": f"{self.name} bounces around happily!",
             "clean": f"{self.name} is squeaky clean!",
-            "sleep": f"{self.name} takes a cozy nap... Zzz",
         }
         return True, messages.get(action, "Done!")
 
@@ -96,9 +109,24 @@ class Pet:
         """Decay stats over time. Called periodically."""
         if self.stage == "egg":
             return
-        for stat, amount in DECAY_PER_TICK.items():
-            old = getattr(self, stat)
-            setattr(self, stat, max(0, old - amount))
+
+        # Check if sleep is over
+        if self.sleeping and time.time() >= self.sleep_until:
+            self.sleeping = False
+
+        if self.sleeping:
+            # Recover energy while sleeping
+            self.energy = min(STAT_MAX, self.energy + SLEEP_ENERGY_PER_TICK)
+            # Still decay other stats (but not energy)
+            for stat, amount in DECAY_PER_TICK.items():
+                if stat == "energy":
+                    continue
+                old = getattr(self, stat)
+                setattr(self, stat, max(0, old - amount))
+        else:
+            for stat, amount in DECAY_PER_TICK.items():
+                old = getattr(self, stat)
+                setattr(self, stat, max(0, old - amount))
 
     def next_stage(self):
         idx = STAGES.index(self.stage)
@@ -182,6 +210,7 @@ class Pet:
             "hygiene": self.hygiene,
             "energy": self.energy,
             "coins": self.coins,
+            "sleeping": self.sleeping,
         }
 
     def to_dict(self):
@@ -200,6 +229,8 @@ class Pet:
             "energy": self.energy,
             "coins": self.coins,
             "inventory": dict(self.inventory),
+            "sleeping": self.sleeping,
+            "sleep_until": self.sleep_until,
             "save_time": time.time(),
         }
 
@@ -219,4 +250,6 @@ class Pet:
         pet.energy = data.get("energy", STAT_START)
         pet.coins = data.get("coins", 0)
         pet.inventory = data.get("inventory", {})
+        pet.sleeping = data.get("sleeping", False)
+        pet.sleep_until = data.get("sleep_until", 0)
         return pet

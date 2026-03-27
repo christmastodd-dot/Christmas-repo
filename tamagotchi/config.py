@@ -36,8 +36,12 @@ CARE_AMOUNTS = {
     "feed": {"hunger": 30},
     "play": {"happiness": 30},
     "clean": {"hygiene": 35},
-    "sleep": {"energy": 35},
+    "sleep": {},  # sleep is handled specially — gradual recovery
 }
+
+# Sleep: duration in seconds, energy restored per tick while sleeping
+SLEEP_DURATION = 90  # 3 ticks worth (90s at 30s tick interval)
+SLEEP_ENERGY_PER_TICK = 12  # recovers ~36 energy over full nap
 
 # Stat decay per tick (30-second intervals)
 DECAY_PER_TICK = {
