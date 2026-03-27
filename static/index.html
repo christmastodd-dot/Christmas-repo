@@ -328,8 +328,8 @@ function drawPlayer(sx, sy, right, flash, moving, walkOffset) {
   c.beginPath(); c.moveTo(sx - f*5, sy - 36); c.lineTo(sx - f*14, sy - 32); c.stroke();
   c.beginPath(); c.moveTo(sx + f*5, sy - 36); c.lineTo(sx - f*14, sy - 24); c.stroke();
 
-  // ── 2. Far arm (behind torso) ────────────────────────────────────────────
-  drawArm(c, sx - f*12, sy - 32, farArmAngle, f);
+  // ── 2. Near arm (behind torso) ───────────────────────────────────────────
+  drawArm(c, sx - f*12, sy - 32, nearArmAngle, f);
 
   // ── 3. Torso: jacket + lederhosen ────────────────────────────────────────
   c.fillStyle = 'rgb(80,140,80)';
@@ -351,21 +351,9 @@ function drawPlayer(sx, sy, right, flash, moving, walkOffset) {
   // ── 4. Legs (rotate from hip) ────────────────────────────────────────────
   const hipY = sy - 2;
 
-  // Far leg (drawn first, behind)
+  // Near leg (drawn first, behind)
   c.save();
   c.translate(sx - f*5, hipY);
-  c.rotate(farLegAngle);
-  c.fillStyle = 'rgb(230,195,160)';
-  c.beginPath(); c.roundRect(-4, 0, 8, 10, 2); c.fill();
-  c.fillStyle = 'rgb(90,60,35)';
-  c.beginPath(); c.roundRect(-5, 9, 11, 7, 2); c.fill();
-  c.fillStyle = 'rgb(50,40,30)';
-  c.fillRect(-6, 14, 12, 3);
-  c.restore();
-
-  // Near leg (drawn second, in front)
-  c.save();
-  c.translate(sx + f*5, hipY);
   c.rotate(nearLegAngle);
   c.fillStyle = 'rgb(230,195,160)';
   c.beginPath(); c.roundRect(-4, 0, 8, 10, 2); c.fill();
@@ -375,8 +363,20 @@ function drawPlayer(sx, sy, right, flash, moving, walkOffset) {
   c.fillRect(-6, 14, 12, 3);
   c.restore();
 
-  // ── 5. Near arm (in front of torso) ──────────────────────────────────────
-  drawArm(c, sx + f*12, sy - 32, nearArmAngle, f);
+  // Far leg (drawn second, in front)
+  c.save();
+  c.translate(sx + f*5, hipY);
+  c.rotate(farLegAngle);
+  c.fillStyle = 'rgb(230,195,160)';
+  c.beginPath(); c.roundRect(-4, 0, 8, 10, 2); c.fill();
+  c.fillStyle = 'rgb(90,60,35)';
+  c.beginPath(); c.roundRect(-5, 9, 11, 7, 2); c.fill();
+  c.fillStyle = 'rgb(50,40,30)';
+  c.fillRect(-6, 14, 12, 3);
+  c.restore();
+
+  // ── 5. Far arm (in front of torso) ───────────────────────────────────────
+  drawArm(c, sx + f*12, sy - 32, farArmAngle, f);
 
   // ── 6. Head ──────────────────────────────────────────────────────────────
   c.fillStyle = 'rgb(245,205,170)';
