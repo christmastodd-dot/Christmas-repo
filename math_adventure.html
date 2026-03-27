@@ -437,97 +437,101 @@
 
   /* Landscape orientation */
   @media (orientation: landscape) {
-    body { align-items: flex-start; }
-    .screen { padding: 12px 20px; max-width: 100%; }
+    body { align-items: center; }
+    .screen { padding: 16px 40px; max-width: 100%; justify-content: center; }
 
-    /* START: side-scroll friendly grid */
-    .title { font-size: clamp(1.4rem, 4vh, 2.2rem); margin-bottom: 4px; }
-    .subtitle { font-size: clamp(0.8rem, 2vh, 1rem); margin-bottom: 12px; }
+    /* START: wider grid, generous sizing */
+    .title { font-size: clamp(1.8rem, 6vh, 2.8rem); margin-bottom: 6px; }
+    .subtitle { font-size: clamp(1rem, 3vh, 1.3rem); margin-bottom: 16px; }
     .mode-grid {
       grid-template-columns: repeat(5, 1fr);
-      max-width: 100%;
-      gap: 10px;
-      margin-bottom: 12px;
+      max-width: 900px;
+      gap: 14px;
+      margin-bottom: 16px;
     }
-    .mode-btn { padding: 10px 6px; gap: 3px; border-radius: 14px; }
-    .mode-icon { font-size: clamp(1.4rem, 4vh, 2rem); }
-    .mode-label { font-size: clamp(0.6rem, 1.5vh, 0.75rem); }
-    .view-leaderboard-btn { padding: 8px 20px; font-size: 0.9rem; }
+    .mode-btn { padding: 14px 10px; gap: 6px; border-radius: 16px; font-size: clamp(0.95rem, 2.5vh, 1.2rem); }
+    .mode-icon { font-size: clamp(1.8rem, 6vh, 2.8rem); }
+    .mode-label { font-size: clamp(0.7rem, 2vh, 0.9rem); }
+    .view-leaderboard-btn { padding: 10px 24px; font-size: 1rem; }
 
-    /* GAME: problem + answers side by side */
-    .game-header { margin-bottom: 4px; }
-    .progress-dots { margin-bottom: 4px; }
-    .streak-display { height: 18px; font-size: 0.9rem; margin-bottom: 0; }
-    .dot { width: 10px; height: 10px; }
+    /* GAME: problem + answers side by side, centered */
+    .game-header { margin-bottom: 8px; }
+    .progress-dots { margin-bottom: 8px; }
+    .streak-display { height: 24px; font-size: 1.1rem; margin-bottom: 4px; }
+    .dot { width: 12px; height: 12px; }
     .problem-card {
       flex-direction: row;
-      padding: 16px 20px;
-      border-radius: 18px;
-      max-width: 100%;
-      gap: 20px;
+      padding: 28px 40px;
+      border-radius: 24px;
+      max-width: 700px;
+      gap: 40px;
       align-items: center;
       justify-content: center;
     }
     .problem-text {
-      font-size: clamp(2rem, 6vh, 3rem);
+      font-size: clamp(2.5rem, 8vh, 4rem);
       margin-bottom: 0;
       white-space: nowrap;
     }
     .answer-grid {
       grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      max-width: 260px;
+      gap: 12px;
+      max-width: 300px;
     }
     .answer-btn {
-      padding: clamp(8px, 2vh, 14px);
-      font-size: clamp(1.1rem, 3.5vh, 1.6rem);
-      border-radius: 14px;
+      padding: clamp(12px, 3vh, 20px);
+      font-size: clamp(1.4rem, 5vh, 2rem);
+      border-radius: 16px;
     }
 
-    /* RESULTS: compact horizontal layout */
-    .results-card { padding: 16px 20px; border-radius: 18px; max-width: 100%; }
-    .results-emoji { font-size: clamp(2rem, 6vh, 3rem); margin-bottom: 4px; }
-    .results-title { font-size: clamp(1.2rem, 3.5vh, 1.6rem); margin-bottom: 2px; }
-    .results-subtitle { font-size: clamp(0.8rem, 2vh, 1rem); margin-bottom: 10px; }
-    .stars-earned { font-size: clamp(1.2rem, 4vh, 1.8rem); margin-bottom: 8px; letter-spacing: 3px; }
-    .results-stats { gap: 8px; margin-bottom: 10px; }
-    .result-stat { padding: 8px 6px; border-radius: 10px; }
-    .result-stat .num { font-size: clamp(1rem, 3vh, 1.4rem); }
-    .result-stat .label { font-size: 0.7rem; }
-    .play-again-btn { padding: 10px 28px; font-size: clamp(0.9rem, 2.5vh, 1.1rem); margin: 4px; }
-    .speed-time { font-size: clamp(1rem, 3vh, 1.4rem); margin-bottom: 8px; }
-    .name-input { padding: 8px 12px; font-size: 0.95rem; width: 130px; }
-    .save-score-btn { padding: 8px 14px; font-size: 0.95rem; }
+    /* RESULTS: centered, more spacious */
+    .results-card { padding: 24px 30px; border-radius: 22px; max-width: 600px; }
+    .results-emoji { font-size: clamp(2.5rem, 8vh, 4rem); margin-bottom: 6px; }
+    .results-title { font-size: clamp(1.5rem, 5vh, 2rem); margin-bottom: 4px; }
+    .results-subtitle { font-size: clamp(0.95rem, 3vh, 1.2rem); margin-bottom: 14px; }
+    .stars-earned { font-size: clamp(1.6rem, 5vh, 2.2rem); margin-bottom: 12px; letter-spacing: 4px; }
+    .results-stats { gap: 12px; margin-bottom: 14px; }
+    .result-stat { padding: 12px 8px; border-radius: 12px; }
+    .result-stat .num { font-size: clamp(1.3rem, 4vh, 1.8rem); }
+    .result-stat .label { font-size: 0.8rem; }
+    .play-again-btn { padding: 12px 34px; font-size: clamp(1rem, 3vh, 1.3rem); margin: 5px; }
+    .speed-time { font-size: clamp(1.2rem, 4vh, 1.6rem); margin-bottom: 10px; }
+    .name-input { padding: 10px 14px; font-size: 1rem; width: 150px; }
+    .save-score-btn { padding: 10px 18px; font-size: 1rem; }
 
     /* Leaderboard */
-    .leaderboard-card { padding: 16px 20px; max-width: 100%; }
-    .leaderboard-title { font-size: clamp(1.2rem, 3.5vh, 1.6rem); margin-bottom: 10px; }
-    .lb-tabs { margin-bottom: 10px; }
-    .lb-tab { padding: 6px 12px; }
+    .leaderboard-card { padding: 20px 28px; max-width: 600px; }
+    .leaderboard-title { font-size: clamp(1.4rem, 4vh, 1.8rem); margin-bottom: 14px; }
+    .lb-tabs { margin-bottom: 12px; }
+    .lb-tab { padding: 8px 16px; }
   }
 
-  /* Very short landscape (phones) — extra compact */
+  /* Very short landscape (phones) — tighter but still readable */
   @media (orientation: landscape) and (max-height: 420px) {
-    .screen { padding: 6px 16px; }
-    .title { font-size: 1.3rem; }
-    .subtitle { font-size: 0.75rem; margin-bottom: 6px; }
-    .mode-grid { gap: 6px; margin-bottom: 6px; }
-    .mode-btn { padding: 6px 4px; gap: 2px; border-radius: 10px; font-size: 0.8rem; }
-    .mode-icon { font-size: 1.2rem; }
+    .screen { padding: 10px 30px; }
+    .title { font-size: 1.5rem; }
+    .subtitle { font-size: 0.85rem; margin-bottom: 8px; }
+    .mode-grid { gap: 8px; margin-bottom: 8px; }
+    .mode-btn { padding: 8px 6px; gap: 3px; border-radius: 12px; font-size: 0.85rem; }
+    .mode-icon { font-size: 1.5rem; }
     .mode-label { display: none; }
-    .game-header { margin-bottom: 2px; }
-    .progress-dots { margin-bottom: 2px; gap: 3px; }
-    .dot { width: 8px; height: 8px; }
-    .streak-display { height: 14px; font-size: 0.75rem; }
-    .problem-card { padding: 10px 14px; gap: 14px; }
-    .problem-text { font-size: 1.8rem; }
-    .answer-grid { gap: 6px; max-width: 200px; }
-    .answer-btn { padding: 6px; font-size: 1.1rem; border-radius: 10px; }
-    .stat-badge { padding: 4px 10px; font-size: 0.85rem; min-width: 44px; }
-    .back-btn { padding: 4px 10px; font-size: 0.8rem; border-radius: 10px; }
-    .hint-btn { padding: 4px 10px; font-size: 0.8rem; border-radius: 10px; }
-    .timer-bar { height: 12px; margin: 0 8px; }
-    .view-leaderboard-btn { padding: 6px 14px; font-size: 0.8rem; margin-top: 2px; }
+    .game-header { margin-bottom: 4px; }
+    .progress-dots { margin-bottom: 4px; gap: 4px; }
+    .dot { width: 10px; height: 10px; }
+    .streak-display { height: 18px; font-size: 0.85rem; }
+    .problem-card { padding: 14px 24px; gap: 24px; }
+    .problem-text { font-size: 2.2rem; }
+    .answer-grid { gap: 8px; max-width: 240px; }
+    .answer-btn { padding: 8px; font-size: 1.3rem; border-radius: 12px; }
+    .stat-badge { padding: 6px 12px; font-size: 0.9rem; min-width: 50px; }
+    .back-btn { padding: 6px 12px; font-size: 0.85rem; border-radius: 12px; }
+    .hint-btn { padding: 6px 12px; font-size: 0.85rem; border-radius: 12px; }
+    .timer-bar { height: 14px; margin: 0 10px; }
+    .view-leaderboard-btn { padding: 8px 16px; font-size: 0.85rem; margin-top: 4px; }
+    .results-card { padding: 16px 20px; }
+    .results-emoji { font-size: 2.2rem; }
+    .results-title { font-size: 1.3rem; }
+    .play-again-btn { padding: 8px 24px; font-size: 0.95rem; }
   }
 
   /* Times table hint */
