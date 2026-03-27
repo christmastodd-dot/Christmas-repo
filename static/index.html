@@ -280,16 +280,15 @@ function drawClouds(camWX, camWY, progress) {
   const px = 0.15;
   const ox = -camWX * px;
   const oy = -camWY * px;
-  const numClouds = Math.max(2, Math.floor(8 * (1 - progress * 0.7)));
   const rng = seededRandom(42);
-  for (let i = 0; i < numClouds; i++) {
+  const alpha = (1 - progress * 0.5) * 0.78;
+  for (let i = 0; i < 8; i++) {
     const cx = rng() * 1600;
     const cy = 30 + rng() * 170;
     const w = 80 + rng() * 80;
     const h = 25 + rng() * 25;
     const sx = ((cx + ox) % (W + 300) + (W + 300)) % (W + 300) - 150;
     const sy = cy + oy * 0.2;
-    const alpha = (1 - progress * 0.5) * 0.78;
     ctx.fillStyle = `rgba(255,255,255,${alpha})`;
     ctx.beginPath(); ctx.ellipse(sx + w/2, sy + h/2, w/2, h/2, 0, 0, Math.PI*2); ctx.fill();
     ctx.beginPath(); ctx.ellipse(sx + w*0.5, sy + h*0.2, w*0.3, h*0.4, 0, 0, Math.PI*2); ctx.fill();
@@ -366,17 +365,14 @@ function drawTerrain(camWX, camWY, progress) {
 
 function drawTrees(camWX, camWY, progress) {
   if (progress > 0.62) return;
-  const density = Math.max(0, 1 - progress * 1.6);
   const rng = seededRandom(17);
   for (let i = 0; i < 30; i++) {
     const wx = i * 340 + (rng() * 80 - 40);
     // Always root trees exactly on the trail surface
     const wy = trailY(wx);
-    // consume a rng call so sequence stays stable regardless of visibility
-    const skipChance = rng();
+    // Consume rng call to keep sequence stable regardless of visibility
+    rng();
     const [sx, sy] = worldToScreen(wx, wy, camWX, camWY);
-    // Skip outside view OR by density — but always after consuming rng values
-    if (skipChance > density) continue;
     if (sx < -60 || sx > W + 60) continue;
     // trunk rooted at sy (trail surface)
     ctx.fillStyle = 'rgb(100,70,40)';
