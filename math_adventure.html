@@ -377,6 +377,11 @@
       <span>Challenge</span>
       <span class="mode-label">Gets harder as you go!</span>
     </button>
+    <button class="mode-btn" onclick="startGame('speed')">
+      <span class="mode-icon">⚡</span>
+      <span>Speed</span>
+      <span class="mode-label">10 questions, beat the clock!</span>
+    </button>
   </div>
 </div>
 
@@ -423,8 +428,7 @@
 </div>
 
 <script>
-  const TOTAL_QUESTIONS = 20;
-  const GAME_TIME = 600; // 10 minutes in seconds
+  let totalQuestions, gameTime;
 
   let mode, score, questionNum, streak, bestStreak, correctCount;
   let timeLeft, timerInterval;
@@ -448,19 +452,21 @@
   function startGame(m) {
     mode = m;
     lastMode = m;
+    totalQuestions = (m === 'speed') ? 10 : 20;
+    gameTime = (m === 'speed') ? 120 : 600;
     score = 0;
     questionNum = 0;
     streak = 0;
     bestStreak = 0;
     correctCount = 0;
     difficulty = 1;
-    timeLeft = GAME_TIME;
+    timeLeft = gameTime;
     results = [];
 
     // Build progress dots
     const dotsEl = document.getElementById('progressDots');
     dotsEl.innerHTML = '';
-    for (let i = 0; i < TOTAL_QUESTIONS; i++) {
+    for (let i = 0; i < totalQuestions; i++) {
       const dot = document.createElement('div');
       dot.className = 'dot';
       dotsEl.appendChild(dot);
@@ -484,7 +490,7 @@
   }
 
   function updateTimer() {
-    const pct = (timeLeft / GAME_TIME) * 100;
+    const pct = (timeLeft / gameTime) * 100;
     const fill = document.getElementById('timerFill');
     fill.style.width = pct + '%';
     fill.className = 'timer-fill' + (pct < 15 ? ' danger' : pct < 35 ? ' warning' : '');
@@ -565,10 +571,10 @@
   }
 
   function nextQuestion() {
-    if (questionNum >= TOTAL_QUESTIONS) { endGame(); return; }
+    if (questionNum >= totalQuestions) { endGame(); return; }
     questionNum++;
     answered = false;
-    document.getElementById('questionCount').textContent = questionNum + '/' + TOTAL_QUESTIONS;
+    document.getElementById('questionCount').textContent = questionNum + '/' + totalQuestions;
 
     const problem = generateProblem();
     currentAnswer = problem.answer;
@@ -652,7 +658,7 @@
 
   function endGame() {
     clearInterval(timerInterval);
-    const pct = correctCount / TOTAL_QUESTIONS;
+    const pct = correctCount / totalQuestions;
     const stars = pct >= 0.95 ? 5 : pct >= 0.8 ? 4 : pct >= 0.65 ? 3 : pct >= 0.5 ? 2 : 1;
 
     let emoji, title, subtitle;
@@ -666,7 +672,7 @@
     document.getElementById('resultsTitle').textContent = title;
     document.getElementById('resultsSubtitle').textContent = subtitle;
     document.getElementById('starsEarned').textContent = '⭐'.repeat(stars) + '☆'.repeat(5 - stars);
-    document.getElementById('resultCorrect').textContent = correctCount + '/' + TOTAL_QUESTIONS;
+    document.getElementById('resultCorrect').textContent = correctCount + '/' + totalQuestions;
     document.getElementById('resultStreak').textContent = bestStreak;
     document.getElementById('resultScore').textContent = score;
 
