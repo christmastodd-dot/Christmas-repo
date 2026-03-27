@@ -5,14 +5,17 @@ import sys
 import threading
 import time
 
-from tamagotchi.config import TICK_INTERVAL, TRICKS
+from tamagotchi.config import TICK_INTERVAL, TRICKS, SHOP_FOODS, SHOP_MEDICINE
 from tamagotchi.pet import Pet
 from tamagotchi.display import (
     render, render_menu, render_food_menu, render_trick_menu,
     render_welcome, render_memorial, clear_screen,
-    play_evolution_animation,
+    play_evolution_animation, render_minigame_menu,
+    render_inventory,
 )
 from tamagotchi.save import save_game, load_game, delete_save
+from tamagotchi.minigames import MINIGAMES
+from tamagotchi.shop import render_shop, buy_item, get_shop_items
 
 
 class Game:
@@ -21,7 +24,10 @@ class Game:
         self.message = ""
         self.running = False
         self.lock = threading.Lock()
-        self.input_mode = "main"  # "main", "food", or "trick"
+        self.input_mode = "main"
+        # Stashed data for sub-menus
+        self._shop_items = None
+        self._inventory_items = None
 
     # ── Setup ────────────────────────────────────────────────────────
 
@@ -92,12 +98,7 @@ class Game:
                     self.running = False
                     break
 
-                if self.input_mode == "food":
-                    render_food_menu()
-                elif self.input_mode == "trick":
-                    render_trick_menu(self.pet)
-                else:
-                    render_menu(self.pet)
+                self._render_submenu()
 
             try:
                 choice = input("\n  > ").strip().lower()
@@ -108,14 +109,38 @@ class Game:
             with self.lock:
                 self._handle_input(choice)
 
-    def _handle_input(self, choice):
+    def _render_submenu(self):
         if self.input_mode == "food":
-            self._handle_food(choice)
-            return
-        if self.input_mode == "trick":
-            self._handle_trick(choice)
-            return
+            render_food_menu()
+        elif self.input_mode == "trick":
+            render_trick_menu(self.pet)
+        elif self.input_mode == "minigame":
+            render_minigame_menu(self.pet)
+        elif self.input_mode == "shop":
+            self._shop_items = get_shop_items()
+            render_shop(self.pet.coins)
+        elif self.input_mode == "inventory":
+            self._inventory_items = render_inventory(self.pet)
+        else:
+            render_menu(self.pet)
 
+    # ── Input dispatch ───────────────────────────────────────────────
+
+    def _handle_input(self, choice):
+        handlers = {
+            "food": self._handle_food,
+            "trick": self._handle_trick,
+            "minigame": self._handle_minigame,
+            "shop": self._handle_shop,
+            "inventory": self._handle_inventory,
+        }
+        handler = handlers.get(self.input_mode)
+        if handler:
+            handler(choice)
+        else:
+            self._handle_main(choice)
+
+    def _handle_main(self, choice):
         if choice == "q":
             self._quit()
         elif self.pet.stage == "egg":
@@ -129,7 +154,10 @@ class Game:
             if rebellion:
                 self.message = rebellion
             elif self.pet.play():
-                self.message = f"You played with {self.pet.name}! So fun!"
+                bonus_msg = ""
+                if self.pet.inventory.ball_uses >= 0 and self.pet.inventory.has_permanent("ball"):
+                    bonus_msg = f" (Ball: {self.pet.inventory.ball_uses} boosted plays left)"
+                self.message = f"You played with {self.pet.name}! So fun!{bonus_msg}"
             else:
                 self.message = "Can't play right now."
         elif choice == "c" and self.pet.can_do("clean"):
@@ -147,6 +175,15 @@ class Game:
                 self.message = "Can't sleep right now."
         elif choice == "t" and self.pet.can_do("trick"):
             self.input_mode = "trick"
+        elif choice == "g" and self.pet.can_do("minigame"):
+            self.input_mode = "minigame"
+        elif choice == "b" and self.pet.can_do("shop"):
+            self.input_mode = "shop"
+        elif choice == "i" and self.pet.can_do("inventory"):
+            if self.pet.inventory.has_items():
+                self.input_mode = "inventory"
+            else:
+                self.message = "Your inventory is empty!"
         else:
             available = self._available_keys()
             self.message = f"Unknown command. Use {available}"
@@ -156,13 +193,10 @@ class Game:
         if choice == "0":
             self.message = "Cancelled."
             return
-
-        # Teen rebellion on feeding
         rebellion = self.pet.check_rebellion()
         if rebellion:
             self.message = rebellion
             return
-
         try:
             idx = int(choice) - 1
             name = self.pet.feed(idx)
@@ -192,6 +226,86 @@ class Game:
         except (ValueError, IndexError):
             self.message = "Invalid choice."
 
+    def _handle_minigame(self, choice):
+        self.input_mode = "main"
+        if choice == "0":
+            self.message = "Cancelled."
+            return
+        try:
+            idx = int(choice) - 1
+            if idx < 0 or idx >= len(MINIGAMES):
+                self.message = "Invalid choice."
+                return
+
+            can_play, reason = self.pet.can_play_minigame(idx)
+            if not can_play:
+                self.message = reason
+                return
+
+            # Start the minigame (deducts energy, sets cooldown)
+            self.pet.start_minigame(idx)
+            game_name, game_func = MINIGAMES[idx]
+
+            # Release lock during minigame (it has its own I/O)
+            # We need to release, play, then re-acquire to apply rewards
+            coins, happiness, summary = game_func()
+            self.pet.apply_minigame_reward(coins, happiness)
+            self.message = f"[{game_name}] {summary}"
+
+        except (ValueError, IndexError):
+            self.message = "Invalid choice."
+
+    def _handle_shop(self, choice):
+        self.input_mode = "main"
+        if choice == "0":
+            self.message = "Cancelled."
+            return
+        try:
+            idx = int(choice) - 1
+            items = self._shop_items or get_shop_items()
+            if idx < 0 or idx >= len(items):
+                self.message = "Invalid choice."
+                return
+            item = items[idx]
+            success, msg = buy_item(item, self.pet, self.pet.inventory)
+            self.message = msg
+        except (ValueError, IndexError):
+            self.message = "Invalid choice."
+
+    def _handle_inventory(self, choice):
+        self.input_mode = "main"
+        if choice == "0":
+            self.message = "Cancelled."
+            return
+        try:
+            idx = int(choice)
+            items = self._inventory_items or []
+            # Find the item by display number
+            item = None
+            for it in items:
+                if it[0] == idx:
+                    item = it
+                    break
+            if not item:
+                self.message = "Invalid choice."
+                return
+
+            num, name, qty, desc, cat, data = item
+            if cat == "food":
+                if self.pet.use_food_item(name, data["hunger"], data["happiness"]):
+                    self.message = f"{self.pet.name} ate {name}!"
+                else:
+                    self.message = "Can't use that right now."
+            elif cat == "medicine":
+                if self.pet.use_medicine_item(name, data["health"]):
+                    self.message = f"{self.pet.name} drank {name}! Health restored!"
+                else:
+                    self.message = "Can't use that right now."
+            elif cat == "perm":
+                self.message = f"{name} is a permanent item - always active!"
+        except (ValueError, IndexError):
+            self.message = "Invalid choice."
+
     def _available_keys(self):
         keys = []
         if self.pet.can_do("feed"):
@@ -204,6 +318,12 @@ class Game:
             keys.append("S")
         if self.pet.can_do("trick"):
             keys.append("T")
+        if self.pet.can_do("minigame"):
+            keys.append("G")
+        if self.pet.can_do("shop"):
+            keys.append("B")
+        if self.pet.can_do("inventory"):
+            keys.append("I")
         keys.append("Q")
         return ", ".join(keys)
 

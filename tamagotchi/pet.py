@@ -13,7 +13,10 @@ from tamagotchi.config import (
     STAGE_DECAY_MULTIPLIER, STAGE_ACTIONS,
     TEEN_REBELLION_CHANCE, REBELLION_MESSAGES,
     TRICKS, TRICK_HAPPINESS_COST, TRICK_FAIL_CHANCE,
+    MINIGAME_ENERGY_COST, MINIGAME_COOLDOWN_TICKS,
+    BALL_PLAY_BONUS,
 )
+from tamagotchi.inventory import Inventory
 
 
 class Pet:
@@ -35,6 +38,12 @@ class Pet:
         # Evolution event flag — checked and cleared by the game loop
         self.just_evolved = False
         self.evolved_from = None
+
+        # Economy
+        self.coins = 0
+        self.inventory = Inventory()
+        # Cooldowns: {game_index: ticks_remaining}
+        self.minigame_cooldowns = {}
 
     def _clamp(self, value):
         return max(STAT_MIN, min(STAT_MAX, value))
@@ -135,6 +144,12 @@ class Pet:
         if self.stats["health"] <= 0:
             self.alive = False
 
+        # Tick down minigame cooldowns
+        for key in list(self.minigame_cooldowns):
+            self.minigame_cooldowns[key] -= 1
+            if self.minigame_cooldowns[key] <= 0:
+                del self.minigame_cooldowns[key]
+
         # Check evolution
         self._try_evolve()
 
@@ -153,7 +168,12 @@ class Pet:
     def play(self):
         if not self.alive or self.sleeping or not self.can_do("play"):
             return False
-        self.stats["happiness"] = self._clamp(self.stats["happiness"] + PLAY_HAPPINESS)
+        bonus = 0
+        if self.inventory.use_ball():
+            bonus = BALL_PLAY_BONUS
+        self.stats["happiness"] = self._clamp(
+            self.stats["happiness"] + PLAY_HAPPINESS + bonus
+        )
         self.stats["energy"] = self._clamp(self.stats["energy"] - PLAY_ENERGY_COST)
         return True
 
@@ -190,6 +210,50 @@ class Pet:
         self.tricks_learned.append(trick)
         return trick, "success"
 
+    # ── Mini-games ───────────────────────────────────────────────────
+
+    def can_play_minigame(self, game_index):
+        if not self.alive or self.sleeping or not self.can_do("minigame"):
+            return False, "Can't play right now."
+        if game_index in self.minigame_cooldowns:
+            ticks = self.minigame_cooldowns[game_index]
+            return False, f"On cooldown! {ticks} ticks remaining."
+        if self.stats["energy"] < MINIGAME_ENERGY_COST:
+            return False, "Not enough energy!"
+        return True, ""
+
+    def start_minigame(self, game_index):
+        self.stats["energy"] = self._clamp(
+            self.stats["energy"] - MINIGAME_ENERGY_COST
+        )
+        self.minigame_cooldowns[game_index] = MINIGAME_COOLDOWN_TICKS
+
+    def apply_minigame_reward(self, coins, happiness_delta):
+        self.coins += coins
+        if happiness_delta:
+            self.stats["happiness"] = self._clamp(
+                self.stats["happiness"] + happiness_delta
+            )
+
+    # ── Inventory usage ──────────────────────────────────────────────
+
+    def use_food_item(self, name, hunger_boost, happiness_boost):
+        if not self.alive or self.sleeping:
+            return False
+        if not self.inventory.use_consumable(name):
+            return False
+        self.stats["hunger"] = self._clamp(self.stats["hunger"] + hunger_boost)
+        self.stats["happiness"] = self._clamp(self.stats["happiness"] + happiness_boost)
+        return True
+
+    def use_medicine_item(self, name, health_boost):
+        if not self.alive or self.sleeping:
+            return False
+        if not self.inventory.use_consumable(name):
+            return False
+        self.stats["health"] = self._clamp(self.stats["health"] + health_boost)
+        return True
+
     # ── Serialization ────────────────────────────────────────────────
 
     def to_dict(self):
@@ -204,6 +268,9 @@ class Pet:
             "stage": self.stage,
             "stage_ticks": self.stage_ticks,
             "tricks_learned": self.tricks_learned,
+            "coins": self.coins,
+            "inventory": self.inventory.to_dict(),
+            "minigame_cooldowns": self.minigame_cooldowns,
             "save_time": time.time(),
         }
 
@@ -219,6 +286,12 @@ class Pet:
         pet.stage = data.get("stage", "child")
         pet.stage_ticks = data.get("stage_ticks", 0)
         pet.tricks_learned = data.get("tricks_learned", [])
+        pet.coins = data.get("coins", 0)
+        if "inventory" in data:
+            pet.inventory = Inventory.from_dict(data["inventory"])
+        pet.minigame_cooldowns = {
+            int(k): v for k, v in data.get("minigame_cooldowns", {}).items()
+        }
         pet.last_tick_time = time.time()
 
         # Apply offline decay

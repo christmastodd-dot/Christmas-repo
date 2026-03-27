@@ -4,7 +4,10 @@ import os
 import shutil
 import time
 
-from tamagotchi.config import STAT_MAX, FOODS, STAGE_THRESHOLDS, TRICKS
+from tamagotchi.config import (
+    STAT_MAX, FOODS, STAGE_THRESHOLDS, TRICKS,
+    SHOP_FOODS, SHOP_MEDICINE,
+)
 
 
 # ── Stitch-like ASCII art per stage + mood ──────────────────────────────
@@ -250,6 +253,65 @@ DEAD_ART = r"""
       ╲_╱         ╲_╱
 """
 
+# ── Hat variants (overlaid on happy/neutral art) ────────────────────
+
+HAT_ART = {
+    "teen": {
+        "happy": r"""
+           ___
+       ╱╲_/___\╱╲
+      (  o     o  )
+      (   =^.^=   )
+     ╱ )  ♥   ♥  ( ╲
+    (  ╱    ◡      ╲  )
+     ╲_╲   ╱───╲   ╱_╱
+       ╲_╱  \_/  ╲_╱
+        │  ╱   ╲  │
+        ╰─╯     ╰─╯
+""",
+        "neutral": r"""
+           ___
+       ╱╲_/___\╱╲
+      (  o     o  )
+      (   =•.•=   )
+     ╱ )         ( ╲
+    (  ╱    ─      ╲  )
+     ╲_╲   ╱───╲   ╱_╱
+       ╲_╱  \_/  ╲_╱
+        │  ╱   ╲  │
+        ╰─╯     ╰─╯
+""",
+    },
+    "adult": {
+        "happy": r"""
+          _____
+      ╱╲_/_____\╱╲
+     (  O       O  )
+     (    =^.^=    )
+    ╱ )   ♥   ♥   ( ╲
+   (  ╱     ◡       ╲  )
+    ╲_╲    ╱───╲    ╱_╱
+      ╲_╱   \_/   ╲_╱
+       │   ╱   ╲   │
+       │  ╱     ╲  │
+       ╰─╯       ╰─╯
+""",
+        "neutral": r"""
+          _____
+      ╱╲_/_____\╱╲
+     (  O       O  )
+     (    =•.•=    )
+    ╱ )           ( ╲
+   (  ╱     ─       ╲  )
+    ╲_╲    ╱───╲    ╱_╱
+      ╲_╱   \_/   ╲_╱
+       │   ╱   ╲   │
+       │  ╱     ╲  │
+       ╰─╯       ╰─╯
+""",
+    },
+}
+
 # ── Evolution animation frames ──────────────────────────────────────
 
 EVOLUTION_FRAMES = [
@@ -308,6 +370,12 @@ def get_art(pet):
     if not pet.alive:
         return DEAD_ART
     mood = pet.get_mood()
+
+    # Check for hat cosmetic
+    has_hat = hasattr(pet, "inventory") and pet.inventory.has_permanent("hat")
+    if has_hat and pet.stage in HAT_ART and mood in HAT_ART[pet.stage]:
+        return HAT_ART[pet.stage][mood]
+
     stage_arts = STAGE_ART.get(pet.stage, STAGE_ART["child"])
     return stage_arts.get(mood, stage_arts.get("neutral", DEAD_ART))
 
@@ -323,7 +391,8 @@ def render(pet, message=""):
 
     print()
     print(center(f"~ {pet.name} the {pet.species} ~"))
-    print(center(f"Stage: {stage_label}  |  Ticks: {pet.ticks_alive}"))
+    coins_str = f"  |  Coins: {pet.coins}" if hasattr(pet, "coins") else ""
+    print(center(f"Stage: {stage_label}  |  Ticks: {pet.ticks_alive}{coins_str}"))
 
     # Show ticks until next evolution
     threshold = STAGE_THRESHOLDS.get(pet.stage)
@@ -397,6 +466,12 @@ def render_menu(pet):
         parts.append("[S] Sleep")
     if pet.can_do("trick"):
         parts.append("[T] Teach Trick")
+    if pet.can_do("minigame"):
+        parts.append("[G] Mini-Games")
+    if pet.can_do("shop"):
+        parts.append("[B] Shop")
+    if pet.can_do("inventory") and hasattr(pet, "inventory") and pet.inventory.has_items():
+        parts.append("[I] Inventory")
     parts.append("[Q] Save & Quit")
     print("  " + "    ".join(parts))
 
@@ -483,3 +558,66 @@ def play_evolution_animation(old_stage, new_stage):
         print(center(line))
     print()
     time.sleep(1.5)
+
+
+def render_minigame_menu(pet):
+    """Show available mini-games with cooldown status."""
+    from tamagotchi.minigames import MINIGAMES
+    print(f"  === MINI-GAMES === (Energy cost: 15 per game)")
+    print()
+    for i, (name, _) in enumerate(MINIGAMES):
+        if i in pet.minigame_cooldowns:
+            cd = pet.minigame_cooldowns[i]
+            status = f"  (cooldown: {cd} ticks)"
+        else:
+            status = ""
+        print(f"    [{i + 1}] {name}{status}")
+    print("    [0] Back")
+
+
+def render_inventory(pet):
+    """Show the player's inventory."""
+    inv = pet.inventory
+    print(f"  === INVENTORY === (Coins: {pet.coins})")
+    print()
+
+    items = []
+    idx = 1
+
+    # Consumable foods from shop
+    for name, price, hunger, happiness in SHOP_FOODS:
+        qty = inv.consumables.get(name, 0)
+        if qty > 0:
+            hap = f", happy +{happiness}" if happiness else ""
+            items.append((idx, name, qty, f"hunger +{hunger}{hap}", "food",
+                          {"hunger": hunger, "happiness": happiness}))
+            idx += 1
+
+    # Medicine
+    for name, price, health in SHOP_MEDICINE:
+        qty = inv.consumables.get(name, 0)
+        if qty > 0:
+            items.append((idx, name, qty, f"health +{health}", "medicine",
+                          {"health": health}))
+            idx += 1
+
+    # Permanent items
+    if inv.has_permanent("ball"):
+        uses = inv.ball_uses
+        items.append((None, "Ball", None, f"{uses} boosted plays left", "perm", {}))
+    if inv.has_permanent("hat"):
+        items.append((None, "Hat", None, "Equipped!", "perm", {}))
+
+    if not items:
+        print("  Your inventory is empty.")
+    else:
+        for item in items:
+            num, name, qty, desc, cat, _ = item
+            if num is not None:
+                print(f"    [{num}] {name} x{qty}  -  {desc}")
+            else:
+                print(f"    [*] {name}  -  {desc}")
+
+    print()
+    print("    [0] Back")
+    return items
