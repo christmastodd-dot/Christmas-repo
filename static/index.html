@@ -18,7 +18,7 @@ const ctx = canvas.getContext('2d');
 const W = 800, H = 600;
 
 // Constants
-const LEVEL_LENGTH = 9600;
+const LEVEL_LENGTH = 7680;
 const SLOPE = 0.30;
 const PLAYER_SPEED = 160;
 const JUMP_VELOCITY = -637;  // sqrt(1.5) * 520 → exact 50% taller jump arc
@@ -304,7 +304,8 @@ function drawPlayer(sx, sy, right, flash, moving, walkOffset) {
 
   // Walk cycle tied to world X position — phase advances/reverses with movement.
   const walkPhase = moving ? (walkOffset * 0.065) : 0;
-  const swing = moving ? Math.sin(walkPhase) * 0.30 : 0;
+  // Negate so limbs swing forward when moving right (uphill)
+  const swing = moving ? -Math.sin(walkPhase) * 0.30 : 0;
 
   // Natural gait: left arm travels WITH right leg, right arm WITH left leg.
   // back arm  = the arm on the opposite side from the facing direction (drawn behind torso)
@@ -536,20 +537,33 @@ function drawGoat(sx, sy, facingLeft, angry, windupTimer) {
     ctx.lineTo(hx + 1*flip, hy - 27);
     ctx.stroke();
     ctx.lineCap = 'butt';
-    // Smoke puffs: large + fast during windup, small after charge starts
+
+    // Smoke — dramatic billowing clouds during windup, trailing wisps while charging
     const now = performance.now() / 1000;
     const isWindup = windupTimer > 0;
-    const speed = isWindup ? 55 : 30;
-    const maxPuffs = isWindup ? 4 : 2;
-    const baseSize = isWindup ? 6 : 3.5;
-    for (let p = 0; p < maxPuffs; p++) {
-      const cycle = (now * speed + p * (speed / maxPuffs)) % speed;
-      const t = cycle / speed;  // 0→1 as puff rises
-      const puffY = hy - 10 - t * (isWindup ? 36 : 18);
-      const puffX = hx + (5 + p * 3 * flip) * flip;
-      const radius = baseSize * (1 - t * 0.4);
-      ctx.fillStyle = `rgba(160,160,160,${(0.8 - t * 0.6).toFixed(2)})`;
-      ctx.beginPath(); ctx.arc(puffX, puffY, radius, 0, Math.PI*2); ctx.fill();
+    const numStreams = isWindup ? 3 : 1;   // multiple smoke streams during windup
+    const puffsPerStream = isWindup ? 5 : 3;
+    const cycleDur = isWindup ? 1.2 : 1.8; // seconds per puff cycle
+    const riseHeight = isWindup ? 80 : 30;  // how high smoke rises (unscaled coords)
+    const startSize = isWindup ? 14 : 5;    // starting puff radius
+
+    for (let s = 0; s < numStreams; s++) {
+      const streamOff = (s - (numStreams - 1) / 2) * 8 * flip; // spread streams sideways
+      const streamDelay = s * (cycleDur / numStreams);
+      for (let p = 0; p < puffsPerStream; p++) {
+        const t = ((now + streamDelay + p * (cycleDur / puffsPerStream)) % cycleDur) / cycleDur;
+        const puffY = hy - 10 - t * riseHeight;
+        const puffX = hx + (5 * flip) + streamOff + Math.sin(t * Math.PI * 2 + s) * 6 * flip;
+        const radius = startSize * (1 + t * 0.8) * (1 - t * 0.3); // grows then fades
+        const alpha = (1 - t) * (isWindup ? 0.9 : 0.6);
+        if (alpha <= 0) continue;
+        // Gradient from orange-grey at base to dark grey at top
+        const r = Math.round(isWindup ? 180 - t * 60 : 150);
+        const g2 = Math.round(isWindup ? 130 - t * 60 : 140);
+        const b = Math.round(isWindup ? 100 - t * 40 : 140);
+        ctx.fillStyle = `rgba(${r},${g2},${b},${alpha.toFixed(2)})`;
+        ctx.beginPath(); ctx.arc(puffX, puffY, radius, 0, Math.PI*2); ctx.fill();
+      }
     }
   }
 
