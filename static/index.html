@@ -73,6 +73,7 @@ function resetLevel() {
       wx: spacing * (i + 1),
       wy: trailY(spacing * (i + 1)),
       charging: false,
+      windupTimer: 0,  // angry goat pause before charging
       active: true,
       angry,
       width: 44,
@@ -422,7 +423,7 @@ function roundRect(x, y, w, h, r) {
   ctx.closePath(); ctx.fill();
 }
 
-function drawGoat(sx, sy, facingLeft, angry) {
+function drawGoat(sx, sy, facingLeft, angry, windupTimer) {
   // Scale goat to 75% height, anchored at hoof ground level (sy+15)
   ctx.save();
   ctx.translate(sx, sy + 15);
@@ -535,14 +536,21 @@ function drawGoat(sx, sy, facingLeft, angry) {
     ctx.lineTo(hx + 1*flip, hy - 27);
     ctx.stroke();
     ctx.lineCap = 'butt';
-    // Smoke puffs from nostril (two small grey circles)
+    // Smoke puffs: large + fast during windup, small after charge starts
     const now = performance.now() / 1000;
-    const puff1Y = hy - 10 - ((now * 30) % 18);
-    const puff2Y = hy - 10 - ((now * 30 + 9) % 18);
-    ctx.fillStyle = 'rgba(160,160,160,0.75)';
-    ctx.beginPath(); ctx.arc(hx + 5*flip, puff1Y, 3.5, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = 'rgba(160,160,160,0.5)';
-    ctx.beginPath(); ctx.arc(hx + 7*flip, puff2Y - 4, 2.5, 0, Math.PI*2); ctx.fill();
+    const isWindup = windupTimer > 0;
+    const speed = isWindup ? 55 : 30;
+    const maxPuffs = isWindup ? 4 : 2;
+    const baseSize = isWindup ? 6 : 3.5;
+    for (let p = 0; p < maxPuffs; p++) {
+      const cycle = (now * speed + p * (speed / maxPuffs)) % speed;
+      const t = cycle / speed;  // 0→1 as puff rises
+      const puffY = hy - 10 - t * (isWindup ? 36 : 18);
+      const puffX = hx + (5 + p * 3 * flip) * flip;
+      const radius = baseSize * (1 - t * 0.4);
+      ctx.fillStyle = `rgba(160,160,160,${(0.8 - t * 0.6).toFixed(2)})`;
+      ctx.beginPath(); ctx.arc(puffX, puffY, radius, 0, Math.PI*2); ctx.fill();
+    }
   }
 
   ctx.restore(); // end goat scale
@@ -794,8 +802,15 @@ function update(dt) {
   for (const g of goats) {
     if (!g.active) continue;
     const dist = g.wx - playerWX;
-    if (dist > 0 && dist < GOAT_TRIGGER_DIST && !g.charging) g.charging = true;
-    if (g.charging) { g.wx -= (g.angry ? GOAT_CHARGE_SPEED * 2 : GOAT_CHARGE_SPEED) * dt; g.wy = trailY(g.wx); }
+    if (dist > 0 && dist < GOAT_TRIGGER_DIST && !g.charging && g.windupTimer === 0) {
+      if (g.angry) { g.windupTimer = 2.0; }  // angry goat pauses and steams before charging
+      else { g.charging = true; }
+    }
+    if (g.angry && g.windupTimer > 0) {
+      g.windupTimer -= dt;
+      if (g.windupTimer <= 0) { g.windupTimer = 0; g.charging = true; }
+    }
+    if (g.charging) { g.wx -= (g.angry ? GOAT_CHARGE_SPEED * 3 : GOAT_CHARGE_SPEED) * dt; g.wy = trailY(g.wx); }
     if (g.wx < playerWX - 300) g.active = false;
   }
 
@@ -869,7 +884,7 @@ function draw(dt) {
   for (const g of goats) {
     if (!g.active) continue;
     const [sx, sy] = worldToScreen(g.wx, g.wy, camWX, camWY);
-    if (sx > -60 && sx < W + 60) drawGoat(Math.round(sx), Math.round(sy), true, g.angry);
+    if (sx > -60 && sx < W + 60) drawGoat(Math.round(sx), Math.round(sy), true, g.angry, g.windupTimer);
   }
 
   if (state === 'knockback') {
