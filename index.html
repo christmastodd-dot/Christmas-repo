@@ -2,25 +2,116 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Lucky Leprechaun: Rainbow Run</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { overflow: hidden; touch-action: none; }
   body { background: #1a1a2e; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; font-family: monospace; }
   canvas { display: block; image-rendering: pixelated; border: 3px solid #444; cursor: pointer; }
-  #instructions { color: #aaa; font-size: 13px; margin-top: 10px; text-align: center; }
+  #instructions { color: #aaa; font-size: 13px; margin-top: 6px; text-align: center; }
+  #touch-controls {
+    display: none;
+    width: 100%; max-width: 800px;
+    margin-top: 8px;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    -webkit-user-select: none; user-select: none;
+  }
+  .touch-btn {
+    background: rgba(255,255,255,0.15);
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 16px;
+    color: #fff;
+    font-family: monospace;
+    font-size: 28px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-user-select: none; user-select: none;
+    touch-action: none;
+  }
+  .touch-btn:active { background: rgba(255,255,255,0.35); }
+  .touch-btn-arrow { width: 72px; height: 72px; }
+  .touch-btn-jump  { flex: 1; height: 72px; font-size: 22px; }
+  .touch-group { display: flex; gap: 10px; }
 </style>
 </head>
 <body>
 <canvas id="game" width="800" height="500"></canvas>
 <div id="instructions">Arrow Keys / WASD to move &nbsp;|&nbsp; Space / Up to jump &nbsp;|&nbsp; Double-jump allowed</div>
+<div id="touch-controls">
+  <div class="touch-group">
+    <button class="touch-btn touch-btn-arrow" id="btn-left">&larr;</button>
+    <button class="touch-btn touch-btn-arrow" id="btn-right">&rarr;</button>
+  </div>
+  <button class="touch-btn touch-btn-jump" id="btn-jump">JUMP</button>
+</div>
 <script>
 // ─────────────────────────────────────────────
-//  CANVAS SETUP
+//  CANVAS SETUP & RESPONSIVE SCALING
 // ─────────────────────────────────────────────
 const canvas = document.getElementById('game');
 const ctx    = canvas.getContext('2d');
 const W = canvas.width;
 const H = canvas.height;
+
+// detect touch device and show controls
+const isTouchDevice = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+const touchControls = document.getElementById('touch-controls');
+const instrDiv = document.getElementById('instructions');
+if (isTouchDevice) {
+  touchControls.style.display = 'flex';
+  instrDiv.style.display = 'none';
+}
+
+// responsive canvas: fit to screen width, maintain aspect ratio
+function resizeCanvas() {
+  const maxW = Math.min(window.innerWidth - 6, 800);
+  const scale = maxW / W;
+  canvas.style.width  = (W * scale) + 'px';
+  canvas.style.height = (H * scale) + 'px';
+  if (touchControls) touchControls.style.maxWidth = (W * scale) + 'px';
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+// ─────────────────────────────────────────────
+//  TOUCH INPUT
+// ─────────────────────────────────────────────
+const touchState = { left: false, right: false, jump: false };
+
+function bindTouch(id, key) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('touchstart', e => { e.preventDefault(); touchState[key] = true; }, { passive: false });
+  el.addEventListener('touchend',   e => { e.preventDefault(); touchState[key] = false; }, { passive: false });
+  el.addEventListener('touchcancel',e => { e.preventDefault(); touchState[key] = false; }, { passive: false });
+}
+bindTouch('btn-left',  'left');
+bindTouch('btn-right', 'right');
+bindTouch('btn-jump',  'jump');
+
+// track previous jump touch state for edge detection
+let prevTouchJump = false;
+
+// tap canvas to start on mobile
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  if (state === 'title') {
+    currentLevel = 0; lives = MAX_LIVES; startPlaying();
+  } else if (state === 'gameover') {
+    currentLevel = 0; lives = MAX_LIVES; startPlaying();
+  } else if (state === 'levelcomplete') {
+    currentLevel++; startPlaying();
+  } else if (state === 'gamecomplete') {
+    currentLevel = 0; lives = MAX_LIVES; startPlaying();
+  } else if (state === 'dead' && deadTimer <= 0) {
+    startPlaying();
+  }
+}, { passive: false });
 
 // ─────────────────────────────────────────────
 //  AUDIO — Irish background music (Web Audio chiptune)
@@ -512,8 +603,16 @@ function update() {
     player.y += player.ridingCloud.dy;
   }
 
-  const movingLeft  = keys['ArrowLeft']  || keys['KeyA'];
-  const movingRight = keys['ArrowRight'] || keys['KeyD'];
+  // handle touch jump (edge-detect: trigger once per press)
+  if (touchState.jump && !prevTouchJump && player.jumpsLeft > 0) {
+    player.vy = JUMP_FORCE;
+    player.jumpsLeft--;
+    player.onGround = false;
+  }
+  prevTouchJump = touchState.jump;
+
+  const movingLeft  = keys['ArrowLeft']  || keys['KeyA'] || touchState.left;
+  const movingRight = keys['ArrowRight'] || keys['KeyD'] || touchState.right;
 
   if (movingLeft)  { player.vx = -MOVE_SPEED; player.facingLeft = true; }
   else if (movingRight) { player.vx =  MOVE_SPEED; player.facingLeft = false; }
