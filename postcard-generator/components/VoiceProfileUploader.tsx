@@ -17,7 +17,6 @@ export default function VoiceProfileUploader({ styleGuide, onStyleGuide }: Props
     if (file.name.endsWith(".txt")) {
       return file.text();
     }
-    // For .docx and .pdf, read as array buffer and use mammoth / basic extraction
     if (file.name.endsWith(".docx")) {
       const mammoth = await import("mammoth");
       const buf = await file.arrayBuffer();
@@ -25,7 +24,6 @@ export default function VoiceProfileUploader({ styleGuide, onStyleGuide }: Props
       return result.value;
     }
     if (file.name.endsWith(".pdf")) {
-      // Use pdfjs-dist for PDF text extraction
       const pdfjsLib = await import("pdfjs-dist");
       pdfjsLib.GlobalWorkerOptions.workerSrc = "";
       const buf = await file.arrayBuffer();
@@ -66,56 +64,81 @@ export default function VoiceProfileUploader({ styleGuide, onStyleGuide }: Props
   }
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-5 mb-6">
-      <h2 className="text-lg font-semibold text-navy mb-3">Voice Profile</h2>
+    <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-white">
+      {/* Accent edge */}
+      <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-navy to-blue-400" />
 
-      {styleGuide ? (
-        <div>
-          <button
-            onClick={() => setExpanded(!expanded)}
-            className="flex items-center gap-2 text-sm font-medium text-green-700 bg-green-50 border border-green-200 rounded-full px-4 py-1.5 mb-3 hover:bg-green-100 transition"
-          >
-            <span className="w-2 h-2 rounded-full bg-green-500 inline-block" />
-            Voice profile active
-            <span className="text-xs">{expanded ? "▲" : "▼"}</span>
-          </button>
-          {expanded && (
-            <div className="bg-gray-50 rounded p-3 text-sm text-gray-700 mb-3 whitespace-pre-wrap">
-              {styleGuide}
-            </div>
-          )}
-          <label className="text-sm text-navy underline cursor-pointer hover:text-blue-800">
-            Re-upload writing sample
-            <input
-              ref={inputRef}
-              type="file"
-              accept=".txt,.docx,.pdf"
-              onChange={handleUpload}
-              className="hidden"
-            />
-          </label>
+      <div className="p-5 pl-6">
+        <div className="flex items-center gap-2.5 mb-3">
+          <div className="w-8 h-8 rounded-xl bg-navy/10 flex items-center justify-center">
+            <svg className="w-4 h-4 text-navy" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+            </svg>
+          </div>
+          <h2 className="text-sm font-bold text-gray-900 tracking-wide">Voice Profile</h2>
         </div>
-      ) : (
-        <div>
-          <p className="text-sm text-gray-600 mb-3">
-            Upload a writing sample (.txt, .docx, or .pdf) — speeches, past postcards, or floor
-            statements — to extract Rep. Todd&apos;s voice profile.
-          </p>
-          <label className="inline-flex items-center gap-2 px-4 py-2 bg-navy text-white text-sm font-medium rounded cursor-pointer hover:bg-blue-900 transition">
-            {loading ? "Analyzing…" : "Upload Writing Sample"}
-            <input
-              ref={inputRef}
-              type="file"
-              accept=".txt,.docx,.pdf"
-              onChange={handleUpload}
-              disabled={loading}
-              className="hidden"
-            />
-          </label>
-        </div>
-      )}
 
-      {error && <p className="text-red-600 text-sm mt-2">{error}</p>}
+        {styleGuide ? (
+          <div>
+            <button
+              onClick={() => setExpanded(!expanded)}
+              className="inline-flex items-center gap-2 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-full px-3 py-1.5 mb-3 hover:bg-emerald-100 transition-colors"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              Voice profile active
+              <svg
+                className={`w-3 h-3 transition-transform ${expanded ? "rotate-180" : ""}`}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={3}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            {expanded && (
+              <div className="bg-gray-50 rounded-xl p-4 text-xs text-gray-600 mb-3 whitespace-pre-wrap leading-relaxed border border-gray-100">
+                {styleGuide}
+              </div>
+            )}
+            <label className="inline-flex items-center gap-1.5 text-xs font-medium text-navy cursor-pointer hover:text-blue-800 transition-colors">
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+              </svg>
+              Re-upload sample
+              <input
+                ref={inputRef}
+                type="file"
+                accept=".txt,.docx,.pdf"
+                onChange={handleUpload}
+                className="hidden"
+              />
+            </label>
+          </div>
+        ) : (
+          <div>
+            <p className="text-xs text-gray-500 mb-3 leading-relaxed">
+              Upload a writing sample to extract Rep. Todd&apos;s voice profile for AI-assisted content.
+            </p>
+            <label className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-navy to-blue-800 text-white text-xs font-semibold rounded-xl cursor-pointer hover:shadow-md hover:shadow-navy/20 transition-all active:scale-[0.98]">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+              </svg>
+              {loading ? "Analyzing\u2026" : "Upload Writing Sample"}
+              <input
+                ref={inputRef}
+                type="file"
+                accept=".txt,.docx,.pdf"
+                onChange={handleUpload}
+                disabled={loading}
+                className="hidden"
+              />
+            </label>
+          </div>
+        )}
+
+        {error && <p className="text-red-600 text-xs mt-2 font-medium">{error}</p>}
+      </div>
     </div>
   );
 }

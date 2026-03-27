@@ -24,132 +24,133 @@ export default function PostcardPreview({
 }: Props) {
   const [side, setSide] = useState<"content" | "address">("content");
 
+  const displayBills =
+    bills.length > 0
+      ? bills
+      : [
+          { billNumber: "HB___", summary: "Bill summary will appear here" },
+          { billNumber: "HB___", summary: "Bill summary will appear here" },
+        ];
+
   return (
-    <div>
-      <div className="flex gap-2 mb-3">
+    <div className="space-y-4">
+      {/* Tab bar */}
+      <div className="inline-flex bg-gray-100 rounded-xl p-1">
         <button
           onClick={() => setSide("content")}
-          className={`text-sm px-3 py-1 rounded ${
+          className={`text-xs font-semibold px-4 py-2 rounded-lg transition-all ${
             side === "content"
-              ? "bg-navy text-white"
-              : "bg-gray-200 text-gray-700"
+              ? "bg-white text-navy shadow-sm"
+              : "text-gray-500 hover:text-gray-700"
           }`}
         >
           Content Side
         </button>
         <button
           onClick={() => setSide("address")}
-          className={`text-sm px-3 py-1 rounded ${
+          className={`text-xs font-semibold px-4 py-2 rounded-lg transition-all ${
             side === "address"
-              ? "bg-navy text-white"
-              : "bg-gray-200 text-gray-700"
+              ? "bg-white text-navy shadow-sm"
+              : "text-gray-500 hover:text-gray-700"
           }`}
         >
           Address Side
         </button>
       </div>
 
-      {/* 9:6 landscape aspect ratio */}
-      <div className="w-full aspect-[3/2] bg-white border-2 border-gray-300 rounded-lg shadow-inner overflow-hidden">
+      {/* Postcard — 9:6 landscape */}
+      <div className="w-full aspect-[3/2] bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
         {side === "content" ? (
-          <div className="h-full p-6 flex flex-col">
-            {/* Header */}
-            <div className="text-center mb-3">
-              <p className="text-[10px] text-gray-500 uppercase tracking-wider">
-                Representative Chris Toshiro Todd
+          <div className="h-full flex flex-col">
+            {/* Top accent bar */}
+            <div className="h-2 bg-gradient-to-r from-navy via-blue-700 to-navy" />
+
+            <div className="flex-1 p-5 md:p-6 flex flex-col">
+              {/* Header */}
+              <div className="text-center mb-3 pb-3 border-b border-gray-100">
+                <p className="text-[11px] font-bold tracking-[0.2em] uppercase text-navy">
+                  Representative Chris Toshiro Todd
+                </p>
+                <p className="text-[9px] text-gray-400 tracking-widest uppercase mt-0.5">
+                  Hawaiʻi State Legislature
+                </p>
+              </div>
+
+              {/* Headline */}
+              <h2 className="text-center font-extrabold text-base md:text-lg lg:text-xl text-navy mb-2 leading-tight">
+                {headline || "Your Headline Here"}
+              </h2>
+
+              {/* Intro */}
+              <p className="text-[10px] md:text-[11px] text-gray-600 mb-4 leading-relaxed text-center max-w-[90%] mx-auto">
+                {intro || "Your intro paragraph will appear here\u2026"}
               </p>
-              <p className="text-[8px] text-gray-400">
-                Hawaiʻi State Legislature
-              </p>
-            </div>
 
-            {/* Headline */}
-            <h2
-              className="text-center font-bold text-sm md:text-base lg:text-lg mb-2"
-              style={{ color: "#1B2C6B" }}
-            >
-              {headline || "Your Headline Here"}
-            </h2>
-
-            {/* Intro */}
-            <p className="text-[10px] md:text-xs text-gray-700 mb-3 leading-relaxed">
-              {intro || "Intro paragraph will appear here…"}
-            </p>
-
-            {/* Bill grid - 2 columns */}
-            <div className="grid grid-cols-2 gap-2 flex-1 min-h-0">
-              {(bills.length > 0
-                ? bills
-                : [
-                    { billNumber: "HB___", summary: "Bill summary…" },
-                    { billNumber: "HB___", summary: "Bill summary…" },
-                  ]
-              ).map((bill, i) => (
-                <div
-                  key={i}
-                  className="border border-gray-200 rounded p-2 bg-gray-50"
-                >
-                  <p
-                    className="font-bold text-[10px] mb-0.5"
-                    style={{ color: "#1B2C6B" }}
+              {/* Bill grid */}
+              <div className="grid grid-cols-2 gap-2 flex-1 min-h-0">
+                {displayBills.map((bill, i) => (
+                  <div
+                    key={i}
+                    className="rounded-lg bg-gradient-to-br from-gray-50 to-white border border-gray-100 p-2.5 flex flex-col"
                   >
-                    {bill.billNumber}
-                  </p>
-                  <p className="text-[8px] md:text-[9px] text-gray-600 leading-snug">
-                    {bill.summary}
-                  </p>
-                </div>
-              ))}
-            </div>
+                    <p className="font-bold text-[10px] text-navy mb-1 tracking-wide">
+                      {bill.billNumber}
+                    </p>
+                    <p className="text-[8px] md:text-[9px] text-gray-600 leading-snug flex-1">
+                      {bill.summary}
+                    </p>
+                  </div>
+                ))}
+              </div>
 
-            {/* CTA */}
-            <div
-              className="mt-2 text-center rounded py-1.5"
-              style={{ backgroundColor: "#1B2C6B" }}
-            >
-              <p className="text-white text-[10px] font-semibold">
-                Questions? Call my office: {ctaPhone || "808-586-8480"}
-              </p>
-            </div>
+              {/* CTA bar */}
+              <div className="mt-3 bg-navy rounded-lg py-2 text-center">
+                <p className="text-white text-[10px] font-semibold tracking-wide">
+                  Questions? Call my office: {ctaPhone || "808-586-8480"}
+                </p>
+              </div>
 
-            {/* Session */}
-            <p className="text-center text-[8px] text-gray-400 mt-1">
-              {session || "Session / Date"}
-            </p>
+              {/* Session line */}
+              {(session || true) && (
+                <p className="text-center text-[8px] text-gray-400 mt-1.5 tracking-wider uppercase">
+                  {session || "Session / Date"}
+                </p>
+              )}
+            </div>
           </div>
         ) : (
           /* Address side */
-          <div className="h-full p-6 flex flex-col justify-between">
+          <div className="h-full flex flex-col">
             {/* Aloha banner */}
-            <div
-              className="text-center py-3 rounded-lg"
-              style={{ backgroundColor: "#1B2C6B" }}
-            >
-              <p className="text-white text-2xl font-bold tracking-wide">
-                Aloha!
+            <div className="bg-gradient-to-r from-navy via-blue-800 to-navy py-6 text-center">
+              <p className="text-white text-3xl font-extrabold tracking-widest">
+                ALOHA!
               </p>
+              <div className="mt-2 w-12 h-0.5 bg-white/40 mx-auto rounded-full" />
             </div>
 
-            <div className="flex-1 flex items-center justify-between px-4">
+            <div className="flex-1 flex items-center justify-between px-8 py-6">
               {/* Return address */}
-              <div className="text-xs text-gray-700 leading-relaxed">
-                <p className="font-bold" style={{ color: "#1B2C6B" }}>
+              <div className="text-xs leading-relaxed">
+                <p className="font-bold text-navy text-sm mb-1">
                   Rep. Chris Toshiro Todd
                 </p>
-                <p>Hawaiʻi State Legislature</p>
-                <p>415 S. Beretania St., Rm 443</p>
-                <p>Honolulu, HI 96813</p>
+                <p className="text-gray-600">Hawaiʻi State Legislature</p>
+                <p className="text-gray-600">415 S. Beretania St., Rm 443</p>
+                <p className="text-gray-600">Honolulu, HI 96813</p>
               </div>
 
-              {/* Stamp / recipient area */}
-              <div className="text-right">
-                <div className="border-2 border-dashed border-gray-300 w-16 h-12 flex items-center justify-center mb-3 ml-auto">
-                  <span className="text-[8px] text-gray-400">STAMP</span>
+              {/* Recipient area */}
+              <div className="text-right space-y-3">
+                <div className="border-2 border-dashed border-gray-300 rounded-lg w-16 h-12 flex items-center justify-center ml-auto">
+                  <span className="text-[7px] text-gray-400 uppercase tracking-wider">
+                    Stamp
+                  </span>
                 </div>
-                <div className="text-xs text-gray-400 space-y-1">
-                  <p>________________________</p>
-                  <p>________________________</p>
-                  <p>________________________</p>
+                <div className="space-y-2.5 mt-4">
+                  <div className="w-40 h-px bg-gray-300" />
+                  <div className="w-40 h-px bg-gray-300" />
+                  <div className="w-32 h-px bg-gray-300 ml-auto" />
                 </div>
               </div>
             </div>

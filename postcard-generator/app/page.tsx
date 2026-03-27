@@ -10,193 +10,143 @@ export default function Home() {
   const [styleGuide, setStyleGuide] = useState("");
 
   // Form fields
-  const [theme, setTheme] = useState("");
   const [headline, setHeadline] = useState("");
   const [intro, setIntro] = useState("");
   const [bills, setBills] = useState<BillField[]>([
-    { number: "", hint: "" },
-    { number: "", hint: "" },
+    { number: "", summary: "" },
+    { number: "", summary: "" },
   ]);
   const [ctaPhone, setCtaPhone] = useState("808-586-8480");
   const [session, setSession] = useState("");
-
-  const [generating, setGenerating] = useState(false);
-  const [error, setError] = useState("");
 
   // Derived bill data for preview / export
   const previewBills = bills
     .filter((b) => b.number || b.summary)
     .map((b) => ({
       billNumber: b.number,
-      summary: b.summary || b.hint,
+      summary: b.summary,
     }));
 
-  async function handleGenerate() {
-    if (!theme) {
-      setError("Please enter a theme.");
-      return;
-    }
-    const validBills = bills.filter((b) => b.number && b.hint);
-    if (validBills.length < 2) {
-      setError("Please fill in at least 2 bills with number and topic hint.");
-      return;
-    }
-
-    setGenerating(true);
-    setError("");
-
-    try {
-      const res = await fetch("/api/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          theme,
-          bills: validBills.map((b) => ({ number: b.number, hint: b.hint })),
-          styleGuide: styleGuide || undefined,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Generation failed");
-
-      setHeadline(data.headline);
-      setIntro(data.intro);
-
-      // Merge generated summaries back into bills
-      const updatedBills = bills.map((b) => {
-        const match = data.bills?.find(
-          (gb: { billNumber: string; summary: string }) =>
-            gb.billNumber === b.number
-        );
-        return match ? { ...b, summary: match.summary } : b;
-      });
-      setBills(updatedBills);
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Generation failed");
-    } finally {
-      setGenerating(false);
-    }
-  }
-
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50/30">
       {/* Header */}
-      <header className="bg-navy text-white py-4 px-6 shadow-md">
-        <div className="max-w-7xl mx-auto">
-          <h1 className="text-xl font-bold">Rep. Todd Postcard Generator</h1>
-          <p className="text-sm text-blue-200">
-            Hawaiʻi State Legislature — Constituent Communications
-          </p>
+      <header className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-navy via-blue-900 to-navy" />
+        <div className="relative max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
+          <div>
+            <h1 className="text-lg font-extrabold text-white tracking-tight">
+              Rep. Todd Postcard Generator
+            </h1>
+            <p className="text-[11px] text-blue-300 tracking-widest uppercase mt-0.5">
+              Hawaiʻi State Legislature — Constituent Communications
+            </p>
+          </div>
+          <div className="hidden sm:flex items-center gap-3">
+            <ExportButtons
+              headline={headline}
+              intro={intro}
+              bills={previewBills}
+              ctaPhone={ctaPhone}
+              session={session}
+            />
+          </div>
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* LEFT — Form */}
-          <div className="space-y-6">
-            {/* Feature 1: Voice Profile */}
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+          {/* LEFT — Form (3 cols) */}
+          <div className="lg:col-span-3 space-y-5">
+            {/* Voice Profile */}
             <VoiceProfileUploader
               styleGuide={styleGuide}
               onStyleGuide={setStyleGuide}
             />
 
-            {/* Feature 2: Postcard Content Form */}
-            <div className="bg-white rounded-lg border border-gray-200 p-5">
-              <h2 className="text-lg font-semibold text-navy mb-4">
-                Postcard Content
-              </h2>
+            {/* Content Form */}
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+              {/* Section header */}
+              <div className="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
+                <h2 className="text-sm font-bold text-gray-900 tracking-wide">
+                  Postcard Content
+                </h2>
+                <p className="text-[11px] text-gray-400 mt-0.5">
+                  Fill in each field as it should appear on the final postcard
+                </p>
+              </div>
 
-              <div className="space-y-4">
-                {/* Theme */}
-                <div>
-                  <label className="block text-sm font-semibold text-navy mb-1">
-                    Theme
-                  </label>
-                  <input
-                    type="text"
-                    placeholder='e.g. "Wildfire Support & Prevention"'
-                    value={theme}
-                    onChange={(e) => setTheme(e.target.value)}
-                    className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy"
-                  />
-                </div>
-
+              <div className="p-6 space-y-5">
                 {/* Headline */}
                 <div>
-                  <label className="block text-sm font-semibold text-navy mb-1">
+                  <label className="block text-xs font-semibold text-gray-800 tracking-wide uppercase mb-1.5">
                     Headline
                   </label>
                   <input
                     type="text"
-                    placeholder="Auto-suggested from theme via AI"
+                    placeholder="e.g. Protecting Our Community From Wildfires"
                     value={headline}
                     onChange={(e) => setHeadline(e.target.value)}
-                    className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy"
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-navy/50 focus:bg-white transition"
                   />
                 </div>
 
                 {/* Intro */}
                 <div>
-                  <label className="block text-sm font-semibold text-navy mb-1">
+                  <label className="block text-xs font-semibold text-gray-800 tracking-wide uppercase mb-1.5">
                     Intro Paragraph
                   </label>
                   <textarea
-                    placeholder="AI-generated intro — editable after generation"
+                    placeholder="Write a warm, personal intro (2-3 sentences)..."
                     value={intro}
                     onChange={(e) => setIntro(e.target.value)}
                     rows={3}
-                    className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy"
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-navy/50 focus:bg-white transition resize-none"
                   />
                 </div>
+
+                {/* Divider */}
+                <div className="border-t border-gray-100" />
 
                 {/* Bills */}
                 <BillFieldset bills={bills} onChange={setBills} />
 
-                {/* CTA Phone */}
-                <div>
-                  <label className="block text-sm font-semibold text-navy mb-1">
-                    CTA Phone Number
-                  </label>
-                  <input
-                    type="text"
-                    value={ctaPhone}
-                    onChange={(e) => setCtaPhone(e.target.value)}
-                    className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy"
-                  />
-                </div>
+                {/* Divider */}
+                <div className="border-t border-gray-100" />
 
-                {/* Session / Date */}
-                <div>
-                  <label className="block text-sm font-semibold text-navy mb-1">
-                    Session / Date
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. February 2024"
-                    value={session}
-                    onChange={(e) => setSession(e.target.value)}
-                    className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy"
-                  />
+                {/* Bottom row — CTA + Session side by side */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-800 tracking-wide uppercase mb-1.5">
+                      CTA Phone Number
+                    </label>
+                    <input
+                      type="text"
+                      value={ctaPhone}
+                      onChange={(e) => setCtaPhone(e.target.value)}
+                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-navy/50 focus:bg-white transition"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-800 tracking-wide uppercase mb-1.5">
+                      Session / Date
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. February 2024"
+                      value={session}
+                      onChange={(e) => setSession(e.target.value)}
+                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-navy/30 focus:border-navy/50 focus:bg-white transition"
+                    />
+                  </div>
                 </div>
               </div>
-
-              {/* Error */}
-              {error && (
-                <p className="text-red-600 text-sm mt-3">{error}</p>
-              )}
-
-              {/* Generate Button */}
-              <button
-                onClick={handleGenerate}
-                disabled={generating}
-                className="mt-5 w-full py-2.5 bg-navy text-white font-semibold rounded hover:bg-blue-900 transition disabled:opacity-50"
-              >
-                {generating ? "Generating…" : "Generate Content"}
-              </button>
             </div>
 
-            {/* Feature 4: Export Buttons */}
-            <div className="bg-white rounded-lg border border-gray-200 p-5">
-              <h2 className="text-lg font-semibold text-navy mb-3">Export</h2>
+            {/* Mobile export buttons */}
+            <div className="sm:hidden bg-white rounded-2xl border border-gray-200 shadow-sm p-5">
+              <h2 className="text-sm font-bold text-gray-900 tracking-wide mb-3">
+                Export
+              </h2>
               <ExportButtons
                 headline={headline}
                 intro={intro}
@@ -207,11 +157,16 @@ export default function Home() {
             </div>
           </div>
 
-          {/* RIGHT — Live Preview */}
-          <div className="lg:sticky lg:top-8 lg:self-start">
-            <h2 className="text-lg font-semibold text-navy mb-3">
-              Live Preview
-            </h2>
+          {/* RIGHT — Live Preview (2 cols) */}
+          <div className="lg:col-span-2 lg:sticky lg:top-6 lg:self-start">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-sm font-bold text-gray-900 tracking-wide">
+                Live Preview
+              </h2>
+              <span className="text-[10px] text-gray-400 tracking-wider uppercase">
+                Updates in real time
+              </span>
+            </div>
             <PostcardPreview
               headline={headline}
               intro={intro}
