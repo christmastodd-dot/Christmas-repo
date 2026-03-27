@@ -118,6 +118,7 @@ def on_answer(data):
     with lock:
         gs = games.get(sid)
     if not gs:
+        emit("no_game")
         return
 
     pet = gs.pet
@@ -169,6 +170,7 @@ def on_care(data):
     with lock:
         gs = games.get(sid)
     if not gs:
+        emit("no_game")
         return
 
     action = (data.get("action") or "").strip()

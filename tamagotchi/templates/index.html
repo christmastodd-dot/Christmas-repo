@@ -383,7 +383,7 @@
   <div class="question-box">
     <div class="question-text" id="g-question"></div>
     <div class="answer-row">
-      <input type="text" id="answer-input" placeholder="Tap to answer" inputmode="numeric" autocomplete="off" readonly>
+      <input type="text" id="answer-input" placeholder="?" inputmode="numeric" autocomplete="off">
       <button onclick="submitAnswer()">Go!</button>
     </div>
   </div>
@@ -672,8 +672,33 @@ document.getElementById('welcome-egg').innerHTML = svgEgg();
 
 // ── Socket logic ────────────────────────────────────────────────────
 
-const socket = io();
+const socket = io({
+  reconnection: true,
+  reconnectionAttempts: 10,
+  reconnectionDelay: 1000,
+});
 let lastCorrect = null;
+
+socket.on('connect', () => {
+  console.log('Socket connected:', socket.id);
+});
+socket.on('connect_error', (err) => {
+  console.error('Socket connect error:', err.message);
+});
+socket.on('disconnect', (reason) => {
+  console.warn('Socket disconnected:', reason);
+  const msgEl = document.getElementById('g-message');
+  if (msgEl) {
+    msgEl.textContent = 'Connection lost — reconnecting...';
+    msgEl.className = 'message-box wrong';
+  }
+});
+socket.on('no_game', () => {
+  // Server lost our session — show welcome screen to restart
+  document.getElementById('game').classList.add('hidden');
+  document.getElementById('game').classList.remove('active');
+  document.getElementById('welcome').style.display = '';
+});
 
 function startGame() {
   const name = document.getElementById('pet-name').value.trim();
@@ -918,9 +943,6 @@ function submitAnswer() {
   } catch(e) { lastCorrect = null; }
   socket.emit('answer', {answer: val});
   inp.value = '';
-  // On mobile: close keyboard after submit so user can see the pet
-  inp.readOnly = true;
-  inp.blur();
 }
 
 document.getElementById('answer-input').addEventListener('keydown', e => {
@@ -928,26 +950,17 @@ document.getElementById('answer-input').addEventListener('keydown', e => {
 });
 
 // ── Mobile keyboard handling ────────────────────────────────────────
-// Input starts readonly so mobile keyboard doesn't auto-open.
-// Tapping the input or question box activates it.
 const answerInput = document.getElementById('answer-input');
 const questionBox = document.querySelector('.question-box');
 
-function activateInput() {
-  answerInput.readOnly = false;
-  answerInput.focus();
-  // Scroll question into view after keyboard opens
+// When input gets focus (user taps it), scroll question into view
+answerInput.addEventListener('focus', () => {
   setTimeout(() => {
-    questionBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    questionBox.scrollIntoView({ behavior: 'smooth', block: 'end' });
   }, 300);
-}
+});
 
-// Tap the input field itself
-answerInput.addEventListener('click', activateInput);
-// Tap anywhere on the question box
-questionBox.addEventListener('click', activateInput);
-
-// Use visualViewport API to adjust layout when keyboard opens
+// Adjust layout when mobile keyboard opens/closes
 if (window.visualViewport) {
   window.visualViewport.addEventListener('resize', () => {
     const vh = window.visualViewport.height;
@@ -955,7 +968,7 @@ if (window.visualViewport) {
     document.body.style.height = vh + 'px';
     if (document.activeElement === answerInput) {
       setTimeout(() => {
-        questionBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        questionBox.scrollIntoView({ behavior: 'smooth', block: 'end' });
       }, 50);
     }
   });
