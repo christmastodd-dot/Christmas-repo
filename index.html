@@ -141,7 +141,7 @@ const WIN_SCORE = 5;
 
 // Paddle & ball config
 const PAD_W = 14, PAD_H = 90, PAD_OFFSET = 20, BALL_R = 10;
-const BALL_BASE_SPEED = 4.5;
+const BALL_BASE_SPEED = 5.5;
 
 let player = { x: PAD_OFFSET, y: H / 2 - PAD_H / 2, w: PAD_W, h: PAD_H };
 let cpu    = { x: W - PAD_OFFSET - PAD_W, y: H / 2 - PAD_H / 2, w: PAD_W, h: PAD_H };
@@ -368,19 +368,27 @@ function drawBall() {
 // --- Game Logic ---
 function moveCpu() {
   const cpuCenter = cpu.y + cpu.h / 2;
-  // Predict where ball will arrive at CPU's x position
+
+  // Only predict when ball is heading toward CPU
   let targetY = ball.y;
   if (ball.vx > 0) {
     const timeToArrive = (cpu.x - ball.x) / ball.vx;
     targetY = ball.y + ball.vy * timeToArrive;
-    // Bounce prediction off top/bottom walls
     while (targetY < 0 || targetY > H) {
       if (targetY < 0) targetY = -targetY;
       if (targetY > H) targetY = 2 * H - targetY;
     }
+    // Add inaccuracy — more on easy, less on hard
+    const errorRange = (1.3 - speedMult) * 80; // easy: ~56px error, hard: ~-8px (near perfect)
+    targetY += (Math.sin(Date.now() * 0.003) * errorRange);
+  } else {
+    // Ball heading away — drift lazily toward center
+    targetY = H / 2;
   }
-  const cpuSpeed = (3.0 + speedMult * 1.2);
-  const deadZone = 8;
+
+  // Speed scales with difficulty: easy is slow, hard is fast
+  const cpuSpeed = 1.5 + speedMult * 2.0;
+  const deadZone = 20 - speedMult * 8; // easy: ~15px, hard: ~9px
   if (cpuCenter < targetY - deadZone) {
     cpu.y += cpuSpeed;
   } else if (cpuCenter > targetY + deadZone) {
