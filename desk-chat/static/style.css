@@ -543,7 +543,7 @@ body.quiet .msg.system .text {
 
 .countdown-timer {
     position: fixed;
-    bottom: 5rem;
+    bottom: 7.5rem;
     right: 1rem;
     z-index: 800;
     background: #25252a;
