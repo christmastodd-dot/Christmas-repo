@@ -44,5 +44,55 @@ SLEEP_DECAY_MULTIPLIER = 0.5
 
 CLEAN_BOOST = 30
 
+# ── Life Stages ──────────────────────────────────────────────────────
+
+STAGES = ["egg", "baby", "child", "teen", "adult"]
+
+# Ticks required at each stage before evolving to the next
+STAGE_THRESHOLDS = {
+    "egg": 10,
+    "baby": 50,
+    "child": 100,
+    "teen": 200,
+    "adult": None,  # final stage
+}
+
+# Health must be above this to evolve
+EVOLUTION_HEALTH_MIN = 50
+
+# Stat decay multiplier per stage
+STAGE_DECAY_MULTIPLIER = {
+    "egg": 0.0,     # no decay while egg
+    "baby": 1.5,
+    "child": 1.0,
+    "teen": 1.0,
+    "adult": 0.75,
+}
+
+# Actions available per stage
+STAGE_ACTIONS = {
+    "egg": [],
+    "baby": ["feed", "sleep"],
+    "child": ["feed", "play", "clean", "sleep"],
+    "teen": ["feed", "play", "clean", "sleep"],
+    "adult": ["feed", "play", "clean", "sleep", "trick"],
+}
+
+# Teen rebellion chance (0.0 - 1.0)
+TEEN_REBELLION_CHANCE = 0.20
+
+REBELLION_MESSAGES = [
+    "{name} rolls their eyes and ignores you!",
+    "{name} sticks out their tongue! How rude!",
+    "{name} pretends they can't hear you...",
+    "{name} says 'You're not my REAL owner!'",
+    "{name} turns around dramatically!",
+]
+
+# Tricks
+TRICKS = ["roll over", "shake", "dance", "sing"]
+TRICK_HAPPINESS_COST = 15
+TRICK_FAIL_CHANCE = 0.30
+
 # Save file
 SAVE_FILE = "tamagotchi_save.json"
