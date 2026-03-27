@@ -14,7 +14,9 @@ from tamagotchi.config import (
 from tamagotchi.pet import Pet
 from tamagotchi.math_problems import generate_problem
 
-app = Flask(__name__, template_folder=os.path.join(os.path.dirname(__file__), "templates"))
+app = Flask(__name__,
+            template_folder=os.path.join(os.path.dirname(__file__), "templates"),
+            static_folder=os.path.join(os.path.dirname(__file__), "static"))
 app.secret_key = os.environ.get("SECRET_KEY", "stitch-pet-secret-key-change-me")
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode="gevent")
 
