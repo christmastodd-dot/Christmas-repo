@@ -128,9 +128,9 @@ async def websocket_endpoint(ws: WebSocket, room_code: str, name: str = Query(""
                         "channel": name,
                     })
 
-            elif msg_type == "gavel":
+            elif msg_type == "celebrate":
                 await broadcast(room_code, {
-                    "type": "gavel",
+                    "type": "celebrate",
                     "sender": name,
                 })
 

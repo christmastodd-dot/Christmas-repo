@@ -152,8 +152,8 @@ function handleMessage(msg) {
         case "typing":
             showTypingIndicator(msg);
             break;
-        case "gavel":
-            if (msg.sender !== myName) showGavel(msg.sender);
+        case "celebrate":
+            if (msg.sender !== myName) showCelebration(msg.sender);
             break;
         case "countdown":
             if (msg.sender !== myName) startCountdown(msg.seconds, msg.sender);
@@ -447,11 +447,11 @@ msgInput.addEventListener("keydown", (e) => {
 msgInput.addEventListener("input", sendTyping);
 
 // Action buttons — trigger locally + broadcast to others
-document.getElementById("gavel-btn").addEventListener("click", (e) => {
+document.getElementById("celebrate-btn").addEventListener("click", (e) => {
     e.preventDefault();
     e.stopPropagation();
-    showGavel(myName);
-    send({ type: "gavel" });
+    showCelebration(myName);
+    send({ type: "celebrate" });
 });
 document.getElementById("countdown-btn").addEventListener("click", (e) => {
     e.preventDefault();
@@ -460,37 +460,104 @@ document.getElementById("countdown-btn").addEventListener("click", (e) => {
     send({ type: "countdown" });
 });
 
-// ── Gavel Mode ──
+// ── Celebration Fireworks ──
 
-function showGavel(sender) {
+function showCelebration(sender) {
     const overlay = document.createElement("div");
-    overlay.className = "gavel-overlay";
+    overlay.className = "celebrate-overlay";
 
-    const gavelContainer = document.createElement("div");
-    gavelContainer.className = "gavel-visual";
-    const img = document.createElement("img");
-    img.src = "/static/gavel.svg";
-    img.width = 220;
-    img.height = 220;
-    img.alt = "Gavel";
-    gavelContainer.appendChild(img);
+    // Create firework particles
+    const canvas = document.createElement("canvas");
+    canvas.className = "fireworks-canvas";
+    overlay.appendChild(canvas);
 
     const label = document.createElement("div");
-    label.className = "gavel-label";
-    label.textContent = "ORDER! — " + sender;
+    label.className = "celebrate-label";
+    label.textContent = "CONGRATULATIONS!";
 
-    overlay.appendChild(gavelContainer);
+    const sub = document.createElement("div");
+    sub.className = "celebrate-sub";
+    sub.textContent = "- " + sender;
+
     overlay.appendChild(label);
+    overlay.appendChild(sub);
     document.body.appendChild(overlay);
 
-    // Trigger animation
+    // Size canvas
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const ctx = canvas.getContext("2d");
+
+    // Firework particles
+    const colors = ["#FF4444", "#FFD700", "#44FF44", "#4488FF", "#FF44FF", "#FF8800", "#00DDFF"];
+    const particles = [];
+    const bursts = [];
+
+    // Create multiple burst origins
+    function addBurst(x, y) {
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        for (let i = 0; i < 40; i++) {
+            const angle = (Math.PI * 2 * i) / 40 + (Math.random() - 0.5) * 0.3;
+            const speed = 2 + Math.random() * 4;
+            particles.push({
+                x, y,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed,
+                life: 1,
+                decay: 0.008 + Math.random() * 0.008,
+                color,
+                size: 2 + Math.random() * 3,
+            });
+        }
+    }
+
+    // Stagger bursts
+    const burstPositions = [
+        [0.3, 0.3], [0.7, 0.25], [0.5, 0.4],
+        [0.2, 0.5], [0.8, 0.45], [0.4, 0.2], [0.6, 0.55]
+    ];
+    burstPositions.forEach((pos, i) => {
+        setTimeout(() => {
+            addBurst(canvas.width * pos[0], canvas.height * pos[1]);
+        }, i * 300);
+    });
+
+    let animId;
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (let i = particles.length - 1; i >= 0; i--) {
+            const p = particles[i];
+            p.x += p.vx;
+            p.y += p.vy;
+            p.vy += 0.04; // gravity
+            p.vx *= 0.99;
+            p.life -= p.decay;
+            if (p.life <= 0) { particles.splice(i, 1); continue; }
+            ctx.globalAlpha = p.life;
+            ctx.fillStyle = p.color;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+            ctx.fill();
+            // Trail
+            ctx.beginPath();
+            ctx.arc(p.x - p.vx, p.y - p.vy, p.size * p.life * 0.5, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+        if (particles.length > 0) {
+            animId = requestAnimationFrame(animate);
+        }
+    }
+
     requestAnimationFrame(() => overlay.classList.add("active"));
+    animate();
 
     setTimeout(() => {
         overlay.classList.remove("active");
         overlay.classList.add("fade-out");
-        setTimeout(() => overlay.remove(), 500);
-    }, 2000);
+        cancelAnimationFrame(animId);
+        setTimeout(() => overlay.remove(), 600);
+    }, 4000);
 }
 
 // ── Reactions ──
