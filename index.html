@@ -204,10 +204,9 @@ function resetBall(dir) {
   ball.x = W / 2;
   ball.y = H / 2;
   const angle = (Math.random() * 0.8 - 0.4); // narrow angle
-  // Ball speed: easy=base, medium=+10%, hard=+20%
+  // Ball speed: easy=base, medium & hard=+10%
   let ballSpeedScale = 1;
-  if (speedMult === 1) ballSpeedScale = 1.1;
-  else if (speedMult >= 1.4) ballSpeedScale = 1.2;
+  if (speedMult >= 1) ballSpeedScale = 1.1;
   ball.speed = BALL_BASE_SPEED * ballSpeedScale;
   ball.vx = ball.speed * dir * Math.cos(angle);
   ball.vy = ball.speed * Math.sin(angle);
