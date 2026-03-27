@@ -323,7 +323,7 @@
   <div class="question-box">
     <div class="question-text" id="g-question"></div>
     <div class="answer-row">
-      <input type="text" id="answer-input" placeholder="?" inputmode="numeric" autocomplete="off">
+      <input type="text" id="answer-input" placeholder="Tap to answer" inputmode="numeric" autocomplete="off" readonly>
       <button onclick="submitAnswer()">Go!</button>
     </div>
   </div>
@@ -621,7 +621,6 @@ function startGame() {
   document.getElementById('welcome').style.display = 'none';
   document.getElementById('game').classList.remove('hidden');
   document.getElementById('game').classList.add('active');
-  document.getElementById('answer-input').focus();
 }
 document.getElementById('pet-name').addEventListener('keydown', e => {
   if (e.key === 'Enter') startGame();
@@ -817,7 +816,6 @@ async function playEvolution(oldStage, newStage, petName) {
   overlay.classList.remove('show');
   stars.style.display = 'none';
   evoInProgress = false;
-  document.getElementById('answer-input').focus();
 }
 
 socket.on('evolution', data => {
@@ -840,7 +838,9 @@ function submitAnswer() {
   } catch(e) { lastCorrect = null; }
   socket.emit('answer', {answer: val});
   inp.value = '';
-  inp.focus();
+  // On mobile: close keyboard after submit so user can see the pet
+  inp.readOnly = true;
+  inp.blur();
 }
 
 document.getElementById('answer-input').addEventListener('keydown', e => {
@@ -848,17 +848,24 @@ document.getElementById('answer-input').addEventListener('keydown', e => {
 });
 
 // ── Mobile keyboard handling ────────────────────────────────────────
-// When the keyboard opens on mobile, scroll the question box into view
-// and shrink the sprite area so input stays visible.
+// Input starts readonly so mobile keyboard doesn't auto-open.
+// Tapping the input or question box activates it.
 const answerInput = document.getElementById('answer-input');
 const questionBox = document.querySelector('.question-box');
 
-answerInput.addEventListener('focus', () => {
-  // Small delay to let keyboard animate open
+function activateInput() {
+  answerInput.readOnly = false;
+  answerInput.focus();
+  // Scroll question into view after keyboard opens
   setTimeout(() => {
     questionBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }, 300);
-});
+}
+
+// Tap the input field itself
+answerInput.addEventListener('click', activateInput);
+// Tap anywhere on the question box
+questionBox.addEventListener('click', activateInput);
 
 // Use visualViewport API to adjust layout when keyboard opens
 if (window.visualViewport) {
@@ -866,7 +873,6 @@ if (window.visualViewport) {
     const vh = window.visualViewport.height;
     document.documentElement.style.height = vh + 'px';
     document.body.style.height = vh + 'px';
-    // If input is focused, keep question visible
     if (document.activeElement === answerInput) {
       setTimeout(() => {
         questionBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
