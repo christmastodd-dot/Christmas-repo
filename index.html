@@ -2,10 +2,17 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Kid Pong!</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    touch-action: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+  }
   body {
     background: linear-gradient(135deg, #1a0a2e, #2d1b69, #1a0a2e);
     display: flex;
@@ -13,6 +20,7 @@
     align-items: center;
     justify-content: center;
     height: 100vh;
+    height: 100dvh;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     overflow: hidden;
     user-select: none;
@@ -45,6 +53,9 @@
     border-image: linear-gradient(90deg, #ff69b4, #8a2be2, #6495ed) 1;
     border-radius: 4px;
     cursor: none;
+    max-width: 95vw;
+    max-height: 60vh;
+    max-height: 60dvh;
   }
   #message {
     color: #e0b0ff;
@@ -228,6 +239,18 @@ canvas.addEventListener('touchmove', e => {
   e.preventDefault();
   const rect = canvas.getBoundingClientRect();
   mouseY = (e.touches[0].clientY - rect.top) * (H / rect.height);
+}, { passive: false });
+// Also track touch on the whole document for iPad
+document.addEventListener('touchmove', e => {
+  if (!gameRunning) return;
+  useMouseControl = true;
+  e.preventDefault();
+  const rect = canvas.getBoundingClientRect();
+  mouseY = (e.touches[0].clientY - rect.top) * (H / rect.height);
+}, { passive: false });
+// Prevent iOS pull-to-refresh and bounce scrolling
+document.addEventListener('touchstart', e => {
+  if (gameRunning) e.preventDefault();
 }, { passive: false });
 
 document.addEventListener('keydown', e => {
@@ -535,12 +558,13 @@ function loop() {
     }
     ctx.font = '24px Segoe UI, sans-serif';
     ctx.fillStyle = '#e0b0ff';
-    ctx.fillText('Click to play again!', W / 2, H / 2 + 50);
+    ctx.fillText('Tap to play again!', W / 2, H / 2 + 50);
 
     if (winTimer <= 0) {
-      // Wait for click to restart
-      canvas.onclick = () => {
+      // Wait for click/tap to restart
+      const restart = () => {
         canvas.onclick = null;
+        canvas.ontouchend = null;
         winCelebrating = false;
         celebrating = false;
         fireworks = [];
@@ -552,6 +576,8 @@ function loop() {
         resetBall(1);
         requestAnimationFrame(loop);
       };
+      canvas.onclick = restart;
+      canvas.ontouchend = (e) => { e.preventDefault(); restart(); };
       return;
     }
     requestAnimationFrame(loop);
