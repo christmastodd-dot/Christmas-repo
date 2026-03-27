@@ -455,6 +455,100 @@ function spawnPoof(x, y) {
 }
 
 // ─────────────────────────────────────────────
+//  UNICORN POWER-UP
+// ─────────────────────────────────────────────
+const UNICORN_DURATION = 10; // seconds
+const UNICORN_FLY_SPEED = 5;
+const GRACE_DURATION = 60;   // frames (1 second)
+const TRAIL_COLORS = ['#f8a0a0','#f8c89a','#f8e8a0','#a0dca0','#a0c8f0','#c8a0e0'];
+let trailColorIdx = 0;
+
+function drawUnicornOrb(x, y, camX) {
+  const sx = x - camX;
+  const t = Date.now() / 300;
+  const bobY = y + Math.sin(t) * 6;
+
+  // outer glow
+  ctx.save();
+  ctx.globalAlpha = 0.25 + Math.sin(t * 1.5) * 0.1;
+  const glow = ctx.createRadialGradient(sx, bobY, 4, sx, bobY, 28);
+  glow.addColorStop(0, '#fff');
+  glow.addColorStop(1, 'rgba(200,160,255,0)');
+  ctx.fillStyle = glow;
+  ctx.beginPath(); ctx.arc(sx, bobY, 28, 0, Math.PI*2); ctx.fill();
+  ctx.globalAlpha = 1;
+
+  // rainbow ring
+  for (let i = 0; i < 6; i++) {
+    const a = t * 2 + i * Math.PI / 3;
+    const rx = sx + Math.cos(a) * 14;
+    const ry = bobY + Math.sin(a) * 14;
+    ctx.fillStyle = TRAIL_COLORS[i];
+    ctx.globalAlpha = 0.8;
+    ctx.beginPath(); ctx.arc(rx, ry, 4, 0, Math.PI*2); ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+
+  // center orb
+  ctx.fillStyle = '#fff';
+  ctx.beginPath(); ctx.arc(sx, bobY, 8, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#ffe082';
+  ctx.beginPath(); ctx.arc(sx, bobY, 5, 0, Math.PI*2); ctx.fill();
+
+  // sparkle cross
+  ctx.fillStyle = '#fff';
+  ctx.globalAlpha = 0.7 + Math.sin(t * 3) * 0.3;
+  ctx.fillRect(sx - 1, bobY - 12, 2, 24);
+  ctx.fillRect(sx - 12, bobY - 1, 24, 2);
+  ctx.globalAlpha = 1;
+  ctx.restore();
+}
+
+function spawnTrailParticle(x, y) {
+  trailColorIdx = (trailColorIdx + 1) % TRAIL_COLORS.length;
+  particles.push({
+    x, y: y + Math.random() * 6 - 3,
+    vx: -0.5 + Math.random(),
+    vy: -0.3 + Math.random() * 0.6,
+    life: 0.8,
+    color: TRAIL_COLORS[trailColorIdx],
+    size: 3 + Math.random() * 4,
+  });
+}
+
+function drawUnicornTimer(screenX, screenY, remaining, total) {
+  const radius = 22;
+  const frac = remaining / total;
+
+  // background ring
+  ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.arc(screenX, screenY - 10, radius, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // progress arc
+  let color;
+  if (frac > 0.5) color = '#4caf50';
+  else if (frac > 0.3) color = '#ffd600';
+  else color = '#ff1744';
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 4;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.arc(screenX, screenY - 10, radius, -Math.PI/2, -Math.PI/2 + Math.PI*2*frac);
+  ctx.stroke();
+  ctx.lineCap = 'butt';
+
+  // text
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 11px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText(Math.ceil(remaining) + 's', screenX, screenY - 6);
+  ctx.textAlign = 'left';
+}
+
+// ─────────────────────────────────────────────
 //  LEVEL DATA
 // ─────────────────────────────────────────────
 const LEVELS = [
@@ -466,6 +560,7 @@ const LEVELS = [
     potX: 2230,
     potY: 220,
     crows: [],
+    unicorns: [],
     clouds: [
       { x: 0,    y: 340, w: 220, h: 60 },
       { x: 280,  y: 320, w: 160, h: 55 },
@@ -487,6 +582,10 @@ const LEVELS = [
     finalCloud: { x: 6800, y: 260, w: 250 },
     potX: 6970,
     potY: 210,
+    // unicorn orb placed above mid-level rest cloud (index 15)
+    unicorns: [
+      { cloudIndex: 15, offsetX: 90, offsetY: -50 },
+    ],
     // crows: cloudIndex is 0-based index into this level's clouds array
     crows: [
       { cloudIndex: 3,  speed: 1.0 },  // Section 1
@@ -561,6 +660,15 @@ function initGame() {
 
 function resetLevel() {
   levelData = JSON.parse(JSON.stringify(LEVELS[currentLevel]));
+  // initialize unicorn pickups
+  if (levelData.unicorns) {
+    levelData.unicorns.forEach(u => {
+      const cloud = levelData.clouds[u.cloudIndex];
+      u.x = cloud.x + u.offsetX;
+      u.y = cloud.y + u.offsetY;
+      u.collected = false;
+    });
+  }
   // initialize crows on their clouds
   if (levelData.crows) {
     levelData.crows.forEach(crow => {
@@ -593,6 +701,9 @@ function resetLevel() {
     jumpsLeft: 2,
     facingLeft: false,
     won:     false,
+    flying:  false,
+    unicornTimer: 0,
+    graceTimer: 0,
   };
   camX        = 0;
   animFrame   = 0;
@@ -719,63 +830,136 @@ function update() {
     player.y += player.ridingCloud.dy;
   }
 
-  // handle touch jump (edge-detect: trigger once per press)
-  if (touchState.jump && !prevTouchJump && player.jumpsLeft > 0) {
-    player.vy = JUMP_FORCE;
-    player.jumpsLeft--;
-    player.onGround = false;
-  }
-  prevTouchJump = touchState.jump;
-
+  // --- input ---
   const movingLeft  = keys['ArrowLeft']  || keys['KeyA'] || touchState.left;
   const movingRight = keys['ArrowRight'] || keys['KeyD'] || touchState.right;
+  const movingUp    = keys['ArrowUp']    || keys['KeyW'];
+  const movingDown  = keys['ArrowDown']  || keys['KeyS'];
+  const jumpPressed = keys['Space'] || keys['ArrowUp'] || keys['KeyW'] || touchState.jump;
 
-  if (movingLeft)  { player.vx = -MOVE_SPEED; player.facingLeft = true; }
-  else if (movingRight) { player.vx =  MOVE_SPEED; player.facingLeft = false; }
-  else             { player.vx = 0; }
-
-  player.vy += GRAVITY;
-  player.x += player.vx;
-  player.y += player.vy;
-
-  if (player.x < 0) player.x = 0;
-
-  const targetCamX = player.x - W * 0.35;
-  camX = Math.max(0, Math.min(targetCamX, levelData.worldWidth - W));
-
-  player.onGround = false;
-  player.ridingCloud = null;
-  if (player.vy >= 0) {
-    for (const c of levelData.clouds) {
-      const playerBottom = player.y + player.h;
-      const prevBottom   = playerBottom - player.vy;
-      if (
-        player.x + player.w > c.x &&
-        player.x             < c.x + c.w &&
-        prevBottom <= c.y + 4 &&
-        playerBottom >= c.y
-      ) {
-        player.y       = c.y - player.h;
-        player.vy      = 0;
-        player.onGround = true;
-        player.jumpsLeft = 2;
-        player.ridingCloud = c;
+  // --- unicorn pickup check ---
+  if (levelData.unicorns) {
+    for (const u of levelData.unicorns) {
+      if (u.collected) continue;
+      const dx = (player.x + player.w/2) - u.x;
+      const dy = (player.y + player.h/2) - u.y;
+      if (dx*dx + dy*dy < 900) { // ~30px radius
+        u.collected = true;
+        player.flying = true;
+        player.unicornTimer = UNICORN_DURATION;
+        player.graceTimer = 0;
+        player.vy = 0;
       }
     }
   }
 
-  if (player.y > H + 80) {
-    lives--;
-    particles = [];
-    if (lives <= 0) {
-      state = 'gameover';
-    } else {
-      state     = 'dead';
-      deadTimer = 1.5;
+  // --- flying mode ---
+  if (player.flying) {
+    player.unicornTimer -= 1/60;
+
+    // free 4-direction movement
+    const spd = UNICORN_FLY_SPEED;
+    player.vx = 0; player.vy = 0;
+    if (movingLeft)  { player.vx = -spd; player.facingLeft = true; }
+    if (movingRight) { player.vx =  spd; player.facingLeft = false; }
+    if (movingUp)    player.vy = -spd;
+    if (movingDown)  player.vy =  spd;
+
+    // touch: jump button = fly up
+    if (touchState.jump) player.vy = -spd;
+
+    player.x += player.vx;
+    player.y += player.vy;
+
+    // clamp
+    if (player.x < 0) player.x = 0;
+    if (player.y < 0) player.y = 0;
+    if (player.y > H - player.h) player.y = H - player.h;
+
+    // rainbow trail
+    if (animTick % 2 === 0) {
+      spawnTrailParticle(player.x + player.w/2, player.y + player.h);
     }
-    return;
+
+    // timer expired → enter grace period
+    if (player.unicornTimer <= 0) {
+      player.flying = false;
+      player.graceTimer = GRACE_DURATION;
+      player.vy = 0;
+    }
+
+    player.onGround = false;
+    player.ridingCloud = null;
+
+  } else {
+    // --- normal / grace physics ---
+
+    // handle touch jump (edge-detect: trigger once per press)
+    if (touchState.jump && !prevTouchJump && player.jumpsLeft > 0) {
+      player.vy = JUMP_FORCE;
+      player.jumpsLeft--;
+      player.onGround = false;
+    }
+    prevTouchJump = touchState.jump;
+
+    if (movingLeft)  { player.vx = -MOVE_SPEED; player.facingLeft = true; }
+    else if (movingRight) { player.vx =  MOVE_SPEED; player.facingLeft = false; }
+    else             { player.vx = 0; }
+
+    // gravity (reduced during grace period)
+    if (player.graceTimer > 0) {
+      player.vy += GRAVITY * 0.2;
+      player.graceTimer--;
+    } else {
+      player.vy += GRAVITY;
+    }
+
+    player.x += player.vx;
+    player.y += player.vy;
+
+    if (player.x < 0) player.x = 0;
+
+    // cloud collision
+    player.onGround = false;
+    player.ridingCloud = null;
+    if (player.vy >= 0) {
+      for (const c of levelData.clouds) {
+        const playerBottom = player.y + player.h;
+        const prevBottom   = playerBottom - player.vy;
+        if (
+          player.x + player.w > c.x &&
+          player.x             < c.x + c.w &&
+          prevBottom <= c.y + 4 &&
+          playerBottom >= c.y
+        ) {
+          player.y       = c.y - player.h;
+          player.vy      = 0;
+          player.onGround = true;
+          player.jumpsLeft = 2;
+          player.ridingCloud = c;
+        }
+      }
+    }
+
+    // fall off screen → lose life
+    if (player.y > H + 80) {
+      lives--;
+      particles = [];
+      if (lives <= 0) {
+        state = 'gameover';
+      } else {
+        state     = 'dead';
+        deadTimer = 1.5;
+      }
+      return;
+    }
   }
 
+  // --- camera ---
+  const targetCamX = player.x - W * 0.35;
+  camX = Math.max(0, Math.min(targetCamX, levelData.worldWidth - W));
+
+  // --- pot of gold ---
   if (
     !player.won &&
     player.x + player.w > levelData.potX &&
@@ -784,6 +968,8 @@ function update() {
     player.y             < levelData.potY + 50
   ) {
     player.won = true;
+    player.flying = false;
+    player.unicornTimer = 0;
     spawnCoins(levelData.potX + 20, levelData.potY + 10);
     if (currentLevel < LEVELS.length - 1) {
       state = 'levelcomplete';
@@ -792,44 +978,45 @@ function update() {
     }
   }
 
-  // update crows — patrol on their cloud, collision with player
+  // --- update crows ---
   if (levelData.crows) {
     for (const crow of levelData.crows) {
       if (!crow.alive) continue;
       const cloud = levelData.clouds[crow.cloudIndex];
 
-      // move crow along cloud surface + ride with moving cloud
       crow.x += crow.speed * crow.dir + (cloud.dx || 0);
       crow.y = cloud.y - CROW_H;
 
-      // reverse at cloud edges
       if (crow.x < cloud.x + 4) { crow.x = cloud.x + 4; crow.dir = 1; }
       if (crow.x + CROW_W > cloud.x + cloud.w - 4) { crow.x = cloud.x + cloud.w - 4 - CROW_W; crow.dir = -1; }
 
-      // animation
       crow.frameTick++;
       if (crow.frameTick % 15 === 0) crow.frame++;
 
-      // collision with player
-      const overlapX = player.x + player.w > crow.x && player.x < crow.x + CROW_W;
-      const overlapY = player.y + player.h > crow.y && player.y < crow.y + CROW_H;
-      if (overlapX && overlapY) {
-        // stomp from above: player was falling and feet are above crow midpoint
-        if (player.vy > 0 && player.y + player.h < crow.y + CROW_H * 0.65) {
+      // collision — invulnerable while flying
+      if (!player.flying) {
+        const overlapX = player.x + player.w > crow.x && player.x < crow.x + CROW_W;
+        const overlapY = player.y + player.h > crow.y && player.y < crow.y + CROW_H;
+        if (overlapX && overlapY) {
+          if (player.vy > 0 && player.y + player.h < crow.y + CROW_H * 0.65) {
+            crow.alive = false;
+            spawnPoof(crow.x + CROW_W/2, crow.y + CROW_H/2);
+            player.vy = JUMP_FORCE * 0.55;
+          } else {
+            lives--;
+            particles = [];
+            if (lives <= 0) { state = 'gameover'; }
+            else { state = 'dead'; deadTimer = 1.5; }
+            return;
+          }
+        }
+      } else {
+        // flying into a crow defeats it
+        const overlapX = player.x + player.w > crow.x && player.x < crow.x + CROW_W;
+        const overlapY = player.y + player.h > crow.y && player.y < crow.y + CROW_H;
+        if (overlapX && overlapY) {
           crow.alive = false;
           spawnPoof(crow.x + CROW_W/2, crow.y + CROW_H/2);
-          player.vy = JUMP_FORCE * 0.55; // bounce
-        } else {
-          // hit from side — lose life
-          lives--;
-          particles = [];
-          if (lives <= 0) {
-            state = 'gameover';
-          } else {
-            state = 'dead';
-            deadTimer = 1.5;
-          }
-          return;
         }
       }
     }
@@ -1081,13 +1268,22 @@ function draw() {
     }
   }
 
+  // draw unicorn orbs
+  if (levelData.unicorns) {
+    for (const u of levelData.unicorns) {
+      if (!u.collected) drawUnicornOrb(u.x, u.y, camX);
+    }
+  }
+
   drawPot(levelData.potX, levelData.potY, camX);
   drawParticles(camX);
 
   if (state === 'playing' || state === 'dead' || state === 'levelcomplete' || state === 'gamecomplete') {
     const moving = player.vx !== 0;
     let sprite;
-    if (!player.onGround) {
+    if (player.flying) {
+      sprite = LEP_JUMP; // flying pose
+    } else if (!player.onGround) {
       sprite = LEP_JUMP;
     } else if (moving) {
       const frames = [LEP_RUN1, LEP_IDLE, LEP_RUN2, LEP_IDLE];
@@ -1095,7 +1291,24 @@ function draw() {
     } else {
       sprite = LEP_IDLE;
     }
+
+    // glow effect while flying
+    if (player.flying) {
+      ctx.save();
+      ctx.globalAlpha = 0.3 + Math.sin(Date.now()/150) * 0.15;
+      ctx.fillStyle = '#c8a0e0';
+      ctx.beginPath();
+      ctx.ellipse(player.x - camX + player.w/2, player.y + player.h/2, 24, 28, 0, 0, Math.PI*2);
+      ctx.fill();
+      ctx.restore();
+    }
+
     drawSprite(sprite, player.x - camX, player.y, 2, player.facingLeft);
+
+    // unicorn countdown timer above player
+    if (player.flying) {
+      drawUnicornTimer(player.x - camX + player.w/2, player.y - 16, player.unicornTimer, UNICORN_DURATION);
+    }
   }
 
   drawHUD();
