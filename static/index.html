@@ -377,24 +377,46 @@ function drawTerrain(camWX, camWY, progress) {
 }
 
 function drawTrees(camWX, camWY, progress) {
-  if (progress > 0.62) return;
   const rng = seededRandom(17);
+  const snowAmount = Math.max(0, (progress - 0.5) / 0.5); // 0 at 50%, 1 at 100%
   for (let i = 0; i < 30; i++) {
     const wx = i * 340 + (rng() * 80 - 40);
-    // Always root trees exactly on the trail surface
     const wy = trailY(wx);
-    // Consume rng call to keep sequence stable regardless of visibility
     rng();
     const [sx, sy] = worldToScreen(wx, wy, camWX, camWY);
     if (sx < -60 || sx > W + 60) continue;
-    // trunk rooted at sy (trail surface)
+
+    // Per-tree progress (how far along the level this tree sits)
+    const treeProgress = wx / LEVEL_LENGTH;
+    const treeSnow = Math.max(0, (treeProgress - 0.5) / 0.5);
+
+    // Trunk
     ctx.fillStyle = 'rgb(100,70,40)';
     ctx.fillRect(sx - 4, sy - 32, 8, 32);
-    // layered foliage growing upward from trail
-    ctx.fillStyle = 'rgb(40,140,50)';
+
+    // Lower foliage — lerp green toward snowy white
+    const gR = Math.round(40 + treeSnow * 180);
+    const gG = Math.round(140 - treeSnow * 40);
+    const gB = Math.round(50 + treeSnow * 180);
+    ctx.fillStyle = `rgb(${gR},${gG},${gB})`;
     ctx.beginPath(); ctx.moveTo(sx, sy-80); ctx.lineTo(sx-22, sy-38); ctx.lineTo(sx+22, sy-38); ctx.closePath(); ctx.fill();
-    ctx.fillStyle = 'rgb(55,160,60)';
+
+    // Upper foliage
+    const uR = Math.round(55 + treeSnow * 175);
+    const uG = Math.round(160 - treeSnow * 50);
+    const uB = Math.round(60 + treeSnow * 180);
+    ctx.fillStyle = `rgb(${uR},${uG},${uB})`;
     ctx.beginPath(); ctx.moveTo(sx, sy-95); ctx.lineTo(sx-16, sy-60); ctx.lineTo(sx+16, sy-60); ctx.closePath(); ctx.fill();
+
+    // Snow caps on foliage when tree is in snowy area
+    if (treeSnow > 0.1) {
+      const capAlpha = Math.min(1, treeSnow * 1.2);
+      ctx.fillStyle = `rgba(255,255,255,${capAlpha.toFixed(2)})`;
+      // Snow on upper tier
+      ctx.beginPath(); ctx.moveTo(sx, sy-95); ctx.lineTo(sx-12, sy-72); ctx.lineTo(sx+12, sy-72); ctx.closePath(); ctx.fill();
+      // Snow on lower tier
+      ctx.beginPath(); ctx.moveTo(sx-4, sy-78); ctx.lineTo(sx-18, sy-52); ctx.lineTo(sx+18, sy-52); ctx.lineTo(sx+4, sy-78); ctx.closePath(); ctx.fill();
+    }
   }
 }
 
