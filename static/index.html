@@ -21,12 +21,12 @@ const W = 800, H = 600;
 const LEVEL_LENGTH = 9600;
 const SLOPE = 0.30;
 const PLAYER_SPEED = 160;
-const JUMP_VELOCITY = -520;
+const JUMP_VELOCITY = -637;  // sqrt(1.5) * 520 → exact 50% taller jump arc
 const GRAVITY = 1400;
 const GOAT_CHARGE_SPEED = 200;
 const GOAT_TRIGGER_DIST = 400;
 const INVINCIBILITY_TIME = 1.5;
-const NUM_GOATS = 5;
+const NUM_GOATS = 7;         // 5 normal + 1 extra normal + 1 angry boss goat
 
 // State
 let state = 'start'; // start | playing | knockback | gameover | win
@@ -67,12 +67,14 @@ function resetLevel() {
   goats = [];
   const spacing = LEVEL_LENGTH / (NUM_GOATS + 1);
   for (let i = 0; i < NUM_GOATS; i++) {
+    const angry = (i === NUM_GOATS - 1); // last goat is the angry boss
     goats.push({
       homeWX: spacing * (i + 1),
       wx: spacing * (i + 1),
       wy: trailY(spacing * (i + 1)),
       charging: false,
       active: true,
+      angry,
       width: 44,
       height: 36
     });
@@ -345,14 +347,21 @@ function drawPlayer(sx, sy, right, flash, moving, walkOffset) {
 
   // ── 4. Animated legs (rotate from hip) ───────────────────────────────────
   const hipY = sy - 2;
-  // Left leg swings back when right arm swings back (natural gait)
-  const leftLegAngle  =  swing;
-  const rightLegAngle = -swing;
+  // Right leg swings forward when facing right (natural gait — front leg is right when facing right)
+  const rightLegAngle =  swing;
+  const leftLegAngle  = -swing;
 
-  // Left leg
+  // Draw back leg first (behind torso), front leg second (on top)
+  // Facing right → left leg is behind, right leg is in front
+  // Facing left  → right leg is behind, left leg is in front
+  const [backLegX, backLegAngle, frontLegX, frontLegAngle] = right
+    ? [sx - 5, leftLegAngle,  sx + 5, rightLegAngle]
+    : [sx + 5, rightLegAngle, sx - 5, leftLegAngle];
+
+  // Back leg
   c.save();
-  c.translate(sx - 5, hipY);
-  c.rotate(leftLegAngle);
+  c.translate(backLegX, hipY);
+  c.rotate(backLegAngle);
   c.fillStyle = 'rgb(230,195,160)';
   c.beginPath(); c.roundRect(-4, 0, 8, 10, 2); c.fill();
   c.fillStyle = 'rgb(90,60,35)';
@@ -361,10 +370,10 @@ function drawPlayer(sx, sy, right, flash, moving, walkOffset) {
   c.fillRect(-6, 14, 12, 3);
   c.restore();
 
-  // Right leg
+  // Front leg
   c.save();
-  c.translate(sx + 5, hipY);
-  c.rotate(rightLegAngle);
+  c.translate(frontLegX, hipY);
+  c.rotate(frontLegAngle);
   c.fillStyle = 'rgb(230,195,160)';
   c.beginPath(); c.roundRect(-4, 0, 8, 10, 2); c.fill();
   c.fillStyle = 'rgb(90,60,35)';
@@ -413,7 +422,7 @@ function roundRect(x, y, w, h, r) {
   ctx.closePath(); ctx.fill();
 }
 
-function drawGoat(sx, sy, facingLeft) {
+function drawGoat(sx, sy, facingLeft, angry) {
   // Scale goat to 75% height, anchored at hoof ground level (sy+15)
   ctx.save();
   ctx.translate(sx, sy + 15);
@@ -422,8 +431,8 @@ function drawGoat(sx, sy, facingLeft) {
 
   const flip = facingLeft ? -1 : 1;
 
-  // Body — rectangular/blocky (goat not sheep)
-  ctx.fillStyle = 'rgb(235,225,205)';
+  // Body — rectangular/blocky (goat not sheep); angry goat is bright red
+  ctx.fillStyle = angry ? 'rgb(220,50,40)' : 'rgb(235,225,205)';
   ctx.beginPath();
   ctx.roundRect(sx - 24, sy - 26, 48, 22, 4);
   ctx.fill();
@@ -432,7 +441,7 @@ function drawGoat(sx, sy, facingLeft) {
   ctx.beginPath(); ctx.roundRect(sx - 24, sy - 26, 48, 10, [4,4,0,0]); ctx.fill();
 
   // Legs (4 stubby legs)
-  ctx.fillStyle = 'rgb(200,190,175)';
+  ctx.fillStyle = angry ? 'rgb(190,40,30)' : 'rgb(200,190,175)';
   for (const off of [-16, -6, 6, 16]) {
     ctx.fillRect(sx + off - 3, sy - 6, 6, 18);
   }
@@ -445,7 +454,7 @@ function drawGoat(sx, sy, facingLeft) {
   // Neck
   const hx = sx + 20 * flip;
   const hy = sy - 26;
-  ctx.fillStyle = 'rgb(235,225,205)';
+  ctx.fillStyle = angry ? 'rgb(220,50,40)' : 'rgb(235,225,205)';
   ctx.beginPath();
   ctx.roundRect(hx - 6*flip, hy - 10, 12, 14, 3);
   ctx.fill();
@@ -455,7 +464,7 @@ function drawGoat(sx, sy, facingLeft) {
   ctx.roundRect(hx - 10, hy - 24, 20, 18, 4);
   ctx.fill();
   // Snout
-  ctx.fillStyle = 'rgb(210,200,185)';
+  ctx.fillStyle = angry ? 'rgb(200,40,30)' : 'rgb(210,200,185)';
   ctx.beginPath();
   ctx.roundRect(hx + 2*flip, hy - 16, 10, 10, 3);
   ctx.fill();
@@ -508,10 +517,33 @@ function drawGoat(sx, sy, facingLeft) {
   ctx.stroke();
 
   // Tail
-  ctx.fillStyle = 'rgb(245,240,230)';
+  ctx.fillStyle = angry ? 'rgb(255,80,60)' : 'rgb(245,240,230)';
   ctx.beginPath();
   ctx.ellipse(sx - 22*flip, sy - 22, 5, 7, flip * 0.3, 0, Math.PI*2);
   ctx.fill();
+
+  // Angry extras: furious eyebrows + red eye tint + smoke from nostril
+  if (angry) {
+    const hx = sx + 20 * flip;
+    const hy = sy - 26;
+    // Angry eyebrow (slanted inward)
+    ctx.strokeStyle = 'rgb(120,10,10)';
+    ctx.lineWidth = 2.5;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(hx - 7*flip, hy - 24);
+    ctx.lineTo(hx + 1*flip, hy - 27);
+    ctx.stroke();
+    ctx.lineCap = 'butt';
+    // Smoke puffs from nostril (two small grey circles)
+    const now = performance.now() / 1000;
+    const puff1Y = hy - 10 - ((now * 30) % 18);
+    const puff2Y = hy - 10 - ((now * 30 + 9) % 18);
+    ctx.fillStyle = 'rgba(160,160,160,0.75)';
+    ctx.beginPath(); ctx.arc(hx + 5*flip, puff1Y, 3.5, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = 'rgba(160,160,160,0.5)';
+    ctx.beginPath(); ctx.arc(hx + 7*flip, puff2Y - 4, 2.5, 0, Math.PI*2); ctx.fill();
+  }
 
   ctx.restore(); // end goat scale
 }
@@ -763,7 +795,7 @@ function update(dt) {
     if (!g.active) continue;
     const dist = g.wx - playerWX;
     if (dist > 0 && dist < GOAT_TRIGGER_DIST && !g.charging) g.charging = true;
-    if (g.charging) { g.wx -= GOAT_CHARGE_SPEED * dt; g.wy = trailY(g.wx); }
+    if (g.charging) { g.wx -= (g.angry ? GOAT_CHARGE_SPEED * 2 : GOAT_CHARGE_SPEED) * dt; g.wy = trailY(g.wx); }
     if (g.wx < playerWX - 300) g.active = false;
   }
 
@@ -837,7 +869,7 @@ function draw(dt) {
   for (const g of goats) {
     if (!g.active) continue;
     const [sx, sy] = worldToScreen(g.wx, g.wy, camWX, camWY);
-    if (sx > -60 && sx < W + 60) drawGoat(Math.round(sx), Math.round(sy), true);
+    if (sx > -60 && sx < W + 60) drawGoat(Math.round(sx), Math.round(sy), true, g.angry);
   }
 
   if (state === 'knockback') {
