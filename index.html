@@ -182,6 +182,16 @@ function startGame() {
   document.getElementById('scoreboard').style.visibility = 'visible';
   p1Score = 0; p2Score = 0;
   updateScoreboard();
+
+  // Shrink paddles: easy=100%, medium=90%, hard=80%
+  let padScale = 1;
+  if (speedMult === 1) padScale = 0.9;
+  else if (speedMult >= 1.4) padScale = 0.8;
+  player.h = PAD_H * padScale;
+  cpu.h = PAD_H * padScale;
+  player.y = H / 2 - player.h / 2;
+  cpu.y = H / 2 - cpu.h / 2;
+
   gameRunning = true;
   resetBall(1);
   requestAnimationFrame(loop);
@@ -191,7 +201,11 @@ function resetBall(dir) {
   ball.x = W / 2;
   ball.y = H / 2;
   const angle = (Math.random() * 0.8 - 0.4); // narrow angle
-  ball.speed = BALL_BASE_SPEED * speedMult;
+  // Ball speed: easy=base, medium=+10%, hard=+20%
+  let ballSpeedScale = 1;
+  if (speedMult === 1) ballSpeedScale = 1.1;
+  else if (speedMult >= 1.4) ballSpeedScale = 1.2;
+  ball.speed = BALL_BASE_SPEED * ballSpeedScale;
   ball.vx = ball.speed * dir * Math.cos(angle);
   ball.vy = ball.speed * Math.sin(angle);
 }
@@ -379,16 +393,16 @@ function moveCpu() {
       if (targetY > H) targetY = 2 * H - targetY;
     }
     // Add inaccuracy — more on easy, less on hard
-    const errorRange = (1.3 - speedMult) * 80; // easy: ~56px error, hard: ~-8px (near perfect)
+    const errorRange = (1.5 - speedMult) * 100; // easy: ~90px error, medium: ~50px, hard: ~10px
     targetY += (Math.sin(Date.now() * 0.003) * errorRange);
   } else {
     // Ball heading away — drift lazily toward center
     targetY = H / 2;
   }
 
-  // Speed scales with difficulty: easy is slow, hard is fast
-  const cpuSpeed = 1.5 + speedMult * 2.0;
-  const deadZone = 20 - speedMult * 8; // easy: ~15px, hard: ~9px
+  // Speed scales with difficulty: easy is very slow, hard is moderate
+  const cpuSpeed = 1.2 + speedMult * 1.5;
+  const deadZone = 25 - speedMult * 8; // easy: ~20px, hard: ~14px
   if (cpuCenter < targetY - deadZone) {
     cpu.y += cpuSpeed;
   } else if (cpuCenter > targetY + deadZone) {
@@ -422,7 +436,7 @@ function moveBall() {
     ball.x = player.x + player.w + BALL_R;
     const hitPos = (ball.y - player.y) / player.h - 0.5; // -0.5 to 0.5
     const angle = hitPos * 1.2;
-    ball.speed = Math.min(ball.speed * 1.04, 8 * speedMult);
+    ball.speed = Math.min(ball.speed * 1.04, 10);
     ball.vx = ball.speed * Math.cos(angle);
     ball.vy = ball.speed * Math.sin(angle);
   }
@@ -432,7 +446,7 @@ function moveBall() {
     ball.x = cpu.x - BALL_R;
     const hitPos = (ball.y - cpu.y) / cpu.h - 0.5;
     const angle = Math.PI - hitPos * 1.2;
-    ball.speed = Math.min(ball.speed * 1.04, 8 * speedMult);
+    ball.speed = Math.min(ball.speed * 1.04, 10);
     ball.vx = ball.speed * Math.cos(angle);
     ball.vy = ball.speed * Math.sin(angle);
   }
