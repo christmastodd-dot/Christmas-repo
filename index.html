@@ -258,7 +258,7 @@ function drawCloud(x, y, w, h, camX) {
 // ─────────────────────────────────────────────
 const RAINBOW_COLORS = ['#f8a0a0','#f8c89a','#f8e8a0','#a0dca0','#a0c8f0','#c8a0e0'];
 const FINAL_CLOUD = { x: 2060, y: 270, w: 250 };
-const RAINBOW_LAND_X = FINAL_CLOUD.x + FINAL_CLOUD.w * 0.55; // right side of final cloud
+const RAINBOW_LAND_X = FINAL_CLOUD.x + FINAL_CLOUD.w * 0.4; // centered on final cloud
 const RAINBOW_LAND_Y = FINAL_CLOUD.y + 10;
 const RAINBOW_RADIUS = 420;
 // Arc center: right foot of arc is at (landX, landY), so cx = landX - R
@@ -601,7 +601,7 @@ function drawHUD() {
   ctx.strokeText('LIVES', 12, 28);
   ctx.fillText('LIVES', 12, 28);
   for (let i = 0; i < MAX_LIVES; i++) {
-    drawClover(70 + i * 28, 16, i < lives ? '#2ecc40' : '#555');
+    drawClover(70 + i * 28, 16, i < lives ? '#28b839' : '#555');
   }
 }
 
@@ -613,8 +613,8 @@ function drawClover(x, y, color) {
   ctx.beginPath(); ctx.arc(x,   y+r, r, 0, Math.PI*2); ctx.fill();
   ctx.beginPath(); ctx.arc(x-r, y,   r, 0, Math.PI*2); ctx.fill();
   ctx.beginPath(); ctx.arc(x+r, y,   r, 0, Math.PI*2); ctx.fill();
-  // small stem
-  ctx.strokeStyle = color === '#555' ? '#444' : '#2e7d32';
+  // small stem (same color as shamrock)
+  ctx.strokeStyle = color;
   ctx.lineWidth = 2.5;
   ctx.lineCap = 'round';
   ctx.beginPath();
