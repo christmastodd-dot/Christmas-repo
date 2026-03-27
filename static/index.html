@@ -453,43 +453,40 @@ function drawPlayer(sx, sy, right, flash, moving, walkOffset) {
   c.fillStyle = 'rgb(185,145,110)';
   c.beginPath(); c.arc(sx, by - 48, 13, 0, Math.PI * 2); c.fill();
 
-  // Robin Hood hat (pointed cap with upturned brim)
-  // Hat body — tall pointed triangle leaning forward
+  // Robin Hood hat — flat with brim, feather pointing backward
+  // Hat body — low, flat cap
   c.fillStyle = 'rgb(55,105,45)';
   c.beginPath();
-  c.moveTo(sx - 14, by - 55);           // left brim
-  c.lineTo(sx + f*6, by - 82);          // pointed tip (leans toward facing dir)
-  c.lineTo(sx + 14, by - 55);           // right brim
+  c.moveTo(sx - 15, by - 56);
+  c.quadraticCurveTo(sx, by - 68, sx + 15, by - 56);
   c.closePath(); c.fill();
-  // Brim — upturned front edge
+  // Brim — wide, flat, extends outward
   c.fillStyle = 'rgb(48,90,38)';
   c.beginPath();
-  c.moveTo(sx - 16, by - 53);
-  c.quadraticCurveTo(sx, by - 58, sx + 16, by - 53);
-  c.quadraticCurveTo(sx, by - 50, sx - 16, by - 53);
-  c.closePath(); c.fill();
+  c.ellipse(sx, by - 55, 20, 6, 0, 0, Math.PI * 2);
+  c.fill();
   // Hat band
   c.strokeStyle = 'rgb(140,100,40)'; c.lineWidth = 2;
   c.beginPath();
-  c.moveTo(sx - 13, by - 55);
-  c.quadraticCurveTo(sx, by - 58, sx + 13, by - 55);
+  c.moveTo(sx - 15, by - 56);
+  c.quadraticCurveTo(sx, by - 59, sx + 15, by - 56);
   c.stroke();
   // Band buckle
   c.fillStyle = 'rgb(200,170,60)';
-  c.fillRect(sx - 3, by - 57, 6, 4);
+  c.fillRect(sx - 3, by - 58, 6, 4);
   c.fillStyle = 'rgb(160,130,40)';
-  c.fillRect(sx - 1, by - 56, 2, 2);
-  // Feather — long, sweeping, with barbs
+  c.fillRect(sx - 1, by - 57, 2, 2);
+  // Feather — sweeps BACKWARD (opposite to facing direction)
   c.strokeStyle = 'rgb(180,40,30)'; c.lineWidth = 2;
   c.beginPath();
-  c.moveTo(sx + 2, by - 58);
-  c.bezierCurveTo(sx + f*18, by - 78, sx + f*12, by - 92, sx + f*8, by - 88);
+  c.moveTo(sx - f*2, by - 59);
+  c.bezierCurveTo(sx - f*16, by - 72, sx - f*28, by - 78, sx - f*32, by - 72);
   c.stroke();
   // Feather barbs
   c.strokeStyle = 'rgb(200,60,40)'; c.lineWidth = 1;
-  c.beginPath(); c.moveTo(sx + f*14, by - 80); c.lineTo(sx + f*18, by - 84); c.stroke();
-  c.beginPath(); c.moveTo(sx + f*12, by - 84); c.lineTo(sx + f*16, by - 89); c.stroke();
-  c.beginPath(); c.moveTo(sx + f*10, by - 87); c.lineTo(sx + f*13, by - 92); c.stroke();
+  c.beginPath(); c.moveTo(sx - f*18, by - 73); c.lineTo(sx - f*20, by - 79); c.stroke();
+  c.beginPath(); c.moveTo(sx - f*24, by - 76); c.lineTo(sx - f*26, by - 82); c.stroke();
+  c.beginPath(); c.moveTo(sx - f*29, by - 75); c.lineTo(sx - f*31, by - 80); c.stroke();
 
   c.restore(); // end whole-body lean
 }
