@@ -128,6 +128,18 @@ async def websocket_endpoint(ws: WebSocket, room_code: str, name: str = Query(""
                         "channel": name,
                     })
 
+            elif msg_type == "bingo_start":
+                await broadcast(room_code, {
+                    "type": "bingo_start",
+                    "sender": name,
+                })
+
+            elif msg_type == "bingo_win":
+                await broadcast(room_code, {
+                    "type": "bingo_win",
+                    "sender": name,
+                })
+
             elif msg_type == "celebrate":
                 await broadcast(room_code, {
                     "type": "celebrate",

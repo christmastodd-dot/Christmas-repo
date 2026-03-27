@@ -703,6 +703,180 @@ body.quiet .msg.system .text {
     border-color: #5a7a9a;
 }
 
+/* ── Legislative Bingo ── */
+
+#bingo-btn {
+    font-weight: 800;
+    font-size: 15px;
+    color: #d4d4d4;
+}
+
+#bingo-btn.bingo-active {
+    background: #3a4a3a;
+    border-color: #5a9a5a;
+    color: #88cc88;
+}
+
+#bingo-btn.bingo-pulse {
+    animation: bingo-pulse 1s ease infinite;
+    border-color: #FFD700;
+    color: #FFD700;
+}
+
+@keyframes bingo-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.4); }
+    50% { box-shadow: 0 0 8px 4px rgba(255, 215, 0, 0.4); }
+}
+
+/* Bingo notification banner */
+.bingo-notify {
+    position: fixed;
+    top: 3rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 700;
+    background: #2a2a30;
+    border: 2px solid #FFD700;
+    border-radius: 10px;
+    padding: 0.75rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    box-shadow: 0 4px 20px rgba(255, 215, 0, 0.3);
+    animation: bingo-notify-in 0.4s ease both;
+}
+
+.bingo-notify-text {
+    color: #FFD700;
+    font-weight: 600;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.bingo-notify-join {
+    background: #FFD700;
+    color: #1a1a1e;
+    border: none;
+    border-radius: 6px;
+    padding: 0.4rem 1rem;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.bingo-notify-join:hover {
+    background: #ffe44d;
+}
+
+@keyframes bingo-notify-in {
+    0% { transform: translateX(-50%) translateY(-20px); opacity: 0; }
+    100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+}
+
+/* Bingo card overlay */
+.bingo-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9000;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.bingo-card {
+    background: #22222a;
+    border: 2px solid #FFD700;
+    border-radius: 12px;
+    padding: 1rem;
+    max-width: 400px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.bingo-title {
+    text-align: center;
+    font-size: 18px;
+    font-weight: 800;
+    color: #FFD700;
+    letter-spacing: 0.15em;
+    margin-bottom: 0.5rem;
+}
+
+.bingo-header {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 3px;
+    margin-bottom: 3px;
+}
+
+.bingo-header-cell {
+    text-align: center;
+    font-weight: 800;
+    font-size: 16px;
+    color: #FFD700;
+    padding: 0.3rem 0;
+}
+
+.bingo-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 3px;
+}
+
+.bingo-cell {
+    background: #2a2a32;
+    border: 1px solid #3a3a42;
+    border-radius: 4px;
+    padding: 0.4rem 0.25rem;
+    font-size: 10px;
+    color: #c0c0c0;
+    text-align: center;
+    cursor: pointer;
+    min-height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    line-height: 1.2;
+    word-break: break-word;
+}
+
+.bingo-cell:hover {
+    border-color: #5a7a9a;
+}
+
+.bingo-cell.marked {
+    background: #3a5a3a;
+    border-color: #5a9a5a;
+    color: #88cc88;
+}
+
+.bingo-cell.free {
+    background: #4a3a1a;
+    border-color: #FFD700;
+    color: #FFD700;
+    font-weight: 700;
+    font-size: 12px;
+    cursor: default;
+}
+
+.bingo-close {
+    text-align: center;
+    margin-top: 0.75rem;
+    color: #888;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.bingo-close:hover {
+    color: #ccc;
+}
+
 /* ── Mobile sidebar toggle ── */
 
 .sidebar-toggle {

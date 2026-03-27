@@ -164,6 +164,12 @@ function handleMessage(msg) {
         case "reaction_update":
             updateReactionDisplay(msg.msg_id, msg.reactions);
             break;
+        case "bingo_start":
+            handleBingoStart(msg.sender);
+            break;
+        case "bingo_win":
+            handleBingoWin(msg.sender);
+            break;
     }
 }
 
@@ -820,6 +826,223 @@ msgInput.addEventListener("focus", () => {
             msgInput.scrollIntoView({ block: "center", behavior: "smooth" });
         }
     }, 400);
+});
+
+// ── Legislative Bingo ──
+
+const BINGO_PHRASES = [
+    "The Chair recognizes...",
+    "Without objection",
+    "Roll call vote",
+    "Point of order",
+    "I yield my time",
+    "Reclaiming my time",
+    "Move to table",
+    "Call of the House",
+    "Third reading",
+    "The measure passes",
+    "Conference committee",
+    "Floor amendment",
+    "Referred to committee",
+    "Someone says mahalo",
+    "Lei spotted on a member",
+    "Aloha spirit mentioned",
+    "Cost of living comes up",
+    "Tourism mentioned",
+    "Housing crisis referenced",
+    "Kupuna referenced",
+    "Sustainability invoked",
+    "Neighbor islands mentioned",
+    "Local families invoked",
+    "Keiki mentioned",
+    "Hawaiian homelands referenced",
+    "Rail / HART mentioned",
+    "Someone walks in late",
+    "Phone goes off in chamber",
+    "Water bottle sip mid-speech",
+    "Side convo caught on mic",
+    "Empty seats in chamber",
+    "Reading from phone at mic",
+    "Awkward pause at the mic",
+    "Gallery gets shushed",
+    "Voting system glitch",
+    "Same member speaks 3x on one bill",
+    "Unanimous consent",
+    "Sine die mentioned",
+    "Someone says 'my good colleague'",
+    "Standing ovation",
+    "Reference to constituent",
+    "Moment of silence",
+    "Someone runs to make a vote",
+    "Recess called",
+    "Committee of the Whole",
+    "Quorum call",
+    "Motion to reconsider",
+    "Personal privilege",
+];
+
+let bingoActive = false;
+let bingoCard = null;
+let bingoMarked = null;
+let bingoOverlayEl = null;
+let bingoNotifyEl = null;
+
+function shuffleAndPick(arr, n) {
+    const shuffled = [...arr];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled.slice(0, n);
+}
+
+function generateBingoCard() {
+    const phrases = shuffleAndPick(BINGO_PHRASES, 24);
+    // Insert FREE space in center (index 12)
+    phrases.splice(12, 0, "FREE");
+    return phrases;
+}
+
+function checkBingoWin(marked) {
+    const lines = [];
+    // Rows
+    for (let r = 0; r < 5; r++) lines.push([0,1,2,3,4].map(c => r * 5 + c));
+    // Columns
+    for (let c = 0; c < 5; c++) lines.push([0,1,2,3,4].map(r => r * 5 + c));
+    // Diagonals
+    lines.push([0, 6, 12, 18, 24]);
+    lines.push([4, 8, 12, 16, 20]);
+    return lines.some(line => line.every(i => marked[i]));
+}
+
+function openBingoCard() {
+    if (bingoOverlayEl) { closeBingoCard(); return; }
+
+    bingoOverlayEl = document.createElement("div");
+    bingoOverlayEl.className = "bingo-overlay";
+
+    const card = document.createElement("div");
+    card.className = "bingo-card";
+
+    const title = document.createElement("div");
+    title.className = "bingo-title";
+    title.textContent = "LEGISLATIVE BINGO";
+    card.appendChild(title);
+
+    const header = document.createElement("div");
+    header.className = "bingo-header";
+    "BINGO".split("").forEach(letter => {
+        const cell = document.createElement("div");
+        cell.className = "bingo-header-cell";
+        cell.textContent = letter;
+        header.appendChild(cell);
+    });
+    card.appendChild(header);
+
+    const grid = document.createElement("div");
+    grid.className = "bingo-grid";
+
+    bingoCard.forEach((phrase, i) => {
+        const cell = document.createElement("div");
+        cell.className = "bingo-cell";
+        if (bingoMarked[i]) cell.classList.add("marked");
+        if (phrase === "FREE") {
+            cell.classList.add("free");
+            cell.textContent = "FREE";
+        } else {
+            cell.textContent = phrase;
+        }
+        cell.addEventListener("click", () => {
+            if (phrase === "FREE") return;
+            bingoMarked[i] = !bingoMarked[i];
+            cell.classList.toggle("marked", bingoMarked[i]);
+            if (checkBingoWin(bingoMarked)) {
+                send({ type: "bingo_win" });
+                handleBingoWin(myName);
+            }
+        });
+        grid.appendChild(cell);
+    });
+    card.appendChild(grid);
+
+    const closeBtn = document.createElement("div");
+    closeBtn.className = "bingo-close";
+    closeBtn.textContent = "Close Card";
+    closeBtn.addEventListener("click", closeBingoCard);
+    card.appendChild(closeBtn);
+
+    bingoOverlayEl.appendChild(card);
+    bingoOverlayEl.addEventListener("click", (e) => {
+        if (e.target === bingoOverlayEl) closeBingoCard();
+    });
+    document.body.appendChild(bingoOverlayEl);
+}
+
+function closeBingoCard() {
+    if (bingoOverlayEl) {
+        bingoOverlayEl.remove();
+        bingoOverlayEl = null;
+    }
+}
+
+function startBingoGame() {
+    bingoActive = true;
+    bingoCard = generateBingoCard();
+    bingoMarked = new Array(25).fill(false);
+    bingoMarked[12] = true; // FREE space
+    removeBingoNotify();
+    openBingoCard();
+    // Update button style
+    document.getElementById("bingo-btn").classList.add("bingo-active");
+}
+
+function handleBingoStart(sender) {
+    if (sender === myName) return;
+    // Show pulsing notification to join
+    if (bingoActive) return; // already playing
+    showBingoNotify(sender);
+}
+
+function showBingoNotify(sender) {
+    removeBingoNotify();
+    bingoNotifyEl = document.createElement("div");
+    bingoNotifyEl.className = "bingo-notify";
+    bingoNotifyEl.innerHTML = '<span class="bingo-notify-text">' + sender + ' started Bingo!</span>';
+    const joinBtn = document.createElement("button");
+    joinBtn.className = "bingo-notify-join";
+    joinBtn.textContent = "Join Game";
+    joinBtn.addEventListener("click", () => {
+        startBingoGame();
+    });
+    bingoNotifyEl.appendChild(joinBtn);
+    document.body.appendChild(bingoNotifyEl);
+
+    // Also pulse the bingo button
+    document.getElementById("bingo-btn").classList.add("bingo-pulse");
+}
+
+function removeBingoNotify() {
+    if (bingoNotifyEl) { bingoNotifyEl.remove(); bingoNotifyEl = null; }
+    document.getElementById("bingo-btn").classList.remove("bingo-pulse");
+}
+
+function handleBingoWin(winner) {
+    closeBingoCard();
+    showCelebration(winner, "BINGO");
+}
+
+// Bingo button
+document.getElementById("bingo-btn").addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (bingoActive) {
+        // Already playing — toggle card visibility
+        openBingoCard();
+        return;
+    }
+    // Start a new game
+    startBingoGame();
+    send({ type: "bingo_start" });
 });
 
 // ── Start ──
