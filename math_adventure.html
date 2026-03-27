@@ -66,6 +66,21 @@
   .mode-icon { font-size: clamp(2rem, 6vw, 3rem); }
   .mode-label { font-size: clamp(0.75rem, 2.5vw, 1rem); color: #888; font-weight: normal; }
 
+  /* Back button */
+  .back-btn {
+    background: rgba(255,255,255,0.2);
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    padding: 8px 14px;
+    font-size: clamp(0.85rem, 2.5vw, 1rem);
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.12s, background 0.12s;
+    white-space: nowrap;
+  }
+  .back-btn:active { transform: scale(0.93); background: rgba(255,255,255,0.3); }
+
   /* GAME SCREEN */
   .game-header {
     display: flex;
@@ -368,6 +383,7 @@
 <!-- GAME SCREEN -->
 <div id="gameScreen" class="screen">
   <div class="game-header">
+    <button class="back-btn" onclick="goHome()">&#9664; Back</button>
     <div class="stat-badge" id="scoreDisplay">0</div>
     <div class="timer-bar"><div class="timer-fill" id="timerFill"></div></div>
     <div class="stat-badge" id="questionCount">1/20</div>
@@ -423,6 +439,11 @@
   }
 
   function showStart() { showScreen('startScreen'); }
+
+  function goHome() {
+    clearInterval(timerInterval);
+    showScreen('startScreen');
+  }
 
   function startGame(m) {
     mode = m;
