@@ -640,34 +640,31 @@ function drawPlayer(sx, sy, right, flash, moving, walkOffset) {
   c.fillStyle = 'rgb(245,205,170)';
   c.beginPath(); c.arc(sx, by - 48, 13, 0, Math.PI * 2); c.fill();
 
-  // Robin Hood hat — tall pointed cap, folded tip, asymmetric brim
-  // Main cap body — tall triangle with tip folding backward
+  // Robin Hood hat — solid triangular cap with brim, feather backward
+  // Cap body — solid triangle, peak leans slightly backward
   c.fillStyle = 'rgb(55,105,45)';
   c.beginPath();
-  c.moveTo(sx - 16, by - 55);                        // left base
-  c.lineTo(sx - 2, by - 78);                         // rises to peak
-  c.quadraticCurveTo(sx - f*8, by - 76, sx - f*14, by - 70); // tip folds backward
-  c.lineTo(sx + 16, by - 55);                        // right base
+  c.moveTo(sx - 17, by - 54);              // left base
+  c.lineTo(sx - f*4, by - 80);             // peak (leans backward)
+  c.lineTo(sx + 17, by - 54);              // right base
   c.closePath(); c.fill();
-  // Darker front crease
+  // Darker half for depth (front face of the cap)
   c.fillStyle = 'rgb(45,88,35)';
   c.beginPath();
-  c.moveTo(sx + f*4, by - 55);
-  c.lineTo(sx - 2, by - 78);
-  c.lineTo(sx + 16*f, by - 55);
+  c.moveTo(sx, by - 54);                   // center base
+  c.lineTo(sx - f*4, by - 80);             // peak
+  c.lineTo(sx + f*17, by - 54);            // front base edge
   c.closePath(); c.fill();
-  // Brim — turned up on the front, flat on back (asymmetric)
+  // Brim — wide, sits on top of the head, drawn over the cap base
   c.fillStyle = 'rgb(42,82,32)';
   c.beginPath();
-  c.moveTo(sx - 18, by - 54);
-  c.quadraticCurveTo(sx + f*5, by - 60, sx + f*20, by - 52);  // front brim curves up
-  c.quadraticCurveTo(sx, by - 50, sx - 18, by - 54);           // back is lower
-  c.closePath(); c.fill();
-  // Hat band
+  c.ellipse(sx, by - 54, 20, 6, 0, 0, Math.PI * 2);
+  c.fill();
+  // Hat band across the base of the cap
   c.strokeStyle = 'rgb(140,100,40)'; c.lineWidth = 2.5;
   c.beginPath();
-  c.moveTo(sx - 16, by - 55);
-  c.quadraticCurveTo(sx, by - 58, sx + 16, by - 55);
+  c.moveTo(sx - 17, by - 55);
+  c.quadraticCurveTo(sx, by - 58, sx + 17, by - 55);
   c.stroke();
   // Band buckle / medallion
   c.fillStyle = 'rgb(210,180,70)';
@@ -681,7 +678,7 @@ function drawPlayer(sx, sy, right, flash, moving, walkOffset) {
   c.moveTo(sx - f*1, by - 58);
   c.bezierCurveTo(sx - f*14, by - 70, sx - f*26, by - 76, sx - f*34, by - 70);
   c.stroke();
-  // Feather barbs (angled out from the quill)
+  // Feather barbs
   c.strokeStyle = 'rgb(210,65,45)'; c.lineWidth = 1;
   c.beginPath(); c.moveTo(sx - f*10, by - 66); c.lineTo(sx - f*12, by - 73); c.stroke();
   c.beginPath(); c.moveTo(sx - f*17, by - 71); c.lineTo(sx - f*19, by - 78); c.stroke();
