@@ -463,6 +463,7 @@ function drawAlpineItems(camWX, camWY) {
     { type: 'sign', wx: 400, text: 'Summit\nthis way!' },
     { type: 'cabin', wx: 1800 },
     { type: 'cave', wx: 3200 },
+    { type: 'santa', wx: 3800 },
     { type: 'sign', wx: 4400, text: 'Watch for\ngoats!' },
     { type: 'cabin', wx: 5600 },
     { type: 'sign', wx: 6800, text: 'Almost\nthere!' },
@@ -471,14 +472,16 @@ function drawAlpineItems(camWX, camWY) {
   for (const item of items) {
     const wy = trailY(item.wx);
     const [sx, sy] = worldToScreen(item.wx, wy, camWX, camWY);
-    if (sx < -80 || sx > W + 80) continue;
+    if (sx < -100 || sx > W + 100) continue;
 
     if (item.type === 'sign') {
       drawTrailSign(sx, sy, item.text);
     } else if (item.type === 'cabin') {
-      drawCabin(sx, sy);
+      drawCabin(sx, sy, camWX, camWY, item.wx);
     } else if (item.type === 'cave') {
-      drawCave(sx, sy);
+      drawCave(sx, sy, camWX, camWY, item.wx);
+    } else if (item.type === 'santa') {
+      drawSanta(sx, sy);
     }
   }
 }
@@ -511,114 +514,220 @@ function drawTrailSign(sx, sy) {
   c.fill();
 }
 
-function drawCabin(sx, sy) {
+function drawCabin(sx, sy, camWX, camWY, wx) {
   const c = ctx;
-  // Cabin sits behind/above the trail
-  const bx = sx - 30, by = sy - 58;
+  // Get trail Y at left and right edges so cabin sits on the slope
+  const halfW = 34;
+  const [, syL] = worldToScreen(wx - halfW, trailY(wx - halfW), camWX, camWY);
+  const [, syR] = worldToScreen(wx + halfW, trailY(wx + halfW), camWX, camWY);
+  const cabinH = 36, roofH = 24;
+  const topY = Math.min(syL, syR) - cabinH;
 
-  // Cabin body — warm wood
+  // Ground fill to connect cabin base to slope
   c.fillStyle = 'rgb(140,90,45)';
-  c.fillRect(bx, by, 60, 36);
+  c.beginPath();
+  c.moveTo(sx - halfW, topY);
+  c.lineTo(sx + halfW, topY);
+  c.lineTo(sx + halfW, syR);
+  c.lineTo(sx - halfW, syL);
+  c.closePath(); c.fill();
   // Darker planks
   c.strokeStyle = 'rgb(110,70,35)'; c.lineWidth = 1;
-  for (let i = 0; i < 4; i++) {
-    c.beginPath(); c.moveTo(bx, by + 9*i + 9); c.lineTo(bx + 60, by + 9*i + 9); c.stroke();
+  for (let i = 1; i <= 3; i++) {
+    const py = topY + i * 9;
+    c.beginPath(); c.moveTo(sx - halfW, py); c.lineTo(sx + halfW, py); c.stroke();
   }
-  // Roof — steep A-frame, dark red
+  // Roof — steep A-frame
   c.fillStyle = 'rgb(160,60,40)';
   c.beginPath();
-  c.moveTo(bx - 6, by);
-  c.lineTo(sx, by - 24);
-  c.lineTo(bx + 66, by);
+  c.moveTo(sx - halfW - 6, topY);
+  c.lineTo(sx, topY - roofH);
+  c.lineTo(sx + halfW + 6, topY);
   c.closePath(); c.fill();
-  // Roof edge
   c.strokeStyle = 'rgb(120,40,25)'; c.lineWidth = 1.5;
-  c.beginPath(); c.moveTo(bx - 6, by); c.lineTo(sx, by - 24); c.lineTo(bx + 66, by); c.stroke();
+  c.beginPath(); c.moveTo(sx - halfW - 6, topY); c.lineTo(sx, topY - roofH); c.lineTo(sx + halfW + 6, topY); c.stroke();
   // Snow on roof
   c.fillStyle = 'rgba(255,255,255,0.65)';
   c.beginPath();
-  c.moveTo(bx - 4, by + 2);
-  c.lineTo(sx, by - 22);
-  c.lineTo(bx + 64, by + 2);
-  c.quadraticCurveTo(bx + 58, by + 6, bx + 50, by + 4);
-  c.quadraticCurveTo(sx + 10, by - 14, sx, by - 16);
-  c.quadraticCurveTo(sx - 12, by - 14, bx + 8, by + 5);
-  c.quadraticCurveTo(bx, by + 6, bx - 4, by + 2);
+  c.moveTo(sx - halfW - 3, topY + 2);
+  c.lineTo(sx, topY - roofH + 3);
+  c.lineTo(sx + halfW + 3, topY + 2);
+  c.quadraticCurveTo(sx + halfW - 8, topY + 5, sx + 10, topY - roofH + 10);
+  c.quadraticCurveTo(sx - 12, topY - roofH + 10, sx - halfW + 6, topY + 5);
   c.closePath(); c.fill();
   // Door
   c.fillStyle = 'rgb(90,55,25)';
-  c.beginPath(); c.roundRect(sx - 7, by + 14, 14, 22, [3,3,0,0]); c.fill();
+  const doorY = topY + 14;
+  c.fillRect(sx - 7, doorY, 14, sy - doorY);
+  c.beginPath(); c.roundRect(sx - 7, doorY, 14, 18, [3,3,0,0]); c.fill();
   // Door handle
   c.fillStyle = 'rgb(200,170,60)';
-  c.beginPath(); c.arc(sx + 4, by + 26, 2, 0, Math.PI*2); c.fill();
+  c.beginPath(); c.arc(sx + 4, doorY + 10, 2, 0, Math.PI*2); c.fill();
   // Window
+  const winX = sx + 12, winY = topY + 10;
   c.fillStyle = 'rgb(200,220,255)';
-  c.fillRect(bx + 38, by + 10, 14, 12);
+  c.fillRect(winX, winY, 14, 12);
   c.strokeStyle = 'rgb(110,70,35)'; c.lineWidth = 1.5;
-  c.strokeRect(bx + 38, by + 10, 14, 12);
-  // Window cross
-  c.beginPath(); c.moveTo(bx + 45, by + 10); c.lineTo(bx + 45, by + 22); c.stroke();
-  c.beginPath(); c.moveTo(bx + 38, by + 16); c.lineTo(bx + 52, by + 16); c.stroke();
-  // Warm glow from window
+  c.strokeRect(winX, winY, 14, 12);
+  c.beginPath(); c.moveTo(winX + 7, winY); c.lineTo(winX + 7, winY + 12); c.stroke();
+  c.beginPath(); c.moveTo(winX, winY + 6); c.lineTo(winX + 14, winY + 6); c.stroke();
   c.fillStyle = 'rgba(255,220,120,0.25)';
-  c.fillRect(bx + 39, by + 11, 12, 10);
+  c.fillRect(winX + 1, winY + 1, 12, 10);
   // Chimney
   c.fillStyle = 'rgb(120,100,80)';
-  c.fillRect(sx + 12, by - 18, 10, 18);
-  // Smoke from chimney
+  c.fillRect(sx + 14, topY - roofH + 6, 10, roofH - 6);
+  // Smoke
   const now = performance.now() / 1000;
   c.fillStyle = 'rgba(200,200,210,0.35)';
   for (let p = 0; p < 3; p++) {
     const t = ((now * 20 + p * 12) % 36) / 36;
-    const puffY = by - 20 - t * 40;
-    const puffX = sx + 17 + Math.sin(t * Math.PI * 2) * 5;
-    c.beginPath(); c.arc(puffX, puffY, 4 + t * 5, 0, Math.PI*2); c.fill();
+    c.beginPath(); c.arc(sx + 19 + Math.sin(t * Math.PI * 2) * 5, topY - roofH + 4 - t * 40, 4 + t * 5, 0, Math.PI*2); c.fill();
   }
 }
 
-function drawCave(sx, sy) {
+function drawCave(sx, sy, camWX, camWY, wx) {
   const c = ctx;
-  // Cave opening — dark arch set into the hillside
-  const cx = sx, cy = sy - 10;
+  // Get trail Y at left and right edges so cave sits on the slope
+  const halfW = 40;
+  const [, syL] = worldToScreen(wx - halfW, trailY(wx - halfW), camWX, camWY);
+  const [, syR] = worldToScreen(wx + halfW, trailY(wx + halfW), camWX, camWY);
 
-  // Rock face around cave
+  // Rock face — fill from arch top down to the sloped trail
+  const archTopY = sy - 48;
   c.fillStyle = 'rgb(100,90,80)';
   c.beginPath();
-  c.ellipse(cx, cy - 10, 38, 35, 0, Math.PI, Math.PI*2);
-  c.fill();
-  c.fillRect(cx - 38, cy - 10, 76, 15);
+  c.moveTo(sx - halfW, syL);
+  c.lineTo(sx - halfW, archTopY + 10);
+  c.ellipse(sx, archTopY + 10, halfW, 38, 0, Math.PI, 0);
+  c.lineTo(sx + halfW, syR);
+  c.closePath(); c.fill();
 
   // Rocky texture
   c.fillStyle = 'rgb(85,78,70)';
-  c.beginPath(); c.ellipse(cx - 20, cy - 22, 10, 6, -0.3, 0, Math.PI*2); c.fill();
-  c.beginPath(); c.ellipse(cx + 18, cy - 18, 8, 5, 0.2, 0, Math.PI*2); c.fill();
+  c.beginPath(); c.ellipse(sx - 22, archTopY + 14, 10, 6, -0.3, 0, Math.PI*2); c.fill();
+  c.beginPath(); c.ellipse(sx + 20, archTopY + 18, 8, 5, 0.2, 0, Math.PI*2); c.fill();
   c.fillStyle = 'rgb(115,105,92)';
-  c.beginPath(); c.ellipse(cx + 5, cy - 30, 12, 7, 0.1, 0, Math.PI*2); c.fill();
+  c.beginPath(); c.ellipse(sx + 3, archTopY + 4, 12, 7, 0.1, 0, Math.PI*2); c.fill();
 
-  // Cave opening — dark arch
+  // Cave opening — dark arch, bottom meets the trail
   c.fillStyle = 'rgb(25,20,18)';
   c.beginPath();
-  c.ellipse(cx, cy, 22, 24, 0, Math.PI, Math.PI*2);
-  c.fill();
-  c.fillRect(cx - 22, cy, 44, 8);
+  c.ellipse(sx, sy - 14, 22, 24, 0, Math.PI, 0);
+  c.lineTo(sx + 22, sy + 2);
+  c.lineTo(sx - 22, sy + 2);
+  c.closePath(); c.fill();
 
-  // Inner depth glow (subtle warm hint of something inside)
+  // Inner glow
   c.fillStyle = 'rgba(255,180,80,0.08)';
   c.beginPath();
-  c.ellipse(cx, cy - 4, 14, 16, 0, Math.PI, Math.PI*2);
+  c.ellipse(sx, sy - 18, 14, 16, 0, Math.PI, 0);
   c.fill();
 
   // Stalactites
   c.fillStyle = 'rgb(70,65,58)';
-  c.beginPath(); c.moveTo(cx - 12, cy - 22); c.lineTo(cx - 10, cy - 12); c.lineTo(cx - 14, cy - 12); c.closePath(); c.fill();
-  c.beginPath(); c.moveTo(cx + 6, cy - 24); c.lineTo(cx + 8, cy - 14); c.lineTo(cx + 4, cy - 14); c.closePath(); c.fill();
-  c.beginPath(); c.moveTo(cx - 3, cy - 23); c.lineTo(cx - 1, cy - 16); c.lineTo(cx - 5, cy - 16); c.closePath(); c.fill();
+  c.beginPath(); c.moveTo(sx - 12, sy - 34); c.lineTo(sx - 10, sy - 24); c.lineTo(sx - 14, sy - 24); c.closePath(); c.fill();
+  c.beginPath(); c.moveTo(sx + 6, sy - 36); c.lineTo(sx + 8, sy - 26); c.lineTo(sx + 4, sy - 26); c.closePath(); c.fill();
+  c.beginPath(); c.moveTo(sx - 3, sy - 35); c.lineTo(sx - 1, sy - 28); c.lineTo(sx - 5, sy - 28); c.closePath(); c.fill();
 
-  // Snow on top of rock face
+  // Snow on top
   c.fillStyle = 'rgba(255,255,255,0.5)';
   c.beginPath();
-  c.ellipse(cx, cy - 32, 30, 6, 0, Math.PI, Math.PI*2);
+  c.ellipse(sx, archTopY + 2, 32, 6, 0, Math.PI, 0);
   c.fill();
+}
+
+function drawSanta(sx, sy) {
+  const c = ctx;
+  // Santa sits on a little rock next to the trail, waving
+  // Rock
+  c.fillStyle = 'rgb(110,100,90)';
+  c.beginPath(); c.ellipse(sx + 18, sy - 4, 14, 8, 0.1, 0, Math.PI*2); c.fill();
+
+  // Santa's body center is on the rock
+  const bx = sx + 18, by = sy - 16;
+
+  // Legs (dangling from the rock)
+  c.fillStyle = 'rgb(180,40,40)';
+  c.fillRect(bx - 8, by + 10, 7, 12);
+  c.fillRect(bx + 1, by + 10, 7, 12);
+  // Boots
+  c.fillStyle = 'rgb(30,30,30)';
+  c.beginPath(); c.roundRect(bx - 9, by + 20, 9, 5, 2); c.fill();
+  c.beginPath(); c.roundRect(bx, by + 20, 9, 5, 2); c.fill();
+
+  // Body — red coat
+  c.fillStyle = 'rgb(200,30,30)';
+  c.beginPath(); c.roundRect(bx - 10, by - 8, 20, 20, 4); c.fill();
+  // Belt
+  c.fillStyle = 'rgb(30,30,30)';
+  c.fillRect(bx - 10, by + 4, 20, 4);
+  c.fillStyle = 'rgb(220,190,60)';
+  c.fillRect(bx - 3, by + 3, 6, 6);
+
+  // Waving arm (right arm up) — animated
+  const wave = Math.sin(performance.now() / 250) * 0.25;
+  c.save();
+  c.translate(bx + 10, by - 2);
+  c.rotate(-1.2 + wave);
+  // Sleeve
+  c.fillStyle = 'rgb(200,30,30)';
+  c.fillRect(-3, 0, 6, 14);
+  // White cuff
+  c.fillStyle = 'rgb(255,255,255)';
+  c.fillRect(-4, 12, 8, 4);
+  // Mitten
+  c.fillStyle = 'rgb(200,30,30)';
+  c.beginPath(); c.arc(0, 18, 4, 0, Math.PI*2); c.fill();
+  c.restore();
+
+  // Left arm resting
+  c.fillStyle = 'rgb(200,30,30)';
+  c.fillRect(bx - 13, by + 0, 6, 10);
+  c.fillStyle = 'rgb(255,255,255)';
+  c.fillRect(bx - 14, by + 8, 8, 3);
+
+  // Head
+  c.fillStyle = 'rgb(245,205,170)';
+  c.beginPath(); c.arc(bx, by - 16, 10, 0, Math.PI*2); c.fill();
+
+  // Beard
+  c.fillStyle = 'rgb(255,255,255)';
+  c.beginPath();
+  c.moveTo(bx - 8, by - 12);
+  c.quadraticCurveTo(bx - 10, by, bx - 4, by + 2);
+  c.quadraticCurveTo(bx, by + 6, bx + 4, by + 2);
+  c.quadraticCurveTo(bx + 10, by, bx + 8, by - 12);
+  c.closePath(); c.fill();
+
+  // Eyes — friendly dots
+  c.fillStyle = 'rgb(40,40,40)';
+  c.beginPath(); c.arc(bx - 4, by - 18, 1.5, 0, Math.PI*2); c.fill();
+  c.beginPath(); c.arc(bx + 4, by - 18, 1.5, 0, Math.PI*2); c.fill();
+  // Rosy cheeks
+  c.fillStyle = 'rgba(255,120,120,0.4)';
+  c.beginPath(); c.arc(bx - 7, by - 14, 3, 0, Math.PI*2); c.fill();
+  c.beginPath(); c.arc(bx + 7, by - 14, 3, 0, Math.PI*2); c.fill();
+  // Nose
+  c.fillStyle = 'rgb(230,160,140)';
+  c.beginPath(); c.arc(bx, by - 14, 2.5, 0, Math.PI*2); c.fill();
+  // Smile
+  c.strokeStyle = 'rgb(180,80,80)'; c.lineWidth = 1;
+  c.beginPath(); c.arc(bx, by - 11, 3, 0.2, Math.PI - 0.2); c.stroke();
+
+  // Santa hat
+  c.fillStyle = 'rgb(200,30,30)';
+  c.beginPath();
+  c.moveTo(bx - 11, by - 22);
+  c.quadraticCurveTo(bx, by - 42, bx + 14, by - 30);
+  c.lineTo(bx + 11, by - 22);
+  c.closePath(); c.fill();
+  // White fur trim
+  c.fillStyle = 'rgb(255,255,255)';
+  c.beginPath();
+  c.ellipse(bx, by - 22, 13, 4, 0, 0, Math.PI*2);
+  c.fill();
+  // Pompom
+  c.beginPath(); c.arc(bx + 14, by - 30, 5, 0, Math.PI*2); c.fill();
 }
 
 function drawSummitFlag(camWX, camWY) {
@@ -828,19 +937,19 @@ function drawPlayer(sx, sy, right, flash, moving, walkOffset) {
   c.beginPath(); c.arc(sx, by - 57, 3.5, 0, Math.PI*2); c.fill();
   c.fillStyle = 'rgb(170,140,50)';
   c.beginPath(); c.arc(sx, by - 57, 2, 0, Math.PI*2); c.fill();
-  // Feather — long, sweeps BACKWARD from the band
+  // Feather — starts at front of hat, sweeps BACKWARD
   c.strokeStyle = 'rgb(180,40,30)'; c.lineWidth = 2.5;
   c.lineCap = 'round';
   c.beginPath();
-  c.moveTo(sx - f*1, by - 58);
-  c.bezierCurveTo(sx - f*14, by - 70, sx - f*26, by - 76, sx - f*34, by - 70);
+  c.moveTo(sx + f*8, by - 57);
+  c.bezierCurveTo(sx - f*8, by - 70, sx - f*22, by - 78, sx - f*34, by - 72);
   c.stroke();
   // Feather barbs
   c.strokeStyle = 'rgb(210,65,45)'; c.lineWidth = 1;
-  c.beginPath(); c.moveTo(sx - f*10, by - 66); c.lineTo(sx - f*12, by - 73); c.stroke();
-  c.beginPath(); c.moveTo(sx - f*17, by - 71); c.lineTo(sx - f*19, by - 78); c.stroke();
-  c.beginPath(); c.moveTo(sx - f*23, by - 74); c.lineTo(sx - f*25, by - 81); c.stroke();
-  c.beginPath(); c.moveTo(sx - f*29, by - 73); c.lineTo(sx - f*31, by - 79); c.stroke();
+  c.beginPath(); c.moveTo(sx - f*5, by - 67); c.lineTo(sx - f*7, by - 74); c.stroke();
+  c.beginPath(); c.moveTo(sx - f*12, by - 73); c.lineTo(sx - f*14, by - 80); c.stroke();
+  c.beginPath(); c.moveTo(sx - f*19, by - 76); c.lineTo(sx - f*21, by - 83); c.stroke();
+  c.beginPath(); c.moveTo(sx - f*27, by - 75); c.lineTo(sx - f*29, by - 81); c.stroke();
   c.lineCap = 'butt';
 
   c.restore(); // end whole-body lean
