@@ -427,6 +427,65 @@
     100% { opacity: 0; transform: translateY(100vh) rotate(720deg); }
   }
 
+  /* Perfect celebration — big trophy bounce */
+  .perfect-trophy {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    font-size: 8rem;
+    z-index: 250;
+    pointer-events: none;
+    animation: trophyBounce 1.8s ease-out forwards;
+    filter: drop-shadow(0 0 30px rgba(255,215,0,0.6));
+  }
+  @keyframes trophyBounce {
+    0% { transform: translate(-50%, -50%) scale(0) rotate(-20deg); opacity: 0; }
+    25% { transform: translate(-50%, -50%) scale(1.4) rotate(10deg); opacity: 1; }
+    40% { transform: translate(-50%, -50%) scale(0.9) rotate(-5deg); opacity: 1; }
+    55% { transform: translate(-50%, -50%) scale(1.1) rotate(3deg); opacity: 1; }
+    70% { transform: translate(-50%, -50%) scale(1) rotate(0); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(0) rotate(0); opacity: 0; }
+  }
+
+  /* Sparkle burst */
+  .sparkle {
+    position: fixed;
+    pointer-events: none;
+    z-index: 240;
+    font-size: 1.8rem;
+    animation: sparkleBurst 1s ease-out forwards;
+  }
+  @keyframes sparkleBurst {
+    0% { opacity: 1; transform: translate(0, 0) scale(0.5); }
+    100% { opacity: 0; transform: translate(var(--sx), var(--sy)) scale(1.2); }
+  }
+
+  /* New record banner */
+  .record-banner {
+    position: fixed;
+    top: 18%;
+    left: 50%;
+    transform: translateX(-50%) scale(0);
+    background: linear-gradient(135deg, #ffd700, #ffaa00);
+    color: #7a4a00;
+    padding: 12px 32px;
+    border-radius: 16px;
+    font-size: clamp(1.2rem, 4vw, 1.6rem);
+    font-weight: bold;
+    box-shadow: 0 4px 20px rgba(255,170,0,0.4);
+    z-index: 260;
+    pointer-events: none;
+    white-space: nowrap;
+    animation: bannerPop 2.5s ease-out forwards;
+  }
+  @keyframes bannerPop {
+    0% { transform: translateX(-50%) scale(0); opacity: 0; }
+    15% { transform: translateX(-50%) scale(1.1); opacity: 1; }
+    25% { transform: translateX(-50%) scale(1); opacity: 1; }
+    75% { transform: translateX(-50%) scale(1); opacity: 1; }
+    100% { transform: translateX(-50%) scale(0.8); opacity: 0; }
+  }
+
   /* Small phones */
   @media (max-height: 600px) {
     .screen { padding: 16px 14px; }
@@ -1290,7 +1349,8 @@
     }
 
     showScreen('resultsScreen');
-    if (pct >= 0.65) launchConfetti();
+    if (pct >= 1) launchPerfectCelebration();
+    else if (pct >= 0.65) launchConfetti();
   }
 
   function formatTime(seconds) {
@@ -1318,8 +1378,9 @@
     const name = nameEl.value.trim() || 'Player';
     localStorage.setItem('mathAdventureLastName', name);
 
+    const entry = { name, time: speedElapsed, correct: correctCount, total: totalQuestions, date: Date.now() };
     const scores = getHighScores(mode);
-    scores.push({ name, time: speedElapsed, correct: correctCount, total: totalQuestions, date: Date.now() });
+    scores.push(entry);
     scores.sort((a, b) => {
       if (b.correct !== a.correct) return b.correct - a.correct;
       return a.time - b.time;
@@ -1328,8 +1389,11 @@
     const k = speedModes[mode] ? speedModes[mode].key : 'SpeedMix';
     localStorage.setItem('mathAdventure' + k + 'Scores', JSON.stringify(scores));
 
+    // Check if this is the new #1
+    const isNewRecord = scores[0].date === entry.date && scores[0].time === entry.time;
     document.getElementById('saveBtn').disabled = true;
-    document.getElementById('savedMsg').textContent = 'Saved!';
+    document.getElementById('savedMsg').textContent = isNewRecord ? 'New #1 Record!' : 'Saved!';
+    if (isNewRecord && scores.length > 1) launchNewRecordBanner();
   }
 
   function showLeaderboard(tab) {
@@ -1615,7 +1679,8 @@
     if (lastN) document.getElementById('puzzlePlayerName').value = lastN;
 
     showScreen('puzzleResultsScreen');
-    if (puzzleMistakes <= 3) launchConfetti();
+    if (puzzleMistakes === 0) launchPerfectCelebration();
+    else if (puzzleMistakes <= 3) launchConfetti();
   }
 
   let puzzleElapsed = 0;
@@ -1638,8 +1703,9 @@
     const name = nameEl.value.trim() || 'Player';
     localStorage.setItem('mathAdventureLastName', name);
 
+    const entry = { name, time: puzzleElapsed, mistakes: puzzleMistakes, blanks: puzzleBlankCount, date: Date.now() };
     const scores = getPuzzleScores(lastPuzzleDifficulty);
-    scores.push({ name, time: puzzleElapsed, mistakes: puzzleMistakes, blanks: puzzleBlankCount, date: Date.now() });
+    scores.push(entry);
     scores.sort((a, b) => {
       if (a.mistakes !== b.mistakes) return a.mistakes - b.mistakes;
       return a.time - b.time;
@@ -1648,8 +1714,11 @@
     const k = puzzleDiffs[lastPuzzleDifficulty] ? puzzleDiffs[lastPuzzleDifficulty].key : 'PuzzleEasy';
     localStorage.setItem('mathAdventure' + k + 'Scores', JSON.stringify(scores));
 
+    // Check if this is the new #1
+    const isNewRecord = scores[0].date === entry.date && scores[0].time === entry.time;
     document.getElementById('puzzleSaveBtn').disabled = true;
-    document.getElementById('puzzleSavedMsg').textContent = 'Saved!';
+    document.getElementById('puzzleSavedMsg').textContent = isNewRecord ? 'New #1 Record!' : 'Saved!';
+    if (isNewRecord && scores.length > 1) launchNewRecordBanner();
   }
 
   function showPuzzleLeaderboard(tab) {
@@ -1723,6 +1792,60 @@
         document.body.appendChild(piece);
         setTimeout(() => piece.remove(), 3000);
       }, i * 40);
+    }
+  }
+
+  function launchPerfectCelebration() {
+    // Big trophy bounce
+    const trophy = document.createElement('div');
+    trophy.className = 'perfect-trophy';
+    trophy.textContent = '🏆';
+    document.body.appendChild(trophy);
+    setTimeout(() => trophy.remove(), 2000);
+
+    // Sparkle burst from center
+    const sparkles = ['✨', '⭐', '🌟', '💫', '🎉'];
+    for (let i = 0; i < 12; i++) {
+      setTimeout(() => {
+        const sp = document.createElement('div');
+        sp.className = 'sparkle';
+        sp.textContent = sparkles[i % sparkles.length];
+        const angle = (i / 12) * Math.PI * 2;
+        const dist = 80 + Math.random() * 60;
+        sp.style.setProperty('--sx', Math.cos(angle) * dist + 'px');
+        sp.style.setProperty('--sy', Math.sin(angle) * dist + 'px');
+        sp.style.left = '50%';
+        sp.style.top = '50%';
+        document.body.appendChild(sp);
+        setTimeout(() => sp.remove(), 1200);
+      }, 200 + i * 60);
+    }
+
+    // Extra confetti burst
+    launchConfetti();
+  }
+
+  function launchNewRecordBanner() {
+    const banner = document.createElement('div');
+    banner.className = 'record-banner';
+    banner.textContent = '🥇 NEW #1 RECORD!';
+    document.body.appendChild(banner);
+    setTimeout(() => banner.remove(), 2800);
+
+    // Golden sparkle shower
+    const goldColors = ['#ffd700', '#ffaa00', '#ffe066', '#ffcc33', '#fff4b8'];
+    for (let i = 0; i < 30; i++) {
+      setTimeout(() => {
+        const piece = document.createElement('div');
+        piece.className = 'confetti-piece';
+        piece.style.left = (30 + Math.random() * 40) + 'vw';
+        piece.style.top = '-20px';
+        piece.style.background = goldColors[Math.floor(Math.random() * goldColors.length)];
+        piece.style.animationDuration = (1.2 + Math.random() * 0.8) + 's';
+        piece.style.borderRadius = '50%';
+        document.body.appendChild(piece);
+        setTimeout(() => piece.remove(), 2500);
+      }, i * 50);
     }
   }
 </script>
