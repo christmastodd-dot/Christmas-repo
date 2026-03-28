@@ -1411,7 +1411,10 @@
       var isOpen = panel.classList.toggle('weighin-panel--open');
       btn.classList.toggle('weighin-toggle--open', isOpen);
       btn.textContent = isOpen ? 'Close' : 'Weigh-In';
-      if (isOpen) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (isOpen) setTimeout(function() {
+        var top = panel.getBoundingClientRect().top + window.scrollY - document.querySelector('.header').offsetHeight - 8;
+        window.scrollTo({ top: top, behavior: 'smooth' });
+      }, 10);
     }
 
     // ===== PR Log Toggle =====
@@ -1429,7 +1432,10 @@
       var isOpen = log.classList.toggle('pr-log--open');
       btn.classList.toggle('pr-log-toggle--open', isOpen);
       btn.textContent = isOpen ? 'Close' : 'PR Log';
-      if (isOpen) log.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (isOpen) setTimeout(function() {
+        var top = log.getBoundingClientRect().top + window.scrollY - document.querySelector('.header').offsetHeight - 8;
+        window.scrollTo({ top: top, behavior: 'smooth' });
+      }, 10);
     }
 
     // ===== PR Tracker =====
