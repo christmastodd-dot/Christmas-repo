@@ -770,6 +770,71 @@ const LEVELS = [
       { x: 6800, y: 260, w: 250, h: 60 },
     ],
   },
+  { // Level 3 — Stormy Stretch (disappearing clouds, storm sky)
+    name: 'Stormy Stretch',
+    bgType: 'storm',
+    worldWidth: 8500,
+    finalCloud: { x: 7700, y: 260, w: 250 },
+    potX: 7870,
+    potY: 210,
+    unicorns: [
+      { cloudIndex: 24, offsetX: 60, offsetY: -50 },
+    ],
+    crows: [
+      { cloudIndex: 3,  speed: 1.3 },
+      { cloudIndex: 7,  speed: 1.4 },
+      { cloudIndex: 11, speed: 1.2 },
+      { cloudIndex: 14, speed: 1.5 },
+      { cloudIndex: 18, speed: 1.6 },
+      { cloudIndex: 21, speed: 1.3 },
+      { cloudIndex: 26, speed: 1.5 },
+      { cloudIndex: 30, speed: 1.4 },
+      { cloudIndex: 33, speed: 1.7 },
+    ],
+    clouds: [
+      // --- Section 1: Warm-up (0-1400) ---
+      { x: 0,    y: 340, w: 200, h: 60 },
+      { x: 270,  y: 310, w: 140, h: 50 },
+      { x: 480,  y: 280, w: 120, h: 50, moveType:'h', moveRange:45, moveSpeed:1.4 },
+      { x: 690,  y: 300, w: 130, h: 50 },
+      { x: 910,  y: 270, w: 110, h: 45, moveType:'v', moveRange:30, moveSpeed:1.2 },
+      { x: 1120, y: 290, w: 140, h: 50 },
+      { x: 1340, y: 260, w: 120, h: 45, disappearing: true },
+      // --- Section 2: Building tension (1500-3000) ---
+      { x: 1540, y: 310, w: 170, h: 55 },
+      { x: 1780, y: 270, w: 110, h: 45, moveType:'h', moveRange:55, moveSpeed:1.6 },
+      { x: 2000, y: 300, w: 120, h: 50, disappearing: true },
+      { x: 2220, y: 260, w: 130, h: 50, moveType:'v', moveRange:40, moveSpeed:1.3 },
+      { x: 2450, y: 290, w: 110, h: 45 },
+      { x: 2670, y: 270, w: 120, h: 50, moveType:'h', moveRange:60, moveSpeed:1.8 },
+      { x: 2900, y: 250, w: 100, h: 45, disappearing: true },
+      // --- Section 3: Mid-level rest + ramp (3100-4600) ---
+      { x: 3100, y: 310, w: 190, h: 55 },
+      { x: 3370, y: 270, w: 110, h: 45, moveType:'h', moveRange:50, moveSpeed:1.5 },
+      { x: 3600, y: 300, w: 120, h: 50, disappearing: true },
+      { x: 3820, y: 260, w: 130, h: 50, moveType:'v', moveRange:35, moveSpeed:1.4 },
+      { x: 4050, y: 290, w: 110, h: 45, moveType:'h', moveRange:65, moveSpeed:1.9 },
+      { x: 4280, y: 270, w: 120, h: 50, disappearing: true },
+      { x: 4500, y: 300, w: 140, h: 50 },
+      // --- Section 4: Hard stretch (4700-6200) ---
+      { x: 4700, y: 260, w: 110, h: 45, moveType:'h', moveRange:55, moveSpeed:2.0 },
+      { x: 4940, y: 290, w: 100, h: 45, disappearing: true },
+      { x: 5150, y: 270, w: 120, h: 50, moveType:'v', moveRange:45, moveSpeed:1.5 },
+      { x: 5380, y: 310, w: 170, h: 55 },
+      { x: 5620, y: 260, w: 110, h: 45, moveType:'h', moveRange:70, moveSpeed:1.7 },
+      { x: 5860, y: 290, w: 120, h: 50, disappearing: true },
+      { x: 6080, y: 270, w: 100, h: 45, moveType:'h', moveRange:50, moveSpeed:1.8 },
+      // --- Section 5: Final approach (6300-7700) ---
+      { x: 6300, y: 300, w: 130, h: 50 },
+      { x: 6520, y: 260, w: 110, h: 45, disappearing: true },
+      { x: 6740, y: 280, w: 120, h: 50, moveType:'v', moveRange:35, moveSpeed:1.6 },
+      { x: 6960, y: 300, w: 130, h: 50, moveType:'h', moveRange:55, moveSpeed:1.9 },
+      { x: 7190, y: 270, w: 110, h: 45 },
+      { x: 7430, y: 290, w: 130, h: 50, disappearing: true },
+      // --- Final platform ---
+      { x: 7700, y: 260, w: 250, h: 60 },
+    ],
+  },
 ];
 
 // ─────────────────────────────────────────────
@@ -815,13 +880,19 @@ function resetLevel() {
       crow.frameTick = 0;
     });
   }
-  // initialize movement origins for moving clouds
+  // initialize cloud properties
   levelData.clouds.forEach(c => {
     c.originX = c.x;
     c.originY = c.y;
-    c.moveT = Math.random() * Math.PI * 2; // random phase so they don't all sync
+    c.moveT = Math.random() * Math.PI * 2;
     c.dx = 0;
     c.dy = 0;
+    // disappearing cloud state
+    if (c.disappearing) {
+      c.disState = 'solid';   // 'solid' | 'fading' | 'gone' | 'returning'
+      c.disTimer = 0;
+      c.disAlpha = 1;
+    }
   });
   const startCloud = levelData.clouds[0];
   player = {
@@ -926,17 +997,34 @@ canvas.addEventListener('click', () => {
 // ─────────────────────────────────────────────
 function updateClouds() {
   for (const c of levelData.clouds) {
-    if (!c.moveType) { c.dx = 0; c.dy = 0; continue; }
-    const prevX = c.x;
-    const prevY = c.y;
-    c.moveT += (c.moveSpeed || 1) / 60;
-    if (c.moveType === 'h') {
-      c.x = c.originX + Math.sin(c.moveT) * c.moveRange;
-    } else if (c.moveType === 'v') {
-      c.y = c.originY + Math.sin(c.moveT) * c.moveRange;
+    // movement
+    if (c.moveType) {
+      const prevX = c.x;
+      const prevY = c.y;
+      c.moveT += (c.moveSpeed || 1) / 60;
+      if (c.moveType === 'h') c.x = c.originX + Math.sin(c.moveT) * c.moveRange;
+      if (c.moveType === 'v') c.y = c.originY + Math.sin(c.moveT) * c.moveRange;
+      c.dx = c.x - prevX;
+      c.dy = c.y - prevY;
+    } else {
+      c.dx = 0; c.dy = 0;
     }
-    c.dx = c.x - prevX;
-    c.dy = c.y - prevY;
+
+    // disappearing cloud state machine
+    if (c.disappearing) {
+      if (c.disState === 'fading') {
+        c.disTimer -= 1/60;
+        c.disAlpha = Math.max(0, c.disTimer / 1.5);
+        if (c.disTimer <= 0) { c.disState = 'gone'; c.disTimer = 3; c.disAlpha = 0; }
+      } else if (c.disState === 'gone') {
+        c.disTimer -= 1/60;
+        if (c.disTimer <= 0) { c.disState = 'returning'; c.disTimer = 0.5; c.disAlpha = 0; }
+      } else if (c.disState === 'returning') {
+        c.disTimer -= 1/60;
+        c.disAlpha = 1 - (c.disTimer / 0.5);
+        if (c.disTimer <= 0) { c.disState = 'solid'; c.disAlpha = 1; }
+      }
+    }
   }
 }
 
@@ -1056,6 +1144,8 @@ function update() {
     player.ridingCloud = null;
     if (player.vy >= 0) {
       for (const c of levelData.clouds) {
+        // skip vanished disappearing clouds
+        if (c.disappearing && (c.disState === 'gone' || c.disState === 'returning')) continue;
         const playerBottom = player.y + player.h;
         const prevBottom   = playerBottom - player.vy;
         if (
@@ -1069,6 +1159,11 @@ function update() {
           player.onGround = true;
           player.jumpsLeft = 2;
           player.ridingCloud = c;
+          // trigger disappearing cloud countdown
+          if (c.disappearing && c.disState === 'solid') {
+            c.disState = 'fading';
+            c.disTimer = 1.5;
+          }
         }
       }
     }
@@ -1163,11 +1258,20 @@ function update() {
 // ─────────────────────────────────────────────
 //  BACKGROUND DRAWING
 // ─────────────────────────────────────────────
+// lightning flash state
+let lightningTimer = 0;
+let lightningAlpha = 0;
+
 function drawBackground() {
   const bg = levelData.bgType;
   const sky = ctx.createLinearGradient(0, 0, 0, H);
 
-  if (bg === 'sunset') {
+  if (bg === 'storm') {
+    sky.addColorStop(0,   '#1a1a2e');
+    sky.addColorStop(0.4, '#2d2844');
+    sky.addColorStop(0.7, '#3d3556');
+    sky.addColorStop(1,   '#2a2a3a');
+  } else if (bg === 'sunset') {
     sky.addColorStop(0,   '#2d1b69');
     sky.addColorStop(0.3, '#c2185b');
     sky.addColorStop(0.6, '#ff6f00');
@@ -1180,8 +1284,23 @@ function drawBackground() {
   ctx.fillStyle = sky;
   ctx.fillRect(0, 0, W, H);
 
-  // hills (parallax) — darker for sunset
-  ctx.fillStyle = bg === 'sunset' ? '#4a2c0a' : '#6dbf5b';
+  // lightning flash for storm levels
+  if (bg === 'storm' && state === 'playing') {
+    lightningTimer -= 1/60;
+    if (lightningTimer <= 0) {
+      lightningAlpha = 0.4 + Math.random() * 0.3;
+      lightningTimer = 5 + Math.random() * 4; // every 5-9 seconds
+    }
+    if (lightningAlpha > 0) {
+      ctx.fillStyle = 'rgba(200,180,255,' + lightningAlpha + ')';
+      ctx.fillRect(0, 0, W, H);
+      lightningAlpha -= 0.06; // fade out quickly (~7 frames)
+    }
+  }
+
+  // hills (parallax)
+  const hillColor = bg === 'storm' ? '#1a1a28' : bg === 'sunset' ? '#4a2c0a' : '#6dbf5b';
+  ctx.fillStyle = hillColor;
   const hillOff = -(camX * 0.3) % W;
   for (let hx = hillOff - W; hx < W * 2; hx += W) {
     ctx.beginPath();
@@ -1192,11 +1311,13 @@ function drawBackground() {
     ctx.ellipse(hx + W*0.9,  H + 10, 180, 100, 0, 0, Math.PI*2); ctx.fill();
   }
 
-  ctx.fillStyle = bg === 'sunset' ? '#3e2409' : '#5aad48';
+  const groundColor = bg === 'storm' ? '#151520' : bg === 'sunset' ? '#3e2409' : '#5aad48';
+  ctx.fillStyle = groundColor;
   ctx.fillRect(0, H - 30, W, 30);
 
   // distant clouds (cosmetic, parallax) — 50% smaller, bob up and down
-  ctx.fillStyle = bg === 'sunset' ? 'rgba(255,180,100,0.4)' : 'rgba(255,255,255,0.5)';
+  const cloudColor = bg === 'storm' ? 'rgba(60,50,80,0.5)' : bg === 'sunset' ? 'rgba(255,180,100,0.4)' : 'rgba(255,255,255,0.5)';
+  ctx.fillStyle = cloudColor;
   const bgCloudOff = -(camX * 0.15) % W;
   const t = Date.now() / 1000;
   [[bgCloudOff + 80, 60, 0], [bgCloudOff + 350, 90, 1.2], [bgCloudOff + 600, 50, 2.5], [bgCloudOff - 200, 110, 3.8]].forEach(([cx, baseY, phase]) => {
@@ -1392,7 +1513,23 @@ function draw() {
   drawRainbow(camX);
 
   for (const c of levelData.clouds) {
+    if (c.disappearing && c.disState === 'gone') continue; // fully vanished
+    ctx.save();
+    if (c.disappearing) {
+      ctx.globalAlpha = c.disAlpha * (c.disState === 'solid' ? 0.75 : 1); // slightly transparent when solid to hint
+    }
     drawCloud(c.x, c.y, c.w, c.h, camX, c.originX || c.x);
+    // shimmer indicator for disappearing clouds
+    if (c.disappearing && c.disState === 'solid') {
+      const sx = c.x - camX;
+      ctx.globalAlpha = 0.3 + Math.sin(Date.now() / 200) * 0.15;
+      ctx.strokeStyle = '#ffd600';
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([4, 4]);
+      ctx.strokeRect(sx + 4, c.y + 4, c.w - 8, c.h - 8);
+      ctx.setLineDash([]);
+    }
+    ctx.restore();
   }
 
   // draw crows
