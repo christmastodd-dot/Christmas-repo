@@ -1444,6 +1444,28 @@ def show_word_facts(word):
     print(f"\n  Learning tip: {word['tip']}")
 
 
+def show_session_review(words_seen):
+    print("\n" + "=" * 60)
+    print("      VOCABULARY REVIEW — Words You Learned Today")
+    print("=" * 60)
+
+    for result, word in words_seen:
+        icon = "+" if result else "-"
+        print(f"\n  [{icon}] {word['name']} ({word['difficulty']})")
+        print(f"      {word['definition']}")
+        print(f"      Tip: {word['tip']}")
+
+    guessed_right = [w["name"] for r, w in words_seen if r]
+    missed = [w["name"] for r, w in words_seen if not r]
+
+    print("\n" + "-" * 60)
+    if guessed_right:
+        print(f"  Guessed correctly: {', '.join(guessed_right)}")
+    if missed:
+        print(f"  Words to review:  {', '.join(missed)}")
+    print("=" * 60)
+
+
 def main():
     display_header()
     difficulty = choose_difficulty()
@@ -1456,6 +1478,7 @@ def main():
     rounds = 0
     streak = 0
     best_streak = 0
+    words_seen = []
 
     while True:
         word = random.choice(word_pool)
@@ -1463,6 +1486,7 @@ def main():
 
         won, questions_used = play_game(word, word_pool)
         show_word_facts(word)
+        words_seen.append((won, word))
 
         if won:
             wins += 1
@@ -1489,7 +1513,8 @@ def main():
 
         play_again = get_yes_no("  Play again? (yes/no): ")
         if not play_again:
-            print("\n  Thanks for playing English Word Adventure!")
+            show_session_review(words_seen)
+            print(f"\n  Thanks for playing English Word Adventure!")
             print(f"  Final score: {wins} wins out of {rounds} round(s)")
             if best_streak >= 2:
                 print(f"  Best win streak: {best_streak}")
