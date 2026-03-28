@@ -1430,23 +1430,7 @@ WORDS = [
     },
 ]
 
-QUESTIONS = [
-    ("Is it a noun?", "noun"),
-    ("Is it a verb?", "verb"),
-    ("Is it an adjective?", "adjective"),
-    ("Does it have exactly one syllable?", "one_syllable"),
-    ("Does it start with a vowel?", "starts_with_vowel"),
-    ("Does it have double letters (like 'ee' or 'll')?", "has_double_letters"),
-    ("Does it have any silent letters?", "has_silent_letters"),
-    ("Does it come from Latin or French?", "latin_or_french_origin"),
-    ("Is it related to nature?", "related_to_nature"),
-    ("Is it related to emotions or feelings?", "related_to_emotions"),
-    ("Does it have a prefix (like 'un-' or 're-')?", "has_prefix"),
-    ("Does it have a suffix (like '-tion' or '-ly')?", "has_suffix"),
-    ("Is it a common everyday word?", "common_word"),
-]
-
-MAX_QUESTIONS = 5
+ROUNDS_PER_GAME = 10
 
 
 # --- Game Functions ---
@@ -1459,13 +1443,13 @@ def clear_screen():
 def display_header(difficulty=None):
     print("=" * 60)
     print("      *** ENGLISH WORD ADVENTURE ***")
+    print("      Synonym Quiz — Pick the Right Synonym!")
     print("=" * 60)
     if difficulty:
         word_pool = get_word_pool(difficulty)
         label = "all" if difficulty == "all" else difficulty
         print(f"  Difficulty: {label.upper()} ({len(word_pool)} words)")
-    print("  Ask up to 5 yes/no questions, then take your guess.")
-    print("  Learn about word origins, spelling, and grammar!")
+    print("  For each word, pick the correct synonym from 4 choices.")
     print("=" * 60)
 
 
@@ -1503,13 +1487,6 @@ def choose_difficulty():
             print("  Please enter a valid number.")
 
 
-def display_available_questions(asked_indices):
-    print("\nAvailable questions to ask:")
-    for i, (question, _) in enumerate(QUESTIONS):
-        if i not in asked_indices:
-            print(f"  [{i + 1:2}] {question}")
-
-
 def get_yes_no(prompt):
     while True:
         answer = input(prompt).strip().lower()
@@ -1521,126 +1498,55 @@ def get_yes_no(prompt):
             print("      Please answer 'yes' or 'no'.")
 
 
-def filter_words(words, attribute, value):
-    return [w for w in words if w[attribute] == value]
+def build_choices(word):
+    """Build 4 shuffled choices: 1 correct synonym + 3 distractors."""
+    correct = random.choice(word["synonyms"])
+    wrong = random.sample(word["distractors"], 3)
+    choices = [correct] + wrong
+    random.shuffle(choices)
+    return choices, correct
 
 
-def play_game(word, word_pool):
-    questions_left = MAX_QUESTIONS
-    asked_indices = set()
-    possible_words = list(word_pool)
+def play_round(word, round_num, total_rounds):
+    """Play one round: show word + definition, pick synonym from 4 choices."""
+    choices, correct = build_choices(word)
 
-    print(f"\n  I'm thinking of a word... ({len(possible_words)} possibilities)")
+    print(f"\n  --- Round {round_num} of {total_rounds} ---")
+    print(f"\n  Word: {word['name'].upper()}")
+    print(f"  \"{word['definition']}\"")
+    print(f"\n  Which is a SYNONYM of '{word['name']}'?\n")
 
-    while questions_left > 0:
-        print(f"\n  Questions remaining: {questions_left}")
-        print(f"  Remaining possible words: {len(possible_words)}")
-        display_available_questions(asked_indices)
+    for i, choice in enumerate(choices):
+        print(f"  [{i + 1}] {choice}")
 
-        remaining_q_indices = [i for i in range(len(QUESTIONS)) if i not in asked_indices]
-        if not remaining_q_indices:
-            print("\n  You've asked all available questions!")
-            break
+    while True:
+        try:
+            pick = int(input("\n  Your answer (1-4): ").strip())
+            if 1 <= pick <= 4:
+                break
+            else:
+                print("  Please enter 1, 2, 3, or 4.")
+        except ValueError:
+            print("  Please enter a valid number.")
 
-        print(f"\n  Enter a question number (1-{len(QUESTIONS)}) or 0 to make your guess now:")
+    chosen = choices[pick - 1]
+    is_correct = chosen == correct
 
-        while True:
-            try:
-                choice = int(input("  > ").strip())
-                if choice == 0:
-                    questions_left = 0
-                    break
-                elif 1 <= choice <= len(QUESTIONS) and (choice - 1) not in asked_indices:
-                    break
-                elif 1 <= choice <= len(QUESTIONS) and (choice - 1) in asked_indices:
-                    print("  You already asked that question! Pick another.")
-                else:
-                    print(f"  Please enter a number between 1 and {len(QUESTIONS)}, or 0 to guess.")
-            except ValueError:
-                print("  Please enter a valid number.")
-
-        if questions_left == 0:
-            break
-
-        q_index = choice - 1
-        question_text, attribute = QUESTIONS[q_index]
-        asked_indices.add(q_index)
-
-        print(f"\n  Q: {question_text}")
-        answer = word[attribute]
-        print(f"  A: {'YES' if answer else 'NO'}")
-
-        possible_words = filter_words(possible_words, attribute, answer)
-        questions_left -= 1
-
-        if len(possible_words) == 1:
-            print(f"\n  [Only 1 word left matching your clues!]")
-            break
-
-    questions_used = MAX_QUESTIONS - questions_left
-
-    print("\n" + "-" * 60)
-    print("  TIME TO GUESS!")
-    print("-" * 60)
-
-    print(f"\n  Bonus hints:")
-    print(f"    - The word has {len(word['name'])} letters")
-    print(f"    - It starts with '{word['name'][0].upper()}'")
-
-    if len(possible_words) <= 10 and len(possible_words) > 1:
-        print(f"\n  Based on your questions, it could be one of these:")
-        for w in possible_words:
-            print(f"    - {w['name']}")
-
-    print("\n  What word am I thinking of?")
-    guess = input("  Your guess: ").strip()
-
-    if guess.lower() == word["name"].lower():
-        print("\n  *** CORRECT! ***")
-        print(f"  You guessed it! The word was: {word['name']}")
-        print(f"  You used {questions_used} of {MAX_QUESTIONS} questions.")
-        return True, questions_used
+    if is_correct:
+        print(f"\n  *** CORRECT! *** '{chosen}' is a synonym of '{word['name']}'.")
     else:
-        print(f"\n  Not quite! The word was: {word['name']}")
-        print(f"  You guessed: {guess}")
-        print(f"  You used {questions_used} of {MAX_QUESTIONS} questions.")
-        return False, questions_used
+        print(f"\n  Not quite! You picked '{chosen}'.")
+        print(f"  The correct answer was: '{correct}'")
+
+    return is_correct
 
 
 def show_word_facts(word):
-    print("\n  --- LEARN ABOUT THIS WORD ---")
-    print(f"\n  Word: {word['name']}")
+    """Show educational info about the word after a round."""
+    print(f"\n  --- LEARN ABOUT THIS WORD ---")
     print(f"  Definition: {word['definition']}")
     print(f"  Example: {word['example']}")
-    print(f"  Difficulty: {word['difficulty']}")
-
-    traits = []
-    if word["noun"]:
-        traits.append("noun")
-    if word["verb"]:
-        traits.append("verb")
-    if word["adjective"]:
-        traits.append("adjective")
-    if not any([word["noun"], word["verb"], word["adjective"]]):
-        traits.append("adverb")
-    if word["one_syllable"]:
-        traits.append("one syllable")
-    if word["starts_with_vowel"]:
-        traits.append("starts with a vowel")
-    if word["has_double_letters"]:
-        traits.append("has double letters")
-    if word["has_silent_letters"]:
-        traits.append("has silent letters")
-    if word["latin_or_french_origin"]:
-        traits.append("Latin/French origin")
-    else:
-        traits.append("Germanic origin")
-    if word["has_prefix"]:
-        traits.append("has a prefix")
-    if word["has_suffix"]:
-        traits.append("has a suffix")
-
-    print(f"  Traits: {', '.join(traits)}")
+    print(f"  All synonyms: {', '.join(word['synonyms'])}")
     print(f"\n  Learning tip: {word['tip']}")
 
 
@@ -1653,16 +1559,17 @@ def show_session_review(words_seen):
         icon = "+" if result else "-"
         print(f"\n  [{icon}] {word['name']} ({word['difficulty']})")
         print(f"      {word['definition']}")
+        print(f"      Synonyms: {', '.join(word['synonyms'])}")
         print(f"      Tip: {word['tip']}")
 
-    guessed_right = [w["name"] for r, w in words_seen if r]
+    correct_words = [w["name"] for r, w in words_seen if r]
     missed = [w["name"] for r, w in words_seen if not r]
 
     print("\n" + "-" * 60)
-    if guessed_right:
-        print(f"  Guessed correctly: {', '.join(guessed_right)}")
+    if correct_words:
+        print(f"  Correct: {', '.join(correct_words)}")
     if missed:
-        print(f"  Words to review:  {', '.join(missed)}")
+        print(f"  Review:  {', '.join(missed)}")
     print("=" * 60)
 
 
@@ -1670,25 +1577,25 @@ def main():
     display_header()
     difficulty = choose_difficulty()
     word_pool = get_word_pool(difficulty)
+    total_rounds = min(ROUNDS_PER_GAME, len(word_pool))
 
     clear_screen()
     display_header(difficulty)
 
     wins = 0
-    rounds = 0
     streak = 0
     best_streak = 0
     words_seen = []
 
-    while True:
-        word = random.choice(word_pool)
-        rounds += 1
+    # Pick words for this session (no repeats)
+    session_words = random.sample(word_pool, total_rounds)
 
-        won, questions_used = play_game(word, word_pool)
+    for round_num, word in enumerate(session_words, 1):
+        correct = play_round(word, round_num, total_rounds)
         show_word_facts(word)
-        words_seen.append((won, word))
+        words_seen.append((correct, word))
 
-        if won:
+        if correct:
             wins += 1
             streak += 1
             if streak > best_streak:
@@ -1699,31 +1606,33 @@ def main():
                 print("\n  *** 5 in a row! Word master! ***")
             elif streak >= 7:
                 print(f"\n  *** {streak} in a row! Unstoppable! ***")
-            if questions_used <= 2:
-                print("  Speed bonus — guessed with 2 or fewer questions!")
         else:
             if streak >= 3:
                 print(f"\n  Streak ended at {streak}. Great run!")
             streak = 0
 
-        print(f"\n  Score: {wins} wins out of {rounds} round(s)")
+        print(f"\n  Score: {wins}/{round_num}")
         if streak >= 2:
             print(f"  Current streak: {streak} | Best streak: {best_streak}")
-        print()
 
-        play_again = get_yes_no("  Play again? (yes/no): ")
-        if not play_again:
-            show_session_review(words_seen)
-            print(f"\n  Thanks for playing English Word Adventure!")
-            print(f"  Final score: {wins} wins out of {rounds} round(s)")
-            if best_streak >= 2:
-                print(f"  Best win streak: {best_streak}")
-            print("  Keep learning new words every day!")
-            print("=" * 60)
-            break
+        if round_num < total_rounds:
+            input("\n  Press Enter for the next word...")
+            clear_screen()
 
+    # End of session
+    show_session_review(words_seen)
+    print(f"\n  Thanks for playing English Word Adventure!")
+    print(f"  Final score: {wins} out of {total_rounds}")
+    if best_streak >= 2:
+        print(f"  Best win streak: {best_streak}")
+    print("  Keep learning new words every day!")
+    print("=" * 60)
+
+    print()
+    play_again = get_yes_no("  Play again? (yes/no): ")
+    if play_again:
         clear_screen()
-        display_header(difficulty)
+        main()
 
 
 if __name__ == "__main__":
