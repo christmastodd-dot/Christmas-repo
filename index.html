@@ -461,12 +461,19 @@ function drawCrow(x, y, camX, dir, frame) {
   ctx.beginPath();
   ctx.ellipse(sx + 21, y + 7, 6, 5, 0, 0, Math.PI*2);
   ctx.fill();
-  // beak
-  ctx.fillStyle = '#ff8f00';
+  // beak (yellow, larger)
+  ctx.fillStyle = '#ffd600';
   ctx.beginPath();
-  ctx.moveTo(sx + 26, y + 6);
-  ctx.lineTo(sx + 30, y + 8);
-  ctx.lineTo(sx + 26, y + 10);
+  ctx.moveTo(sx + 26, y + 5);
+  ctx.lineTo(sx + 32, y + 8);
+  ctx.lineTo(sx + 26, y + 11);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = '#ffb300';
+  ctx.beginPath();
+  ctx.moveTo(sx + 26, y + 8);
+  ctx.lineTo(sx + 32, y + 8);
+  ctx.lineTo(sx + 26, y + 11);
   ctx.closePath();
   ctx.fill();
   // eye
@@ -474,14 +481,24 @@ function drawCrow(x, y, camX, dir, frame) {
   ctx.beginPath();
   ctx.arc(sx + 22, y + 6, 2, 0, Math.PI*2);
   ctx.fill();
-  // wing (flaps based on frame)
-  ctx.fillStyle = '#333';
-  const wingY = frame % 2 === 0 ? -3 : 1;
+  // wings (larger, more visible, flap animation)
+  const wingY = frame % 2 === 0 ? -5 : 2;
+  // outer wing
+  ctx.fillStyle = '#444';
   ctx.beginPath();
-  ctx.ellipse(sx + 10, y + 8 + wingY, 8, 4, -0.3, 0, Math.PI*2);
+  ctx.moveTo(sx + 16, y + 10);
+  ctx.quadraticCurveTo(sx + 6, y + 2 + wingY, sx - 2, y + 4 + wingY);
+  ctx.quadraticCurveTo(sx + 4, y + 8 + wingY, sx + 16, y + 10);
+  ctx.fill();
+  // inner wing
+  ctx.fillStyle = '#555';
+  ctx.beginPath();
+  ctx.moveTo(sx + 14, y + 10);
+  ctx.quadraticCurveTo(sx + 8, y + 4 + wingY, sx + 2, y + 6 + wingY);
+  ctx.quadraticCurveTo(sx + 6, y + 9 + wingY, sx + 14, y + 10);
   ctx.fill();
   // feet
-  ctx.fillStyle = '#ff8f00';
+  ctx.fillStyle = '#ffd600';
   ctx.fillRect(sx + 7,  y + 16, 2, 3);
   ctx.fillRect(sx + 14, y + 16, 2, 3);
   ctx.restore();
