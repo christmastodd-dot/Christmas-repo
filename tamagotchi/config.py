@@ -57,8 +57,8 @@ OFFLINE_DECAY_FLOOR = 0.30  # 70% decay cap → stats floor at 30% of STAT_MAX
 
 # ── Economy ──────────────────────────────────────────────────────────
 
-# ~1 coin per 10 correct answers (10% chance each)
-COIN_DROP_CHANCE = 0.10
+# ~1 coin per ~6 correct answers (17% chance each)
+COIN_DROP_CHANCE = 0.17
 
 SHOP_ITEMS = {
     "pizza":    {"label": "Pizza",        "icon": "\U0001F355", "cost": 3,  "effects": {"hunger": 50},     "desc": "+50 hunger"},

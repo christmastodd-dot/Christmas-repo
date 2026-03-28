@@ -148,29 +148,35 @@
   }
   .art-box.mood-sleeping svg { animation: sleepBreathe 3s ease-in-out infinite; }
 
-  /* Reaction animation — quick excited jump when item used or care given */
+  /* Reaction animation — excited bouncing when item used or care given */
   @keyframes reaction-jump {
     0% { transform: translateY(0) scale(1); }
-    15% { transform: translateY(-15px) scale(1.05); }
-    30% { transform: translateY(0) scale(0.97); }
-    45% { transform: translateY(-8px) scale(1.03); }
-    60% { transform: translateY(0) scale(0.99); }
-    75% { transform: translateY(-3px) scale(1.01); }
+    5% { transform: translateY(-15px) scale(1.05); }
+    10% { transform: translateY(0) scale(0.97); }
+    15% { transform: translateY(-12px) scale(1.04); }
+    20% { transform: translateY(0) scale(0.98); }
+    28% { transform: translateY(-10px) scale(1.03); }
+    36% { transform: translateY(0) scale(0.98); }
+    44% { transform: translateY(-8px) scale(1.02); }
+    52% { transform: translateY(0) scale(0.99); }
+    62% { transform: translateY(-5px) scale(1.01); }
+    72% { transform: translateY(0) scale(1); }
+    82% { transform: translateY(-2px) scale(1.005); }
     100% { transform: translateY(0) scale(1); }
   }
-  .art-box.reacting svg { animation: reaction-jump 0.7s ease-out !important; }
+  .art-box.reacting svg { animation: reaction-jump 3s ease-out !important; }
 
   /* Sparkle particles */
   .sparkle {
     position: absolute;
     font-size: 1.2em;
     pointer-events: none;
-    animation: sparkle-float 0.8s ease-out forwards;
+    animation: sparkle-float 1.5s ease-out forwards;
   }
   @keyframes sparkle-float {
     0% { opacity: 1; transform: translate(0, 0) scale(0.5); }
-    50% { opacity: 1; transform: translate(var(--dx), var(--dy)) scale(1.2); }
-    100% { opacity: 0; transform: translate(var(--dx), calc(var(--dy) - 20px)) scale(0.3); }
+    40% { opacity: 1; transform: translate(var(--dx), var(--dy)) scale(1.2); }
+    100% { opacity: 0; transform: translate(var(--dx), calc(var(--dy) - 30px)) scale(0.3); }
   }
 
   /* Mood label */
@@ -1156,12 +1162,14 @@ function playReaction() {
     sp.style.left = (50 + (Math.random() - 0.5) * 40) + '%';
     sp.style.top = (30 + Math.random() * 30) + '%';
     artBox.appendChild(sp);
-    setTimeout(() => sp.remove(), 900);
+    const delay = Math.random() * 800;
+    sp.style.animationDelay = delay + 'ms';
+    setTimeout(() => sp.remove(), 2400 + delay);
   }
 
   // Jump animation
   artBox.classList.add('reacting');
-  setTimeout(() => artBox.classList.remove('reacting'), 750);
+  setTimeout(() => artBox.classList.remove('reacting'), 3100);
 }
 
 // ── Pokemon-style evolution sequence ────────────────────────────────
