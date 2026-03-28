@@ -509,30 +509,22 @@
 
     /* ===== PR Log Toggle ===== */
     .pr-log-toggle {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      padding: 14px;
-      margin-bottom: 12px;
-      background: var(--bg-card);
+      background: transparent;
       color: var(--color-gold);
-      font-family: var(--font-display);
-      font-size: 1rem;
+      font-family: var(--font-body);
+      font-size: 0.7rem;
       font-weight: 700;
-      border: 2px solid var(--color-gold);
-      border-radius: var(--radius-md);
+      padding: 3px 10px;
+      border: 1.5px solid var(--color-gold);
+      border-radius: 20px;
       cursor: pointer;
       transition: all 0.2s;
       letter-spacing: 0.5px;
-    }
-
-    .pr-log-toggle:hover {
-      background: rgba(255, 215, 0, 0.1);
+      white-space: nowrap;
     }
 
     .pr-log-toggle:active {
-      transform: scale(0.98);
+      transform: scale(0.95);
     }
 
     .pr-log-toggle--open {
@@ -1124,6 +1116,7 @@
     <header class="header">
       <div class="header__logo">BROFIT</div>
       <div class="header__stats">
+        <button class="pr-log-toggle" id="pr-log-toggle" onclick="togglePRLog()">PR Log</button>
         <div class="header__streak" id="header-streak"></div>
         <div class="header__xp" id="header-xp">0 XP</div>
       </div>
@@ -1158,7 +1151,6 @@
     </div>
 
     <!-- PR Log -->
-    <button class="pr-log-toggle" id="pr-log-toggle" onclick="togglePRLog()">PR Log</button>
     <div class="pr-log" id="pr-log">
       <div class="section-title">2026 PR</div>
       <div class="pr-tracker" id="pr-tracker">
