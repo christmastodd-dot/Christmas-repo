@@ -620,6 +620,8 @@ function drawCave(sx, sy) {
   c.ellipse(cx, cy - 32, 30, 6, 0, Math.PI, Math.PI*2);
   c.fill();
 }
+
+function drawSummitFlag(camWX, camWY) {
   const [sx, sy] = worldToScreen(LEVEL_LENGTH, trailY(LEVEL_LENGTH), camWX, camWY);
   // Pole
   ctx.strokeStyle = 'rgb(120,90,60)'; ctx.lineWidth = 5;
