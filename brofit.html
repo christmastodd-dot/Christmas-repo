@@ -901,6 +901,265 @@
       font-weight: 600;
     }
 
+    /* ===== Weight Tracker ===== */
+    .weight-tracker {
+      margin-bottom: 32px;
+    }
+
+    .weight-tracker__card {
+      background: var(--bg-card);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      box-shadow: var(--shadow-card);
+      margin-bottom: 10px;
+    }
+
+    .weight-tracker__stats {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .weight-tracker__stat {
+      flex: 1;
+      text-align: center;
+      padding: 10px 6px;
+      background: var(--bg-surface);
+      border-radius: var(--radius-sm);
+    }
+
+    .weight-tracker__stat-value {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      font-weight: 700;
+    }
+
+    .weight-tracker__stat-value--green { color: var(--color-green); }
+    .weight-tracker__stat-value--gold { color: var(--color-gold); }
+    .weight-tracker__stat-value--orange { color: var(--color-orange); }
+
+    .weight-tracker__stat-label {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 2px;
+    }
+
+    .weight-tracker__input-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .weight-tracker__input {
+      flex: 1;
+      background: var(--bg-surface);
+      border: 1px solid var(--text-muted);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      padding: 8px 10px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .weight-tracker__input:focus {
+      border-color: var(--color-green);
+    }
+
+    .weight-tracker__input--date {
+      max-width: 140px;
+      color-scheme: dark;
+    }
+
+    .weight-tracker__log-btn {
+      background: var(--color-green);
+      color: var(--bg-primary);
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 8px 14px;
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: transform 0.15s;
+    }
+
+    .weight-tracker__log-btn:active {
+      transform: scale(0.95);
+    }
+
+    .weight-tracker__chart {
+      height: 70px;
+      display: flex;
+      align-items: flex-end;
+      gap: 2px;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .weight-tracker__chart-bar {
+      flex: 1;
+      background: var(--color-green);
+      border-radius: 2px 2px 0 0;
+      min-height: 4px;
+      transition: height 0.3s;
+      opacity: 0.6;
+    }
+
+    .weight-tracker__chart-bar--latest {
+      opacity: 1;
+      background: var(--color-orange);
+    }
+
+    .weight-tracker__history-toggle {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-family: var(--font-body);
+      padding: 4px 0;
+      margin-top: 8px;
+    }
+
+    .weight-tracker__history {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    .weight-tracker__history--open {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .weight-tracker__entry {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      font-size: 0.8rem;
+    }
+
+    .weight-tracker__entry-value {
+      font-weight: 700;
+    }
+
+    .weight-tracker__entry-date {
+      color: var(--text-muted);
+    }
+
+    .weight-tracker__entry-delta {
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .weight-tracker__entry-delta--loss { color: var(--color-green); }
+    .weight-tracker__entry-delta--gain { color: var(--color-red); }
+
+    .weight-tracker__entry-delete {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 0.75rem;
+      padding: 2px 4px;
+    }
+
+    .weight-tracker__entry-delete:hover {
+      color: var(--color-red);
+    }
+
+    /* ===== Weight Loss Leaderboard ===== */
+    .weight-lb {
+      margin-bottom: 32px;
+    }
+
+    .weight-lb__tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .weight-lb__tab {
+      flex: 1;
+      background: var(--bg-card);
+      border: 1px solid var(--text-muted);
+      border-radius: 20px;
+      color: var(--text-secondary);
+      font-family: var(--font-body);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 6px 14px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+    }
+
+    .weight-lb__tab--active {
+      background: var(--color-green);
+      color: var(--bg-primary);
+      border-color: var(--color-green);
+    }
+
+    .weight-lb__table {
+      background: var(--bg-card);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      box-shadow: var(--shadow-card);
+    }
+
+    .weight-lb__row {
+      display: flex;
+      align-items: center;
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      gap: 10px;
+    }
+
+    .weight-lb__row:last-child { border-bottom: none; }
+
+    .weight-lb__row--you {
+      background: var(--bg-card-hover);
+      box-shadow: inset 3px 0 0 var(--color-green);
+    }
+
+    .weight-lb__row--1st {
+      box-shadow: inset 3px 0 0 var(--color-gold);
+    }
+
+    .weight-lb__rank {
+      font-size: 1rem;
+      font-weight: 900;
+      width: 28px;
+      text-align: center;
+    }
+
+    .weight-lb__name {
+      flex: 1;
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+
+    .weight-lb__value {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--color-green);
+    }
+
+    .weight-lb__detail {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      text-align: right;
+      min-width: 60px;
+    }
+
     /* ===== Animations ===== */
     @keyframes slideUp {
       to {
@@ -1030,6 +1289,19 @@
     <div class="pr-leaderboard" id="pr-leaderboard">
       <div class="pr-leaderboard__tabs" id="pr-leaderboard-tabs"></div>
       <div class="pr-leaderboard__table" id="pr-leaderboard-table"></div>
+    </div>
+
+    <!-- Weight Tracker -->
+    <div class="section-title">Weigh-In</div>
+    <div class="weight-tracker" id="weight-tracker">
+      <!-- Rendered by JS -->
+    </div>
+
+    <!-- Weight Loss Leaderboard -->
+    <div class="section-title">Weight Loss Leaderboard</div>
+    <div class="weight-lb" id="weight-lb">
+      <div class="weight-lb__tabs" id="weight-lb-tabs"></div>
+      <div class="weight-lb__table" id="weight-lb-table"></div>
     </div>
 
     <!-- Macrocycle / Training Program -->
@@ -1616,6 +1888,236 @@
       });
     }
 
+    // ===== Weight Tracker =====
+
+    // Mock crew starting weights and current weights
+    const crewWeights = [
+      { name: 'Jake', start: 218, current: 203 },
+      { name: 'Marcus', start: 235, current: 224 },
+      { name: 'Dev', start: 195, current: 188 },
+      { name: 'Tyler', start: 210, current: 198 },
+      { name: 'Chris', start: 245, current: 239 },
+      { name: 'Aiden', start: 178, current: 176 }
+    ];
+
+    function loadWeightHistory() {
+      var raw = localStorage.getItem('brofit_weight');
+      return raw ? JSON.parse(raw) : [];
+    }
+
+    function saveWeightHistory(history) {
+      localStorage.setItem('brofit_weight', JSON.stringify(history));
+    }
+
+    function renderWeightTracker() {
+      var container = document.getElementById('weight-tracker');
+      container.innerHTML = '';
+
+      var history = loadWeightHistory();
+      var today = getTodayString();
+
+      var card = document.createElement('div');
+      card.className = 'weight-tracker__card';
+
+      // Stats row
+      var startWeight = history.length > 0 ? history[0].value : null;
+      var currentWeight = history.length > 0 ? history[history.length - 1].value : null;
+      var lostLbs = startWeight && currentWeight ? (startWeight - currentWeight) : 0;
+      var lostPct = startWeight ? ((lostLbs / startWeight) * 100) : 0;
+
+      var statsHTML =
+        '<div class="weight-tracker__stats">' +
+          '<div class="weight-tracker__stat">' +
+            '<div class="weight-tracker__stat-value weight-tracker__stat-value--gold">' + (startWeight ? startWeight + '' : '—') + '</div>' +
+            '<div class="weight-tracker__stat-label">Start lbs</div>' +
+          '</div>' +
+          '<div class="weight-tracker__stat">' +
+            '<div class="weight-tracker__stat-value weight-tracker__stat-value--orange">' + (currentWeight ? currentWeight + '' : '—') + '</div>' +
+            '<div class="weight-tracker__stat-label">Current lbs</div>' +
+          '</div>' +
+          '<div class="weight-tracker__stat">' +
+            '<div class="weight-tracker__stat-value weight-tracker__stat-value--green">' + (lostLbs > 0 ? '-' + lostLbs.toFixed(1) : lostLbs === 0 && startWeight ? '0' : '—') + '</div>' +
+            '<div class="weight-tracker__stat-label">lbs lost</div>' +
+          '</div>' +
+          '<div class="weight-tracker__stat">' +
+            '<div class="weight-tracker__stat-value weight-tracker__stat-value--green">' + (startWeight ? lostPct.toFixed(1) + '%' : '—') + '</div>' +
+            '<div class="weight-tracker__stat-label">% lost</div>' +
+          '</div>' +
+        '</div>';
+
+      // Input row
+      var inputHTML =
+        '<div class="weight-tracker__input-row">' +
+          '<input class="weight-tracker__input" id="weight-input" type="number" step="0.1" placeholder="Weight (lbs)">' +
+          '<input class="weight-tracker__input weight-tracker__input--date" id="weight-date" type="date" value="' + today + '">' +
+          '<button class="weight-tracker__log-btn" onclick="addWeight()">Log</button>' +
+        '</div>';
+
+      // Chart (last 20 entries)
+      var chartHTML = '';
+      if (history.length > 1) {
+        var recent = history.slice(-20);
+        var vals = recent.map(function(e) { return e.value; });
+        var maxW = Math.max.apply(null, vals);
+        var minW = Math.min.apply(null, vals);
+        var range = maxW - minW || 1;
+
+        chartHTML = '<div class="weight-tracker__chart">';
+        recent.forEach(function(e, i) {
+          // Invert: lower weight = taller bar (progress)
+          var pct = ((maxW - e.value) / range) * 80 + 20;
+          var isLatest = i === recent.length - 1;
+          chartHTML += '<div class="weight-tracker__chart-bar' + (isLatest ? ' weight-tracker__chart-bar--latest' : '') + '" style="height:' + pct + '%" title="' + e.value + ' lbs — ' + e.date + '"></div>';
+        });
+        chartHTML += '</div>';
+      }
+
+      // History
+      var historyHTML = '';
+      if (history.length > 0) {
+        var sorted = history.slice().reverse();
+        historyHTML =
+          '<button class="weight-tracker__history-toggle" onclick="toggleWeightHistory(this)">Show history (' + history.length + ')</button>' +
+          '<div class="weight-tracker__history">';
+        sorted.forEach(function(e, i) {
+          var realIdx = history.length - 1 - i;
+          var delta = '';
+          var deltaClass = '';
+          if (realIdx > 0) {
+            var diff = e.value - history[realIdx - 1].value;
+            if (diff < 0) { delta = diff.toFixed(1) + ' lbs'; deltaClass = 'weight-tracker__entry-delta--loss'; }
+            else if (diff > 0) { delta = '+' + diff.toFixed(1) + ' lbs'; deltaClass = 'weight-tracker__entry-delta--gain'; }
+            else { delta = '0'; }
+          }
+          historyHTML +=
+            '<div class="weight-tracker__entry">' +
+              '<span class="weight-tracker__entry-value">' + e.value + ' lbs</span>' +
+              (delta ? '<span class="weight-tracker__entry-delta ' + deltaClass + '">' + delta + '</span>' : '') +
+              '<span class="weight-tracker__entry-date">' + e.date + '</span>' +
+              '<button class="weight-tracker__entry-delete" onclick="deleteWeight(' + realIdx + ')" title="Delete">x</button>' +
+            '</div>';
+        });
+        historyHTML += '</div>';
+      }
+
+      card.innerHTML = statsHTML + inputHTML + chartHTML + historyHTML;
+      container.appendChild(card);
+    }
+
+    function addWeight() {
+      var input = document.getElementById('weight-input');
+      var dateInput = document.getElementById('weight-date');
+      var val = parseFloat(input.value);
+      if (isNaN(val) || val <= 0) return;
+
+      var history = loadWeightHistory();
+      history.push({ value: val, date: dateInput.value });
+      // Sort by date
+      history.sort(function(a, b) { return a.date.localeCompare(b.date); });
+      saveWeightHistory(history);
+
+      input.value = '';
+      renderWeightTracker();
+      renderWeightLossLeaderboard(activeWeightLBTab);
+      addXP(5);
+    }
+
+    function deleteWeight(idx) {
+      var history = loadWeightHistory();
+      history.splice(idx, 1);
+      saveWeightHistory(history);
+      renderWeightTracker();
+      renderWeightLossLeaderboard(activeWeightLBTab);
+    }
+
+    function toggleWeightHistory(btn) {
+      var el = btn.nextElementSibling;
+      el.classList.toggle('weight-tracker__history--open');
+      btn.textContent = el.classList.contains('weight-tracker__history--open') ? 'Hide history' : 'Show history';
+    }
+
+    // ===== Weight Loss Leaderboard =====
+
+    var activeWeightLBTab = 'lbs';
+
+    function renderWeightLBTabs() {
+      var tabs = document.getElementById('weight-lb-tabs');
+      tabs.innerHTML = '';
+
+      [{ key: 'lbs', label: 'Pounds Lost' }, { key: 'pct', label: '% Body Weight' }].forEach(function(t) {
+        var tab = document.createElement('button');
+        tab.className = 'weight-lb__tab' + (activeWeightLBTab === t.key ? ' weight-lb__tab--active' : '');
+        tab.textContent = t.label;
+        tab.onclick = function() {
+          activeWeightLBTab = t.key;
+          renderWeightLBTabs();
+          renderWeightLossLeaderboard(t.key);
+        };
+        tabs.appendChild(tab);
+      });
+    }
+
+    function renderWeightLossLeaderboard(mode) {
+      var table = document.getElementById('weight-lb-table');
+      table.innerHTML = '';
+
+      // Build entries from crew
+      var entries = crewWeights.map(function(c) {
+        var lost = c.start - c.current;
+        var pct = (lost / c.start) * 100;
+        return { name: c.name, lbs: lost, pct: pct, start: c.start, current: c.current, isUser: false };
+      });
+
+      // Add user
+      var history = loadWeightHistory();
+      var userName = appState.name || 'You';
+      if (history.length >= 2) {
+        var uStart = history[0].value;
+        var uCurrent = history[history.length - 1].value;
+        var uLost = uStart - uCurrent;
+        var uPct = (uLost / uStart) * 100;
+        entries.push({ name: userName, lbs: uLost, pct: uPct, start: uStart, current: uCurrent, isUser: true });
+      } else if (history.length === 1) {
+        entries.push({ name: userName, lbs: 0, pct: 0, start: history[0].value, current: history[0].value, isUser: true });
+      } else {
+        entries.push({ name: userName, lbs: 0, pct: 0, start: 0, current: 0, isUser: true });
+      }
+
+      // Sort: most lost first
+      if (mode === 'lbs') {
+        entries.sort(function(a, b) { return b.lbs - a.lbs; });
+      } else {
+        entries.sort(function(a, b) { return b.pct - a.pct; });
+      }
+
+      entries.forEach(function(entry, i) {
+        var row = document.createElement('div');
+        var classes = 'weight-lb__row';
+        if (entry.isUser) classes += ' weight-lb__row--you';
+        if (i === 0) classes += ' weight-lb__row--1st';
+        row.className = classes;
+
+        var posEmoji = i === 0 ? '👑' : (i === 1 ? '🥈' : (i === 2 ? '🥉' : ''));
+        var mainVal, detail;
+
+        if (mode === 'lbs') {
+          mainVal = entry.lbs > 0 ? '-' + entry.lbs.toFixed(1) + ' lbs' : (entry.start === 0 ? '—' : '0 lbs');
+          detail = entry.start > 0 ? entry.start + ' → ' + entry.current : '';
+        } else {
+          mainVal = entry.pct > 0 ? entry.pct.toFixed(1) + '%' : (entry.start === 0 ? '—' : '0%');
+          detail = entry.lbs > 0 ? '-' + entry.lbs.toFixed(1) + ' lbs' : '';
+        }
+
+        row.innerHTML =
+          '<span class="weight-lb__rank">' + (posEmoji || (i + 1)) + '</span>' +
+          '<span class="weight-lb__name">' + entry.name + (entry.isUser ? ' (you)' : '') + '</span>' +
+          '<span class="weight-lb__value">' + mainVal + '</span>' +
+          '<span class="weight-lb__detail">' + detail + '</span>';
+
+        table.appendChild(row);
+      });
+    }
+
     // ===== Macrocycle Program =====
     // 16-week periodized program: Fat Loss → Shoulder Hypertrophy → Explosive Power → Peak/Game Ready
     // Goals: fat loss, big shoulders, explosiveness for basketball
@@ -2033,6 +2535,11 @@
       renderPRTracker();
       renderPRLeaderboardTabs();
       renderPRLeaderboard(activePRTab);
+
+      // Render weight tracker & leaderboard
+      renderWeightTracker();
+      renderWeightLBTabs();
+      renderWeightLossLeaderboard(activeWeightLBTab);
 
       // Render macrocycle
       renderMacrocycle();
