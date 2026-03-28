@@ -613,6 +613,158 @@
   }
   .times-table td { color: #444; }
   .times-table tr:nth-child(even) td { background: #f9f7ff; }
+
+  /* Puzzle mode */
+  .puzzle-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 14px;
+    gap: 12px;
+  }
+  .puzzle-title-bar {
+    font-size: clamp(1.2rem, 4vw, 1.6rem);
+    font-weight: bold;
+    color: #fff;
+    text-align: center;
+    flex: 1;
+  }
+  .puzzle-card {
+    background: #fff;
+    border-radius: 20px;
+    padding: 16px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    overflow-x: auto;
+    margin-bottom: 14px;
+    max-width: 100%;
+  }
+  .puzzle-grid {
+    border-collapse: collapse;
+    margin: 0 auto;
+  }
+  .puzzle-grid th, .puzzle-grid td {
+    width: clamp(38px, 9vw, 54px);
+    height: clamp(38px, 9vw, 54px);
+    text-align: center;
+    font-size: clamp(1rem, 3vw, 1.3rem);
+    font-weight: bold;
+    border: 2px solid #eee;
+  }
+  .puzzle-grid th {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: #fff;
+    border-color: rgba(255,255,255,0.2);
+  }
+  .puzzle-grid .corner {
+    background: #5a3d8a;
+    color: rgba(255,255,255,0.5);
+    font-size: clamp(0.8rem, 2vw, 1rem);
+  }
+  .puzzle-grid td {
+    color: #444;
+    cursor: default;
+    transition: background 0.15s;
+  }
+  .puzzle-grid td.blank {
+    background: #f0ecf5;
+    color: transparent;
+    cursor: pointer;
+    border-color: #ddd;
+    position: relative;
+  }
+  .puzzle-grid td.blank::after {
+    content: '?';
+    color: #c4b5d9;
+    font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+  }
+  .puzzle-grid td.selected {
+    background: #e0d4f7;
+    border-color: #764ba2;
+    box-shadow: inset 0 0 0 2px #764ba2;
+  }
+  .puzzle-grid td.selected::after { color: #764ba2; }
+  .puzzle-grid td.filled {
+    color: #764ba2;
+    background: #f5f0ff;
+  }
+  .puzzle-grid td.filled::after { content: none; }
+  .puzzle-grid td.correct-cell {
+    color: #fff;
+    background: #43e97b;
+    border-color: #38d96d;
+  }
+  .puzzle-grid td.correct-cell::after { content: none; }
+  .puzzle-grid td.wrong-cell {
+    color: #fff;
+    background: #f85032;
+    border-color: #e04428;
+  }
+  .puzzle-grid td.wrong-cell::after { content: none; }
+  .puzzle-grid td.given {
+    color: #444;
+    background: #fff;
+  }
+  .puzzle-grid tr:nth-child(even) td.given { background: #fafafe; }
+
+  .numpad {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    max-width: 400px;
+    width: 100%;
+    margin-bottom: 10px;
+  }
+  .numpad-btn {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    padding: clamp(10px, 3vw, 16px);
+    font-size: clamp(1.1rem, 3.5vw, 1.5rem);
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.1s;
+    box-shadow: 0 3px 10px rgba(102,126,234,0.3);
+  }
+  .numpad-btn:active { transform: scale(0.92); }
+  .numpad-btn.clear-btn {
+    background: #e8e4f0;
+    color: #764ba2;
+    box-shadow: none;
+  }
+  .numpad-btn.submit-btn {
+    background: linear-gradient(135deg, #43e97b, #38f9d7);
+    color: #fff;
+  }
+  .puzzle-msg {
+    color: #fff;
+    font-size: clamp(1rem, 3vw, 1.2rem);
+    font-weight: bold;
+    height: 28px;
+    text-align: center;
+  }
+
+  @media (orientation: landscape) {
+    .puzzle-header { margin-bottom: 8px; }
+    .puzzle-card { padding: 12px; margin-bottom: 10px; }
+    .puzzle-grid th, .puzzle-grid td {
+      width: clamp(32px, 5vw, 46px);
+      height: clamp(32px, 5vh, 46px);
+      font-size: clamp(0.85rem, 2vw, 1.1rem);
+    }
+    .numpad { max-width: 360px; gap: 6px; }
+    .numpad-btn { padding: clamp(8px, 2vh, 12px); font-size: clamp(1rem, 3vh, 1.3rem); border-radius: 10px; }
+  }
+  @media (orientation: landscape) and (max-height: 420px) {
+    .puzzle-grid th, .puzzle-grid td {
+      width: 30px; height: 30px;
+      font-size: 0.8rem;
+    }
+    .numpad { max-width: 300px; gap: 4px; }
+    .numpad-btn { padding: 6px; font-size: 0.9rem; border-radius: 8px; }
+    .puzzle-msg { height: 20px; font-size: 0.85rem; }
+  }
 </style>
 </head>
 <body>
@@ -710,6 +862,11 @@
       <span>Speed Mix</span>
       <span class="mode-label">10 questions, all types!</span>
     </button>
+    <button class="mode-btn" onclick="startPuzzle()">
+      <span class="mode-icon">🧩</span>
+      <span>Puzzle</span>
+      <span class="mode-label">Fill in the times table!</span>
+    </button>
   </div>
   <button class="view-leaderboard-btn" onclick="showLeaderboard()">⚡ Speed Leaderboard</button>
 </div>
@@ -772,6 +929,46 @@
     <div id="leaderboardBody"></div>
     <button class="play-again-btn" onclick="showStart()">Back to Menu</button>
     <button class="play-again-btn secondary" onclick="startGame('speed')">Play Speed</button>
+  </div>
+</div>
+
+<!-- PUZZLE SCREEN -->
+<div id="puzzleScreen" class="screen">
+  <div class="puzzle-header">
+    <button class="back-btn" onclick="goHome()">&#9664; Back</button>
+    <div class="puzzle-title-bar">🧩 Times Table Puzzle</div>
+    <div class="stat-badge" id="puzzleProgress">0/0</div>
+  </div>
+  <div class="puzzle-card">
+    <table class="puzzle-grid" id="puzzleGrid"></table>
+  </div>
+  <div class="numpad" id="numpad"></div>
+  <div class="puzzle-msg" id="puzzleMsg"></div>
+</div>
+
+<!-- PUZZLE RESULTS SCREEN -->
+<div id="puzzleResultsScreen" class="screen">
+  <div class="results-card">
+    <div class="results-emoji" id="puzzleResultEmoji"></div>
+    <div class="results-title" id="puzzleResultTitle"></div>
+    <div class="results-subtitle" id="puzzleResultSubtitle"></div>
+    <div class="stars-earned" id="puzzleStars"></div>
+    <div class="results-stats">
+      <div class="result-stat">
+        <div class="num" id="puzzleResultCorrect">0</div>
+        <div class="label">Correct</div>
+      </div>
+      <div class="result-stat">
+        <div class="num" id="puzzleResultMistakes">0</div>
+        <div class="label">Mistakes</div>
+      </div>
+      <div class="result-stat">
+        <div class="num" id="puzzleResultTime">0</div>
+        <div class="label">Time</div>
+      </div>
+    </div>
+    <button class="play-again-btn" onclick="startPuzzle()">New Puzzle</button>
+    <button class="play-again-btn secondary" onclick="showStart()">Home</button>
   </div>
 </div>
 
@@ -1129,6 +1326,218 @@
     const div = document.createElement('div');
     div.textContent = str;
     return div.innerHTML;
+  }
+
+  // ===== PUZZLE MODE =====
+  let puzzleBlanks = [];    // { row, col, answer, el }
+  let puzzleSelected = null; // index into puzzleBlanks
+  let puzzleInput = '';
+  let puzzleFilled = 0;
+  let puzzleMistakes = 0;
+  let puzzleStartTime = 0;
+  let puzzleRows = [];      // which rows from 1–10
+  let puzzleCols = [];      // which cols from 1–10
+  const PUZZLE_SIZE = 5;
+  const PUZZLE_BLANK_COUNT = 10;
+
+  function startPuzzle() {
+    // Pick 5 random rows and 5 random cols from 1–10
+    puzzleRows = pickRandom([1,2,3,4,5,6,7,8,9,10], PUZZLE_SIZE).sort((a,b) => a-b);
+    puzzleCols = pickRandom([1,2,3,4,5,6,7,8,9,10], PUZZLE_SIZE).sort((a,b) => a-b);
+    puzzleBlanks = [];
+    puzzleSelected = null;
+    puzzleInput = '';
+    puzzleFilled = 0;
+    puzzleMistakes = 0;
+    puzzleStartTime = Date.now();
+
+    // Build grid
+    const grid = document.getElementById('puzzleGrid');
+    let html = '<tr><th class="corner">&times;</th>';
+    puzzleCols.forEach(c => { html += '<th>' + c + '</th>'; });
+    html += '</tr>';
+
+    // Decide which cells are blanks
+    const allCells = [];
+    for (let ri = 0; ri < PUZZLE_SIZE; ri++) {
+      for (let ci = 0; ci < PUZZLE_SIZE; ci++) {
+        allCells.push({ ri, ci });
+      }
+    }
+    const blankCells = new Set(
+      pickRandom(allCells, PUZZLE_BLANK_COUNT).map(c => c.ri + ',' + c.ci)
+    );
+
+    for (let ri = 0; ri < PUZZLE_SIZE; ri++) {
+      const r = puzzleRows[ri];
+      html += '<tr><th>' + r + '</th>';
+      for (let ci = 0; ci < PUZZLE_SIZE; ci++) {
+        const c = puzzleCols[ci];
+        const val = r * c;
+        const key = ri + ',' + ci;
+        if (blankCells.has(key)) {
+          const idx = puzzleBlanks.length;
+          html += '<td class="blank" id="pz-' + idx + '" onclick="selectBlank(' + idx + ')" data-answer="' + val + '"></td>';
+          puzzleBlanks.push({ row: r, col: c, answer: val, idx });
+        } else {
+          html += '<td class="given">' + val + '</td>';
+        }
+      }
+      html += '</tr>';
+    }
+    grid.innerHTML = html;
+
+    // Build numpad: numbers commonly in times tables + clear + check
+    buildNumpad();
+    updatePuzzleProgress();
+    document.getElementById('puzzleMsg').textContent = 'Tap a ? cell, then type the answer!';
+    showScreen('puzzleScreen');
+  }
+
+  function pickRandom(arr, n) {
+    const copy = [...arr];
+    const result = [];
+    for (let i = 0; i < n && copy.length > 0; i++) {
+      const idx = Math.floor(Math.random() * copy.length);
+      result.push(copy.splice(idx, 1)[0]);
+    }
+    return result;
+  }
+
+  function buildNumpad() {
+    const pad = document.getElementById('numpad');
+    let html = '';
+    for (let d = 1; d <= 9; d++) {
+      html += '<button class="numpad-btn" onclick="puzzleNumPress(\'' + d + '\')">' + d + '</button>';
+    }
+    html += '<button class="numpad-btn" onclick="puzzleNumPress(\'0\')">0</button>';
+    html += '<button class="numpad-btn clear-btn" onclick="puzzleClear()">C</button>';
+    html += '<button class="numpad-btn clear-btn" onclick="puzzleBackspace()">&#9003;</button>';
+    html += '<button class="numpad-btn submit-btn" onclick="puzzleSubmitCell()">&#10003;</button>';
+    pad.innerHTML = html;
+  }
+
+  function selectBlank(idx) {
+    // Deselect previous
+    document.querySelectorAll('.puzzle-grid td.selected').forEach(el => el.classList.remove('selected'));
+
+    const blank = puzzleBlanks[idx];
+    const el = document.getElementById('pz-' + idx);
+    if (el.classList.contains('correct-cell')) return; // already solved
+
+    puzzleSelected = idx;
+    puzzleInput = el.classList.contains('filled') ? el.textContent : '';
+    el.classList.add('selected');
+    document.getElementById('puzzleMsg').textContent = blank.row + ' × ' + blank.col + ' = ?';
+  }
+
+  function puzzleNumPress(d) {
+    if (puzzleSelected === null) return;
+    const el = document.getElementById('pz-' + puzzleSelected);
+    if (el.classList.contains('correct-cell')) return;
+
+    puzzleInput += d;
+    // Cap at 3 digits (max is 100)
+    if (puzzleInput.length > 3) puzzleInput = puzzleInput.slice(-3);
+    el.textContent = puzzleInput;
+    el.classList.add('filled');
+  }
+
+  function puzzleClear() {
+    if (puzzleSelected === null) return;
+    const el = document.getElementById('pz-' + puzzleSelected);
+    if (el.classList.contains('correct-cell')) return;
+    puzzleInput = '';
+    el.textContent = '';
+    el.classList.remove('filled');
+  }
+
+  function puzzleBackspace() {
+    if (puzzleSelected === null) return;
+    const el = document.getElementById('pz-' + puzzleSelected);
+    if (el.classList.contains('correct-cell')) return;
+    puzzleInput = puzzleInput.slice(0, -1);
+    if (puzzleInput === '') {
+      el.textContent = '';
+      el.classList.remove('filled');
+    } else {
+      el.textContent = puzzleInput;
+    }
+  }
+
+  function puzzleSubmitCell() {
+    if (puzzleSelected === null) return;
+    const blank = puzzleBlanks[puzzleSelected];
+    const el = document.getElementById('pz-' + puzzleSelected);
+    if (el.classList.contains('correct-cell')) return;
+
+    const val = parseInt(puzzleInput);
+    if (isNaN(val)) {
+      document.getElementById('puzzleMsg').textContent = 'Type a number first!';
+      return;
+    }
+
+    if (val === blank.answer) {
+      el.classList.remove('blank', 'filled', 'selected');
+      el.classList.add('correct-cell');
+      el.textContent = blank.answer;
+      puzzleFilled++;
+      updatePuzzleProgress();
+
+      // Auto-advance to next unsolved blank
+      puzzleSelected = null;
+      puzzleInput = '';
+      if (puzzleFilled >= PUZZLE_BLANK_COUNT) {
+        setTimeout(endPuzzle, 400);
+      } else {
+        // Find next blank
+        for (let i = 0; i < puzzleBlanks.length; i++) {
+          const nextEl = document.getElementById('pz-' + i);
+          if (!nextEl.classList.contains('correct-cell')) {
+            selectBlank(i);
+            break;
+          }
+        }
+      }
+    } else {
+      el.classList.add('wrong-cell');
+      puzzleMistakes++;
+      document.getElementById('puzzleMsg').textContent = 'Not quite — try again!';
+      setTimeout(() => {
+        el.classList.remove('wrong-cell');
+        el.classList.add('blank', 'selected');
+        el.classList.remove('filled');
+        el.textContent = '';
+        puzzleInput = '';
+      }, 800);
+    }
+  }
+
+  function updatePuzzleProgress() {
+    document.getElementById('puzzleProgress').textContent = puzzleFilled + '/' + PUZZLE_BLANK_COUNT;
+  }
+
+  function endPuzzle() {
+    const elapsed = (Date.now() - puzzleStartTime) / 1000;
+    const pct = PUZZLE_BLANK_COUNT / (PUZZLE_BLANK_COUNT + puzzleMistakes);
+    const stars = pct >= 0.95 ? 5 : pct >= 0.8 ? 4 : pct >= 0.65 ? 3 : pct >= 0.5 ? 2 : 1;
+
+    let emoji, title, subtitle;
+    if (puzzleMistakes === 0) { emoji = '🧩'; title = 'PERFECT!'; subtitle = 'Not a single mistake!'; }
+    else if (puzzleMistakes <= 2) { emoji = '🌟'; title = 'Great Job!'; subtitle = 'Almost perfect!'; }
+    else if (puzzleMistakes <= 5) { emoji = '😊'; title = 'Good Work!'; subtitle = 'Keep practicing those times tables!'; }
+    else { emoji = '💪'; title = 'Nice Try!'; subtitle = 'You\'ll get faster with practice!'; }
+
+    document.getElementById('puzzleResultEmoji').textContent = emoji;
+    document.getElementById('puzzleResultTitle').textContent = title;
+    document.getElementById('puzzleResultSubtitle').textContent = subtitle;
+    document.getElementById('puzzleStars').textContent = '⭐'.repeat(stars) + '☆'.repeat(5 - stars);
+    document.getElementById('puzzleResultCorrect').textContent = PUZZLE_BLANK_COUNT + '/' + PUZZLE_BLANK_COUNT;
+    document.getElementById('puzzleResultMistakes').textContent = puzzleMistakes;
+    document.getElementById('puzzleResultTime').textContent = formatTime(elapsed);
+
+    showScreen('puzzleResultsScreen');
+    if (puzzleMistakes <= 3) launchConfetti();
   }
 
   // Times table hint
