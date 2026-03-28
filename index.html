@@ -425,17 +425,17 @@ function moveCpu() {
       if (targetY < 0) targetY = -targetY;
       if (targetY > H) targetY = 2 * H - targetY;
     }
-    // Add inaccuracy — more on easy, moderate on hard
-    const errorRange = (1.5 - speedMult) * 100 + 30; // easy: ~120px, medium: ~80px, hard: ~40px
+    // Add inaccuracy — scales with difficulty
+    const errorRange = (1.5 - speedMult) * 70 + 15; // easy: ~78px, medium: ~50px, hard: ~22px
     targetY += (Math.sin(Date.now() * 0.003) * errorRange);
   } else {
     // Ball heading away — drift lazily toward center
     targetY = H / 2;
   }
 
-  // Speed scales with difficulty: easy is very slow, hard is moderate
-  const cpuSpeed = 1.2 + speedMult * 1.5;
-  const deadZone = 25 - speedMult * 8; // easy: ~20px, hard: ~14px
+  // Speed scales with difficulty
+  const cpuSpeed = 1.8 + speedMult * 1.8;
+  const deadZone = 20 - speedMult * 6; // easy: ~16px, hard: ~12px
   if (cpuCenter < targetY - deadZone) {
     cpu.y += cpuSpeed;
   } else if (cpuCenter > targetY + deadZone) {
