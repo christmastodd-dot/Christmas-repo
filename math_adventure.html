@@ -882,7 +882,7 @@
     <button class="mode-btn" onclick="startPuzzle('hard')">
       <span class="mode-icon">🧩</span>
       <span>Puzzle Hard</span>
-      <span class="mode-label">Big grid, more blanks!</span>
+      <span class="mode-label">Scrambled, more blanks!</span>
     </button>
   </div>
   <div class="leaderboard-btns">
@@ -1379,9 +1379,9 @@
   let lastPuzzleDifficulty = 'easy';
 
   const puzzleConfig = {
-    easy:   { size: 5, blanks: 8,  label: 'Easy',   consecutive: true,  maxNum: 5  },
-    medium: { size: 5, blanks: 12, label: 'Medium', consecutive: false, maxNum: 10 },
-    hard:   { size: 7, blanks: 20, label: 'Hard',   consecutive: false, maxNum: 10 }
+    easy:   { size: 5, blanks: 8,  label: 'Easy',   mode: 'consecutive' },
+    medium: { size: 5, blanks: 12, label: 'Medium', mode: 'sorted' },
+    hard:   { size: 5, blanks: 15, label: 'Hard',   mode: 'shuffled' }
   };
 
   function startPuzzle(diff) {
@@ -1391,8 +1391,8 @@
     puzzleSize = cfg.size;
     puzzleBlankCount = cfg.blanks;
 
-    if (cfg.consecutive) {
-      // Easy: pick a random starting number, use consecutive (e.g. 1,2,3,4,5)
+    if (cfg.mode === 'consecutive') {
+      // Easy: consecutive numbers (e.g. 1,2,3,4,5)
       const startR = randInt(1, 10 - cfg.size + 1);
       const startC = randInt(1, 10 - cfg.size + 1);
       puzzleRows = [];
@@ -1401,10 +1401,14 @@
         puzzleRows.push(startR + i);
         puzzleCols.push(startC + i);
       }
-    } else {
-      // Medium/Hard: random rows and cols from 1–10
+    } else if (cfg.mode === 'sorted') {
+      // Medium: random but sorted so patterns are visible
       puzzleRows = pickRandom([1,2,3,4,5,6,7,8,9,10], cfg.size).sort((a,b) => a-b);
       puzzleCols = pickRandom([1,2,3,4,5,6,7,8,9,10], cfg.size).sort((a,b) => a-b);
+    } else {
+      // Hard: random and unsorted — no visual pattern
+      puzzleRows = pickRandom([1,2,3,4,5,6,7,8,9,10], cfg.size);
+      puzzleCols = pickRandom([1,2,3,4,5,6,7,8,9,10], cfg.size);
     }
 
     puzzleBlanks = [];
