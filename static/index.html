@@ -1289,8 +1289,9 @@ function update(dt) {
   for (const g of goats) {
     if (!g.active) continue;
     const dist = g.wx - playerWX;
-    if (dist > 0 && dist < GOAT_TRIGGER_DIST && !g.charging && g.windupTimer === 0) {
-      if (g.angry) { g.windupTimer = 0.8; }  // angry goat briefly steams then charges fast
+    const triggerDist = g.angry ? GOAT_TRIGGER_DIST * 1.5 : GOAT_TRIGGER_DIST;
+    if (dist > 0 && dist < triggerDist && !g.charging && g.windupTimer === 0) {
+      if (g.angry) { g.windupTimer = 0.3; }  // angry goat barely pauses before charging
       else { g.charging = true; }
     }
     if (g.angry && g.windupTimer > 0) {
