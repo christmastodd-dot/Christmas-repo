@@ -1187,6 +1187,28 @@
       </div>
     </header>
 
+    <!-- PR Log (appears near top when opened) -->
+    <div class="pr-log" id="pr-log">
+      <div class="section-title">2026 PR</div>
+      <div class="pr-tracker" id="pr-tracker"></div>
+      <div class="section-title">PR Leaderboard</div>
+      <div class="pr-leaderboard" id="pr-leaderboard">
+        <div class="pr-leaderboard__tabs" id="pr-leaderboard-tabs"></div>
+        <div class="pr-leaderboard__table" id="pr-leaderboard-table"></div>
+      </div>
+    </div>
+
+    <!-- Weight Tracker (appears near top when opened) -->
+    <div class="weighin-panel" id="weighin-panel">
+      <div class="section-title">Weigh-In</div>
+      <div class="weight-tracker" id="weight-tracker"></div>
+      <div class="section-title">Weight Loss Leaderboard</div>
+      <div class="weight-lb" id="weight-lb">
+        <div class="weight-lb__tabs" id="weight-lb-tabs"></div>
+        <div class="weight-lb__table" id="weight-lb-table"></div>
+      </div>
+    </div>
+
     <!-- Greeting -->
     <div class="greeting">
       <div class="greeting__time" id="greeting-time"></div>
@@ -1213,34 +1235,6 @@
       <div class="featured-challenge__text" id="challenge-text">Loading...</div>
       <div class="featured-challenge__timer" id="challenge-timer"></div>
       <button class="featured-challenge__btn" id="challenge-btn">I Did This (+50 XP)</button>
-    </div>
-
-    <!-- PR Log -->
-    <div class="pr-log" id="pr-log">
-      <div class="section-title">2026 PR</div>
-      <div class="pr-tracker" id="pr-tracker">
-        <!-- Rendered by JS -->
-      </div>
-
-      <div class="section-title">PR Leaderboard</div>
-      <div class="pr-leaderboard" id="pr-leaderboard">
-        <div class="pr-leaderboard__tabs" id="pr-leaderboard-tabs"></div>
-        <div class="pr-leaderboard__table" id="pr-leaderboard-table"></div>
-      </div>
-    </div>
-
-    <!-- Weight Tracker -->
-    <div class="weighin-panel" id="weighin-panel">
-      <div class="section-title">Weigh-In</div>
-      <div class="weight-tracker" id="weight-tracker">
-        <!-- Rendered by JS -->
-      </div>
-
-      <div class="section-title">Weight Loss Leaderboard</div>
-      <div class="weight-lb" id="weight-lb">
-        <div class="weight-lb__tabs" id="weight-lb-tabs"></div>
-        <div class="weight-lb__table" id="weight-lb-table"></div>
-      </div>
     </div>
 
     <!-- Macrocycle / Training Program -->
@@ -1407,9 +1401,17 @@
     function toggleWeighIn() {
       var panel = document.getElementById('weighin-panel');
       var btn = document.getElementById('weighin-toggle');
+      // Close PR log if open
+      var prLog = document.getElementById('pr-log');
+      if (prLog.classList.contains('pr-log--open')) {
+        prLog.classList.remove('pr-log--open');
+        document.getElementById('pr-log-toggle').classList.remove('pr-log-toggle--open');
+        document.getElementById('pr-log-toggle').textContent = 'PR Log';
+      }
       var isOpen = panel.classList.toggle('weighin-panel--open');
       btn.classList.toggle('weighin-toggle--open', isOpen);
       btn.textContent = isOpen ? 'Close' : 'Weigh-In';
+      if (isOpen) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     // ===== PR Log Toggle =====
@@ -1417,9 +1419,17 @@
     function togglePRLog() {
       var log = document.getElementById('pr-log');
       var btn = document.getElementById('pr-log-toggle');
+      // Close weigh-in if open
+      var weighin = document.getElementById('weighin-panel');
+      if (weighin.classList.contains('weighin-panel--open')) {
+        weighin.classList.remove('weighin-panel--open');
+        document.getElementById('weighin-toggle').classList.remove('weighin-toggle--open');
+        document.getElementById('weighin-toggle').textContent = 'Weigh-In';
+      }
       var isOpen = log.classList.toggle('pr-log--open');
       btn.classList.toggle('pr-log-toggle--open', isOpen);
-      btn.textContent = isOpen ? 'Close PR Log' : 'PR Log';
+      btn.textContent = isOpen ? 'Close' : 'PR Log';
+      if (isOpen) log.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     // ===== PR Tracker =====
