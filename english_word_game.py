@@ -603,7 +603,631 @@ WORDS = [
         "example": "We love to explore new places on vacation.",
         "tip": "'Ex-' means 'out' — explore originally meant 'to search out'.",
     },
-    # --- Words 51-100 will be added in M1c ---
+    # --- Words 51-100 (M1c) ---
+    {
+        "name": "courage",
+        "noun": True, "verb": False, "adjective": False,
+        "one_syllable": False, "starts_with_vowel": False,
+        "has_double_letters": False, "has_silent_letters": False,
+        "latin_or_french_origin": True, "related_to_nature": False,
+        "related_to_emotions": True, "has_prefix": False, "has_suffix": False,
+        "common_word": True, "difficulty": "medium",
+        "definition": "the ability to do something that frightens you",
+        "example": "It took courage to speak in front of the whole school.",
+        "tip": "From French 'coeur' (heart) — courage literally means 'heartfulness'.",
+    },
+    {
+        "name": "bread",
+        "noun": True, "verb": False, "adjective": False,
+        "one_syllable": True, "starts_with_vowel": False,
+        "has_double_letters": False, "has_silent_letters": True,
+        "latin_or_french_origin": False, "related_to_nature": False,
+        "related_to_emotions": False, "has_prefix": False, "has_suffix": False,
+        "common_word": True, "difficulty": "easy",
+        "definition": "food made from flour, water, and yeast baked together",
+        "example": "She bought a loaf of bread from the bakery.",
+        "tip": "The 'ea' in 'bread' sounds like 'eh' — compare 'read' (past) vs 'read' (present).",
+    },
+    {
+        "name": "invisible",
+        "noun": False, "verb": False, "adjective": True,
+        "one_syllable": False, "starts_with_vowel": True,
+        "has_double_letters": False, "has_silent_letters": False,
+        "latin_or_french_origin": True, "related_to_nature": False,
+        "related_to_emotions": False, "has_prefix": True, "has_suffix": True,
+        "common_word": True, "difficulty": "medium",
+        "definition": "unable to be seen",
+        "example": "The ghost was invisible to everyone.",
+        "tip": "'In-' means 'not' + 'visible' = not visible. The prefix 'in-' becomes 'im-' before b/m/p.",
+    },
+    {
+        "name": "climb",
+        "noun": True, "verb": True, "adjective": False,
+        "one_syllable": True, "starts_with_vowel": False,
+        "has_double_letters": False, "has_silent_letters": True,
+        "latin_or_french_origin": False, "related_to_nature": False,
+        "related_to_emotions": False, "has_prefix": False, "has_suffix": False,
+        "common_word": True, "difficulty": "easy",
+        "definition": "to go upward using hands and feet",
+        "example": "We had to climb the steep hill to reach the top.",
+        "tip": "The 'b' in 'climb' is silent — same pattern as 'lamb', 'comb', 'thumb'.",
+    },
+    {
+        "name": "wonderful",
+        "noun": False, "verb": False, "adjective": True,
+        "one_syllable": False, "starts_with_vowel": False,
+        "has_double_letters": False, "has_silent_letters": False,
+        "latin_or_french_origin": False, "related_to_nature": False,
+        "related_to_emotions": True, "has_prefix": False, "has_suffix": True,
+        "common_word": True, "difficulty": "easy",
+        "definition": "inspiring delight, pleasure, or admiration",
+        "example": "We had a wonderful time at the beach.",
+        "tip": "'Wonder' + '-ful' = full of wonder. Compare: beautiful, grateful, powerful.",
+    },
+    {
+        "name": "receive",
+        "noun": False, "verb": True, "adjective": False,
+        "one_syllable": False, "starts_with_vowel": False,
+        "has_double_letters": False, "has_silent_letters": True,
+        "latin_or_french_origin": True, "related_to_nature": False,
+        "related_to_emotions": False, "has_prefix": True, "has_suffix": False,
+        "common_word": True, "difficulty": "medium",
+        "definition": "to be given or presented with something",
+        "example": "Did you receive my letter?",
+        "tip": "Remember: 'i before e, except after c' — receive, ceiling, deceive.",
+    },
+    {
+        "name": "shadow",
+        "noun": True, "verb": True, "adjective": False,
+        "one_syllable": False, "starts_with_vowel": False,
+        "has_double_letters": False, "has_silent_letters": False,
+        "latin_or_french_origin": False, "related_to_nature": True,
+        "related_to_emotions": False, "has_prefix": False, "has_suffix": False,
+        "common_word": True, "difficulty": "easy",
+        "definition": "a dark area produced by an object blocking light",
+        "example": "The tree cast a long shadow on the ground.",
+        "tip": "'Shadow' comes from Old English 'sceadwe' — the 'ow' ending is Germanic.",
+    },
+    {
+        "name": "pronunciation",
+        "noun": True, "verb": False, "adjective": False,
+        "one_syllable": False, "starts_with_vowel": False,
+        "has_double_letters": False, "has_silent_letters": False,
+        "latin_or_french_origin": True, "related_to_nature": False,
+        "related_to_emotions": False, "has_prefix": True, "has_suffix": True,
+        "common_word": True, "difficulty": "hard",
+        "definition": "the way in which a word is spoken",
+        "example": "The pronunciation of 'colonel' surprises many learners.",
+        "tip": "Note: it's 'pronUNciation' not 'proNOUNciation' — a common mistake!",
+    },
+    {
+        "name": "strong",
+        "noun": False, "verb": False, "adjective": True,
+        "one_syllable": True, "starts_with_vowel": False,
+        "has_double_letters": False, "has_silent_letters": False,
+        "latin_or_french_origin": False, "related_to_nature": False,
+        "related_to_emotions": False, "has_prefix": False, "has_suffix": False,
+        "common_word": True, "difficulty": "easy",
+        "definition": "having great physical power or force",
+        "example": "She is strong enough to lift the heavy box.",
+        "tip": "'Strong' is Germanic — short, punchy adjectives in English tend to be Germanic.",
+    },
+    {
+        "name": "environment",
+        "noun": True, "verb": False, "adjective": False,
+        "one_syllable": False, "starts_with_vowel": True,
+        "has_double_letters": False, "has_silent_letters": True,
+        "latin_or_french_origin": True, "related_to_nature": True,
+        "related_to_emotions": False, "has_prefix": True, "has_suffix": True,
+        "common_word": True, "difficulty": "hard",
+        "definition": "the surroundings or conditions in which a person or animal lives",
+        "example": "We should protect the environment for future generations.",
+        "tip": "The '-ment' suffix turns verbs into nouns: environ → environment.",
+    },
+    {
+        "name": "fish",
+        "noun": True, "verb": True, "adjective": False,
+        "one_syllable": True, "starts_with_vowel": False,
+        "has_double_letters": False, "has_silent_letters": False,
+        "latin_or_french_origin": False, "related_to_nature": True,
+        "related_to_emotions": False, "has_prefix": False, "has_suffix": False,
+        "common_word": True, "difficulty": "easy",
+        "definition": "a cold-blooded animal that lives in water and breathes through gills",
+        "example": "We watched the fish swim in the pond.",
+        "tip": "'Fish' is the same in singular and plural — 'one fish, two fish'!",
+    },
+    {
+        "name": "unbelievable",
+        "noun": False, "verb": False, "adjective": True,
+        "one_syllable": False, "starts_with_vowel": True,
+        "has_double_letters": False, "has_silent_letters": False,
+        "latin_or_french_origin": False, "related_to_nature": False,
+        "related_to_emotions": True, "has_prefix": True, "has_suffix": True,
+        "common_word": True, "difficulty": "medium",
+        "definition": "so great or extreme as to be difficult to believe",
+        "example": "The view from the top was unbelievable.",
+        "tip": "Three parts: 'un-' (not) + 'believe' + '-able' (can be). English loves stacking affixes!",
+    },
+    {
+        "name": "whistle",
+        "noun": True, "verb": True, "adjective": False,
+        "one_syllable": False, "starts_with_vowel": False,
+        "has_double_letters": False, "has_silent_letters": True,
+        "latin_or_french_origin": False, "related_to_nature": False,
+        "related_to_emotions": False, "has_prefix": False, "has_suffix": True,
+        "common_word": True, "difficulty": "medium",
+        "definition": "to make a clear high-pitched sound by forcing air through the lips",
+        "example": "He can whistle his favorite song perfectly.",
+        "tip": "The 't' in 'whistle' is silent — same as 'castle', 'listen', 'fasten'.",
+    },
+    {
+        "name": "curious",
+        "noun": False, "verb": False, "adjective": True,
+        "one_syllable": False, "starts_with_vowel": False,
+        "has_double_letters": False, "has_silent_letters": False,
+        "latin_or_french_origin": True, "related_to_nature": False,
+        "related_to_emotions": True, "has_prefix": False, "has_suffix": True,
+        "common_word": True, "difficulty": "medium",
+        "definition": "eager to know or learn something",
+        "example": "The curious cat explored every corner of the house.",
+        "tip": "From Latin 'curiosus' — the '-ous' suffix means 'full of': full of curiosity.",
+    },
+    {
+        "name": "earth",
+        "noun": True, "verb": False, "adjective": False,
+        "one_syllable": True, "starts_with_vowel": True,
+        "has_double_letters": False, "has_silent_letters": False,
+        "latin_or_french_origin": False, "related_to_nature": True,
+        "related_to_emotions": False, "has_prefix": False, "has_suffix": False,
+        "common_word": True, "difficulty": "easy",
+        "definition": "the planet on which we live; soil or ground",
+        "example": "The earth orbits the sun once a year.",
+        "tip": "'Earth' has two meanings: the planet (capitalize) and soil (lowercase).",
+    },
+    {
+        "name": "rewrite",
+        "noun": True, "verb": True, "adjective": False,
+        "one_syllable": False, "starts_with_vowel": False,
+        "has_double_letters": False, "has_silent_letters": True,
+        "latin_or_french_origin": False, "related_to_nature": False,
+        "related_to_emotions": False, "has_prefix": True, "has_suffix": False,
+        "common_word": True, "difficulty": "easy",
+        "definition": "to write something again in a different way",
+        "example": "The teacher asked me to rewrite my essay.",
+        "tip": "'Re-' + 'write' — both the prefix 're-' and silent 'w' in one word!",
+    },
+    {
+        "name": "happiness",
+        "noun": True, "verb": False, "adjective": False,
+        "one_syllable": False, "starts_with_vowel": False,
+        "has_double_letters": True, "has_silent_letters": False,
+        "latin_or_french_origin": False, "related_to_nature": False,
+        "related_to_emotions": True, "has_prefix": False, "has_suffix": True,
+        "common_word": True, "difficulty": "easy",
+        "definition": "the state of being happy",
+        "example": "Her face glowed with happiness.",
+        "tip": "When adding '-ness' to words ending in 'y', change 'y' to 'i': happy → happiness.",
+    },
+    {
+        "name": "foreign",
+        "noun": False, "verb": False, "adjective": True,
+        "one_syllable": False, "starts_with_vowel": False,
+        "has_double_letters": False, "has_silent_letters": True,
+        "latin_or_french_origin": True, "related_to_nature": False,
+        "related_to_emotions": False, "has_prefix": False, "has_suffix": False,
+        "common_word": True, "difficulty": "hard",
+        "definition": "of, from, or relating to a country other than one's own",
+        "example": "She enjoys learning foreign languages.",
+        "tip": "The 'g' in 'foreign' is silent — and 'eig' breaks the 'i before e' rule!",
+    },
+    {
+        "name": "search",
+        "noun": True, "verb": True, "adjective": False,
+        "one_syllable": True, "starts_with_vowel": False,
+        "has_double_letters": False, "has_silent_letters": False,
+        "latin_or_french_origin": True, "related_to_nature": False,
+        "related_to_emotions": False, "has_prefix": False, "has_suffix": False,
+        "common_word": True, "difficulty": "easy",
+        "definition": "to look carefully in order to find something",
+        "example": "Let's search for the missing keys.",
+        "tip": "From Old French 'cerchier' — the 'ea' makes an 'er' sound here.",
+    },
+    {
+        "name": "peaceful",
+        "noun": False, "verb": False, "adjective": True,
+        "one_syllable": False, "starts_with_vowel": False,
+        "has_double_letters": False, "has_silent_letters": False,
+        "latin_or_french_origin": True, "related_to_nature": False,
+        "related_to_emotions": True, "has_prefix": False, "has_suffix": True,
+        "common_word": True, "difficulty": "easy",
+        "definition": "free from disturbance; calm and tranquil",
+        "example": "The peaceful lake reflected the mountains.",
+        "tip": "'Peace' + '-ful' — the suffix '-ful' always has one 'l' (not 'full').",
+    },
+    {
+        "name": "thunder",
+        "noun": True, "verb": True, "adjective": False,
+        "one_syllable": False, "starts_with_vowel": False,
+        "has_double_letters": False, "has_silent_letters": False,
+        "latin_or_french_origin": False, "related_to_nature": True,
+        "related_to_emotions": False, "has_prefix": False, "has_suffix": False,
+        "common_word": True, "difficulty": "easy",
+        "definition": "a loud rumbling sound heard after lightning",
+        "example": "The thunder was so loud it shook the windows.",
+        "tip": "'Thunder' comes from the Norse god Thor — 'Thursday' is 'Thor's day'!",
+    },
+    {
+        "name": "photograph",
+        "noun": True, "verb": True, "adjective": False,
+        "one_syllable": False, "starts_with_vowel": False,
+        "has_double_letters": False, "has_silent_letters": False,
+        "latin_or_french_origin": True, "related_to_nature": False,
+        "related_to_emotions": False, "has_prefix": False, "has_suffix": False,
+        "common_word": True, "difficulty": "medium",
+        "definition": "a picture made using a camera",
+        "example": "She took a photograph of the sunset.",
+        "tip": "'Photo' (light) + 'graph' (write) — Greek roots meaning 'writing with light'.",
+    },
+    {
+        "name": "awkward",
+        "noun": False, "verb": False, "adjective": True,
+        "one_syllable": False, "starts_with_vowel": True,
+        "has_double_letters": False, "has_silent_letters": False,
+        "latin_or_french_origin": False, "related_to_nature": False,
+        "related_to_emotions": True, "has_prefix": False, "has_suffix": False,
+        "common_word": True, "difficulty": "medium",
+        "definition": "causing difficulty; hard to deal with; clumsy",
+        "example": "There was an awkward silence after the joke.",
+        "tip": "From Old Norse 'afugr' (turned the wrong way) — another Viking word in English!",
+    },
+    {
+        "name": "growth",
+        "noun": True, "verb": False, "adjective": False,
+        "one_syllable": True, "starts_with_vowel": False,
+        "has_double_letters": False, "has_silent_letters": False,
+        "latin_or_french_origin": False, "related_to_nature": True,
+        "related_to_emotions": False, "has_prefix": False, "has_suffix": True,
+        "common_word": True, "difficulty": "easy",
+        "definition": "the process of increasing in size or developing",
+        "example": "The growth of the plant was impressive.",
+        "tip": "'Grow' + '-th' — the suffix '-th' turns verbs into nouns: warm→warmth, grow→growth.",
+    },
+    {
+        "name": "wreck",
+        "noun": True, "verb": True, "adjective": False,
+        "one_syllable": True, "starts_with_vowel": False,
+        "has_double_letters": False, "has_silent_letters": True,
+        "latin_or_french_origin": False, "related_to_nature": False,
+        "related_to_emotions": False, "has_prefix": False, "has_suffix": False,
+        "common_word": True, "difficulty": "easy",
+        "definition": "to destroy or severely damage something",
+        "example": "The storm threatened to wreck the old barn.",
+        "tip": "The 'w' in 'wreck' is silent — from Old Norse. Compare: wrap, wrist, wrong.",
+    },
+    {
+        "name": "imagination",
+        "noun": True, "verb": False, "adjective": False,
+        "one_syllable": False, "starts_with_vowel": True,
+        "has_double_letters": False, "has_silent_letters": False,
+        "latin_or_french_origin": True, "related_to_nature": False,
+        "related_to_emotions": True, "has_prefix": False, "has_suffix": True,
+        "common_word": True, "difficulty": "medium",
+        "definition": "the ability to form new ideas or images in the mind",
+        "example": "Children have a wonderful imagination.",
+        "tip": "From Latin 'imaginatio' — the '-ation' suffix is one of the most productive in English.",
+    },
+    {
+        "name": "speak",
+        "noun": False, "verb": True, "adjective": False,
+        "one_syllable": True, "starts_with_vowel": False,
+        "has_double_letters": False, "has_silent_letters": False,
+        "latin_or_french_origin": False, "related_to_nature": False,
+        "related_to_emotions": False, "has_prefix": False, "has_suffix": False,
+        "common_word": True, "difficulty": "easy",
+        "definition": "to say words; to talk",
+        "example": "She can speak three languages fluently.",
+        "tip": "Irregular: speak → spoke → spoken. The vowel change pattern is common in Germanic verbs.",
+    },
+    {
+        "name": "delicious",
+        "noun": False, "verb": False, "adjective": True,
+        "one_syllable": False, "starts_with_vowel": False,
+        "has_double_letters": False, "has_silent_letters": False,
+        "latin_or_french_origin": True, "related_to_nature": False,
+        "related_to_emotions": True, "has_prefix": False, "has_suffix": True,
+        "common_word": True, "difficulty": "medium",
+        "definition": "highly pleasant to the taste",
+        "example": "The homemade soup was absolutely delicious.",
+        "tip": "From Latin 'deliciosus' — the '-ious' ending often signals a Latin-origin adjective.",
+    },
+    {
+        "name": "rainbow",
+        "noun": True, "verb": False, "adjective": False,
+        "one_syllable": False, "starts_with_vowel": False,
+        "has_double_letters": False, "has_silent_letters": False,
+        "latin_or_french_origin": False, "related_to_nature": True,
+        "related_to_emotions": False, "has_prefix": False, "has_suffix": False,
+        "common_word": True, "difficulty": "easy",
+        "definition": "an arc of colors visible in the sky after rain",
+        "example": "A beautiful rainbow appeared after the storm.",
+        "tip": "'Rain' + 'bow' (arc) — a compound word. The 'bow' here means a curved shape.",
+    },
+    {
+        "name": "misspell",
+        "noun": False, "verb": True, "adjective": False,
+        "one_syllable": False, "starts_with_vowel": False,
+        "has_double_letters": True, "has_silent_letters": False,
+        "latin_or_french_origin": False, "related_to_nature": False,
+        "related_to_emotions": False, "has_prefix": True, "has_suffix": False,
+        "common_word": True, "difficulty": "medium",
+        "definition": "to spell a word incorrectly",
+        "example": "Be careful not to misspell your name on the form.",
+        "tip": "'Mis-' + 'spell' — the double 's' comes from the prefix ending and root starting with 's'.",
+    },
+    {
+        "name": "knee",
+        "noun": True, "verb": False, "adjective": False,
+        "one_syllable": True, "starts_with_vowel": False,
+        "has_double_letters": True, "has_silent_letters": True,
+        "latin_or_french_origin": False, "related_to_nature": False,
+        "related_to_emotions": False, "has_prefix": False, "has_suffix": False,
+        "common_word": True, "difficulty": "easy",
+        "definition": "the joint connecting the thigh and lower leg",
+        "example": "She scraped her knee when she fell.",
+        "tip": "The 'k' in 'knee' is silent — in Old English, it was pronounced! Same for 'knot', 'knife'.",
+    },
+    {
+        "name": "dangerous",
+        "noun": False, "verb": False, "adjective": True,
+        "one_syllable": False, "starts_with_vowel": False,
+        "has_double_letters": False, "has_silent_letters": False,
+        "latin_or_french_origin": True, "related_to_nature": False,
+        "related_to_emotions": True, "has_prefix": False, "has_suffix": True,
+        "common_word": True, "difficulty": "medium",
+        "definition": "able or likely to cause harm or injury",
+        "example": "Swimming in the deep river can be dangerous.",
+        "tip": "'Danger' + '-ous' — from Old French 'dangeros'. The '-ous' makes it an adjective.",
+    },
+    {
+        "name": "understand",
+        "noun": False, "verb": True, "adjective": False,
+        "one_syllable": False, "starts_with_vowel": True,
+        "has_double_letters": False, "has_silent_letters": False,
+        "latin_or_french_origin": False, "related_to_nature": False,
+        "related_to_emotions": True, "has_prefix": True, "has_suffix": False,
+        "common_word": True, "difficulty": "easy",
+        "definition": "to perceive the meaning of something",
+        "example": "Do you understand the instructions?",
+        "tip": "'Under-' + 'stand' — in Old English, 'understandan' meant 'to stand among' (to grasp).",
+    },
+    {
+        "name": "squirrel",
+        "noun": True, "verb": False, "adjective": False,
+        "one_syllable": False, "starts_with_vowel": False,
+        "has_double_letters": True, "has_silent_letters": False,
+        "latin_or_french_origin": True, "related_to_nature": True,
+        "related_to_emotions": False, "has_prefix": False, "has_suffix": False,
+        "common_word": True, "difficulty": "hard",
+        "definition": "a small, bushy-tailed rodent that lives in trees",
+        "example": "The squirrel buried acorns in the yard.",
+        "tip": "From Greek 'skiouros' (shadow-tail). One of the hardest English words to pronounce!",
+    },
+    {
+        "name": "silent",
+        "noun": False, "verb": False, "adjective": True,
+        "one_syllable": False, "starts_with_vowel": False,
+        "has_double_letters": False, "has_silent_letters": False,
+        "latin_or_french_origin": True, "related_to_nature": False,
+        "related_to_emotions": True, "has_prefix": False, "has_suffix": False,
+        "common_word": True, "difficulty": "easy",
+        "definition": "making no sound; completely quiet",
+        "example": "The classroom was silent during the test.",
+        "tip": "Ironic: 'silent' itself has no silent letters, but it's an anagram of 'listen'!",
+    },
+    {
+        "name": "autumn",
+        "noun": True, "verb": False, "adjective": False,
+        "one_syllable": False, "starts_with_vowel": True,
+        "has_double_letters": False, "has_silent_letters": True,
+        "latin_or_french_origin": True, "related_to_nature": True,
+        "related_to_emotions": False, "has_prefix": False, "has_suffix": False,
+        "common_word": True, "difficulty": "medium",
+        "definition": "the season between summer and winter; fall",
+        "example": "The leaves change color in autumn.",
+        "tip": "The 'n' in 'autumn' is silent — but it appears in 'autumnal' (aw-TUM-nul)!",
+    },
+    {
+        "name": "believe",
+        "noun": False, "verb": True, "adjective": False,
+        "one_syllable": False, "starts_with_vowel": False,
+        "has_double_letters": False, "has_silent_letters": False,
+        "latin_or_french_origin": False, "related_to_nature": False,
+        "related_to_emotions": True, "has_prefix": False, "has_suffix": False,
+        "common_word": True, "difficulty": "easy",
+        "definition": "to accept something as true or to have faith in",
+        "example": "I believe you can do anything you set your mind to.",
+        "tip": "'I before E except after C' works here: beLIEve. But 'weird' breaks the rule!",
+    },
+    {
+        "name": "together",
+        "noun": False, "verb": False, "adjective": False,
+        "one_syllable": False, "starts_with_vowel": False,
+        "has_double_letters": False, "has_silent_letters": False,
+        "latin_or_french_origin": False, "related_to_nature": False,
+        "related_to_emotions": True, "has_prefix": True, "has_suffix": False,
+        "common_word": True, "difficulty": "easy",
+        "definition": "with or in proximity to another person or people",
+        "example": "Let's work together on this project.",
+        "tip": "'To-' + 'gather' — literally 'to gather (in one place)'. Old English compound!",
+    },
+    {
+        "name": "vocabulary",
+        "noun": True, "verb": False, "adjective": False,
+        "one_syllable": False, "starts_with_vowel": False,
+        "has_double_letters": False, "has_silent_letters": False,
+        "latin_or_french_origin": True, "related_to_nature": False,
+        "related_to_emotions": False, "has_prefix": False, "has_suffix": True,
+        "common_word": True, "difficulty": "hard",
+        "definition": "all the words known and used by a particular person",
+        "example": "Reading books helps you build your vocabulary.",
+        "tip": "From Latin 'vocabulum' (word). The '-ary' suffix means 'related to'.",
+    },
+    {
+        "name": "warm",
+        "noun": False, "verb": True, "adjective": True,
+        "one_syllable": True, "starts_with_vowel": False,
+        "has_double_letters": False, "has_silent_letters": False,
+        "latin_or_french_origin": False, "related_to_nature": True,
+        "related_to_emotions": True, "has_prefix": False, "has_suffix": False,
+        "common_word": True, "difficulty": "easy",
+        "definition": "of or at a fairly high temperature",
+        "example": "Put on a warm jacket before going outside.",
+        "tip": "'Warm' works as both a verb ('warm up') and adjective ('warm day').",
+    },
+    {
+        "name": "unfortunately",
+        "noun": False, "verb": False, "adjective": False,
+        "one_syllable": False, "starts_with_vowel": True,
+        "has_double_letters": False, "has_silent_letters": False,
+        "latin_or_french_origin": True, "related_to_nature": False,
+        "related_to_emotions": True, "has_prefix": True, "has_suffix": True,
+        "common_word": True, "difficulty": "hard",
+        "definition": "it is regrettable that; used to express sadness about a fact",
+        "example": "Unfortunately, the game was cancelled due to rain.",
+        "tip": "Four parts: 'un-' + 'fortun(e)' + '-ate' + '-ly'. English can stack many affixes!",
+    },
+    {
+        "name": "apple",
+        "noun": True, "verb": False, "adjective": False,
+        "one_syllable": False, "starts_with_vowel": True,
+        "has_double_letters": True, "has_silent_letters": False,
+        "latin_or_french_origin": False, "related_to_nature": True,
+        "related_to_emotions": False, "has_prefix": False, "has_suffix": True,
+        "common_word": True, "difficulty": "easy",
+        "definition": "a round fruit with red, green, or yellow skin",
+        "example": "She packed an apple in her lunch bag.",
+        "tip": "One of the oldest English words — 'aeppel' in Old English. Double 'p' is key to spelling it.",
+    },
+    {
+        "name": "language",
+        "noun": True, "verb": False, "adjective": False,
+        "one_syllable": False, "starts_with_vowel": False,
+        "has_double_letters": False, "has_silent_letters": False,
+        "latin_or_french_origin": True, "related_to_nature": False,
+        "related_to_emotions": False, "has_prefix": False, "has_suffix": False,
+        "common_word": True, "difficulty": "medium",
+        "definition": "the method of human communication using words",
+        "example": "English is a widely spoken language.",
+        "tip": "From French 'langage' — the '-age' ending is a French suffix (voyage, courage).",
+    },
+    {
+        "name": "thought",
+        "noun": True, "verb": False, "adjective": False,
+        "one_syllable": True, "starts_with_vowel": False,
+        "has_double_letters": False, "has_silent_letters": True,
+        "latin_or_french_origin": False, "related_to_nature": False,
+        "related_to_emotions": True, "has_prefix": False, "has_suffix": False,
+        "common_word": True, "difficulty": "medium",
+        "definition": "an idea or opinion produced by thinking",
+        "example": "She was lost in thought during the lecture.",
+        "tip": "The 'ough' in 'thought' makes an 'aw' sound — 'ough' has 7+ pronunciations in English!",
+    },
+    {
+        "name": "create",
+        "noun": False, "verb": True, "adjective": False,
+        "one_syllable": False, "starts_with_vowel": False,
+        "has_double_letters": False, "has_silent_letters": False,
+        "latin_or_french_origin": True, "related_to_nature": False,
+        "related_to_emotions": False, "has_prefix": False, "has_suffix": False,
+        "common_word": True, "difficulty": "easy",
+        "definition": "to bring something into existence",
+        "example": "Artists create beauty from ordinary materials.",
+        "tip": "From Latin 'creare'. Related words: creation, creative, creature — all share the root.",
+    },
+    {
+        "name": "neighbor",
+        "noun": True, "verb": False, "adjective": False,
+        "one_syllable": False, "starts_with_vowel": False,
+        "has_double_letters": False, "has_silent_letters": True,
+        "latin_or_french_origin": False, "related_to_nature": False,
+        "related_to_emotions": False, "has_prefix": False, "has_suffix": False,
+        "common_word": True, "difficulty": "medium",
+        "definition": "a person living near or next door to the speaker",
+        "example": "Our neighbor has a friendly dog.",
+        "tip": "The 'gh' is silent. In British English it's 'neighbour' — American drops the 'u'.",
+    },
+    {
+        "name": "enormous",
+        "noun": False, "verb": False, "adjective": True,
+        "one_syllable": False, "starts_with_vowel": True,
+        "has_double_letters": False, "has_silent_letters": False,
+        "latin_or_french_origin": True, "related_to_nature": False,
+        "related_to_emotions": False, "has_prefix": True, "has_suffix": True,
+        "common_word": True, "difficulty": "medium",
+        "definition": "very large in size, quantity, or extent",
+        "example": "The enormous whale swam beneath the boat.",
+        "tip": "'E-' (out of) + 'norm' (standard) + '-ous' — literally 'out of the normal' in Latin.",
+    },
+    {
+        "name": "wrist",
+        "noun": True, "verb": False, "adjective": False,
+        "one_syllable": True, "starts_with_vowel": False,
+        "has_double_letters": False, "has_silent_letters": True,
+        "latin_or_french_origin": False, "related_to_nature": False,
+        "related_to_emotions": False, "has_prefix": False, "has_suffix": False,
+        "common_word": True, "difficulty": "easy",
+        "definition": "the joint connecting the hand to the forearm",
+        "example": "She wore a bracelet on her wrist.",
+        "tip": "The 'w' in 'wrist' is silent — from Old English 'wrist' (a turning joint).",
+    },
+    {
+        "name": "travel",
+        "noun": True, "verb": True, "adjective": False,
+        "one_syllable": False, "starts_with_vowel": False,
+        "has_double_letters": False, "has_silent_letters": False,
+        "latin_or_french_origin": True, "related_to_nature": False,
+        "related_to_emotions": False, "has_prefix": False, "has_suffix": False,
+        "common_word": True, "difficulty": "easy",
+        "definition": "to make a journey from one place to another",
+        "example": "They love to travel around the world.",
+        "tip": "From French 'travail' (hard work) — traveling used to be very difficult!",
+    },
+    {
+        "name": "grateful",
+        "noun": False, "verb": False, "adjective": True,
+        "one_syllable": False, "starts_with_vowel": False,
+        "has_double_letters": False, "has_silent_letters": False,
+        "latin_or_french_origin": True, "related_to_nature": False,
+        "related_to_emotions": True, "has_prefix": False, "has_suffix": True,
+        "common_word": True, "difficulty": "easy",
+        "definition": "feeling or showing thanks and appreciation",
+        "example": "I am grateful for your help.",
+        "tip": "It's 'grate-ful' not 'great-ful' — a very common spelling mistake!",
+    },
+    {
+        "name": "midnight",
+        "noun": True, "verb": False, "adjective": False,
+        "one_syllable": False, "starts_with_vowel": False,
+        "has_double_letters": False, "has_silent_letters": True,
+        "latin_or_french_origin": False, "related_to_nature": True,
+        "related_to_emotions": False, "has_prefix": False, "has_suffix": False,
+        "common_word": True, "difficulty": "easy",
+        "definition": "twelve o'clock at night",
+        "example": "The clock struck midnight on New Year's Eve.",
+        "tip": "'Mid' + 'night' — a compound word. The 'gh' in 'night' is silent.",
+    },
+    {
+        "name": "listen",
+        "noun": False, "verb": True, "adjective": False,
+        "one_syllable": False, "starts_with_vowel": False,
+        "has_double_letters": False, "has_silent_letters": True,
+        "latin_or_french_origin": False, "related_to_nature": False,
+        "related_to_emotions": False, "has_prefix": False, "has_suffix": False,
+        "common_word": True, "difficulty": "easy",
+        "definition": "to give attention to sound or action",
+        "example": "Please listen carefully to the instructions.",
+        "tip": "The 't' in 'listen' is silent — and 'listen' is an anagram of 'silent'!",
+    },
 ]
 
 QUESTIONS = [
@@ -625,8 +1249,185 @@ QUESTIONS = [
 MAX_QUESTIONS = 5
 
 
-# --- Game Functions (to be implemented in M1c / M2 / M3) ---
+# --- Game Functions ---
+
+
+def clear_screen():
+    print("\n" + "=" * 60)
+
+
+def display_header():
+    print("=" * 60)
+    print("      *** ENGLISH WORD ADVENTURE ***")
+    print("=" * 60)
+    print("  I'm thinking of one of 100 English words!")
+    print("  Ask up to 5 yes/no questions, then take your guess.")
+    print("  Learn about word origins, spelling, and grammar!")
+    print("=" * 60)
+
+
+def display_available_questions(asked_indices):
+    print("\nAvailable questions to ask:")
+    for i, (question, _) in enumerate(QUESTIONS):
+        if i not in asked_indices:
+            print(f"  [{i + 1:2}] {question}")
+
+
+def get_yes_no(prompt):
+    while True:
+        answer = input(prompt).strip().lower()
+        if answer in ("yes", "y"):
+            return True
+        elif answer in ("no", "n"):
+            return False
+        else:
+            print("      Please answer 'yes' or 'no'.")
+
+
+def filter_words(words, attribute, value):
+    return [w for w in words if w[attribute] == value]
+
+
+def play_game(word):
+    questions_left = MAX_QUESTIONS
+    asked_indices = set()
+    possible_words = list(WORDS)
+
+    print(f"\n  I'm thinking of a word... ({len(possible_words)} possibilities)")
+
+    while questions_left > 0:
+        print(f"\n  Questions remaining: {questions_left}")
+        print(f"  Remaining possible words: {len(possible_words)}")
+        display_available_questions(asked_indices)
+
+        remaining_q_indices = [i for i in range(len(QUESTIONS)) if i not in asked_indices]
+        if not remaining_q_indices:
+            print("\n  You've asked all available questions!")
+            break
+
+        print(f"\n  Enter a question number (1-{len(QUESTIONS)}) or 0 to make your guess now:")
+
+        while True:
+            try:
+                choice = int(input("  > ").strip())
+                if choice == 0:
+                    questions_left = 0
+                    break
+                elif 1 <= choice <= len(QUESTIONS) and (choice - 1) not in asked_indices:
+                    break
+                elif 1 <= choice <= len(QUESTIONS) and (choice - 1) in asked_indices:
+                    print("  You already asked that question! Pick another.")
+                else:
+                    print(f"  Please enter a number between 1 and {len(QUESTIONS)}, or 0 to guess.")
+            except ValueError:
+                print("  Please enter a valid number.")
+
+        if questions_left == 0:
+            break
+
+        q_index = choice - 1
+        question_text, attribute = QUESTIONS[q_index]
+        asked_indices.add(q_index)
+
+        print(f"\n  Q: {question_text}")
+        answer = word[attribute]
+        print(f"  A: {'YES' if answer else 'NO'}")
+
+        possible_words = filter_words(possible_words, attribute, answer)
+        questions_left -= 1
+
+        if len(possible_words) == 1:
+            print(f"\n  [Only 1 word left matching your clues!]")
+            break
+
+    print("\n" + "-" * 60)
+    print("  TIME TO GUESS!")
+    print("-" * 60)
+
+    if len(possible_words) <= 10 and len(possible_words) > 1:
+        print(f"\n  Hint: Based on your questions, it could be one of these:")
+        for w in possible_words:
+            print(f"    - {w['name']}")
+
+    print("\n  What word am I thinking of?")
+    guess = input("  Your guess: ").strip()
+
+    if guess.lower() == word["name"].lower():
+        print("\n  *** CORRECT! ***")
+        print(f"  You guessed it! The word was: {word['name']}")
+        return True
+    else:
+        print(f"\n  Not quite! The word was: {word['name']}")
+        print(f"  You guessed: {guess}")
+        return False
+
+
+def show_word_facts(word):
+    print("\n  --- LEARN ABOUT THIS WORD ---")
+    print(f"\n  Word: {word['name']}")
+    print(f"  Definition: {word['definition']}")
+    print(f"  Example: {word['example']}")
+    print(f"  Difficulty: {word['difficulty']}")
+
+    traits = []
+    if word["noun"]:
+        traits.append("noun")
+    if word["verb"]:
+        traits.append("verb")
+    if word["adjective"]:
+        traits.append("adjective")
+    if not any([word["noun"], word["verb"], word["adjective"]]):
+        traits.append("adverb")
+    if word["one_syllable"]:
+        traits.append("one syllable")
+    if word["starts_with_vowel"]:
+        traits.append("starts with a vowel")
+    if word["has_double_letters"]:
+        traits.append("has double letters")
+    if word["has_silent_letters"]:
+        traits.append("has silent letters")
+    if word["latin_or_french_origin"]:
+        traits.append("Latin/French origin")
+    else:
+        traits.append("Germanic origin")
+    if word["has_prefix"]:
+        traits.append("has a prefix")
+    if word["has_suffix"]:
+        traits.append("has a suffix")
+
+    print(f"  Traits: {', '.join(traits)}")
+    print(f"\n  Learning tip: {word['tip']}")
+
+
+def main():
+    display_header()
+    wins = 0
+    rounds = 0
+
+    while True:
+        word = random.choice(WORDS)
+        rounds += 1
+
+        won = play_game(word)
+        show_word_facts(word)
+
+        if won:
+            wins += 1
+
+        print(f"\n  Score: {wins} wins out of {rounds} round(s)")
+        print()
+
+        play_again = get_yes_no("  Play again? (yes/no): ")
+        if not play_again:
+            print("\n  Thanks for playing English Word Adventure!")
+            print(f"  Final score: {wins} wins out of {rounds} round(s)")
+            print("  Keep learning new words every day!")
+            print("=" * 60)
+            break
+
+        clear_screen()
+        display_header()
 
 
 if __name__ == "__main__":
-    pass
+    main()
