@@ -544,7 +544,95 @@ function drawUnicornOrb(x, y, camX) {
   ctx.restore();
 }
 
-function spawnTrailParticle(x, y) {
+// draw the unicorn mount underneath the player while flying
+function drawUnicornMount(px, py, flipX) {
+  ctx.save();
+  const ux = px - 6;   // offset so unicorn is centered under player
+  const uy = py + 20;  // below the leprechaun
+  if (flipX) {
+    ctx.translate(ux + 44, 0);
+    ctx.scale(-1, 1);
+    ctx.translate(-ux, 0);
+  }
+  const t = Date.now() / 200;
+
+  // body
+  ctx.fillStyle = '#fff';
+  ctx.beginPath(); ctx.ellipse(ux + 22, uy + 12, 18, 10, 0, 0, Math.PI*2); ctx.fill();
+
+  // neck + head
+  ctx.fillStyle = '#fff';
+  ctx.beginPath(); ctx.ellipse(ux + 38, uy + 2, 7, 10, 0.4, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(ux + 43, uy - 6, 8, 6, 0.2, 0, Math.PI*2); ctx.fill();
+
+  // horn (rainbow gradient)
+  ctx.strokeStyle = '#ffd600';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath(); ctx.moveTo(ux + 47, uy - 10); ctx.lineTo(ux + 53, uy - 22); ctx.stroke();
+  ctx.strokeStyle = '#f8a0a0';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(ux + 48, uy - 13); ctx.lineTo(ux + 50, uy - 18); ctx.stroke();
+
+  // eye
+  ctx.fillStyle = '#7b1fa2';
+  ctx.beginPath(); ctx.arc(ux + 45, uy - 6, 2, 0, Math.PI*2); ctx.fill();
+
+  // ear
+  ctx.fillStyle = '#eee';
+  ctx.beginPath(); ctx.moveTo(ux + 42, uy - 10); ctx.lineTo(ux + 44, uy - 17); ctx.lineTo(ux + 46, uy - 10); ctx.fill();
+
+  // mane (rainbow wisps)
+  const maneColors = ['#f8a0a0','#f8c89a','#a0dca0','#a0c8f0','#c8a0e0'];
+  for (let i = 0; i < maneColors.length; i++) {
+    ctx.strokeStyle = maneColors[i];
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    const mx = ux + 36 - i * 3;
+    const my = uy - 4 + i * 2;
+    const wave = Math.sin(t + i * 0.8) * 3;
+    ctx.moveTo(mx, my);
+    ctx.quadraticCurveTo(mx - 6, my - 8 + wave, mx - 12, my - 4 + wave);
+    ctx.stroke();
+  }
+
+  // wings (flapping)
+  const wingFlap = Math.sin(t * 2) * 8;
+  ctx.fillStyle = 'rgba(200,160,224,0.7)';
+  // top wing
+  ctx.beginPath();
+  ctx.moveTo(ux + 18, uy + 4);
+  ctx.quadraticCurveTo(ux + 10, uy - 18 + wingFlap, ux - 4, uy - 10 + wingFlap);
+  ctx.quadraticCurveTo(ux + 6, uy - 4 + wingFlap/2, ux + 18, uy + 4);
+  ctx.fill();
+  // bottom wing edge
+  ctx.fillStyle = 'rgba(160,200,240,0.5)';
+  ctx.beginPath();
+  ctx.moveTo(ux + 18, uy + 6);
+  ctx.quadraticCurveTo(ux + 8, uy - 10 + wingFlap, ux - 2, uy - 2 + wingFlap);
+  ctx.quadraticCurveTo(ux + 8, uy + 2 + wingFlap/2, ux + 18, uy + 6);
+  ctx.fill();
+
+  // legs (tucked while flying)
+  ctx.fillStyle = '#eee';
+  ctx.fillRect(ux + 10, uy + 18, 3, 8);
+  ctx.fillRect(ux + 16, uy + 19, 3, 7);
+  ctx.fillRect(ux + 28, uy + 18, 3, 8);
+  ctx.fillRect(ux + 33, uy + 19, 3, 7);
+
+  // tail (rainbow)
+  const tailColors = ['#f8a0a0','#f8e8a0','#a0dca0','#a0c8f0','#c8a0e0'];
+  for (let i = 0; i < tailColors.length; i++) {
+    ctx.strokeStyle = tailColors[i];
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    const tw = Math.sin(t + i * 0.6) * 5;
+    ctx.moveTo(ux + 4, uy + 10 + i * 2);
+    ctx.quadraticCurveTo(ux - 8 + tw, uy + 14 + i * 3, ux - 14 + tw, uy + 10 + i * 4);
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
   trailColorIdx = (trailColorIdx + 1) % TRAIL_COLORS.length;
   particles.push({
     x, y: y + Math.random() * 6 - 3,
@@ -624,7 +712,7 @@ const LEVELS = [
     potY: 210,
     // unicorn orb placed above mid-level rest cloud (index 15)
     unicorns: [
-      { cloudIndex: 15, offsetX: 90, offsetY: -50 },
+      { cloudIndex: 5, offsetX: 65, offsetY: -50 },
     ],
     // crows: cloudIndex is 0-based index into this level's clouds array
     crows: [
@@ -1334,15 +1422,9 @@ function draw() {
       sprite = LEP_IDLE;
     }
 
-    // glow effect while flying
+    // draw unicorn mount under the player while flying
     if (player.flying) {
-      ctx.save();
-      ctx.globalAlpha = 0.3 + Math.sin(Date.now()/150) * 0.15;
-      ctx.fillStyle = '#c8a0e0';
-      ctx.beginPath();
-      ctx.ellipse(player.x - camX + player.w/2, player.y + player.h/2, 24, 28, 0, 0, Math.PI*2);
-      ctx.fill();
-      ctx.restore();
+      drawUnicornMount(player.x - camX, player.y, player.facingLeft);
     }
 
     drawSprite(sprite, player.x - camX, player.y, 2, player.facingLeft);
