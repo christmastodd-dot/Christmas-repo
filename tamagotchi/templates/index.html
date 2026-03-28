@@ -447,7 +447,7 @@
     Answer correctly to hatch your egg and evolve!
   </p>
   <div id="new-game-section">
-    <input type="text" id="pet-name" placeholder="Name your pet" maxlength="20" autofocus>
+    <input type="text" id="pet-name" placeholder="Name your pet" maxlength="20">
     <br>
     <button onclick="startGame()">New Game</button>
   </div>
@@ -1327,16 +1327,23 @@ document.getElementById('art-box').addEventListener('click', () => {
   exitAnsweringMode();
 });
 
-// Adjust layout when mobile keyboard opens/closes
+// Adjust layout when mobile keyboard opens/closes (game screen only)
 if (window.visualViewport) {
   window.visualViewport.addEventListener('resize', () => {
-    const vh = window.visualViewport.height;
-    document.documentElement.style.height = vh + 'px';
-    document.body.style.height = vh + 'px';
-    if (document.activeElement === answerInput) {
-      setTimeout(() => {
-        questionBox.scrollIntoView({ behavior: 'smooth', block: 'end' });
-      }, 50);
+    // Only constrain height when game is active — leave welcome screen alone
+    const gameActive = document.getElementById('game').classList.contains('active');
+    if (gameActive) {
+      const vh = window.visualViewport.height;
+      document.documentElement.style.height = vh + 'px';
+      document.body.style.height = vh + 'px';
+      if (document.activeElement === answerInput) {
+        setTimeout(() => {
+          questionBox.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        }, 50);
+      }
+    } else {
+      document.documentElement.style.height = '';
+      document.body.style.height = '';
     }
   });
 }
