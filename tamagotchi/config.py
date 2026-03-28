@@ -52,6 +52,9 @@ CARE_COOLDOWN = 5
 # Tick interval in seconds
 TICK_INTERVAL = 30
 
+# Offline decay: stats can drop to at most this fraction of max while away
+OFFLINE_DECAY_FLOOR = 0.30  # 70% decay cap → stats floor at 30% of STAT_MAX
+
 # ── Economy ──────────────────────────────────────────────────────────
 
 # ~1 coin per 10 correct answers (10% chance each)

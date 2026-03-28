@@ -6,7 +6,7 @@ import time
 from tamagotchi.config import (
     STAGES, STAGE_THRESHOLDS,
     STAT_MAX, STAT_START, CARE_AMOUNTS, DECAY_PER_TICK, CARE_COOLDOWN,
-    COIN_DROP_CHANCE,
+    COIN_DROP_CHANCE, TICK_INTERVAL, OFFLINE_DECAY_FLOOR,
     SHOP_ITEMS, SLEEP_DURATION, SLEEP_ENERGY_PER_TICK,
 )
 
@@ -255,4 +255,36 @@ class Pet:
         pet.inventory = data.get("inventory", {})
         pet.sleeping = data.get("sleeping", False)
         pet.sleep_until = data.get("sleep_until", 0)
+
+        # ── Offline decay ───────────────────────────────────────────
+        # Apply stat decay for time elapsed since last save.
+        # Stats floor at OFFLINE_DECAY_FLOOR * STAT_MAX (70% max decay).
+        if pet.stage != "egg":
+            save_time = data.get("save_time", 0)
+            if save_time:
+                elapsed = time.time() - save_time
+                ticks = int(elapsed / TICK_INTERVAL)
+                if ticks > 0:
+                    floor = int(OFFLINE_DECAY_FLOOR * STAT_MAX)
+
+                    # If pet was sleeping, finish the nap first
+                    if pet.sleeping:
+                        sleep_ticks = max(0, int((pet.sleep_until - save_time) / TICK_INTERVAL))
+                        sleep_ticks = min(sleep_ticks, ticks)
+                        # Recover energy during remaining sleep
+                        pet.energy = min(STAT_MAX, pet.energy + SLEEP_ENERGY_PER_TICK * sleep_ticks)
+                        # Decay non-energy stats during sleep
+                        for stat, amount in DECAY_PER_TICK.items():
+                            if stat == "energy":
+                                continue
+                            old = getattr(pet, stat)
+                            setattr(pet, stat, max(floor, old - amount * sleep_ticks))
+                        ticks -= sleep_ticks
+                        pet.sleeping = False
+
+                    # Apply normal decay for remaining ticks
+                    for stat, amount in DECAY_PER_TICK.items():
+                        old = getattr(pet, stat)
+                        setattr(pet, stat, max(floor, old - amount * ticks))
+
         return pet
