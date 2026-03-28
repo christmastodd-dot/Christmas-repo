@@ -6,10 +6,10 @@ STAGES = ["egg", "baby", "child", "teen", "adult"]
 
 # Correct math answers required at each stage to evolve
 STAGE_THRESHOLDS = {
-    "egg": 5,
-    "baby": 5,
-    "child": 5,
-    "teen": 5,
+    "egg": 20,
+    "baby": 40,
+    "child": 60,
+    "teen": 80,
     "adult": None,  # final stage — keep answering for fun
 }
 
