@@ -642,18 +642,11 @@ function drawPlayer(sx, sy, right, flash, moving, walkOffset) {
 
   // Robin Hood hat — solid triangular cap with brim, feather backward
   // Cap body — solid triangle, peak leans slightly backward
-  c.fillStyle = 'rgb(55,105,45)';
+  c.fillStyle = 'rgb(45,88,35)';
   c.beginPath();
   c.moveTo(sx - 17, by - 54);              // left base
   c.lineTo(sx - f*4, by - 80);             // peak (leans backward)
   c.lineTo(sx + 17, by - 54);              // right base
-  c.closePath(); c.fill();
-  // Darker half for depth (front face of the cap)
-  c.fillStyle = 'rgb(45,88,35)';
-  c.beginPath();
-  c.moveTo(sx, by - 54);                   // center base
-  c.lineTo(sx - f*4, by - 80);             // peak
-  c.lineTo(sx + f*17, by - 54);            // front base edge
   c.closePath(); c.fill();
   // Brim — wide, sits on top of the head, drawn over the cap base
   c.fillStyle = 'rgb(42,82,32)';
