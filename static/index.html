@@ -1049,7 +1049,7 @@ function drawProgressBar(progress) {
     roundRect(bx, by, fw, bh, 4);
     // Shine on filled area
     ctx.fillStyle = 'rgba(255,255,255,0.25)';
-    roundRect(bx, by, fw, bh/2, [4,4,0,0]);
+    roundRect(bx, by, fw, bh/2, 4);
   }
   // Percentage text
   ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.font = 'bold 11px Arial'; ctx.textAlign = 'center';
@@ -1110,11 +1110,11 @@ const mountainSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 60
       <stop offset="0%" stop-color="#6aafe0"/>
       <stop offset="100%" stop-color="#2a5a80"/>
     </linearGradient>
-    <linearGradient id="glow" cx="0.82" cy="0.12" r="0.35" fx="0.82" fy="0.12"
+    <radialGradient id="glow" cx="0.82" cy="0.12" r="0.35" fx="0.82" fy="0.12"
         gradientUnits="objectBoundingBox" spreadMethod="pad">
       <stop offset="0%" stop-color="rgba(255,220,140,0.4)"/>
       <stop offset="100%" stop-color="rgba(255,220,140,0)"/>
-    </linearGradient>
+    </radialGradient>
     <filter id="haze"><feGaussianBlur stdDeviation="3"/></filter>
     <filter id="soften"><feGaussianBlur stdDeviation="1.2"/></filter>
   </defs>
