@@ -457,7 +457,169 @@ function drawTrees(camWX, camWY, progress) {
   }
 }
 
-function drawSummitFlag(camWX, camWY) {
+// Alpine scenery items — signs, cabins, caves placed at fixed world positions
+function drawAlpineItems(camWX, camWY) {
+  const items = [
+    { type: 'sign', wx: 400, text: 'Summit\nthis way!' },
+    { type: 'cabin', wx: 1800 },
+    { type: 'cave', wx: 3200 },
+    { type: 'sign', wx: 4400, text: 'Watch for\ngoats!' },
+    { type: 'cabin', wx: 5600 },
+    { type: 'sign', wx: 6800, text: 'Almost\nthere!' },
+  ];
+
+  for (const item of items) {
+    const wy = trailY(item.wx);
+    const [sx, sy] = worldToScreen(item.wx, wy, camWX, camWY);
+    if (sx < -80 || sx > W + 80) continue;
+
+    if (item.type === 'sign') {
+      drawTrailSign(sx, sy, item.text);
+    } else if (item.type === 'cabin') {
+      drawCabin(sx, sy);
+    } else if (item.type === 'cave') {
+      drawCave(sx, sy);
+    }
+  }
+}
+
+function drawTrailSign(sx, sy) {
+  const c = ctx;
+  // Post
+  c.fillStyle = 'rgb(110,80,50)';
+  c.fillRect(sx - 3, sy - 50, 6, 50);
+  // Sign board — wooden plank
+  c.fillStyle = 'rgb(180,140,80)';
+  c.beginPath(); c.roundRect(sx - 28, sy - 52, 56, 22, 3); c.fill();
+  // Border
+  c.strokeStyle = 'rgb(130,95,50)'; c.lineWidth = 1.5;
+  c.beginPath(); c.roundRect(sx - 28, sy - 52, 56, 22, 3); c.stroke();
+  // Arrow pointing right
+  c.fillStyle = 'rgb(90,60,30)';
+  c.beginPath();
+  c.moveTo(sx + 18, sy - 41);
+  c.lineTo(sx + 26, sy - 41);
+  c.lineTo(sx + 22, sy - 46);
+  c.lineTo(sx + 30, sy - 41);
+  c.lineTo(sx + 22, sy - 36);
+  c.lineTo(sx + 26, sy - 41);
+  c.closePath(); c.fill();
+  // Snow on top
+  c.fillStyle = 'rgba(255,255,255,0.7)';
+  c.beginPath();
+  c.ellipse(sx, sy - 53, 22, 4, 0, Math.PI, Math.PI*2);
+  c.fill();
+}
+
+function drawCabin(sx, sy) {
+  const c = ctx;
+  // Cabin sits behind/above the trail
+  const bx = sx - 30, by = sy - 58;
+
+  // Cabin body — warm wood
+  c.fillStyle = 'rgb(140,90,45)';
+  c.fillRect(bx, by, 60, 36);
+  // Darker planks
+  c.strokeStyle = 'rgb(110,70,35)'; c.lineWidth = 1;
+  for (let i = 0; i < 4; i++) {
+    c.beginPath(); c.moveTo(bx, by + 9*i + 9); c.lineTo(bx + 60, by + 9*i + 9); c.stroke();
+  }
+  // Roof — steep A-frame, dark red
+  c.fillStyle = 'rgb(160,60,40)';
+  c.beginPath();
+  c.moveTo(bx - 6, by);
+  c.lineTo(sx, by - 24);
+  c.lineTo(bx + 66, by);
+  c.closePath(); c.fill();
+  // Roof edge
+  c.strokeStyle = 'rgb(120,40,25)'; c.lineWidth = 1.5;
+  c.beginPath(); c.moveTo(bx - 6, by); c.lineTo(sx, by - 24); c.lineTo(bx + 66, by); c.stroke();
+  // Snow on roof
+  c.fillStyle = 'rgba(255,255,255,0.65)';
+  c.beginPath();
+  c.moveTo(bx - 4, by + 2);
+  c.lineTo(sx, by - 22);
+  c.lineTo(bx + 64, by + 2);
+  c.quadraticCurveTo(bx + 58, by + 6, bx + 50, by + 4);
+  c.quadraticCurveTo(sx + 10, by - 14, sx, by - 16);
+  c.quadraticCurveTo(sx - 12, by - 14, bx + 8, by + 5);
+  c.quadraticCurveTo(bx, by + 6, bx - 4, by + 2);
+  c.closePath(); c.fill();
+  // Door
+  c.fillStyle = 'rgb(90,55,25)';
+  c.beginPath(); c.roundRect(sx - 7, by + 14, 14, 22, [3,3,0,0]); c.fill();
+  // Door handle
+  c.fillStyle = 'rgb(200,170,60)';
+  c.beginPath(); c.arc(sx + 4, by + 26, 2, 0, Math.PI*2); c.fill();
+  // Window
+  c.fillStyle = 'rgb(200,220,255)';
+  c.fillRect(bx + 38, by + 10, 14, 12);
+  c.strokeStyle = 'rgb(110,70,35)'; c.lineWidth = 1.5;
+  c.strokeRect(bx + 38, by + 10, 14, 12);
+  // Window cross
+  c.beginPath(); c.moveTo(bx + 45, by + 10); c.lineTo(bx + 45, by + 22); c.stroke();
+  c.beginPath(); c.moveTo(bx + 38, by + 16); c.lineTo(bx + 52, by + 16); c.stroke();
+  // Warm glow from window
+  c.fillStyle = 'rgba(255,220,120,0.25)';
+  c.fillRect(bx + 39, by + 11, 12, 10);
+  // Chimney
+  c.fillStyle = 'rgb(120,100,80)';
+  c.fillRect(sx + 12, by - 18, 10, 18);
+  // Smoke from chimney
+  const now = performance.now() / 1000;
+  c.fillStyle = 'rgba(200,200,210,0.35)';
+  for (let p = 0; p < 3; p++) {
+    const t = ((now * 20 + p * 12) % 36) / 36;
+    const puffY = by - 20 - t * 40;
+    const puffX = sx + 17 + Math.sin(t * Math.PI * 2) * 5;
+    c.beginPath(); c.arc(puffX, puffY, 4 + t * 5, 0, Math.PI*2); c.fill();
+  }
+}
+
+function drawCave(sx, sy) {
+  const c = ctx;
+  // Cave opening — dark arch set into the hillside
+  const cx = sx, cy = sy - 10;
+
+  // Rock face around cave
+  c.fillStyle = 'rgb(100,90,80)';
+  c.beginPath();
+  c.ellipse(cx, cy - 10, 38, 35, 0, Math.PI, Math.PI*2);
+  c.fill();
+  c.fillRect(cx - 38, cy - 10, 76, 15);
+
+  // Rocky texture
+  c.fillStyle = 'rgb(85,78,70)';
+  c.beginPath(); c.ellipse(cx - 20, cy - 22, 10, 6, -0.3, 0, Math.PI*2); c.fill();
+  c.beginPath(); c.ellipse(cx + 18, cy - 18, 8, 5, 0.2, 0, Math.PI*2); c.fill();
+  c.fillStyle = 'rgb(115,105,92)';
+  c.beginPath(); c.ellipse(cx + 5, cy - 30, 12, 7, 0.1, 0, Math.PI*2); c.fill();
+
+  // Cave opening — dark arch
+  c.fillStyle = 'rgb(25,20,18)';
+  c.beginPath();
+  c.ellipse(cx, cy, 22, 24, 0, Math.PI, Math.PI*2);
+  c.fill();
+  c.fillRect(cx - 22, cy, 44, 8);
+
+  // Inner depth glow (subtle warm hint of something inside)
+  c.fillStyle = 'rgba(255,180,80,0.08)';
+  c.beginPath();
+  c.ellipse(cx, cy - 4, 14, 16, 0, Math.PI, Math.PI*2);
+  c.fill();
+
+  // Stalactites
+  c.fillStyle = 'rgb(70,65,58)';
+  c.beginPath(); c.moveTo(cx - 12, cy - 22); c.lineTo(cx - 10, cy - 12); c.lineTo(cx - 14, cy - 12); c.closePath(); c.fill();
+  c.beginPath(); c.moveTo(cx + 6, cy - 24); c.lineTo(cx + 8, cy - 14); c.lineTo(cx + 4, cy - 14); c.closePath(); c.fill();
+  c.beginPath(); c.moveTo(cx - 3, cy - 23); c.lineTo(cx - 1, cy - 16); c.lineTo(cx - 5, cy - 16); c.closePath(); c.fill();
+
+  // Snow on top of rock face
+  c.fillStyle = 'rgba(255,255,255,0.5)';
+  c.beginPath();
+  c.ellipse(cx, cy - 32, 30, 6, 0, Math.PI, Math.PI*2);
+  c.fill();
+}
   const [sx, sy] = worldToScreen(LEVEL_LENGTH, trailY(LEVEL_LENGTH), camWX, camWY);
   // Pole
   ctx.strokeStyle = 'rgb(120,90,60)'; ctx.lineWidth = 5;
@@ -1366,6 +1528,7 @@ function draw(dt) {
   drawDistantMountains(camWX, camWY);
   drawMidMountains(camWX, camWY);
   drawTerrain(camWX, camWY, progress);
+  drawAlpineItems(camWX, camWY);
   drawTrees(camWX, camWY, progress);
   drawSummitFlag(camWX, camWY);
 
