@@ -199,7 +199,57 @@ Level 2 is 3x longer than Level 1 (~30 cloud platforms across ~7000px). It intro
 
 **Done when:** Player can collect the unicorn orb, fly freely for 10 seconds with a rainbow trail, see the countdown timer, and land gracefully when it expires.
 
-### Milestone 3 — Disappearing Clouds, Levels 4-5 & Polish
+### Milestone 3 — Level 3: Stormy Stretch
+
+Level 3 is ~3.5x Level 1 length (~35 clouds across ~8000px). It introduces disappearing clouds and a storm environment. All existing mechanics (moving clouds, crows, unicorn) carry forward with increased difficulty.
+
+#### Milestone 3A — Storm Background & Level 3 Layout
+**Goal:** Storm environment and the Level 3 cloud layout with static + moving clouds.
+
+**Deliverables:**
+- Storm background function (`bgType: 'storm'`):
+  - Dark gray-purple gradient sky
+  - Dark silhouette hills
+  - Distant storm clouds (dark, low opacity)
+  - Cosmetic lightning flashes: random brief white overlay (100ms, ~every 5-8 seconds, no gameplay effect)
+- Level 3 cloud layout: ~35 platforms across ~8000px
+  - Mix of static, horizontal movers, and vertical bobbers
+  - More moving clouds than Level 2 (~14 movers)
+  - Wider gaps overall, requiring precise timing
+  - Periodic rest platforms (wide, static) every ~6-8 clouds
+- Per-level rainbow arc and pot of gold at Level 3 final cloud
+- Level progression: Level 2 complete → Level 3
+
+**Done when:** Player can complete Level 2 and play through Level 3's layout with the storm background and lightning flashes.
+
+#### Milestone 3B — Disappearing Clouds
+**Goal:** Add clouds that vanish after the player lands on them.
+
+**Deliverables:**
+- New cloud property: `disappearing: true`
+- When the player lands on a disappearing cloud, a 1.5-second countdown starts
+- During the countdown the cloud visually fades (opacity decreases)
+- After 1.5s the cloud fully vanishes (no collision, not drawn)
+- After 3 more seconds the cloud reappears (fades back in over 0.5s)
+- Visual indicator: disappearing clouds have a slight shimmer/transparency so the player can tell them apart before landing
+- ~8-10 disappearing clouds in Level 3, mixed in with normal platforms
+- No disappearing clouds in Levels 1-2
+
+**Done when:** Disappearing clouds fade and vanish on contact, reappear after a delay, and are visually distinct from normal clouds.
+
+#### Milestone 3C — Level 3 Enemies & Unicorn
+**Goal:** Populate Level 3 with crows and a unicorn power-up.
+
+**Deliverables:**
+- 8-10 crows placed across Level 3
+  - Some on moving clouds, some on disappearing clouds (extra challenge)
+  - Faster patrol speeds than Level 2 (speed 1.2-1.8)
+- One unicorn orb placed before a difficult sequence of disappearing clouds (~70% through the level)
+- Level 3 complete → game complete screen (or Level 4 if we continue)
+
+**Done when:** Level 3 is fully playable with crows, disappearing clouds, one unicorn, and the storm environment. Difficulty feels like a clear step up from Level 2.
+
+### Milestone 4 — Levels 4-5 & Polish (future)
 **Goal:** Complete all five levels with full difficulty progression and visual polish.
 
 **Deliverables:**
