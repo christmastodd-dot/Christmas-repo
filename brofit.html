@@ -214,143 +214,6 @@
       gap: 8px;
     }
 
-    /* ===== Recommendation Cards ===== */
-    .cards-container {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin-bottom: 24px;
-    }
-
-    .card {
-      background: var(--bg-card);
-      border-radius: var(--radius-md);
-      padding: 16px;
-      border-left: 4px solid var(--text-muted);
-      box-shadow: var(--shadow-card);
-      opacity: 0;
-      transform: translateY(20px);
-      animation: slideUp 0.4s ease forwards;
-      transition: background 0.2s, transform 0.2s;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .card:active {
-      transform: scale(0.98);
-      background: var(--bg-card-hover);
-    }
-
-    .card--workout  { border-left-color: var(--color-orange); }
-    .card--nutrition { border-left-color: var(--color-green); }
-    .card--motivation { border-left-color: var(--color-purple); }
-    .card--callout  { border-left-color: var(--color-red); }
-    .card--challenge { border-left-color: var(--color-gold); }
-    .card--recovery { border-left-color: var(--color-blue); }
-
-    .card__top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 10px;
-    }
-
-    .card__badge {
-      font-size: 0.65rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      padding: 3px 10px;
-      border-radius: 20px;
-      color: var(--bg-primary);
-    }
-
-    .card__badge--workout  { background: var(--color-orange); }
-    .card__badge--nutrition { background: var(--color-green); }
-    .card__badge--motivation { background: var(--color-purple); color: #fff; }
-    .card__badge--callout  { background: var(--color-red); color: #fff; }
-    .card__badge--challenge { background: var(--color-gold); }
-    .card__badge--recovery { background: var(--color-blue); }
-
-    .card__icon {
-      font-size: 1.6rem;
-    }
-
-    .card__text {
-      font-size: 0.95rem;
-      line-height: 1.5;
-      color: var(--text-primary);
-    }
-
-    .card__spice {
-      font-size: 0.75rem;
-      margin-top: 8px;
-      color: var(--text-muted);
-    }
-
-    .card__action {
-      display: inline-block;
-      margin-top: 12px;
-      background: var(--color-gold);
-      color: var(--bg-primary);
-      font-family: var(--font-body);
-      font-size: 0.8rem;
-      font-weight: 700;
-      padding: 8px 16px;
-      border: none;
-      border-radius: var(--radius-sm);
-      cursor: pointer;
-      transition: transform 0.15s, box-shadow 0.15s;
-    }
-
-    .card__action:active {
-      transform: scale(0.95);
-    }
-
-    .card__action--done {
-      background: var(--color-green);
-      pointer-events: none;
-    }
-
-    /* ===== Regenerate Button ===== */
-    .regenerate {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      width: 100%;
-      padding: 16px;
-      margin-bottom: 32px;
-      background: linear-gradient(135deg, var(--color-orange), var(--color-red));
-      color: #fff;
-      font-family: var(--font-body);
-      font-size: 1rem;
-      font-weight: 700;
-      border: none;
-      border-radius: var(--radius-md);
-      cursor: pointer;
-      transition: transform 0.15s, box-shadow 0.2s;
-      box-shadow: var(--shadow-glow-orange);
-    }
-
-    .regenerate:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 0 30px rgba(255, 107, 53, 0.5);
-    }
-
-    .regenerate:active {
-      transform: scale(0.97);
-    }
-
-    .regenerate__icon {
-      display: inline-block;
-      transition: transform 0.5s ease;
-    }
-
-    .regenerate__icon--spin {
-      transform: rotate(720deg);
-    }
-
     /* ===== Daily Challenge (Featured) ===== */
     .featured-challenge {
       background: var(--bg-card);
@@ -1197,11 +1060,6 @@
         max-width: 700px;
       }
 
-      .cards-container {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 14px;
-      }
     }
 
     /* ===== Responsive: Desktop ===== */
@@ -1213,15 +1071,6 @@
 
       .header__logo {
         font-size: 2.2rem;
-      }
-
-      .card {
-        padding: 20px;
-      }
-
-      .card:hover {
-        background: var(--bg-card-hover);
-        transform: translateY(-2px);
       }
     }
   </style>
@@ -1255,18 +1104,6 @@
       </div>
       <div class="profile__progress-label" id="progress-label">0 / 100 XP to next rank</div>
     </section>
-
-    <!-- Recommendations -->
-    <div class="section-title">Your 10 for Today</div>
-    <div class="cards-container" id="cards-container">
-      <!-- Cards rendered by JS -->
-    </div>
-
-    <!-- Regenerate -->
-    <button class="regenerate" id="regenerate-btn">
-      <span class="regenerate__icon" id="regenerate-icon">🎲</span>
-      Hit Me Again
-    </button>
 
     <!-- Daily Challenge -->
     <div class="section-title">Daily Challenge</div>
@@ -1329,93 +1166,7 @@
   </div>
 
   <script>
-    // ===== Content Arrays =====
-
-    const workoutTips = [
-      { text: "Stop skipping legs. Your girl notices. Everyone notices.", icon: "🦵", category: "workout", spice: 3 },
-      { text: "Superset your curls with pull-ups. Arms AND back. Efficiency, king.", icon: "💪", category: "workout", spice: 1 },
-      { text: "If you can text between sets, you're resting too long. Put the phone down.", icon: "📵", category: "workout", spice: 2 },
-      { text: "Try paused reps on bench today. 2 seconds at the bottom. Humbling but it works.", icon: "🏋️", category: "workout", spice: 1 },
-      { text: "Do farmer's walks. Nothing says 'I'm that guy' like carrying 100s across the gym.", icon: "🚶", category: "workout", spice: 2 },
-      { text: "Warm up your rotator cuffs or enjoy explaining your shoulder surgery to people.", icon: "🔄", category: "workout", spice: 2 },
-      { text: "Progressive overload isn't optional. If you're lifting the same weight as last month, you're decorating.", icon: "📈", category: "workout", spice: 3 },
-      { text: "Hit a plateau? Drop sets until you can't feel your arms. You're welcome.", icon: "⬇️", category: "workout", spice: 2 },
-      { text: "Front squats hit different. Yeah they're uncomfortable. That's the point.", icon: "🔥", category: "workout", spice: 2 },
-      { text: "Train your grip. Can't hold it, can't lift it. Dead hangs, 30 seconds, go.", icon: "✊", category: "workout", spice: 1 },
-      { text: "Romanian deadlifts for the hammies. Your posterior chain will thank you. So will your physique.", icon: "🍑", category: "workout", spice: 2 },
-      { text: "Stop ego lifting. Nobody's impressed by your quarter-rep bench. Full ROM or go home.", icon: "🎯", category: "workout", spice: 3 },
-      { text: "Cable face pulls every session. Your posture is probably garbage from sitting at a desk all day.", icon: "🖥️", category: "workout", spice: 2 },
-      { text: "Dips are the upper body squat. If you're not doing them, you're leaving gains on the table.", icon: "⬇️", category: "workout", spice: 1 },
-      { text: "Mind-muscle connection isn't bro science. Slow down, squeeze, feel the muscle work.", icon: "🧠", category: "workout", spice: 1 },
-      { text: "Bulgarian split squats. Yes, they suck. That's how you know they're working.", icon: "🇧🇬", category: "workout", spice: 2 },
-      { text: "Try a 5x5 week. Heavy compound lifts. Get back to basics and rebuild that foundation.", icon: "🧱", category: "workout", spice: 1 },
-      { text: "Your core isn't just abs. Hit planks, pallof presses, and hanging leg raises.", icon: "🎯", category: "workout", spice: 1 },
-      { text: "Switch up your grip. Underhand rows hit the lats different. Variety is gains.", icon: "🔀", category: "workout", spice: 1 },
-      { text: "If you haven't tried landmine presses, you're sleeping on one of the best shoulder builders.", icon: "💣", category: "workout", spice: 1 }
-    ];
-
-    const nutritionAdvice = [
-      { text: "Chicken and rice AGAIN? Bro, discover seasoning. Your gains deserve flavor.", icon: "🍗", category: "nutrition", spice: 2 },
-      { text: "1g of protein per pound of bodyweight. Not negotiable. Track it or guess wrong.", icon: "🥩", category: "nutrition", spice: 1 },
-      { text: "Meal prep Sunday. 2 hours now saves you from drive-thru decisions all week.", icon: "📦", category: "nutrition", spice: 1 },
-      { text: "Creatine monohydrate. 5g a day. Every day. Stop overthinking it.", icon: "💊", category: "nutrition", spice: 1 },
-      { text: "You're not eating enough vegetables. Your micronutrients are crying. Eat the broccoli.", icon: "🥦", category: "nutrition", spice: 2 },
-      { text: "Pre-workout meal: carbs + protein, 90 min before. A banana and a shake isn't that hard.", icon: "🍌", category: "nutrition", spice: 1 },
-      { text: "Hydrate or die-drate. A gallon a day. Your kidneys are doing their best, help them out.", icon: "💧", category: "nutrition", spice: 2 },
-      { text: "Greek yogurt with honey and granola. 30g protein snack that actually tastes good. You're welcome.", icon: "🍯", category: "nutrition", spice: 1 },
-      { text: "Stop drinking your calories. That Starbucks order has more sugar than a Snickers.", icon: "☕", category: "nutrition", spice: 3 },
-      { text: "Post-workout window is real. Get protein in within an hour. Don't be the guy who waits 3 hours.", icon: "⏰", category: "nutrition", spice: 2 },
-      { text: "Cottage cheese before bed. Casein protein = slow release overnight gains while you sleep.", icon: "🧀", category: "nutrition", spice: 1 },
-      { text: "If your pee isn't clear, you're not drinking enough water. This is not a drill.", icon: "🚰", category: "nutrition", spice: 2 },
-      { text: "Sweet potatoes over white. More fiber, more vitamins, and they taste better. No excuses.", icon: "🍠", category: "nutrition", spice: 1 },
-      { text: "Eggs are nature's multivitamin. 4 whole eggs a day minimum. The yolk is where the magic is.", icon: "🥚", category: "nutrition", spice: 1 },
-      { text: "Alcohol kills your recovery. That Saturday night is costing you Sunday, Monday, AND Tuesday gains.", icon: "🍺", category: "nutrition", spice: 3 },
-      { text: "Cook with olive oil. Your heart and your hormones will thank you.", icon: "🫒", category: "nutrition", spice: 1 },
-      { text: "Frozen fruit + protein powder + milk = a shake that doesn't taste like punishment.", icon: "🥤", category: "nutrition", spice: 1 },
-      { text: "Track your food for one week. Just one. You'll be shocked how far off your guesses are.", icon: "📱", category: "nutrition", spice: 1 },
-      { text: "Beef jerky is the GOAT gym bag snack. 10g protein, zero prep, pure convenience.", icon: "🥓", category: "nutrition", spice: 1 },
-      { text: "Eating clean doesn't mean eating boring. Hot sauce, garlic, cumin — season everything.", icon: "🌶️", category: "nutrition", spice: 1 }
-    ];
-
-    const motivationalQuotes = [
-      { text: "Your buddy just hit a new PR. You gonna let that slide?", icon: "🔥", category: "motivation", spice: 3 },
-      { text: "Discipline > motivation. Motivation gets you to the gym once. Discipline builds the physique.", icon: "⚡", category: "motivation", spice: 1 },
-      { text: "Someone out there is warming up with your max. Let that sink in.", icon: "🪞", category: "motivation", spice: 3 },
-      { text: "You don't have to go hard every day. But you do have to show up every day.", icon: "🚪", category: "motivation", spice: 1 },
-      { text: "The guy who goes to the gym 4x a week for 5 years beats the guy who goes 7x a week for 3 months.", icon: "📅", category: "motivation", spice: 1 },
-      { text: "Nobody cares about your excuses. The weights don't care. Your body doesn't care. Show up.", icon: "🏋️", category: "motivation", spice: 2 },
-      { text: "You're one workout away from a good mood. Science says so. Get after it.", icon: "🧪", category: "motivation", spice: 1 },
-      { text: "Every rep you skip is a rep your future self wished you did. Don't rob that guy.", icon: "⏳", category: "motivation", spice: 2 },
-      { text: "Your crew is counting on you. Don't be the weak link.", icon: "🔗", category: "motivation", spice: 3 },
-      { text: "That voice saying 'skip today' has never built anything worth having.", icon: "🤫", category: "motivation", spice: 2 },
-      { text: "Remember why you started. Then remember you're not done yet.", icon: "🏁", category: "motivation", spice: 1 },
-      { text: "Comfort zone is where gains go to die. Get uncomfortable today.", icon: "💀", category: "motivation", spice: 2 },
-      { text: "You vs. you. That's the only competition that matters. But also, beat your boys too.", icon: "👊", category: "motivation", spice: 2 },
-      { text: "6 months from now you'll wish you started today. So start today.", icon: "📆", category: "motivation", spice: 1 },
-      { text: "The pain of discipline is nothing compared to the pain of regret. Cliché because it's true.", icon: "💯", category: "motivation", spice: 1 },
-      { text: "Your ancestors survived famines and wars so you could skip the gym? Nah.", icon: "⚔️", category: "motivation", spice: 3 },
-      { text: "Be the guy in your crew who never misses. That reputation is worth more than any PR.", icon: "👑", category: "motivation", spice: 2 },
-      { text: "Tired? Good. Champions are built on the days they didn't feel like it.", icon: "😤", category: "motivation", spice: 2 },
-      { text: "Results take time. You're planting seeds right now. Trust the process.", icon: "🌱", category: "motivation", spice: 1 }
-    ];
-
-    const broCallouts = [
-      { text: "Someone in your crew skipped today. You know who you are. 👀", icon: "👀", category: "callout", spice: 3 },
-      { text: "If you haven't sent the group chat a gym selfie this week, did you even go?", icon: "🤳", category: "callout", spice: 2 },
-      { text: "Tag the friend who says 'I'll start Monday' every Sunday night.", icon: "🏷️", category: "callout", spice: 3 },
-      { text: "Whoever's been eating fast food 3x this week — we see you. Kitchen. Now.", icon: "🍔", category: "callout", spice: 3 },
-      { text: "Real friends don't let friends skip leg day. Check your boy.", icon: "🦵", category: "callout", spice: 2 },
-      { text: "One of you hasn't logged a workout in 4 days. The crew knows. The crew always knows.", icon: "📊", category: "callout", spice: 3 },
-      { text: "Bro who keeps saying 'next week I'm locked in' — it's been 6 next weeks.", icon: "🗓️", category: "callout", spice: 3 },
-      { text: "If your gym partner hasn't texted you back about tomorrow's session, send the double text. No shame.", icon: "📱", category: "callout", spice: 1 },
-      { text: "Someone in this group is doing bicep curls in the squat rack. Confess.", icon: "🙏", category: "callout", spice: 2 },
-      { text: "Friendly reminder: that 'rest day' yesterday was also a rest day. And the day before.", icon: "🛋️", category: "callout", spice: 3 },
-      { text: "You're only as strong as your weakest bro. Drag him to the gym today.", icon: "🤝", category: "callout", spice: 2 },
-      { text: "The group chat has been too quiet. Post your workout or it didn't happen.", icon: "📸", category: "callout", spice: 2 },
-      { text: "Which one of you ordered pizza at midnight? Don't lie. We can smell the regret.", icon: "🍕", category: "callout", spice: 3 },
-      { text: "If you left the gym after 30 minutes, that was a warm-up, not a workout.", icon: "⏱️", category: "callout", spice: 2 },
-      { text: "Accountability check: DM your crew what you ate today. All of it. No hiding.", icon: "📝", category: "callout", spice: 2 }
-    ];
+    // ===== Daily Challenges =====
 
     const dailyChallenges = [
       { text: "100 pushups today. Split them however you want. First to finish screenshots the crew.", icon: "💪", category: "challenge", spice: 2, xp: 50 },
@@ -1434,99 +1185,6 @@
       { text: "Hit a muscle group you've been neglecting. You know which one. Don't lie to yourself.", icon: "🪞", category: "challenge", spice: 1, xp: 50 },
       { text: "No phone during your workout. Leave it in the locker. Focus mode.", icon: "📵", category: "challenge", spice: 2, xp: 50 }
     ];
-
-    const recoveryWisdom = [
-      { text: "Rest days aren't lazy days. Your muscles literally grow while you sleep, king.", icon: "😴", category: "recovery", spice: 1 },
-      { text: "Foam roll for 10 minutes. Yeah it hurts. That's the knots leaving your body.", icon: "🧊", category: "recovery", spice: 1 },
-      { text: "7-9 hours of sleep. Not 5. Not 6. Your testosterone literally tanks on bad sleep.", icon: "🛏️", category: "recovery", spice: 2 },
-      { text: "Active recovery > sitting on the couch. Walk, swim, light yoga. Keep the blood moving.", icon: "🚴", category: "recovery", spice: 1 },
-      { text: "Stretch your hip flexors. You sit 8+ hours a day. Your hips are screaming.", icon: "🪑", category: "recovery", spice: 1 },
-      { text: "Magnesium before bed. Helps with sleep AND muscle recovery. Nature's chill pill.", icon: "💊", category: "recovery", spice: 1 },
-      { text: "If something hurts (not sore, HURTS), stop. An injury sets you back months. Ego sets you back years.", icon: "⚠️", category: "recovery", spice: 2 },
-      { text: "Deload week every 4-6 weeks. Drop the weight 40%. Your joints will thank you.", icon: "📉", category: "recovery", spice: 1 },
-      { text: "Contrast showers: 30s cold, 30s hot, repeat 5x. Circulation boost that actually works.", icon: "🚿", category: "recovery", spice: 2 },
-      { text: "Your body adapts during rest, not during the workout. Respect the recovery.", icon: "🔬", category: "recovery", spice: 1 },
-      { text: "Put the screen down an hour before bed. Blue light is sabotaging your gains while you doom scroll.", icon: "📱", category: "recovery", spice: 2 },
-      { text: "Deep breathing: 4 seconds in, 7 hold, 8 out. Kills cortisol. Cortisol kills gains.", icon: "🌬️", category: "recovery", spice: 1 },
-      { text: "Epsom salt bath after leg day. You'll walk like a human tomorrow instead of a baby deer.", icon: "🛁", category: "recovery", spice: 1 },
-      { text: "Overtraining is real. If your lifts are going DOWN and you feel like garbage, take 3 days off.", icon: "📊", category: "recovery", spice: 2 },
-      { text: "Get some sunlight in the morning. 10 minutes. Resets your circadian rhythm and boosts vitamin D.", icon: "☀️", category: "recovery", spice: 1 }
-    ];
-
-    // ===== Recommendation Engine =====
-
-    const seenIndices = {
-      workout: new Set(),
-      nutrition: new Set(),
-      motivation: new Set(),
-      callout: new Set(),
-      challenge: new Set(),
-      recovery: new Set()
-    };
-
-    const categoryArrays = {
-      workout: workoutTips,
-      nutrition: nutritionAdvice,
-      motivation: motivationalQuotes,
-      callout: broCallouts,
-      challenge: dailyChallenges,
-      recovery: recoveryWisdom
-    };
-
-    // Weighted distribution: 3 workout, 2 nutrition, 2 motivation, 1 callout, 1 challenge, 1 recovery
-    const distribution = [
-      'workout', 'workout', 'workout',
-      'nutrition', 'nutrition',
-      'motivation', 'motivation',
-      'callout',
-      'challenge',
-      'recovery'
-    ];
-
-    function shuffle(arr) {
-      const a = [...arr];
-      for (let i = a.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [a[i], a[j]] = [a[j], a[i]];
-      }
-      return a;
-    }
-
-    function pickFromCategory(category) {
-      const arr = categoryArrays[category];
-      const seen = seenIndices[category];
-
-      // Reset if all seen
-      if (seen.size >= arr.length) seen.clear();
-
-      const available = [];
-      for (let i = 0; i < arr.length; i++) {
-        if (!seen.has(i)) available.push(i);
-      }
-
-      const idx = available[Math.floor(Math.random() * available.length)];
-      seen.add(idx);
-      return arr[idx];
-    }
-
-    function getTimeOfDayBias() {
-      const hour = new Date().getHours();
-      if (hour >= 5 && hour < 12) return 'workout';
-      if (hour >= 12 && hour < 17) return 'nutrition';
-      if (hour >= 17 && hour < 22) return 'motivation';
-      return 'recovery';
-    }
-
-    function generateRecommendations() {
-      // Apply time-of-day bias: swap one slot to the biased category
-      const dist = [...distribution];
-      const bias = getTimeOfDayBias();
-      // Replace the last slot with the bias category for a subtle nudge
-      dist[dist.length - 1] = bias;
-
-      const shuffledDist = shuffle(dist);
-      return shuffledDist.map(cat => pickFromCategory(cat));
-    }
 
     // ===== Time Greeting =====
 
@@ -2340,61 +1998,6 @@
       renderLeaderboard();
     }
 
-    // ===== Badge Labels =====
-
-    const badgeLabels = {
-      workout: 'LIFT',
-      nutrition: 'FUEL',
-      motivation: 'HYPE',
-      callout: 'CALL OUT',
-      challenge: 'CHALLENGE',
-      recovery: 'RECOVER'
-    };
-
-    const spiceDisplay = { 1: '🌶️', 2: '🌶️🌶️', 3: '🌶️🌶️🌶️' };
-
-    // ===== Render Recommendation Cards =====
-
-    function renderCards(recs) {
-      const container = document.getElementById('cards-container');
-      container.innerHTML = '';
-
-      recs.forEach(function(rec, i) {
-        const card = document.createElement('div');
-        card.className = 'card card--' + rec.category;
-        card.style.animationDelay = (i * 0.06) + 's';
-
-        const isChallenge = rec.category === 'challenge';
-
-        card.innerHTML =
-          '<div class="card__top">' +
-            '<span class="card__badge card__badge--' + rec.category + '">' + badgeLabels[rec.category] + '</span>' +
-            '<span class="card__icon">' + rec.icon + '</span>' +
-          '</div>' +
-          '<div class="card__text">' + rec.text + '</div>' +
-          '<div class="card__spice">' + (spiceDisplay[rec.spice] || '') + '</div>' +
-          (isChallenge ? '<button class="card__action" onclick="completeCardChallenge(this)">I Did This (+50 XP)</button>' : '');
-
-        container.appendChild(card);
-      });
-    }
-
-    // ===== Card Challenge Completion =====
-
-    function completeCardChallenge(btn) {
-      btn.textContent = 'Done! 💚';
-      btn.classList.add('card__action--done');
-
-      // Confetti ring effect
-      const card = btn.closest('.card');
-      const ring = document.createElement('div');
-      ring.className = 'confetti-ring';
-      card.appendChild(ring);
-      setTimeout(function() { ring.remove(); }, 700);
-
-      addXP(50);
-    }
-
     // ===== Render Daily Challenge =====
 
     function renderDailyChallenge(challenge) {
@@ -2411,21 +2014,6 @@
       const hours = Math.floor(diff / 3600000);
       const mins = Math.floor((diff % 3600000) / 60000);
       document.getElementById('challenge-timer').textContent = hours + 'h ' + mins + 'm left today';
-    }
-
-    // ===== Regenerate Button =====
-
-    function handleRegenerate() {
-      const icon = document.getElementById('regenerate-icon');
-      icon.classList.add('regenerate__icon--spin');
-      setTimeout(function() { icon.classList.remove('regenerate__icon--spin'); }, 500);
-
-      const recs = generateRecommendations();
-      renderCards(recs);
-
-      appState.regenCount += 1;
-      saveState(appState);
-      addXP(5);
     }
 
     // ===== Crew Leaderboard =====
@@ -2525,9 +2113,6 @@
       // Refresh all UI from state
       refreshUI();
 
-      // Render recommendations
-      renderCards(generateRecommendations());
-
       // Render daily challenge
       renderDailyChallenge(getDailyChallenge());
 
@@ -2548,7 +2133,6 @@
       setInterval(updateChallengeTimer, 60000);
 
       // Wire up buttons
-      document.getElementById('regenerate-btn').addEventListener('click', handleRegenerate);
       document.getElementById('challenge-btn').addEventListener('click', handleChallengeComplete);
 
       // Name input saves to state
