@@ -24,9 +24,14 @@ def get_game_state():
             "streak": 0,
             "best_streak": 0,
             "words_seen": [],
-            "session_words": [],
+            "word_indices": [],
         }
     return session["game"]
+
+
+def get_word_by_index(idx):
+    """Get a word dict from WORDS by index."""
+    return WORDS[idx]
 
 
 @app.route("/")
@@ -54,7 +59,9 @@ def start():
     word_pool = get_word_pool(difficulty)
     total_rounds = min(ROUNDS_PER_GAME, len(word_pool))
     game["total_rounds"] = total_rounds
-    game["session_words"] = random.sample(word_pool, total_rounds)
+    # Store indices into WORDS list instead of full word dicts (session cookie size limit)
+    pool_indices = [i for i, w in enumerate(WORDS) if difficulty == "all" or w["difficulty"] == difficulty]
+    game["word_indices"] = random.sample(pool_indices, total_rounds)
 
     session.modified = True
     return redirect(url_for("play"))
@@ -67,12 +74,13 @@ def play():
     if not game["difficulty"] or game["round_num"] >= game["total_rounds"]:
         return redirect(url_for("home"))
 
-    word = game["session_words"][game["round_num"]]
+    word_idx = game["word_indices"][game["round_num"]]
+    word = get_word_by_index(word_idx)
     choices, correct = build_choices(word)
 
-    # Store correct answer and choices in session for validation
+    # Store only lightweight data in session for validation
     session["current_round"] = {
-        "word": word,
+        "word_idx": word_idx,
         "choices": choices,
         "correct": correct,
     }
@@ -95,7 +103,7 @@ def answer():
         return redirect(url_for("home"))
 
     pick = int(request.form.get("choice", -1))
-    word = current["word"]
+    word = get_word_by_index(current["word_idx"])
     choices = current["choices"]
     correct_answer = current["correct"]
 
