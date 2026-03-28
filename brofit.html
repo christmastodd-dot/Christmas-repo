@@ -866,6 +866,157 @@
       return dailyChallenges[idx];
     }
 
+    // ===== Rank System =====
+
+    const ranks = [
+      { name: 'NEWBIE', threshold: 0 },
+      { name: 'GYM BRO', threshold: 100 },
+      { name: 'IRON ADDICT', threshold: 300 },
+      { name: 'ABSOLUTE UNIT', threshold: 600 },
+      { name: 'GREEK GOD', threshold: 1000 },
+      { name: 'TITAN', threshold: 2000 }
+    ];
+
+    function getRank(xp) {
+      for (let i = ranks.length - 1; i >= 0; i--) {
+        if (xp >= ranks[i].threshold) return ranks[i];
+      }
+      return ranks[0];
+    }
+
+    function getNextRank(xp) {
+      for (let i = 0; i < ranks.length; i++) {
+        if (xp < ranks[i].threshold) return ranks[i];
+      }
+      return null; // maxed out
+    }
+
+    // ===== localStorage Persistence =====
+
+    function loadState() {
+      return {
+        name: localStorage.getItem('brofit_name') || '',
+        xp: parseInt(localStorage.getItem('brofit_xp') || '0', 10),
+        streak: parseInt(localStorage.getItem('brofit_streak') || '0', 10),
+        lastVisit: localStorage.getItem('brofit_last_visit') || '',
+        dailyChallengeCompleted: localStorage.getItem('brofit_daily_done') || '',
+        regenCount: parseInt(localStorage.getItem('brofit_regen_count') || '0', 10)
+      };
+    }
+
+    function saveState(state) {
+      localStorage.setItem('brofit_name', state.name);
+      localStorage.setItem('brofit_xp', state.xp.toString());
+      localStorage.setItem('brofit_streak', state.streak.toString());
+      localStorage.setItem('brofit_last_visit', state.lastVisit);
+      localStorage.setItem('brofit_daily_done', state.dailyChallengeCompleted);
+      localStorage.setItem('brofit_regen_count', state.regenCount.toString());
+    }
+
+    let appState = loadState();
+
+    // ===== Streak Tracking =====
+
+    function getTodayString() {
+      const d = new Date();
+      return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    }
+
+    function getYesterdayString() {
+      const d = new Date();
+      d.setDate(d.getDate() - 1);
+      return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    }
+
+    function updateStreak() {
+      const today = getTodayString();
+      const yesterday = getYesterdayString();
+
+      if (appState.lastVisit === today) {
+        // Already visited today, no change
+        return;
+      }
+
+      if (appState.lastVisit === yesterday) {
+        // Consecutive day
+        appState.streak += 1;
+      } else if (appState.lastVisit === '') {
+        // First visit
+        appState.streak = 1;
+      } else {
+        // Streak broken
+        appState.streak = 1;
+      }
+
+      appState.lastVisit = today;
+
+      // Reset daily challenge completion for new day
+      if (appState.dailyChallengeCompleted !== today) {
+        appState.dailyChallengeCompleted = '';
+        appState.regenCount = 0;
+      }
+
+      // Daily open XP
+      addXP(10);
+    }
+
+    // ===== XP System =====
+
+    function addXP(amount) {
+      appState.xp += amount;
+      saveState(appState);
+      refreshUI();
+    }
+
+    // ===== UI Refresh =====
+
+    function refreshUI() {
+      // Header streak
+      const streakEl = document.getElementById('header-streak');
+      if (appState.streak > 0) {
+        const fires = '🔥'.repeat(Math.min(appState.streak, 7));
+        streakEl.textContent = fires + ' ' + appState.streak + 'd';
+      } else {
+        streakEl.textContent = '';
+      }
+
+      // Header XP
+      document.getElementById('header-xp').textContent = appState.xp + ' XP';
+
+      // Rank
+      const rank = getRank(appState.xp);
+      const nextRank = getNextRank(appState.xp);
+      document.getElementById('profile-rank').textContent = rank.name;
+
+      // Progress bar
+      if (nextRank) {
+        const progress = ((appState.xp - rank.threshold) / (nextRank.threshold - rank.threshold)) * 100;
+        document.getElementById('progress-fill').style.width = Math.min(progress, 100) + '%';
+        document.getElementById('progress-label').textContent =
+          appState.xp + ' / ' + nextRank.threshold + ' XP to ' + nextRank.name;
+      } else {
+        document.getElementById('progress-fill').style.width = '100%';
+        document.getElementById('progress-label').textContent = 'MAX RANK — ' + appState.xp + ' XP';
+      }
+
+      // Greeting name
+      const name = appState.name || 'king';
+      const greetPrefix = getTimeGreeting().split(' ').slice(0, -1).join(' ');
+      document.getElementById('greeting-name').textContent =
+        getTimeGreeting().replace(/[☀️🔥💪😴]/g, '').trim() + ', ' + name;
+
+      // Name input
+      document.getElementById('name-input').value = appState.name;
+
+      // Daily challenge button state
+      const today = getTodayString();
+      if (appState.dailyChallengeCompleted === today) {
+        const btn = document.getElementById('challenge-btn');
+        btn.textContent = 'Crushed It! 💚';
+        btn.classList.add('featured-challenge__btn--done');
+      }
+    }
+
     // ===== Badge Labels =====
 
     const badgeLabels = {
@@ -918,8 +1069,7 @@
       card.appendChild(ring);
       setTimeout(function() { ring.remove(); }, 700);
 
-      // XP will be wired in Milestone 4
-      if (typeof addXP === 'function') addXP(50);
+      addXP(50);
     }
 
     // ===== Render Daily Challenge =====
@@ -950,8 +1100,9 @@
       const recs = generateRecommendations();
       renderCards(recs);
 
-      // XP will be wired in Milestone 4
-      if (typeof addXP === 'function') addXP(5);
+      appState.regenCount += 1;
+      saveState(appState);
+      addXP(5);
     }
 
     // ===== Daily Challenge Button =====
@@ -968,14 +1119,24 @@
       container.appendChild(ring);
       setTimeout(function() { ring.remove(); }, 700);
 
-      if (typeof addXP === 'function') addXP(50);
+      appState.dailyChallengeCompleted = getTodayString();
+      saveState(appState);
+      addXP(50);
     }
 
     // ===== Init =====
 
     document.addEventListener('DOMContentLoaded', function() {
+      // Load state and update streak
+      appState = loadState();
+      updateStreak();
+      saveState(appState);
+
       // Greeting
       document.getElementById('greeting-time').textContent = getTimeGreeting();
+
+      // Refresh all UI from state
+      refreshUI();
 
       // Render recommendations
       renderCards(generateRecommendations());
@@ -989,6 +1150,13 @@
       // Wire up buttons
       document.getElementById('regenerate-btn').addEventListener('click', handleRegenerate);
       document.getElementById('challenge-btn').addEventListener('click', handleChallengeComplete);
+
+      // Name input saves to state
+      document.getElementById('name-input').addEventListener('input', function(e) {
+        appState.name = e.target.value.trim();
+        saveState(appState);
+        refreshUI();
+      });
     });
   </script>
 </body>
