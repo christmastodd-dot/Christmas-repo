@@ -532,6 +532,39 @@
       color: var(--bg-primary);
     }
 
+    .weighin-toggle {
+      background: transparent;
+      color: var(--color-green);
+      font-family: var(--font-body);
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border: 1.5px solid var(--color-green);
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+
+    .weighin-toggle:active {
+      transform: scale(0.95);
+    }
+
+    .weighin-toggle--open {
+      background: var(--color-green);
+      color: var(--bg-primary);
+    }
+
+    .weighin-panel {
+      display: none;
+      margin-bottom: 8px;
+    }
+
+    .weighin-panel--open {
+      display: block;
+    }
+
     .pr-log {
       display: none;
       margin-bottom: 8px;
@@ -1117,6 +1150,7 @@
       <div class="header__logo">BROFIT</div>
       <div class="header__stats">
         <button class="pr-log-toggle" id="pr-log-toggle" onclick="togglePRLog()">PR Log</button>
+        <button class="weighin-toggle" id="weighin-toggle" onclick="toggleWeighIn()">Weigh-In</button>
         <div class="header__streak" id="header-streak"></div>
         <div class="header__xp" id="header-xp">0 XP</div>
       </div>
@@ -1165,16 +1199,17 @@
     </div>
 
     <!-- Weight Tracker -->
-    <div class="section-title">Weigh-In</div>
-    <div class="weight-tracker" id="weight-tracker">
-      <!-- Rendered by JS -->
-    </div>
+    <div class="weighin-panel" id="weighin-panel">
+      <div class="section-title">Weigh-In</div>
+      <div class="weight-tracker" id="weight-tracker">
+        <!-- Rendered by JS -->
+      </div>
 
-    <!-- Weight Loss Leaderboard -->
-    <div class="section-title">Weight Loss Leaderboard</div>
-    <div class="weight-lb" id="weight-lb">
-      <div class="weight-lb__tabs" id="weight-lb-tabs"></div>
-      <div class="weight-lb__table" id="weight-lb-table"></div>
+      <div class="section-title">Weight Loss Leaderboard</div>
+      <div class="weight-lb" id="weight-lb">
+        <div class="weight-lb__tabs" id="weight-lb-tabs"></div>
+        <div class="weight-lb__table" id="weight-lb-table"></div>
+      </div>
     </div>
 
     <!-- Macrocycle / Training Program -->
@@ -1334,6 +1369,16 @@
 
       // Daily open XP
       addXP(10);
+    }
+
+    // ===== Weigh-In Toggle =====
+
+    function toggleWeighIn() {
+      var panel = document.getElementById('weighin-panel');
+      var btn = document.getElementById('weighin-toggle');
+      var isOpen = panel.classList.toggle('weighin-panel--open');
+      btn.classList.toggle('weighin-toggle--open', isOpen);
+      btn.textContent = isOpen ? 'Close' : 'Weigh-In';
     }
 
     // ===== PR Log Toggle =====
