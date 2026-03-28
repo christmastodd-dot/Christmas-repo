@@ -737,9 +737,9 @@ const LEVELS = [
   { // Level 2 — Breezy Heights (3x longer, wider gaps, sunset sky)
     name: 'Breezy Heights',
     bgType: 'sunset',
-    worldWidth: 7500,
-    finalCloud: { x: 6800, y: 260, w: 250 },
-    potX: 6970,
+    worldWidth: 6800,
+    finalCloud: { x: 6100, y: 260, w: 250 },
+    potX: 6270,
     potY: 210,
     // unicorn orb placed above mid-level rest cloud (index 15)
     unicorns: [
@@ -788,11 +788,8 @@ const LEVELS = [
       { x: 5620, y: 290, w: 110, h: 45 },
       // --- Section 6: Final approach ---
       { x: 5860, y: 270, w: 130, h: 50, moveType:'h', moveRange:60, moveSpeed:1.6 },
-      { x: 6100, y: 300, w: 120, h: 50 },
-      { x: 6340, y: 260, w: 110, h: 45, moveType:'v', moveRange:30, moveSpeed:1.1 },
-      { x: 6570, y: 280, w: 140, h: 50 },
       // --- Final platform ---
-      { x: 6800, y: 260, w: 250, h: 60 },
+      { x: 6100, y: 260, w: 250, h: 60 },
     ],
   },
   { // Level 3 — Stormy Stretch (disappearing clouds, storm sky)
@@ -1156,7 +1153,7 @@ window.addEventListener('keydown', e => {
   if (state === 'playing' && !wasDown) {
     if (['Space','ArrowUp','KeyW'].includes(e.code)) {
       if (player.jumpsLeft > 0) {
-        player.vy = JUMP_FORCE;
+        player.vy = player.jumpsLeft === 2 ? JUMP_FORCE : JUMP_FORCE * 0.75;
         player.jumpsLeft--;
         player.onGround = false;
       }
@@ -1326,7 +1323,7 @@ function update() {
 
     // handle touch jump (edge-detect: trigger once per press)
     if (touchState.jump && !prevTouchJump && player.jumpsLeft > 0) {
-      player.vy = JUMP_FORCE;
+      player.vy = player.jumpsLeft === 2 ? JUMP_FORCE : JUMP_FORCE * 0.75;
       player.jumpsLeft--;
       player.onGround = false;
     }
