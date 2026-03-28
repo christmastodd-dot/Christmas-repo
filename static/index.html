@@ -215,16 +215,18 @@ function resetLevel() {
 
 function initConfetti() {
   confetti = [];
-  for (let i = 0; i < 80; i++) {
+  const colors = ['#ff5070','#50e860','#50a0ff','#ffdc32','#ff82dc','#32dcdc','#ff9030','#b060ff'];
+  for (let i = 0; i < 120; i++) {
     confetti.push({
       x: Math.random() * W,
-      y: Math.random() * -H,
-      vx: (Math.random() - 0.5) * 80,
-      vy: 80 + Math.random() * 120,
-      color: ['#ff5050','#50dc50','#5050ff','#ffdc32','#ff82dc','#32dcdc'][Math.floor(Math.random()*6)],
-      size: 4 + Math.random() * 6,
+      y: Math.random() * -H * 1.5,
+      vx: (Math.random() - 0.5) * 100,
+      vy: 60 + Math.random() * 140,
+      color: colors[Math.floor(Math.random()*colors.length)],
+      size: 4 + Math.random() * 8,
       rot: Math.random() * 360,
-      rotSpeed: (Math.random() - 0.5) * 400
+      rotSpeed: (Math.random() - 0.5) * 500,
+      shape: Math.random() > 0.5 ? 'rect' : 'circle'
     });
   }
 }
@@ -232,8 +234,9 @@ function initConfetti() {
 // Drawing helpers
 function drawGradientSky() {
   const grad = ctx.createLinearGradient(0, 0, 0, H);
-  grad.addColorStop(0, 'rgb(100,180,255)');
-  grad.addColorStop(1, 'rgb(200,230,255)');
+  grad.addColorStop(0, 'rgb(80,160,255)');
+  grad.addColorStop(0.6, 'rgb(160,210,255)');
+  grad.addColorStop(1, 'rgb(220,240,255)');
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, W, H);
 }
@@ -255,7 +258,7 @@ function drawDistantMountains(camWX, camWY) {
     }
   }
   pts.sort((a, b) => a[0] - b[0]);
-  ctx.fillStyle = 'rgb(170,180,200)';
+  ctx.fillStyle = 'rgb(160,180,210)';
   ctx.beginPath();
   ctx.moveTo(pts[0][0], pts[0][1]);
   for (const [x, y] of pts) ctx.lineTo(x, y);
@@ -280,7 +283,7 @@ function drawMidMountains(camWX, camWY) {
     }
   }
   pts.sort((a, b) => a[0] - b[0]);
-  ctx.fillStyle = 'rgb(130,145,130)';
+  ctx.fillStyle = 'rgb(120,155,130)';
   ctx.beginPath();
   ctx.moveTo(pts[0][0], pts[0][1]);
   for (const [x, y] of pts) ctx.lineTo(x, y);
@@ -323,8 +326,10 @@ function drawTerrain(camWX, camWY, progress) {
   }
   // Ground is rocky throughout — no grass. Transitions to snow near summit.
   let col;
-  const rock = [140,130,120], snow = [245,245,255];
-  if (progress < 0.75) col = rock;
+  // Ground color: grassy green at start, transitions to rocky, then snowy
+  const grass = [90,160,70], rock = [140,130,120], snow = [245,245,255];
+  if (progress < 0.3) col = lerpColor(grass, rock, progress / 0.3);
+  else if (progress < 0.75) col = rock;
   else col = lerpColor(rock, snow, (progress - 0.75) / 0.25);
 
   ctx.fillStyle = `rgb(${Math.round(col[0])},${Math.round(col[1])},${Math.round(col[2])})`;
@@ -333,13 +338,45 @@ function drawTerrain(camWX, camWY, progress) {
   for (const [x, y] of points) ctx.lineTo(x, y);
   ctx.lineTo(W + step, H + 10); ctx.lineTo(-step, H + 10); ctx.closePath(); ctx.fill();
 
-  // Trail band
-  ctx.strokeStyle = 'rgb(180,160,130)';
-  ctx.lineWidth = 12;
+  // Trail band — warmer, more visible path
+  ctx.strokeStyle = progress < 0.6 ? 'rgb(190,170,130)' : 'rgb(200,195,190)';
+  ctx.lineWidth = 14;
   ctx.beginPath();
   ctx.moveTo(points[0][0], points[0][1]);
   for (const [x, y] of points) ctx.lineTo(x, y);
   ctx.stroke();
+  // Trail highlight (lighter edge)
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+  ctx.lineWidth = 6;
+  ctx.beginPath();
+  ctx.moveTo(points[0][0], points[0][1] - 3);
+  for (const [x, y] of points) ctx.lineTo(x, y - 3);
+  ctx.stroke();
+
+  // Wildflowers and grass tufts in the lower part of the mountain
+  if (progress < 0.45) {
+    const flowerRng = seededRandom(55 + Math.floor(camWX / 180));
+    const flowerAlpha = Math.max(0, 1 - progress * 2.5);
+    const flowerColors = ['#ff6080','#ffcc30','#ff80c0','#60b0ff','#c080ff'];
+    for (let i = 0; i < 14; i++) {
+      const sx = flowerRng() * (W + 100) - 50;
+      const trailPt = points[Math.floor((sx + step) / step)];
+      if (!trailPt) continue;
+      const fy = trailPt[1] + 6 + flowerRng() * 22;
+      // Grass tuft
+      ctx.strokeStyle = `rgba(60,140,50,${(flowerAlpha * 0.6).toFixed(2)})`;
+      ctx.lineWidth = 1.5;
+      for (let g = -1; g <= 1; g++) {
+        ctx.beginPath(); ctx.moveTo(sx + g*3, fy); ctx.lineTo(sx + g*5, fy - 8 - flowerRng()*4); ctx.stroke();
+      }
+      // Flower dot
+      const fc = flowerColors[Math.floor(flowerRng() * flowerColors.length)];
+      ctx.fillStyle = fc;
+      ctx.globalAlpha = flowerAlpha;
+      ctx.beginPath(); ctx.arc(sx, fy - 8, 2.5 + flowerRng() * 2, 0, Math.PI*2); ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+  }
 
   // Rocky texture: scattered stones at mid and high elevation
   if (progress > 0.25) {
@@ -422,10 +459,38 @@ function drawTrees(camWX, camWY, progress) {
 
 function drawSummitFlag(camWX, camWY) {
   const [sx, sy] = worldToScreen(LEVEL_LENGTH, trailY(LEVEL_LENGTH), camWX, camWY);
-  ctx.strokeStyle = 'rgb(100,80,60)'; ctx.lineWidth = 4;
-  ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(sx, sy-80); ctx.stroke();
-  ctx.fillStyle = 'rgb(255,215,0)';
-  ctx.beginPath(); ctx.moveTo(sx, sy-80); ctx.lineTo(sx+40, sy-65); ctx.lineTo(sx, sy-50); ctx.closePath(); ctx.fill();
+  // Pole
+  ctx.strokeStyle = 'rgb(120,90,60)'; ctx.lineWidth = 5;
+  ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(sx, sy-85); ctx.stroke();
+  // Pole ball top
+  ctx.fillStyle = 'rgb(255,215,40)';
+  ctx.beginPath(); ctx.arc(sx, sy-87, 4, 0, Math.PI*2); ctx.fill();
+  // Flag with gentle wave
+  const wave = Math.sin(performance.now() / 500) * 3;
+  ctx.fillStyle = 'rgb(255,215,40)';
+  ctx.beginPath();
+  ctx.moveTo(sx, sy-83);
+  ctx.quadraticCurveTo(sx+22, sy-72 + wave, sx+42, sy-68 + wave);
+  ctx.quadraticCurveTo(sx+22, sy-60 + wave, sx, sy-53);
+  ctx.closePath(); ctx.fill();
+  // Flag border
+  ctx.strokeStyle = 'rgb(220,180,30)'; ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(sx, sy-83);
+  ctx.quadraticCurveTo(sx+22, sy-72 + wave, sx+42, sy-68 + wave);
+  ctx.quadraticCurveTo(sx+22, sy-60 + wave, sx, sy-53);
+  ctx.stroke();
+  // Star on flag
+  ctx.fillStyle = 'rgb(255,255,255)';
+  const starX = sx + 18, starY = sy - 68 + wave * 0.5;
+  ctx.beginPath();
+  for (let i = 0; i < 5; i++) {
+    const angle = -Math.PI/2 + (i * 2 * Math.PI / 5);
+    ctx.lineTo(starX + Math.cos(angle) * 6, starY + Math.sin(angle) * 6);
+    const innerAngle = angle + Math.PI / 5;
+    ctx.lineTo(starX + Math.cos(innerAngle) * 3, starY + Math.sin(innerAngle) * 3);
+  }
+  ctx.closePath(); ctx.fill();
 }
 
 function drawArm(c, shoulderX, shoulderY, angle, flip) {
@@ -785,36 +850,81 @@ function drawGoat(sx, sy, facingLeft, angry, windupTimer) {
 
 function drawHearts(lives) {
   for (let i = 0; i < 2; i++) {
-    const cx = 40 + i*40, cy = 40;
-    ctx.fillStyle = i < lives ? 'rgb(220,40,40)' : 'rgb(80,80,80)';
-    ctx.beginPath(); ctx.arc(cx-6, cy-4, 8, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(cx+6, cy-4, 8, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.moveTo(cx-13, cy-1); ctx.lineTo(cx+13, cy-1); ctx.lineTo(cx, cy+14); ctx.closePath(); ctx.fill();
+    const cx = 44 + i*46, cy = 42;
+    const alive = i < lives;
+    // Gentle pulse on living hearts
+    const scale = alive ? 1 + 0.06 * Math.sin(performance.now() / 300 + i * 1.5) : 0.9;
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.scale(scale, scale);
+    // Shadow
+    if (alive) {
+      ctx.fillStyle = 'rgba(220,40,40,0.3)';
+      ctx.beginPath(); ctx.arc(-7, -3, 10, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(7, -3, 10, 0, Math.PI*2); ctx.fill();
+    }
+    // Heart
+    ctx.fillStyle = alive ? 'rgb(240,50,60)' : 'rgb(90,90,90)';
+    ctx.beginPath(); ctx.arc(-7, -4, 9, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(7, -4, 9, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(-15, -1); ctx.lineTo(15, -1); ctx.lineTo(0, 16); ctx.closePath(); ctx.fill();
+    // Highlight
+    if (alive) {
+      ctx.fillStyle = 'rgba(255,180,180,0.5)';
+      ctx.beginPath(); ctx.arc(-5, -7, 4, 0, Math.PI*2); ctx.fill();
+    }
+    ctx.restore();
   }
 }
 
 function drawProgressBar(progress) {
-  const bx = W-180, by = 30, bw = 150, bh = 16;
-  ctx.fillStyle = 'rgb(60,60,60)';
-  roundRect(bx-2, by-2, bw+4, bh+4, 4);
-  ctx.fillStyle = 'rgb(180,180,180)';
-  roundRect(bx, by, bw, bh, 3);
+  const bx = W-185, by = 28, bw = 155, bh = 20;
+  // Background with rounded border
+  ctx.fillStyle = 'rgba(0,0,0,0.35)';
+  roundRect(bx-3, by-3, bw+6, bh+6, 6);
+  ctx.fillStyle = 'rgb(220,220,230)';
+  roundRect(bx, by, bw, bh, 4);
+  // Fill — gradient from green to gold as you progress
   const fw = Math.floor(bw * Math.min(progress, 1));
-  if (fw > 0) { ctx.fillStyle = 'rgb(80,200,80)'; roundRect(bx, by, fw, bh, 3); }
-  // mountain icon
-  const mx = bx + bw + 12, my = by + bh/2;
+  if (fw > 0) {
+    const grad = ctx.createLinearGradient(bx, 0, bx + bw, 0);
+    grad.addColorStop(0, 'rgb(80,200,80)');
+    grad.addColorStop(0.7, 'rgb(120,210,60)');
+    grad.addColorStop(1, 'rgb(255,210,40)');
+    ctx.fillStyle = grad;
+    roundRect(bx, by, fw, bh, 4);
+    // Shine on filled area
+    ctx.fillStyle = 'rgba(255,255,255,0.25)';
+    roundRect(bx, by, fw, bh/2, [4,4,0,0]);
+  }
+  // Percentage text
+  ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.font = 'bold 11px Arial'; ctx.textAlign = 'center';
+  ctx.fillText(Math.floor(progress * 100) + '%', bx + bw/2, by + 14);
+  ctx.textAlign = 'left';
+  // Mountain flag icon at end
+  const mx = bx + bw + 14, my = by + bh/2;
   ctx.fillStyle = 'rgb(120,110,100)';
-  ctx.beginPath(); ctx.moveTo(mx, my-10); ctx.lineTo(mx-8, my+6); ctx.lineTo(mx+8, my+6); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(mx, my-12); ctx.lineTo(mx-9, my+7); ctx.lineTo(mx+9, my+7); ctx.closePath(); ctx.fill();
   ctx.fillStyle = 'rgb(245,245,255)';
-  ctx.beginPath(); ctx.moveTo(mx, my-10); ctx.lineTo(mx-3, my-4); ctx.lineTo(mx+3, my-4); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(mx, my-12); ctx.lineTo(mx-4, my-4); ctx.lineTo(mx+4, my-4); ctx.closePath(); ctx.fill();
+  // Little flag on peak
+  ctx.fillStyle = 'rgb(255,210,40)';
+  ctx.fillRect(mx, my-14, 1, 8);
+  ctx.beginPath(); ctx.moveTo(mx+1, my-14); ctx.lineTo(mx+7, my-11); ctx.lineTo(mx+1, my-8); ctx.closePath(); ctx.fill();
 }
 
 function drawConfetti(dt) {
   for (const p of confetti) {
     p.x += p.vx * dt; p.y += p.vy * dt; p.rot += p.rotSpeed * dt;
+    p.vx += Math.sin(p.y * 0.02) * 20 * dt; // flutter sideways
     if (p.y > H + 20) { p.y = -10 - Math.random()*30; p.x = Math.random() * W; }
     ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot * Math.PI/180);
-    ctx.fillStyle = p.color; ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size);
+    ctx.fillStyle = p.color;
+    if (p.shape === 'circle') {
+      ctx.beginPath(); ctx.arc(0, 0, p.size/2, 0, Math.PI*2); ctx.fill();
+    } else {
+      ctx.fillRect(-p.size/2, -p.size/4, p.size, p.size/2);
+    }
     ctx.restore();
   }
 }
@@ -1057,27 +1167,104 @@ function drawOverlay(alpha) {
 }
 
 function drawGameOver() {
-  drawOverlay(0.47);
+  drawOverlay(0.5);
   ctx.textAlign = 'center';
-  ctx.fillStyle = 'rgb(255,100,100)'; ctx.font = 'bold 48px Arial';
-  ctx.fillText('Oh no!', W/2, 200);
-  ctx.fillStyle = '#fff'; ctx.font = 'bold 32px Arial';
-  ctx.fillText("Nice try! Let's go again!", W/2, 270);
-  ctx.fillStyle = 'rgb(200,200,255)'; ctx.font = '22px Arial';
-  ctx.fillText(isTouchDevice ? 'Tap to try again' : 'Press SPACE to try again', W/2, 350);
+
+  // Friendly panel
+  ctx.fillStyle = 'rgba(40,20,60,0.7)';
+  ctx.beginPath(); ctx.roundRect(W/2 - 220, 140, 440, 260, 20); ctx.fill();
+  ctx.strokeStyle = 'rgba(255,150,150,0.3)'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.roundRect(W/2 - 220, 140, 440, 260, 20); ctx.stroke();
+
+  // Bouncy "Oops!" with shadow
+  const bounce = Math.sin(performance.now() / 300) * 4;
+  ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.font = 'bold 54px Arial';
+  ctx.fillText('Oops!', W/2 + 2, 210 + bounce + 2);
+  ctx.fillStyle = 'rgb(255,130,100)'; ctx.font = 'bold 54px Arial';
+  ctx.fillText('Oops!', W/2, 210 + bounce);
+
+  // Encouraging message
+  ctx.fillStyle = '#fff'; ctx.font = 'bold 28px Arial';
+  ctx.fillText("You can do it! Try again!", W/2, 275);
+
+  // Animated retry button
+  const pulse = 0.75 + 0.25 * Math.sin(performance.now() / 400);
+  ctx.fillStyle = `rgba(100,200,100,${pulse})`;
+  ctx.beginPath(); ctx.roundRect(W/2 - 130, 310, 260, 55, 12); ctx.fill();
+  ctx.fillStyle = '#fff'; ctx.font = 'bold 24px Arial';
+  ctx.fillText(isTouchDevice ? 'Tap to Retry' : 'Press SPACE to Retry', W/2, 345);
+
   ctx.textAlign = 'left';
 }
 
 function drawWin(dt) {
-  drawOverlay(0.31);
+  drawOverlay(0.25);
   drawConfetti(dt);
   ctx.textAlign = 'center';
-  ctx.fillStyle = 'rgb(255,215,0)'; ctx.font = 'bold 48px Arial';
-  ctx.fillText('You made it!', W/2, 200);
-  ctx.fillStyle = '#fff'; ctx.font = 'bold 32px Arial';
-  ctx.fillText('You reached the summit!', W/2, 270);
-  ctx.fillStyle = 'rgb(200,255,200)'; ctx.font = '22px Arial';
-  ctx.fillText(isTouchDevice ? 'Tap to play again' : 'Press SPACE to play again', W/2, 350);
+
+  // Celebratory panel with golden glow
+  ctx.shadowColor = 'rgba(255,215,0,0.4)';
+  ctx.shadowBlur = 20;
+  ctx.fillStyle = 'rgba(20,30,60,0.7)';
+  ctx.beginPath(); ctx.roundRect(W/2 - 240, 120, 480, 300, 22); ctx.fill();
+  ctx.shadowBlur = 0;
+  ctx.strokeStyle = 'rgba(255,215,0,0.4)'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.roundRect(W/2 - 240, 120, 480, 300, 22); ctx.stroke();
+
+  // Star burst behind title
+  const t = performance.now() / 1000;
+  ctx.save();
+  ctx.translate(W/2, 190);
+  ctx.rotate(t * 0.3);
+  ctx.fillStyle = 'rgba(255,215,0,0.08)';
+  for (let i = 0; i < 8; i++) {
+    ctx.rotate(Math.PI / 4);
+    ctx.fillRect(-6, -80, 12, 160);
+  }
+  ctx.restore();
+
+  // Bouncy title
+  const bounce = Math.sin(t * 3) * 5;
+  ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.font = 'bold 56px Arial';
+  ctx.fillText('AMAZING!', W/2 + 2, 200 + bounce + 2);
+  ctx.fillStyle = 'rgb(255,220,50)'; ctx.font = 'bold 56px Arial';
+  ctx.fillText('AMAZING!', W/2, 200 + bounce);
+
+  // Subtitle
+  ctx.fillStyle = '#fff'; ctx.font = 'bold 30px Arial';
+  ctx.fillText('You reached the summit!', W/2, 260);
+
+  // Star rating (3 stars for fun)
+  for (let i = 0; i < 3; i++) {
+    const sx = W/2 - 50 + i * 50;
+    const sy = 310;
+    const starScale = 1 + 0.1 * Math.sin(t * 4 + i * 0.8);
+    ctx.save();
+    ctx.translate(sx, sy);
+    ctx.scale(starScale, starScale);
+    ctx.fillStyle = 'rgb(255,215,40)';
+    ctx.beginPath();
+    for (let j = 0; j < 5; j++) {
+      const angle = -Math.PI/2 + (j * 2 * Math.PI / 5);
+      const r = j === 0 ? 16 : 16;
+      ctx.lineTo(Math.cos(angle) * r, Math.sin(angle) * r);
+      const innerAngle = angle + Math.PI / 5;
+      ctx.lineTo(Math.cos(innerAngle) * 7, Math.sin(innerAngle) * 7);
+    }
+    ctx.closePath(); ctx.fill();
+    // Star highlight
+    ctx.fillStyle = 'rgba(255,255,200,0.4)';
+    ctx.beginPath(); ctx.arc(-3, -4, 5, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
+  }
+
+  // Play again button
+  const pulse = 0.75 + 0.25 * Math.sin(t * 2.5);
+  ctx.fillStyle = `rgba(80,180,255,${pulse})`;
+  ctx.beginPath(); ctx.roundRect(W/2 - 130, 355, 260, 50, 12); ctx.fill();
+  ctx.fillStyle = '#fff'; ctx.font = 'bold 22px Arial';
+  ctx.fillText(isTouchDevice ? 'Tap to Play Again' : 'Press SPACE to Play Again', W/2, 387);
+
   ctx.textAlign = 'left';
 }
 
@@ -1219,8 +1406,14 @@ function draw(dt) {
   if (state === 'playing' && tutorialTimer > 0) {
     const alpha = Math.min(1, tutorialTimer / 0.5);
     ctx.globalAlpha = alpha;
-    ctx.fillStyle = '#fff'; ctx.font = '22px Arial'; ctx.textAlign = 'center';
-    ctx.fillText('Arrow keys to move  |  SPACE to jump over the goats!', W/2, H - 50);
+    // Friendly tutorial bubble
+    ctx.fillStyle = 'rgba(0,0,0,0.45)';
+    ctx.beginPath(); ctx.roundRect(W/2 - 240, H - 75, 480, 45, 12); ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.font = 'bold 20px Arial'; ctx.textAlign = 'center';
+    const tutText = isTouchDevice
+      ? 'Use the buttons to move and jump over goats!'
+      : 'Arrow keys to move  ~  SPACE to jump over goats!';
+    ctx.fillText(tutText, W/2, H - 46);
     ctx.textAlign = 'left'; ctx.globalAlpha = 1;
   }
 
