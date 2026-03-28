@@ -334,9 +334,9 @@ const RAINBOW_COLORS = ['#f8a0a0','#f8c89a','#f8e8a0','#a0dca0','#a0c8f0','#c8a0
 
 function drawRainbow(camX) {
   const fc = levelData.finalCloud;
-  const landX = fc.x + fc.w * 0.4;
-  const landY = fc.y + 10;
-  const radius = 420;
+  const landX = fc.x + fc.w * 0.5; // center of final cloud
+  const landY = fc.y;               // top of cloud
+  const radius = 380;
   const cx = landX - radius;
   const sx = cx - camX;
   ctx.save();
@@ -635,15 +635,19 @@ function drawUnicornMount(px, py, flipX) {
 }
 
 function spawnTrailParticle(x, y) {
-  trailColorIdx = (trailColorIdx + 1) % TRAIL_COLORS.length;
-  particles.push({
-    x, y: y + Math.random() * 6 - 3,
-    vx: -0.5 + Math.random(),
-    vy: -0.3 + Math.random() * 0.6,
-    life: 0.8,
-    color: TRAIL_COLORS[trailColorIdx],
-    size: 3 + Math.random() * 4,
-  });
+  // spawn multiple particles for a thick jet trail
+  for (let j = 0; j < 3; j++) {
+    trailColorIdx = (trailColorIdx + 1) % TRAIL_COLORS.length;
+    particles.push({
+      x: x + Math.random() * 8 - 4,
+      y: y + Math.random() * 8 - 4,
+      vx: -1.5 + Math.random() * 3,
+      vy: 0.5 + Math.random() * 1.5,
+      life: 1.2,
+      color: TRAIL_COLORS[trailColorIdx],
+      size: 5 + Math.random() * 7,
+    });
+  }
 }
 
 function drawUnicornTimer(screenX, screenY, remaining, total) {
@@ -1006,10 +1010,8 @@ function update() {
     if (player.y < 0) player.y = 0;
     if (player.y > H - player.h) player.y = H - player.h;
 
-    // rainbow trail
-    if (animTick % 2 === 0) {
-      spawnTrailParticle(player.x + player.w/2, player.y + player.h);
-    }
+    // rainbow jet trail — every frame for thick stream
+    spawnTrailParticle(player.x + player.w/2, player.y + player.h);
 
     // timer expired → enter grace period
     if (player.unicornTimer <= 0) {
