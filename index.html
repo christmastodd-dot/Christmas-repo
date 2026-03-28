@@ -297,9 +297,9 @@ function cloudSeed(x) {
   return () => { s ^= s << 13; s ^= s >> 17; s ^= s << 5; return (s >>> 0) / 4294967296; };
 }
 
-function drawCloud(x, y, w, h, camX) {
+function drawCloud(x, y, w, h, camX, seedX) {
   const sx = x - camX;
-  const rng = cloudSeed(x);
+  const rng = cloudSeed(seedX !== undefined ? seedX : x);
 
   // --- bottom: rounded belly ellipses ---
   ctx.fillStyle = '#cfe0f0';
@@ -1300,7 +1300,7 @@ function draw() {
   drawRainbow(camX);
 
   for (const c of levelData.clouds) {
-    drawCloud(c.x, c.y, c.w, c.h, camX);
+    drawCloud(c.x, c.y, c.w, c.h, camX, c.originX || c.x);
   }
 
   // draw crows
