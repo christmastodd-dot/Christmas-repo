@@ -82,7 +82,7 @@
     background: var(--panel); border: 2px solid var(--border); border-radius: 10px;
     padding: 8px; margin: 4px 0; text-align: center;
     min-height: 80px; display: flex; align-items: center; justify-content: center;
-    flex: 1 1 auto; overflow: hidden;
+    flex: 1 1 auto; overflow: hidden; position: relative;
   }
   .art-box svg { transition: all 0.3s ease; width: 100%; height: 100%; object-fit: contain; }
 
@@ -147,6 +147,31 @@
     50% { transform: translateY(2px) scale(1.01); }
   }
   .art-box.mood-sleeping svg { animation: sleepBreathe 3s ease-in-out infinite; }
+
+  /* Reaction animation — quick excited jump when item used or care given */
+  @keyframes reaction-jump {
+    0% { transform: translateY(0) scale(1); }
+    15% { transform: translateY(-15px) scale(1.05); }
+    30% { transform: translateY(0) scale(0.97); }
+    45% { transform: translateY(-8px) scale(1.03); }
+    60% { transform: translateY(0) scale(0.99); }
+    75% { transform: translateY(-3px) scale(1.01); }
+    100% { transform: translateY(0) scale(1); }
+  }
+  .art-box.reacting svg { animation: reaction-jump 0.7s ease-out !important; }
+
+  /* Sparkle particles */
+  .sparkle {
+    position: absolute;
+    font-size: 1.2em;
+    pointer-events: none;
+    animation: sparkle-float 0.8s ease-out forwards;
+  }
+  @keyframes sparkle-float {
+    0% { opacity: 1; transform: translate(0, 0) scale(0.5); }
+    50% { opacity: 1; transform: translate(var(--dx), var(--dy)) scale(1.2); }
+    100% { opacity: 0; transform: translate(var(--dx), calc(var(--dy) - 20px)) scale(0.3); }
+  }
 
   /* Mood label */
   .mood-label {
@@ -1047,6 +1072,7 @@ socket.on('state', state => {
 function doCare(action) {
   lastCorrect = null;  // care messages use 'info' style
   socket.emit('care', {action});
+  if (action === 'clean') playReaction();
 }
 
 // ── Shop & Inventory ────────────────────────────────────────────────
@@ -1111,6 +1137,31 @@ function buyItem(itemId) {
 function useItem(itemId) {
   lastCorrect = null;
   socket.emit('use_item', {item: itemId});
+  playReaction();
+}
+
+function playReaction() {
+  const artBox = document.getElementById('art-box');
+
+  // Sparkle particles
+  const sparkles = ['\u2728', '\u2B50', '\uD83D\uDCAB', '\u2764\uFE0F'];
+  for (let i = 0; i < 5; i++) {
+    const sp = document.createElement('span');
+    sp.className = 'sparkle';
+    sp.textContent = sparkles[Math.floor(Math.random() * sparkles.length)];
+    const dx = (Math.random() - 0.5) * 80;
+    const dy = -(Math.random() * 40 + 10);
+    sp.style.setProperty('--dx', dx + 'px');
+    sp.style.setProperty('--dy', dy + 'px');
+    sp.style.left = (50 + (Math.random() - 0.5) * 40) + '%';
+    sp.style.top = (30 + Math.random() * 30) + '%';
+    artBox.appendChild(sp);
+    setTimeout(() => sp.remove(), 900);
+  }
+
+  // Jump animation
+  artBox.classList.add('reacting');
+  setTimeout(() => artBox.classList.remove('reacting'), 750);
 }
 
 // ── Pokemon-style evolution sequence ────────────────────────────────
