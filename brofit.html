@@ -430,6 +430,138 @@
     }
 
     /* ===== Leaderboard ===== */
+
+    /* ===== Macrocycle / Training Program ===== */
+    .macrocycle {
+      margin-bottom: 32px;
+    }
+
+    .macrocycle__phase {
+      background: var(--bg-card);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin-bottom: 10px;
+      box-shadow: var(--shadow-card);
+      border-left: 4px solid var(--text-muted);
+      transition: background 0.2s;
+    }
+
+    .macrocycle__phase--active {
+      border-left-color: var(--color-orange);
+      background: var(--bg-card-hover);
+      box-shadow: var(--shadow-glow-orange);
+    }
+
+    .macrocycle__phase-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+    }
+
+    .macrocycle__phase-title {
+      font-family: var(--font-display);
+      font-size: 0.95rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .macrocycle__phase-weeks {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .macrocycle__phase-tag {
+      font-size: 0.6rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .macrocycle__phase-tag--cut { background: var(--color-red); color: #fff; }
+    .macrocycle__phase-tag--build { background: var(--color-orange); color: var(--bg-primary); }
+    .macrocycle__phase-tag--power { background: var(--color-purple); color: #fff; }
+    .macrocycle__phase-tag--peak { background: var(--color-gold); color: var(--bg-primary); }
+
+    .macrocycle__phase-detail {
+      display: none;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--text-muted);
+    }
+
+    .macrocycle__phase-detail--open {
+      display: block;
+    }
+
+    .macrocycle__split {
+      margin-bottom: 10px;
+    }
+
+    .macrocycle__split-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--color-orange);
+      margin-bottom: 4px;
+    }
+
+    .macrocycle__split-exercises {
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .macrocycle__nutrition-note {
+      font-size: 0.78rem;
+      color: var(--color-green);
+      font-weight: 600;
+      margin-top: 8px;
+      padding: 8px;
+      background: rgba(0, 255, 136, 0.08);
+      border-radius: var(--radius-sm);
+    }
+
+    .macrocycle__progress {
+      display: flex;
+      gap: 3px;
+      margin-bottom: 16px;
+    }
+
+    .macrocycle__progress-seg {
+      flex: 1;
+      height: 6px;
+      border-radius: 3px;
+      background: var(--bg-card);
+    }
+
+    .macrocycle__progress-seg--done {
+      background: var(--color-green);
+    }
+
+    .macrocycle__progress-seg--active {
+      background: var(--color-orange);
+      animation: pulse 1.5s ease infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .macrocycle__week-label {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-align: center;
+      margin-bottom: 12px;
+    }
+
     .leaderboard {
       margin-bottom: 32px;
     }
@@ -628,6 +760,14 @@
       <div class="featured-challenge__text" id="challenge-text">Loading...</div>
       <div class="featured-challenge__timer" id="challenge-timer"></div>
       <button class="featured-challenge__btn" id="challenge-btn">I Did This (+50 XP)</button>
+    </div>
+
+    <!-- Macrocycle / Training Program -->
+    <div class="section-title">The Program</div>
+    <div class="macrocycle" id="macrocycle">
+      <div class="macrocycle__week-label" id="macro-week-label"></div>
+      <div class="macrocycle__progress" id="macro-progress"></div>
+      <!-- Phases rendered by JS -->
     </div>
 
     <!-- Leaderboard -->
@@ -960,6 +1100,169 @@
       addXP(10);
     }
 
+    // ===== Macrocycle Program =====
+    // 16-week periodized program: Fat Loss → Shoulder Hypertrophy → Explosive Power → Peak/Game Ready
+    // Goals: fat loss, big shoulders, explosiveness for basketball
+
+    const macrocycleStartKey = 'brofit_macro_start';
+
+    function getMacroStartDate() {
+      let stored = localStorage.getItem(macrocycleStartKey);
+      if (!stored) {
+        // Start on the most recent Monday
+        const now = new Date();
+        const day = now.getDay();
+        const diff = (day === 0 ? 6 : day - 1);
+        const monday = new Date(now);
+        monday.setDate(now.getDate() - diff);
+        monday.setHours(0, 0, 0, 0);
+        stored = monday.toISOString().split('T')[0];
+        localStorage.setItem(macrocycleStartKey, stored);
+      }
+      return new Date(stored + 'T00:00:00');
+    }
+
+    function getCurrentWeek() {
+      const start = getMacroStartDate();
+      const now = new Date();
+      const diffMs = now - start;
+      const week = Math.floor(diffMs / (7 * 24 * 60 * 60 * 1000)) + 1;
+      return Math.max(1, Math.min(week, 16));
+    }
+
+    const macroPhases = [
+      {
+        name: 'Shred Phase',
+        tag: 'cut',
+        weeks: '1–4',
+        weekStart: 1,
+        weekEnd: 4,
+        icon: '🔥',
+        focus: 'Fat loss + muscle preservation. High volume, short rest, caloric deficit.',
+        splits: [
+          { day: 'Day 1 — Push (Shoulder Focus)', exercises: 'OHP 4×8, Lateral Raises 4×15, Incline DB Press 3×10, Cable Flyes 3×12, Tricep Pushdowns 3×12, Finisher: 20-min HIIT bike' },
+          { day: 'Day 2 — Pull', exercises: 'Weighted Pull-ups 4×8, Cable Rows 4×10, Face Pulls 4×15, Rear Delt Flyes 3×15, Barbell Curls 3×10, Finisher: 15-min row intervals' },
+          { day: 'Day 3 — Legs + Plyo', exercises: 'Back Squat 4×8, RDL 3×10, Box Jumps 4×6, Walking Lunges 3×12/side, Calf Raises 4×15, Finisher: 10-min jump rope' },
+          { day: 'Day 4 — Shoulders + Arms', exercises: 'Arnold Press 4×10, Lu Raises 3×12, Upright Rows 3×12, Hammer Curls 3×10, Overhead Tricep Ext 3×12, Finisher: Battle ropes 5×30s' },
+          { day: 'Day 5 — Full Body Circuit', exercises: 'KB Swings 4×15, Thrusters 3×10, Burpee Pull-ups 3×8, Med Ball Slams 4×10, Plank 3×45s, Court sprints 6×full court' }
+        ],
+        nutrition: 'Deficit: ~500 cal below maintenance. 1g protein/lb BW. Carbs around workouts only. High protein snacks between meals.'
+      },
+      {
+        name: 'Boulder Shoulders',
+        tag: 'build',
+        weeks: '5–8',
+        weekStart: 5,
+        weekEnd: 8,
+        icon: '🪨',
+        focus: 'Shoulder hypertrophy priority. Moderate surplus. Progressive overload on all delt heads.',
+        splits: [
+          { day: 'Day 1 — Heavy Shoulders', exercises: 'Barbell OHP 5×5, Z-Press 3×8, Lateral Raise 21s 3 sets, Cable Front Raise 3×12, Shrugs 4×10' },
+          { day: 'Day 2 — Legs + Explosiveness', exercises: 'Front Squat 4×6, Trap Bar Deadlift 4×6, Depth Jumps 4×5, Lateral Bounds 3×8/side, Single-leg RDL 3×10' },
+          { day: 'Day 3 — Chest + Shoulder Volume', exercises: 'Bench Press 4×8, Landmine Press 3×10, Cable Lateral Raise 5×15, Rear Delt Machine 4×15, Incline Flyes 3×12' },
+          { day: 'Day 4 — Back + Rear Delts', exercises: 'Weighted Pull-ups 4×6, Pendlay Rows 4×8, Face Pulls 5×15, Reverse Pec Deck 4×12, Meadows Rows 3×10' },
+          { day: 'Day 5 — Shoulder Pump + Court Work', exercises: 'DB Shoulder Press 4×10, Giant Set: Lateral/Front/Rear 3×12 each, Plate Raises 3×15, then 30-min pickup basketball' }
+        ],
+        nutrition: 'Slight surplus: +200-300 cal. Prioritize protein (1.2g/lb). Extra carbs on shoulder days. Creatine 5g daily.'
+      },
+      {
+        name: 'Explosive Power',
+        tag: 'power',
+        weeks: '9–12',
+        weekStart: 9,
+        weekEnd: 12,
+        icon: '⚡',
+        focus: 'Convert strength to explosiveness. Plyometrics, Olympic lifts, court agility.',
+        splits: [
+          { day: 'Day 1 — Power Upper', exercises: 'Push Press 5×3, Plyo Push-ups 4×6, Speed Bench 5×3 (60%), Med Ball Chest Pass 4×8, Band-resisted Lateral Raise 3×12' },
+          { day: 'Day 2 — Power Lower', exercises: 'Power Cleans 5×3, Jump Squats 4×5 (30% BW), Broad Jumps 4×5, Single-leg Bounds 3×6/side, Reactive Box Jumps 4×4' },
+          { day: 'Day 3 — Court Skills + Conditioning', exercises: 'Defensive slides 6×30s, Sprint-backpedal 8×full court, Vertical jump practice 4×5, Lane agility drill 6 reps, 5-on-5 scrimmage 20 min' },
+          { day: 'Day 4 — Strength + Shoulders', exercises: 'Hang Clean & Press 4×4, DB Snatch 3×5/side, Strict OHP 4×6, Lateral Raise Drop Sets 3 rounds, Rotator cuff prehab circuit' },
+          { day: 'Day 5 — Plyometric Circuit', exercises: 'Depth Drops to Vertical Jump 5×3, Lateral Box Jumps 4×5/side, Skater Jumps 3×8, Tuck Jumps 4×6, Finisher: 1-mile tempo run' }
+        ],
+        nutrition: 'Maintenance calories. Time carbs pre-workout for explosive energy. Tart cherry juice for recovery. Protein within 30 min post-session.'
+      },
+      {
+        name: 'Game Ready',
+        tag: 'peak',
+        weeks: '13–16',
+        weekStart: 13,
+        weekEnd: 16,
+        icon: '🏀',
+        focus: 'Peak performance. Maintain muscle, maximize court performance. Taper volume, keep intensity.',
+        splits: [
+          { day: 'Day 1 — Strength Maintenance', exercises: 'Back Squat 3×5 (heavy), Bench 3×5, Weighted Pull-ups 3×5, OHP 3×6, Face Pulls 3×15' },
+          { day: 'Day 2 — Court Explosiveness', exercises: 'Reactive agility ladder 4×30s, Sprint intervals 8×20yd, Lateral shuffle to sprint 6×, Vertical jump max testing, Full-court 1-on-1 drills' },
+          { day: 'Day 3 — Shoulder Maintenance + Mobility', exercises: 'Arnold Press 3×10, Lateral Raise 3×15, Band Pull-aparts 3×20, Shoulder dislocates 2×15, Full body foam roll + stretch 20 min' },
+          { day: 'Day 4 — Game Simulation', exercises: 'Dynamic warm-up 10 min, 5-on-5 scrimmage 30 min, Free throw shooting (fatigued) 50 shots, Cool-down jog + stretch' },
+          { day: 'Day 5 — Active Recovery', exercises: 'Light swim or bike 20 min, Yoga flow 20 min, Foam roll full body, Contrast shower, Visualize game scenarios 10 min' }
+        ],
+        nutrition: 'Slight deficit if still cutting, maintenance if lean. Hydration priority — 1 gal+/day. Electrolytes on game days. Light meals 2hrs pre-game.'
+      }
+    ];
+
+    function getPhaseForWeek(week) {
+      return macroPhases.find(function(p) { return week >= p.weekStart && week <= p.weekEnd; });
+    }
+
+    function renderMacrocycle() {
+      const currentWeek = getCurrentWeek();
+      const container = document.getElementById('macrocycle');
+
+      // Week label
+      document.getElementById('macro-week-label').textContent = 'Week ' + currentWeek + ' of 16';
+
+      // Progress bar
+      const progressEl = document.getElementById('macro-progress');
+      progressEl.innerHTML = '';
+      for (let w = 1; w <= 16; w++) {
+        const seg = document.createElement('div');
+        seg.className = 'macrocycle__progress-seg';
+        if (w < currentWeek) seg.classList.add('macrocycle__progress-seg--done');
+        else if (w === currentWeek) seg.classList.add('macrocycle__progress-seg--active');
+        progressEl.appendChild(seg);
+      }
+
+      // Render phases
+      macroPhases.forEach(function(phase) {
+        const isActive = currentWeek >= phase.weekStart && currentWeek <= phase.weekEnd;
+
+        const phaseEl = document.createElement('div');
+        phaseEl.className = 'macrocycle__phase' + (isActive ? ' macrocycle__phase--active' : '');
+
+        let splitsHTML = '';
+        phase.splits.forEach(function(s) {
+          splitsHTML +=
+            '<div class="macrocycle__split">' +
+              '<div class="macrocycle__split-title">' + s.day + '</div>' +
+              '<div class="macrocycle__split-exercises">' + s.exercises + '</div>' +
+            '</div>';
+        });
+
+        phaseEl.innerHTML =
+          '<div class="macrocycle__phase-header" onclick="togglePhase(this)">' +
+            '<div class="macrocycle__phase-title">' +
+              '<span>' + phase.icon + '</span>' +
+              '<span>' + phase.name + '</span>' +
+              '<span class="macrocycle__phase-tag macrocycle__phase-tag--' + phase.tag + '">' + phase.tag + '</span>' +
+            '</div>' +
+            '<span class="macrocycle__phase-weeks">Wk ' + phase.weeks + '</span>' +
+          '</div>' +
+          '<div class="macrocycle__phase-detail' + (isActive ? ' macrocycle__phase-detail--open' : '') + '">' +
+            '<div style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:10px;">' + phase.focus + '</div>' +
+            splitsHTML +
+            '<div class="macrocycle__nutrition-note">🍽️ ' + phase.nutrition + '</div>' +
+          '</div>';
+
+        container.appendChild(phaseEl);
+      });
+    }
+
+    function togglePhase(headerEl) {
+      const detail = headerEl.nextElementSibling;
+      detail.classList.toggle('macrocycle__phase-detail--open');
+    }
+
     // ===== XP System =====
 
     function addXP(amount) {
@@ -1209,6 +1512,9 @@
 
       // Render daily challenge
       renderDailyChallenge(getDailyChallenge());
+
+      // Render macrocycle
+      renderMacrocycle();
 
       // Update challenge timer every minute
       setInterval(updateChallengeTimer, 60000);
