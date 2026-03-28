@@ -1,35 +1,33 @@
 {% extends "base.html" %}
-{% block title %}Playing - Word Adventure{% endblock %}
+{% block title %}Round {{ round_num }} - Word Adventure{% endblock %}
 {% block content %}
 <h1>English Word Adventure</h1>
 <div class="score-bar">
-    <span>Round {{ game.rounds }} | {{ game.difficulty|upper }}</span>
-    <span>{{ game.wins }}W / {{ game.rounds - 1 }}R</span>
+    <span>Round {{ round_num }} of {{ total_rounds }}</span>
+    <span>{{ game.wins }}/{{ game.round_num }} correct</span>
 </div>
-
-{% if session.get('last_answer') %}
-<div class="answer-box {{ 'answer-yes' if session['last_answer']['answer'] else 'answer-no' }}">
-    <strong>{{ session['last_answer']['question'] }}</strong><br>
-    {{ "YES" if session['last_answer']['answer'] else "NO" }}
-</div>
-{% endif %}
 
 <div class="card">
     <div class="status">
-        <span class="badge badge-blue">{{ rnd.questions_left }} questions left</span>
-        <span class="badge badge-purple">{{ rnd.possible_count }} words possible</span>
+        <span class="badge badge-purple">{{ game.difficulty|upper }}</span>
+        {% if game.streak >= 2 %}
+        <span class="badge badge-amber">Streak: {{ game.streak }}</span>
+        {% endif %}
     </div>
 
-    <h2>Ask a Question</h2>
+    <h2 style="font-size: 28px; text-align: center; margin-bottom: 8px;">{{ word.name }}</h2>
+    <p class="text-center text-muted" style="margin-bottom: 20px;">
+        "{{ word.definition }}"
+    </p>
 
-    <form method="POST" action="/ask">
-        {% for idx, question in available_questions %}
-        <button type="submit" name="question_index" value="{{ idx }}" class="question-btn">
-            {{ question }}
+    <p style="font-weight: 600; margin-bottom: 12px;">Which is a SYNONYM?</p>
+
+    <form method="POST" action="/answer">
+        {% for choice in choices %}
+        <button type="submit" name="choice" value="{{ loop.index0 }}" class="question-btn">
+            {{ choice }}
         </button>
         {% endfor %}
     </form>
-
-    <a href="/guess" class="btn btn-amber mt-16">Skip to Guess</a>
 </div>
 {% endblock %}

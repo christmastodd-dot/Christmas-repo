@@ -7,21 +7,25 @@
 <div class="card">
     <h2>Final Score</h2>
     <p style="font-size: 32px; font-weight: 700; text-align: center; color: #4F46E5;">
-        {{ game.wins }} / {{ game.rounds }}
+        {{ game.wins }} / {{ game.round_num }}
     </p>
     <p class="text-center text-muted">
-        {{ game.wins }} correct out of {{ game.rounds }} round{{ "s" if game.rounds != 1 else "" }}
+        {{ game.wins }} correct out of {{ game.round_num }} round{{ "s" if game.round_num != 1 else "" }}
         {% if game.best_streak >= 2 %}<br>Best streak: {{ game.best_streak }}{% endif %}
     </p>
 </div>
 
 {% if correct_words %}
 <div class="card">
-    <h2 style="color: #059669;">Guessed Correctly</h2>
+    <h2 style="color: #059669;">Correct</h2>
     {% for w in correct_words %}
     <div class="review-word">
         <div class="word-name" style="color: #059669;">{{ w.name }} <span class="badge badge-green">{{ w.difficulty }}</span></div>
         <div class="word-def">{{ w.definition }}</div>
+        <div style="margin-top: 4px;">
+            <span class="text-muted" style="font-size: 12px;">Synonyms:</span>
+            {% for s in w.synonyms %}<span class="word-chip" style="font-size: 11px;">{{ s }}</span> {% endfor %}
+        </div>
         <div class="word-tip">{{ w.tip }}</div>
     </div>
     {% endfor %}
@@ -35,6 +39,10 @@
     <div class="review-word">
         <div class="word-name" style="color: #D97706;">{{ w.name }} <span class="badge badge-amber">{{ w.difficulty }}</span></div>
         <div class="word-def">{{ w.definition }}</div>
+        <div style="margin-top: 4px;">
+            <span class="text-muted" style="font-size: 12px;">Synonyms:</span>
+            {% for s in w.synonyms %}<span class="word-chip" style="font-size: 11px;">{{ s }}</span> {% endfor %}
+        </div>
         <div class="word-tip">{{ w.tip }}</div>
     </div>
     {% endfor %}

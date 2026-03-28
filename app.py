@@ -1,13 +1,13 @@
 """
 English Word Adventure — Web App
-Flask wrapper for the English Word Adventure game.
+Flask wrapper for the synonym quiz game.
 """
 
 import os
 import random
 from flask import Flask, render_template, session, redirect, url_for, request
 
-from english_word_game import WORDS, QUESTIONS, MAX_QUESTIONS, get_word_pool, filter_words
+from english_word_game import WORDS, ROUNDS_PER_GAME, get_word_pool, build_choices
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "english-word-adventure-dev-key")
@@ -19,17 +19,14 @@ def get_game_state():
         session["game"] = {
             "difficulty": None,
             "wins": 0,
-            "rounds": 0,
+            "round_num": 0,
+            "total_rounds": 0,
             "streak": 0,
             "best_streak": 0,
             "words_seen": [],
+            "session_words": [],
         }
     return session["game"]
-
-
-def get_round_state():
-    """Get or initialize round state from session."""
-    return session.get("round")
 
 
 @app.route("/")
@@ -53,132 +50,64 @@ def start():
     session.clear()
     game = get_game_state()
     game["difficulty"] = difficulty
-    session.modified = True
-    return redirect(url_for("new_round"))
 
+    word_pool = get_word_pool(difficulty)
+    total_rounds = min(ROUNDS_PER_GAME, len(word_pool))
+    game["total_rounds"] = total_rounds
+    game["session_words"] = random.sample(word_pool, total_rounds)
 
-@app.route("/new-round")
-def new_round():
-    """Begin a new round — pick a random word."""
-    game = get_game_state()
-    if not game["difficulty"]:
-        return redirect(url_for("home"))
-
-    word_pool = get_word_pool(game["difficulty"])
-    word = random.choice(word_pool)
-
-    session["round"] = {
-        "word": word,
-        "asked_indices": [],
-        "questions_left": MAX_QUESTIONS,
-        "possible_count": len(word_pool),
-    }
-    game["rounds"] += 1
     session.modified = True
     return redirect(url_for("play"))
 
 
 @app.route("/play")
 def play():
-    """Main game screen — show available questions."""
+    """Show the current word and 4 synonym choices."""
     game = get_game_state()
-    rnd = get_round_state()
-    if not rnd:
+    if not game["difficulty"] or game["round_num"] >= game["total_rounds"]:
         return redirect(url_for("home"))
 
-    available = []
-    for i, (question, _) in enumerate(QUESTIONS):
-        if i not in rnd["asked_indices"]:
-            available.append((i, question))
+    word = game["session_words"][game["round_num"]]
+    choices, correct = build_choices(word)
 
-    return render_template("play.html",
-                           game=game,
-                           rnd=rnd,
-                           available_questions=available,
-                           max_questions=MAX_QUESTIONS)
-
-
-@app.route("/ask", methods=["POST"])
-def ask():
-    """Process a question selection."""
-    game = get_game_state()
-    rnd = get_round_state()
-    if not rnd:
-        return redirect(url_for("home"))
-
-    q_index = int(request.form.get("question_index", -1))
-    if q_index < 0 or q_index >= len(QUESTIONS) or q_index in rnd["asked_indices"]:
-        return redirect(url_for("play"))
-
-    question_text, attribute = QUESTIONS[q_index]
-    answer = rnd["word"][attribute]
-
-    rnd["asked_indices"].append(q_index)
-    rnd["questions_left"] -= 1
-
-    # Filter possible words
-    word_pool = get_word_pool(game["difficulty"])
-    possible = list(word_pool)
-    for idx in rnd["asked_indices"]:
-        _, attr = QUESTIONS[idx]
-        possible = filter_words(possible, attr, rnd["word"][attr])
-    rnd["possible_count"] = len(possible)
-
-    session["last_answer"] = {
-        "question": question_text,
-        "answer": answer,
+    # Store correct answer and choices in session for validation
+    session["current_round"] = {
+        "word": word,
+        "choices": choices,
+        "correct": correct,
     }
     session.modified = True
 
-    # Auto-advance to guess if only 1 word left or no questions remain
-    if rnd["possible_count"] == 1 or rnd["questions_left"] == 0:
-        return redirect(url_for("guess"))
-
-    return redirect(url_for("play"))
-
-
-@app.route("/guess")
-def guess():
-    """Guess screen — show hints and accept a guess."""
-    game = get_game_state()
-    rnd = get_round_state()
-    if not rnd:
-        return redirect(url_for("home"))
-
-    word = rnd["word"]
-
-    # Build hint list from possible words
-    word_pool = get_word_pool(game["difficulty"])
-    possible = list(word_pool)
-    for idx in rnd["asked_indices"]:
-        _, attr = QUESTIONS[idx]
-        possible = filter_words(possible, attr, rnd["word"][attr])
-
-    hint_words = [w["name"] for w in possible] if len(possible) <= 10 else []
-
-    return render_template("guess.html",
+    return render_template("play.html",
                            game=game,
-                           rnd=rnd,
-                           letter_count=len(word["name"]),
-                           first_letter=word["name"][0].upper(),
-                           hint_words=hint_words,
-                           max_questions=MAX_QUESTIONS)
+                           word=word,
+                           choices=choices,
+                           round_num=game["round_num"] + 1,
+                           total_rounds=game["total_rounds"])
 
 
-@app.route("/check", methods=["POST"])
-def check():
-    """Check the player's guess."""
+@app.route("/answer", methods=["POST"])
+def answer():
+    """Check the player's synonym choice and show result."""
     game = get_game_state()
-    rnd = get_round_state()
-    if not rnd:
+    current = session.get("current_round")
+    if not current:
         return redirect(url_for("home"))
 
-    guess_text = request.form.get("guess", "").strip()
-    word = rnd["word"]
-    correct = guess_text.lower() == word["name"].lower()
-    questions_used = MAX_QUESTIONS - rnd["questions_left"]
+    pick = int(request.form.get("choice", -1))
+    word = current["word"]
+    choices = current["choices"]
+    correct_answer = current["correct"]
 
-    if correct:
+    if pick < 0 or pick >= len(choices):
+        return redirect(url_for("play"))
+
+    chosen = choices[pick]
+    is_correct = chosen == correct_answer
+
+    # Update game state
+    game["round_num"] += 1
+    if is_correct:
         game["wins"] += 1
         game["streak"] += 1
         if game["streak"] > game["best_streak"]:
@@ -188,41 +117,15 @@ def check():
 
     game["words_seen"].append({
         "name": word["name"],
-        "correct": correct,
+        "correct": is_correct,
         "definition": word["definition"],
         "tip": word["tip"],
         "difficulty": word["difficulty"],
+        "synonyms": word["synonyms"],
     })
 
-    # Build traits list
-    traits = []
-    if word["noun"]:
-        traits.append("noun")
-    if word["verb"]:
-        traits.append("verb")
-    if word["adjective"]:
-        traits.append("adjective")
-    if not any([word["noun"], word["verb"], word["adjective"]]):
-        traits.append("adverb")
-    if word["one_syllable"]:
-        traits.append("one syllable")
-    if word["starts_with_vowel"]:
-        traits.append("starts with a vowel")
-    if word["has_double_letters"]:
-        traits.append("has double letters")
-    if word["has_silent_letters"]:
-        traits.append("has silent letters")
-    if word["latin_or_french_origin"]:
-        traits.append("Latin/French origin")
-    else:
-        traits.append("Germanic origin")
-    if word["has_prefix"]:
-        traits.append("has a prefix")
-    if word["has_suffix"]:
-        traits.append("has a suffix")
-
     streak_msg = None
-    if correct:
+    if is_correct:
         if game["streak"] == 3:
             streak_msg = "3 in a row! You're on fire!"
         elif game["streak"] == 5:
@@ -230,20 +133,18 @@ def check():
         elif game["streak"] >= 7:
             streak_msg = f"{game['streak']} in a row! Unstoppable!"
 
-    speed_bonus = correct and questions_used <= 2
+    is_last_round = game["round_num"] >= game["total_rounds"]
 
     session.modified = True
 
     return render_template("result.html",
                            game=game,
                            word=word,
-                           guess=guess_text,
-                           correct=correct,
-                           questions_used=questions_used,
-                           max_questions=MAX_QUESTIONS,
-                           traits=traits,
+                           chosen=chosen,
+                           correct_answer=correct_answer,
+                           is_correct=is_correct,
                            streak_msg=streak_msg,
-                           speed_bonus=speed_bonus)
+                           is_last_round=is_last_round)
 
 
 @app.route("/review")
