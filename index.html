@@ -333,12 +333,20 @@ function drawCloud(x, y, w, h, camX, seedX) {
 const RAINBOW_COLORS = ['#f8a0a0','#f8c89a','#f8e8a0','#a0dca0','#a0c8f0','#c8a0e0'];
 
 function drawRainbow(camX) {
-  const fc = levelData.finalCloud;
-  const landX = fc.x + fc.w * 0.5; // center of final cloud
-  const landY = fc.y;               // top of cloud
-  const radius = 380;
-  const cx = landX - radius;
-  const sx = cx - camX;
+  const clouds = levelData.clouds;
+  const fc = clouds[clouds.length - 1]; // final cloud
+  const pc = clouds[clouds.length - 2]; // second-to-last cloud
+
+  // right foot on center of final cloud, left foot on center of previous cloud
+  const rightX = fc.x + fc.w * 0.5;
+  const leftX  = pc.x + pc.w * 0.5;
+  const landY  = fc.y; // top of final cloud
+
+  // arc center is midpoint of feet, radius is half the span
+  const arcCx = (leftX + rightX) / 2;
+  const radius = (rightX - leftX) / 2;
+  const sx = arcCx - camX;
+
   ctx.save();
   ctx.globalAlpha = 0.85;
   for (let i = 0; i < RAINBOW_COLORS.length; i++) {
