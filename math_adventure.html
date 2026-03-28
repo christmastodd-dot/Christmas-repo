@@ -1331,18 +1331,22 @@
     document.getElementById('resultStreak').textContent = bestStreak;
     document.getElementById('resultScore').textContent = score;
 
-    // Speed mode: show elapsed time and save option
+    // Speed mode: show elapsed time and save option (only for perfect scores)
     const speedSection = document.getElementById('speedResults');
     const isSpeed = mode.startsWith('speed');
     if (isSpeed) {
       speedElapsed = ((Date.now() - speedStartTime) / 1000);
       document.getElementById('speedTime').textContent = 'Time: ' + formatTime(speedElapsed);
-      document.getElementById('nameInputRow').style.display = 'flex';
-      document.getElementById('savedMsg').textContent = '';
-      document.getElementById('saveBtn').disabled = false;
-      // Pre-fill last used name
-      const lastN = localStorage.getItem('mathAdventureLastName');
-      if (lastN) document.getElementById('playerName').value = lastN;
+      if (pct >= 1) {
+        document.getElementById('nameInputRow').style.display = 'flex';
+        document.getElementById('savedMsg').textContent = '';
+        document.getElementById('saveBtn').disabled = false;
+        const lastN = localStorage.getItem('mathAdventureLastName');
+        if (lastN) document.getElementById('playerName').value = lastN;
+      } else {
+        document.getElementById('nameInputRow').style.display = 'none';
+        document.getElementById('savedMsg').textContent = 'Get all correct to save your score!';
+      }
       speedSection.classList.add('visible');
     } else {
       speedSection.classList.remove('visible');
@@ -1670,13 +1674,19 @@
     document.getElementById('puzzleResultMistakes').textContent = puzzleMistakes;
     document.getElementById('puzzleResultTime').textContent = formatTime(elapsed);
 
-    // Show time and save option
+    // Show time and save option (only for perfect — 0 mistakes)
     puzzleElapsed = elapsed;
     document.getElementById('puzzleTimeDisplay').textContent = 'Time: ' + formatTime(elapsed);
-    document.getElementById('puzzleSaveBtn').disabled = false;
-    document.getElementById('puzzleSavedMsg').textContent = '';
-    const lastN = localStorage.getItem('mathAdventureLastName');
-    if (lastN) document.getElementById('puzzlePlayerName').value = lastN;
+    if (puzzleMistakes === 0) {
+      document.getElementById('puzzleNameRow').style.display = 'flex';
+      document.getElementById('puzzleSaveBtn').disabled = false;
+      document.getElementById('puzzleSavedMsg').textContent = '';
+      const lastN = localStorage.getItem('mathAdventureLastName');
+      if (lastN) document.getElementById('puzzlePlayerName').value = lastN;
+    } else {
+      document.getElementById('puzzleNameRow').style.display = 'none';
+      document.getElementById('puzzleSavedMsg').textContent = 'Get 0 mistakes to save your score!';
+    }
 
     showScreen('puzzleResultsScreen');
     if (puzzleMistakes === 0) launchPerfectCelebration();
