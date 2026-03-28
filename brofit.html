@@ -866,17 +866,129 @@
       return dailyChallenges[idx];
     }
 
+    // ===== Badge Labels =====
+
+    const badgeLabels = {
+      workout: 'LIFT',
+      nutrition: 'FUEL',
+      motivation: 'HYPE',
+      callout: 'CALL OUT',
+      challenge: 'CHALLENGE',
+      recovery: 'RECOVER'
+    };
+
+    const spiceDisplay = { 1: '🌶️', 2: '🌶️🌶️', 3: '🌶️🌶️🌶️' };
+
+    // ===== Render Recommendation Cards =====
+
+    function renderCards(recs) {
+      const container = document.getElementById('cards-container');
+      container.innerHTML = '';
+
+      recs.forEach(function(rec, i) {
+        const card = document.createElement('div');
+        card.className = 'card card--' + rec.category;
+        card.style.animationDelay = (i * 0.06) + 's';
+
+        const isChallenge = rec.category === 'challenge';
+
+        card.innerHTML =
+          '<div class="card__top">' +
+            '<span class="card__badge card__badge--' + rec.category + '">' + badgeLabels[rec.category] + '</span>' +
+            '<span class="card__icon">' + rec.icon + '</span>' +
+          '</div>' +
+          '<div class="card__text">' + rec.text + '</div>' +
+          '<div class="card__spice">' + (spiceDisplay[rec.spice] || '') + '</div>' +
+          (isChallenge ? '<button class="card__action" onclick="completeCardChallenge(this)">I Did This (+50 XP)</button>' : '');
+
+        container.appendChild(card);
+      });
+    }
+
+    // ===== Card Challenge Completion =====
+
+    function completeCardChallenge(btn) {
+      btn.textContent = 'Done! 💚';
+      btn.classList.add('card__action--done');
+
+      // Confetti ring effect
+      const card = btn.closest('.card');
+      const ring = document.createElement('div');
+      ring.className = 'confetti-ring';
+      card.appendChild(ring);
+      setTimeout(function() { ring.remove(); }, 700);
+
+      // XP will be wired in Milestone 4
+      if (typeof addXP === 'function') addXP(50);
+    }
+
+    // ===== Render Daily Challenge =====
+
+    function renderDailyChallenge(challenge) {
+      document.getElementById('challenge-icon').textContent = challenge.icon;
+      document.getElementById('challenge-text').textContent = challenge.text;
+      updateChallengeTimer();
+    }
+
+    function updateChallengeTimer() {
+      const now = new Date();
+      const midnight = new Date(now);
+      midnight.setHours(24, 0, 0, 0);
+      const diff = midnight - now;
+      const hours = Math.floor(diff / 3600000);
+      const mins = Math.floor((diff % 3600000) / 60000);
+      document.getElementById('challenge-timer').textContent = hours + 'h ' + mins + 'm left today';
+    }
+
+    // ===== Regenerate Button =====
+
+    function handleRegenerate() {
+      const icon = document.getElementById('regenerate-icon');
+      icon.classList.add('regenerate__icon--spin');
+      setTimeout(function() { icon.classList.remove('regenerate__icon--spin'); }, 500);
+
+      const recs = generateRecommendations();
+      renderCards(recs);
+
+      // XP will be wired in Milestone 4
+      if (typeof addXP === 'function') addXP(5);
+    }
+
+    // ===== Daily Challenge Button =====
+
+    function handleChallengeComplete() {
+      const btn = document.getElementById('challenge-btn');
+      btn.textContent = 'Crushed It! 💚';
+      btn.classList.add('featured-challenge__btn--done');
+
+      // Confetti ring
+      const container = document.getElementById('featured-challenge');
+      const ring = document.createElement('div');
+      ring.className = 'confetti-ring';
+      container.appendChild(ring);
+      setTimeout(function() { ring.remove(); }, 700);
+
+      if (typeof addXP === 'function') addXP(50);
+    }
+
     // ===== Init =====
 
     document.addEventListener('DOMContentLoaded', function() {
+      // Greeting
       document.getElementById('greeting-time').textContent = getTimeGreeting();
 
-      // Generate initial recommendations (rendering in Milestone 3)
-      window._currentRecs = generateRecommendations();
-      window._dailyChallenge = getDailyChallenge();
+      // Render recommendations
+      renderCards(generateRecommendations());
 
-      console.log('BroFit loaded. Recommendations:', window._currentRecs);
-      console.log('Daily challenge:', window._dailyChallenge);
+      // Render daily challenge
+      renderDailyChallenge(getDailyChallenge());
+
+      // Update challenge timer every minute
+      setInterval(updateChallengeTimer, 60000);
+
+      // Wire up buttons
+      document.getElementById('regenerate-btn').addEventListener('click', handleRegenerate);
+      document.getElementById('challenge-btn').addEventListener('click', handleChallengeComplete);
     });
   </script>
 </body>
