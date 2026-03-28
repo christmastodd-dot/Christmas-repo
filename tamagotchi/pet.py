@@ -7,7 +7,7 @@ from tamagotchi.config import (
     STAGES, STAGE_THRESHOLDS,
     STAT_MAX, STAT_START, CARE_AMOUNTS, DECAY_PER_TICK, CARE_COOLDOWN,
     COIN_DROP_CHANCE, TICK_INTERVAL, OFFLINE_DECAY_FLOOR,
-    SHOP_ITEMS, SLEEP_DURATION, SLEEP_ENERGY_PER_TICK,
+    SHOP_ITEMS, SLEEP_DURATION, SLEEP_ENERGY_PER_TICK, TRICKS,
 )
 
 
@@ -41,6 +41,10 @@ class Pet:
         # Economy
         self.coins = 0
         self.inventory = {}  # item_id -> quantity
+
+        # Tricks (endgame)
+        self.tricks_learned = []  # list of trick IDs
+        self.just_learned_trick = None  # set when a new trick is learned
 
         # Evolution event flag
         self.just_evolved = False
@@ -166,7 +170,18 @@ class Pet:
         if earned_coin:
             self.coins += 1
         self._try_evolve()
+        self._check_tricks()
         return earned_coin
+
+    def _check_tricks(self):
+        """Check if a new trick is unlocked at the final stage."""
+        self.just_learned_trick = None
+        if STAGE_THRESHOLDS.get(self.stage) is not None:
+            return  # not at final stage
+        for trick in TRICKS:
+            if trick["id"] not in self.tricks_learned and self.stage_correct >= trick["unlock_at"]:
+                self.tricks_learned.append(trick["id"])
+                self.just_learned_trick = trick["id"]
 
     def answer_wrong(self):
         self.total_wrong += 1
@@ -234,6 +249,7 @@ class Pet:
             "inventory": dict(self.inventory),
             "sleeping": self.sleeping,
             "sleep_until": self.sleep_until,
+            "tricks_learned": list(self.tricks_learned),
             "save_time": time.time(),
         }
 
@@ -255,6 +271,7 @@ class Pet:
         pet.inventory = data.get("inventory", {})
         pet.sleeping = data.get("sleeping", False)
         pet.sleep_until = data.get("sleep_until", 0)
+        pet.tricks_learned = data.get("tricks_learned", [])
 
         # ── Offline decay ───────────────────────────────────────────
         # Apply stat decay for time elapsed since last save.

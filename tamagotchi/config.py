@@ -19,6 +19,17 @@ STAGE_LABELS = {
     "teen": "Teen",
 }
 
+# ── Tricks (endgame content for final stage) ────────────────────────
+
+# Each trick unlocks at a cumulative stage_correct milestone in final stage
+TRICKS = [
+    {"id": "dance",     "label": "Dance",     "icon": "\U0001F57A", "unlock_at": 20},
+    {"id": "flip",      "label": "Backflip",  "icon": "\U0001F938", "unlock_at": 40},
+    {"id": "sing",      "label": "Sing",      "icon": "\U0001F3B5", "unlock_at": 65},
+    {"id": "juggle",    "label": "Juggle",    "icon": "\U0001F939", "unlock_at": 90},
+    {"id": "fireworks", "label": "Fireworks",  "icon": "\U0001F386", "unlock_at": 120},
+]
+
 
 # ── Care Stats ───────────────────────────────────────────────────────
 

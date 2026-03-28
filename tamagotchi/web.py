@@ -9,7 +9,7 @@ from flask_socketio import SocketIO, emit
 
 from tamagotchi.config import (
     STAGES, STAGE_THRESHOLDS, STAGE_LABELS,
-    TICK_INTERVAL, SHOP_ITEMS,
+    TICK_INTERVAL, SHOP_ITEMS, TRICKS,
 )
 from tamagotchi.pet import Pet
 from tamagotchi.math_problems import generate_problem
@@ -68,6 +68,9 @@ class GameState:
             "stats": pet.stats_dict(),
             "coins": pet.coins,
             "inventory": pet.inventory,
+            "tricks_learned": pet.tricks_learned,
+            "tricks_available": [t for t in TRICKS if t["id"] in pet.tricks_learned],
+            "next_trick": next((t for t in TRICKS if t["id"] not in pet.tricks_learned), None),
         }
 
 
@@ -178,6 +181,14 @@ def on_answer(data):
             else:
                 gs.message = f"{pet.name} evolved into a {label}!"
             emit("evolution", {"old": old, "new": new})
+
+        # Check trick unlock
+        if pet.just_learned_trick:
+            trick_id = pet.just_learned_trick
+            trick = next(t for t in TRICKS if t["id"] == trick_id)
+            pet.just_learned_trick = None
+            gs.message = f"New trick learned: {trick['icon']} {trick['label']}!"
+            emit("trick_learned", {"id": trick_id, "label": trick["label"], "icon": trick["icon"]})
     else:
         pet.answer_wrong()
         gs.message = f"Not quite! {gs.current_question[:-1]}{gs.current_answer}"
@@ -234,6 +245,32 @@ def on_use_item(data):
     item_id = (data.get("item") or "").strip()
     success, message = gs.pet.use_item(item_id)
     gs.message = message
+    emit("state", gs.get_state())
+    emit("save", gs.pet.to_dict())
+    gs.message = ""
+
+
+@socketio.on("do_trick")
+def on_do_trick(data):
+    sid = request.sid
+    with lock:
+        gs = games.get(sid)
+    if not gs:
+        emit("no_game")
+        return
+    trick_id = (data.get("trick") or "").strip()
+    if trick_id not in gs.pet.tricks_learned:
+        gs.message = "That trick hasn't been learned yet!"
+        emit("state", gs.get_state())
+        gs.message = ""
+        return
+    trick = next((t for t in TRICKS if t["id"] == trick_id), None)
+    if not trick:
+        return
+    # Small happiness boost for performing a trick
+    gs.pet.happiness = min(100, gs.pet.happiness + 10)
+    gs.message = f"{gs.pet.name} performs {trick['label']}! {trick['icon']}"
+    emit("play_trick", {"id": trick_id, "label": trick["label"], "icon": trick["icon"]})
     emit("state", gs.get_state())
     emit("save", gs.pet.to_dict())
     gs.message = ""
