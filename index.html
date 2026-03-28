@@ -11,7 +11,6 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html, body { overflow: hidden; touch-action: none; }
   body { background: #1a1a2e; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; font-family: monospace; }
-  #game-wrap { position: relative; display: flex; flex-direction: column; align-items: center; }
   canvas { display: block; image-rendering: pixelated; border: 3px solid #444; cursor: pointer; }
   #instructions { color: #aaa; font-size: 13px; margin-top: 6px; text-align: center; }
 
@@ -48,12 +47,11 @@
 
   /* landscape overlay mode */
   @media (orientation: landscape) and (max-height: 500px) {
-    body { justify-content: flex-start; }
+    body { justify-content: flex-start; position: relative; }
     #instructions { display: none !important; }
-    #game-wrap { width: 100vw; height: 100vh; }
-    canvas { border: none; }
+    canvas { border: none; width: 100vw !important; height: 100vh !important; }
     #touch-controls {
-      position: absolute !important;
+      position: fixed !important;
       bottom: 12px;
       left: 0; right: 0;
       margin: 0 auto;
@@ -75,7 +73,6 @@
 </style>
 </head>
 <body>
-<div id="game-wrap">
 <canvas id="game" width="800" height="500"></canvas>
 <div id="touch-controls">
   <div class="touch-group">
@@ -83,7 +80,6 @@
     <button class="touch-btn touch-btn-arrow" id="btn-right">&rarr;</button>
   </div>
   <button class="touch-btn touch-btn-jump" id="btn-jump">JUMP</button>
-</div>
 </div>
 <div id="instructions">Arrow Keys / WASD to move &nbsp;|&nbsp; Space / Up to jump &nbsp;|&nbsp; Double-jump allowed</div>
 <script>
