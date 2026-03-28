@@ -1406,9 +1406,9 @@
       puzzleRows = pickRandom([1,2,3,4,5,6,7,8,9,10], cfg.size).sort((a,b) => a-b);
       puzzleCols = pickRandom([1,2,3,4,5,6,7,8,9,10], cfg.size).sort((a,b) => a-b);
     } else {
-      // Hard: random and unsorted — no visual pattern
-      puzzleRows = pickRandom([1,2,3,4,5,6,7,8,9,10], cfg.size);
-      puzzleCols = pickRandom([1,2,3,4,5,6,7,8,9,10], cfg.size);
+      // Hard: random and unsorted from 1–12 — no visual pattern
+      puzzleRows = pickRandom([1,2,3,4,5,6,7,8,9,10,11,12], cfg.size);
+      puzzleCols = pickRandom([1,2,3,4,5,6,7,8,9,10,11,12], cfg.size);
     }
 
     puzzleBlanks = [];
