@@ -11,7 +11,7 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html, body { overflow: hidden; touch-action: none; }
   body { background: #1a1a2e; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; font-family: monospace; }
-  canvas { display: block; image-rendering: pixelated; border: 3px solid #444; cursor: pointer; }
+  canvas { display: block; image-rendering: pixelated; border: 3px solid #444; cursor: pointer; max-width: 100%; }
   #instructions { color: #aaa; font-size: 13px; margin-top: 6px; text-align: center; }
 
   /* touch controls — below canvas by default (portrait) */
@@ -49,7 +49,7 @@
   @media (orientation: landscape) and (max-height: 500px) {
     body { justify-content: flex-start; position: relative; }
     #instructions { display: none !important; }
-    canvas { border: none; width: 100vw !important; height: 100vh !important; }
+    canvas { border: none; }
     #touch-controls {
       position: fixed !important;
       bottom: 12px;
