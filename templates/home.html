@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}English Word Adventure{% endblock %}
+{% block content %}
+<h1>English Word Adventure</h1>
+<p class="subtitle">Guess the word in 5 questions or fewer!</p>
+
+<div class="card">
+    <h2>Choose Your Difficulty</h2>
+    <form method="POST" action="/start">
+        <button type="submit" name="difficulty" value="easy" class="difficulty-btn">
+            <div class="label">Easy <span class="badge badge-green">{{ easy_count }} words</span></div>
+            <div class="desc">Common, short words</div>
+        </button>
+        <button type="submit" name="difficulty" value="medium" class="difficulty-btn">
+            <div class="label">Medium <span class="badge badge-amber">{{ med_count }} words</span></div>
+            <div class="desc">Longer words with tricky spelling</div>
+        </button>
+        <button type="submit" name="difficulty" value="hard" class="difficulty-btn">
+            <div class="label">Hard <span class="badge badge-red">{{ hard_count }} words</span></div>
+            <div class="desc">Challenging vocabulary</div>
+        </button>
+        <button type="submit" name="difficulty" value="all" class="difficulty-btn">
+            <div class="label">All Words <span class="badge badge-purple">{{ all_count }} words</span></div>
+            <div class="desc">The full word list</div>
+        </button>
+    </form>
+</div>
+
+<p class="text-center text-muted">Learn about word origins, spelling, and grammar!</p>
+{% endblock %}

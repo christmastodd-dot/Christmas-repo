@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}{{ "Correct!" if correct else "Not Quite" }} - Word Adventure{% endblock %}
+{% block content %}
+<h1>English Word Adventure</h1>
+<div class="score-bar">
+    <span>{{ game.wins }}W / {{ game.rounds }}R{% if game.streak >= 2 %} | Streak: {{ game.streak }}{% endif %}</span>
+    <span>{{ game.difficulty|upper }}</span>
+</div>
+
+{% if correct %}
+<div class="correct-box">
+    <div class="icon">&#10003;</div>
+    <h2>Correct!</h2>
+    <p>The word was <strong>{{ word.name }}</strong></p>
+</div>
+{% else %}
+<div class="incorrect-box">
+    <div class="icon">&#10060;</div>
+    <h2>Not Quite!</h2>
+    <p>The word was <strong>{{ word.name }}</strong></p>
+    <p class="text-muted mt-12">You guessed: {{ guess }}</p>
+</div>
+{% endif %}
+
+{% if streak_msg %}
+<div class="streak-msg">{{ streak_msg }}</div>
+{% endif %}
+
+{% if speed_bonus %}
+<div class="streak-msg" style="background: linear-gradient(135deg, #2563EB, #7C3AED);">
+    Speed bonus — guessed with {{ questions_used }} question{{ "s" if questions_used != 1 else "" }}!
+</div>
+{% endif %}
+
+<div class="card">
+    <h2>Learn About This Word</h2>
+    <div class="fact-row">
+        <div class="fact-label">Definition</div>
+        <div class="fact-value">{{ word.definition }}</div>
+    </div>
+    <div class="fact-row">
+        <div class="fact-label">Example</div>
+        <div class="fact-value"><em>{{ word.example }}</em></div>
+    </div>
+    <div class="fact-row">
+        <div class="fact-label">Difficulty</div>
+        <div class="fact-value">
+            {% if word.difficulty == 'easy' %}<span class="badge badge-green">Easy</span>
+            {% elif word.difficulty == 'medium' %}<span class="badge badge-amber">Medium</span>
+            {% else %}<span class="badge badge-red">Hard</span>{% endif %}
+        </div>
+    </div>
+    <div class="fact-row">
+        <div class="fact-label">Traits</div>
+        <div class="word-list">
+            {% for trait in traits %}
+            <span class="word-chip">{{ trait }}</span>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="fact-row">
+        <div class="fact-label">Questions Used</div>
+        <div class="fact-value">{{ questions_used }} of {{ max_questions }}</div>
+    </div>
+    <div class="tip-box">
+        <div class="tip-label">Learning Tip</div>
+        <div class="tip-text">{{ word.tip }}</div>
+    </div>
+</div>
+
+<a href="/new-round" class="btn btn-primary">Next Word</a>
+<a href="/review" class="btn btn-secondary mt-12">End Game & Review</a>
+{% endblock %}

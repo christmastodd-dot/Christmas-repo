@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Playing - Word Adventure{% endblock %}
+{% block content %}
+<h1>English Word Adventure</h1>
+<div class="score-bar">
+    <span>Round {{ game.rounds }} | {{ game.difficulty|upper }}</span>
+    <span>{{ game.wins }}W / {{ game.rounds - 1 }}R</span>
+</div>
+
+{% if session.get('last_answer') %}
+<div class="answer-box {{ 'answer-yes' if session['last_answer']['answer'] else 'answer-no' }}">
+    <strong>{{ session['last_answer']['question'] }}</strong><br>
+    {{ "YES" if session['last_answer']['answer'] else "NO" }}
+</div>
+{% endif %}
+
+<div class="card">
+    <div class="status">
+        <span class="badge badge-blue">{{ rnd.questions_left }} questions left</span>
+        <span class="badge badge-purple">{{ rnd.possible_count }} words possible</span>
+    </div>
+
+    <h2>Ask a Question</h2>
+
+    <form method="POST" action="/ask">
+        {% for idx, question in available_questions %}
+        <button type="submit" name="question_index" value="{{ idx }}" class="question-btn">
+            {{ question }}
+        </button>
+        {% endfor %}
+    </form>
+
+    <a href="/guess" class="btn btn-amber mt-16">Skip to Guess</a>
+</div>
+{% endblock %}

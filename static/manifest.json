@@ -1,0 +1,17 @@
+{
+  "name": "English Word Adventure",
+  "short_name": "Word Adventure",
+  "description": "Guess the English word in 5 questions! Learn vocabulary, spelling, and word origins.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#4F46E5",
+  "theme_color": "#4F46E5",
+  "icons": [
+    {
+      "src": "/static/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
