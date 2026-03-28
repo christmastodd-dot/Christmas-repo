@@ -1,11 +1,12 @@
 """Pet class — evolves by answering math problems, needs care to stay happy."""
 
+import random
 import time
 
 from tamagotchi.config import (
     STAGES, STAGE_THRESHOLDS,
     STAT_MAX, STAT_START, CARE_AMOUNTS, DECAY_PER_TICK, CARE_COOLDOWN,
-    COINS_PER_CORRECT, COINS_STREAK_BONUS, MATH_STREAK_THRESHOLD,
+    COIN_DROP_CHANCE,
     SHOP_ITEMS, SLEEP_DURATION, SLEEP_ENERGY_PER_TICK,
 )
 
@@ -71,6 +72,9 @@ class Pet:
         if self.stage == "egg":
             return False, "The egg doesn't need that yet!"
 
+        if action in ("feed", "play"):
+            return False, "Use an item from your inventory!"
+
         if action not in CARE_AMOUNTS:
             return False, "Unknown action."
 
@@ -99,8 +103,6 @@ class Pet:
         self.last_care[action] = now
 
         messages = {
-            "feed": f"Yum! {self.name} gobbles it up!",
-            "play": f"{self.name} bounces around happily!",
             "clean": f"{self.name} is squeaky clean!",
         }
         return True, messages.get(action, "Done!")
@@ -159,10 +161,9 @@ class Pet:
             self.best_streak = self.streak
         # Answering correctly gives a small happiness boost
         self.happiness = min(STAT_MAX, self.happiness + 5)
-        # Award coins
-        self.coins += COINS_PER_CORRECT
-        if self.streak > 0 and self.streak % MATH_STREAK_THRESHOLD == 0:
-            self.coins += COINS_STREAK_BONUS
+        # Random coin drop (~1 per 10 questions)
+        if random.random() < COIN_DROP_CHANCE:
+            self.coins += 1
         self._try_evolve()
 
     def answer_wrong(self):

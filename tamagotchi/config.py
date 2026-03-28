@@ -21,10 +21,6 @@ STAGE_LABELS = {
     "adult": "Adult",
 }
 
-# ── Math Problem Config ──────────────────────────────────────────────
-
-# Streak bonuses (every 5 correct in a row)
-MATH_STREAK_THRESHOLD = 5
 
 # ── Care Stats ───────────────────────────────────────────────────────
 
@@ -32,9 +28,8 @@ STAT_MAX = 100
 STAT_START = 80
 
 # How much each care action restores
+# Feed and play require inventory items — no free care for those
 CARE_AMOUNTS = {
-    "feed": {"hunger": 30},
-    "play": {"happiness": 30},
     "clean": {"hygiene": 35},
     "sleep": {},  # sleep is handled specially — gradual recovery
 }
@@ -59,8 +54,8 @@ TICK_INTERVAL = 30
 
 # ── Economy ──────────────────────────────────────────────────────────
 
-COINS_PER_CORRECT = 1
-COINS_STREAK_BONUS = 2  # extra coins every MATH_STREAK_THRESHOLD correct
+# ~1 coin per 10 correct answers (10% chance each)
+COIN_DROP_CHANCE = 0.10
 
 SHOP_ITEMS = {
     "pizza":    {"label": "Pizza",        "icon": "\U0001F355", "cost": 3,  "effects": {"hunger": 50},     "desc": "+50 hunger"},

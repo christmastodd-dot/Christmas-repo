@@ -8,7 +8,7 @@ from flask import Flask, render_template, request
 from flask_socketio import SocketIO, emit
 
 from tamagotchi.config import (
-    STAGES, STAGE_THRESHOLDS, STAGE_LABELS, MATH_STREAK_THRESHOLD,
+    STAGES, STAGE_THRESHOLDS, STAGE_LABELS,
     TICK_INTERVAL, SHOP_ITEMS,
 )
 from tamagotchi.pet import Pet
@@ -163,10 +163,7 @@ def on_answer(data):
 
     if correct:
         pet.answer_correct()
-        streak_msg = ""
-        if pet.streak > 0 and pet.streak % MATH_STREAK_THRESHOLD == 0:
-            streak_msg = f" {pet.streak} in a row!"
-        gs.message = f"Correct! {gs.current_question[:-1]}{gs.current_answer}{streak_msg}"
+        gs.message = f"Correct! {gs.current_question[:-1]}{gs.current_answer}"
 
         # Check evolution
         if pet.just_evolved:

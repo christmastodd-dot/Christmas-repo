@@ -492,8 +492,6 @@
       <div class="care-bar"><span class="care-icon">&#x1F4A4;</span><div class="care-track"><div class="care-fill high" id="bar-energy" style="width:80%"></div></div></div>
     </div>
     <div class="care-buttons">
-      <button class="care-btn" onclick="doCare('feed')"><span class="care-btn-icon">&#x1F354;</span>Feed</button>
-      <button class="care-btn" onclick="doCare('play')"><span class="care-btn-icon">&#x1F3BE;</span>Play</button>
       <button class="care-btn" onclick="doCare('clean')"><span class="care-btn-icon">&#x1F6BF;</span>Clean</button>
       <button class="care-btn" onclick="doCare('sleep')"><span class="care-btn-icon">&#x1F4A4;</span>Sleep</button>
     </div>
@@ -1255,10 +1253,11 @@ async function playEvolution(oldStage, newStage, petName) {
     document.addEventListener('keydown', dismiss);
   });
 
-  // Phase 7: Fade out
+  // Phase 7: Fade out and return to base screen
   overlay.classList.remove('show');
   stars.style.display = 'none';
   evoInProgress = false;
+  exitAnsweringMode();
 }
 
 socket.on('evolution', data => {
