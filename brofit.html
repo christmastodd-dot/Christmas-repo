@@ -644,6 +644,263 @@
       text-transform: uppercase;
     }
 
+    /* ===== PR Tracker ===== */
+    .pr-tracker {
+      margin-bottom: 32px;
+    }
+
+    .pr-tracker__lift {
+      background: var(--bg-card);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin-bottom: 10px;
+      box-shadow: var(--shadow-card);
+    }
+
+    .pr-tracker__lift-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .pr-tracker__lift-name {
+      font-family: var(--font-display);
+      font-size: 0.95rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .pr-tracker__lift-best {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--color-gold);
+    }
+
+    .pr-tracker__input-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .pr-tracker__input {
+      flex: 1;
+      background: var(--bg-surface);
+      border: 1px solid var(--text-muted);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      padding: 8px 10px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .pr-tracker__input:focus {
+      border-color: var(--color-gold);
+    }
+
+    .pr-tracker__input--date {
+      max-width: 140px;
+      color-scheme: dark;
+    }
+
+    .pr-tracker__add-btn {
+      background: var(--color-gold);
+      color: var(--bg-primary);
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 8px 14px;
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: transform 0.15s;
+    }
+
+    .pr-tracker__add-btn:active {
+      transform: scale(0.95);
+    }
+
+    .pr-tracker__history {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    .pr-tracker__history--open {
+      max-height: 500px;
+    }
+
+    .pr-tracker__history-toggle {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-family: var(--font-body);
+      padding: 4px 0;
+      margin-bottom: 6px;
+    }
+
+    .pr-tracker__history-toggle:hover {
+      color: var(--text-primary);
+    }
+
+    .pr-tracker__entry {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      font-size: 0.8rem;
+    }
+
+    .pr-tracker__entry-value {
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .pr-tracker__entry-date {
+      color: var(--text-muted);
+    }
+
+    .pr-tracker__entry-badge {
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 8px;
+      background: var(--color-gold);
+      color: var(--bg-primary);
+    }
+
+    .pr-tracker__entry-delete {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 0.75rem;
+      padding: 2px 4px;
+      transition: color 0.15s;
+    }
+
+    .pr-tracker__entry-delete:hover {
+      color: var(--color-red);
+    }
+
+    .pr-tracker__chart {
+      height: 60px;
+      display: flex;
+      align-items: flex-end;
+      gap: 3px;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .pr-tracker__chart-bar {
+      flex: 1;
+      background: var(--color-purple);
+      border-radius: 2px 2px 0 0;
+      min-height: 4px;
+      transition: height 0.3s;
+      position: relative;
+    }
+
+    .pr-tracker__chart-bar--best {
+      background: var(--color-gold);
+    }
+
+    /* ===== PR Leaderboard ===== */
+    .pr-leaderboard {
+      margin-bottom: 32px;
+    }
+
+    .pr-leaderboard__tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 12px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .pr-leaderboard__tab {
+      background: var(--bg-card);
+      border: 1px solid var(--text-muted);
+      border-radius: 20px;
+      color: var(--text-secondary);
+      font-family: var(--font-body);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 6px 14px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .pr-leaderboard__tab--active {
+      background: var(--color-gold);
+      color: var(--bg-primary);
+      border-color: var(--color-gold);
+    }
+
+    .pr-leaderboard__table {
+      width: 100%;
+      background: var(--bg-card);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      box-shadow: var(--shadow-card);
+    }
+
+    .pr-leaderboard__row {
+      display: flex;
+      align-items: center;
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      gap: 10px;
+    }
+
+    .pr-leaderboard__row:last-child {
+      border-bottom: none;
+    }
+
+    .pr-leaderboard__row--you {
+      background: var(--bg-card-hover);
+      box-shadow: inset 3px 0 0 var(--color-orange);
+    }
+
+    .pr-leaderboard__row--1st {
+      box-shadow: inset 3px 0 0 var(--color-gold);
+    }
+
+    .pr-leaderboard__rank {
+      font-size: 1rem;
+      font-weight: 900;
+      width: 28px;
+      text-align: center;
+    }
+
+    .pr-leaderboard__name {
+      flex: 1;
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+
+    .pr-leaderboard__value {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--color-gold);
+    }
+
+    .pr-leaderboard__delta {
+      font-size: 0.7rem;
+      color: var(--color-green);
+      font-weight: 600;
+    }
+
     /* ===== Animations ===== */
     @keyframes slideUp {
       to {
@@ -760,6 +1017,19 @@
       <div class="featured-challenge__text" id="challenge-text">Loading...</div>
       <div class="featured-challenge__timer" id="challenge-timer"></div>
       <button class="featured-challenge__btn" id="challenge-btn">I Did This (+50 XP)</button>
+    </div>
+
+    <!-- PR Tracker -->
+    <div class="section-title">PR Tracker</div>
+    <div class="pr-tracker" id="pr-tracker">
+      <!-- Rendered by JS -->
+    </div>
+
+    <!-- PR Leaderboard -->
+    <div class="section-title">PR Leaderboard</div>
+    <div class="pr-leaderboard" id="pr-leaderboard">
+      <div class="pr-leaderboard__tabs" id="pr-leaderboard-tabs"></div>
+      <div class="pr-leaderboard__table" id="pr-leaderboard-table"></div>
     </div>
 
     <!-- Macrocycle / Training Program -->
@@ -1098,6 +1368,252 @@
 
       // Daily open XP
       addXP(10);
+    }
+
+    // ===== PR Tracker =====
+
+    const liftDefs = [
+      { key: 'bench', name: 'Bench Press', icon: '🏋️', unit: 'lbs' },
+      { key: 'squat', name: 'Squat', icon: '🦵', unit: 'lbs' },
+      { key: 'deadlift', name: 'Deadlift', icon: '💀', unit: 'lbs' },
+      { key: 'mile', name: 'Mile Time', icon: '🏃', unit: 'time' }
+    ];
+
+    // Mock crew PRs for leaderboard
+    const crewPRs = {
+      bench:    [{ name: 'Jake', value: 275 }, { name: 'Marcus', value: 315 }, { name: 'Dev', value: 225 }, { name: 'Tyler', value: 255 }, { name: 'Chris', value: 195 }, { name: 'Aiden', value: 185 }],
+      squat:    [{ name: 'Jake', value: 365 }, { name: 'Marcus', value: 405 }, { name: 'Dev', value: 315 }, { name: 'Tyler', value: 345 }, { name: 'Chris', value: 275 }, { name: 'Aiden', value: 245 }],
+      deadlift: [{ name: 'Jake', value: 425 }, { name: 'Marcus', value: 495 }, { name: 'Dev', value: 365 }, { name: 'Tyler', value: 405 }, { name: 'Chris', value: 335 }, { name: 'Aiden', value: 295 }],
+      mile:     [{ name: 'Jake', value: 398 }, { name: 'Marcus', value: 372 }, { name: 'Dev', value: 445 }, { name: 'Tyler', value: 410 }, { name: 'Chris', value: 480 }, { name: 'Aiden', value: 520 }]
+    };
+
+    function loadPRHistory(liftKey) {
+      const raw = localStorage.getItem('brofit_pr_' + liftKey);
+      return raw ? JSON.parse(raw) : [];
+    }
+
+    function savePRHistory(liftKey, history) {
+      localStorage.setItem('brofit_pr_' + liftKey, JSON.stringify(history));
+    }
+
+    function formatTime(totalSeconds) {
+      const mins = Math.floor(totalSeconds / 60);
+      const secs = totalSeconds % 60;
+      return mins + ':' + String(secs).padStart(2, '0');
+    }
+
+    function parseTimeInput(str) {
+      // Accept "M:SS" or just seconds
+      str = str.trim();
+      if (str.indexOf(':') !== -1) {
+        var parts = str.split(':');
+        return parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+      }
+      return parseInt(str, 10);
+    }
+
+    function formatPRValue(value, unit) {
+      if (unit === 'time') return formatTime(value);
+      return value + ' lbs';
+    }
+
+    function getBestPR(history, unit) {
+      if (history.length === 0) return null;
+      if (unit === 'time') {
+        return history.reduce(function(best, e) { return e.value < best.value ? e : best; });
+      }
+      return history.reduce(function(best, e) { return e.value > best.value ? e : best; });
+    }
+
+    function renderPRTracker() {
+      var container = document.getElementById('pr-tracker');
+      container.innerHTML = '';
+
+      liftDefs.forEach(function(lift) {
+        var history = loadPRHistory(lift.key);
+        var best = getBestPR(history, lift.unit);
+        var today = getTodayString();
+
+        var liftEl = document.createElement('div');
+        liftEl.className = 'pr-tracker__lift';
+
+        // Header
+        var bestDisplay = best ? formatPRValue(best.value, lift.unit) : '—';
+        var headerHTML =
+          '<div class="pr-tracker__lift-header">' +
+            '<div class="pr-tracker__lift-name"><span>' + lift.icon + '</span> ' + lift.name + '</div>' +
+            '<div class="pr-tracker__lift-best">PR: ' + bestDisplay + '</div>' +
+          '</div>';
+
+        // Input row
+        var placeholder = lift.unit === 'time' ? 'M:SS (e.g. 6:30)' : 'Weight (lbs)';
+        var inputHTML =
+          '<div class="pr-tracker__input-row">' +
+            '<input class="pr-tracker__input" type="text" placeholder="' + placeholder + '" data-lift="' + lift.key + '" data-unit="' + lift.unit + '">' +
+            '<input class="pr-tracker__input pr-tracker__input--date" type="date" value="' + today + '" data-lift-date="' + lift.key + '">' +
+            '<button class="pr-tracker__add-btn" onclick="addPR(\'' + lift.key + '\')">Log</button>' +
+          '</div>';
+
+        // Mini chart (last 10 entries)
+        var chartHTML = '';
+        if (history.length > 1) {
+          var recent = history.slice(-10);
+          var values = recent.map(function(e) { return e.value; });
+          var maxVal = Math.max.apply(null, values);
+          var minVal = Math.min.apply(null, values);
+          var range = maxVal - minVal || 1;
+          var bestVal = best ? best.value : null;
+
+          chartHTML = '<div class="pr-tracker__chart">';
+          recent.forEach(function(e) {
+            var pct;
+            if (lift.unit === 'time') {
+              pct = ((maxVal - e.value) / range) * 80 + 20;
+            } else {
+              pct = ((e.value - minVal) / range) * 80 + 20;
+            }
+            var isBest = e.value === bestVal;
+            chartHTML += '<div class="pr-tracker__chart-bar' + (isBest ? ' pr-tracker__chart-bar--best' : '') + '" style="height:' + pct + '%" title="' + formatPRValue(e.value, lift.unit) + ' — ' + e.date + '"></div>';
+          });
+          chartHTML += '</div>';
+        }
+
+        // History entries
+        var historyHTML = '';
+        if (history.length > 0) {
+          var sorted = history.slice().reverse();
+          historyHTML =
+            '<button class="pr-tracker__history-toggle" onclick="togglePRHistory(this)">Show history (' + history.length + ')</button>' +
+            '<div class="pr-tracker__history">';
+          sorted.forEach(function(e, i) {
+            var isBest = best && e.value === best.value && e.date === best.date;
+            var realIdx = history.length - 1 - i;
+            historyHTML +=
+              '<div class="pr-tracker__entry">' +
+                '<span class="pr-tracker__entry-value">' + formatPRValue(e.value, lift.unit) + '</span>' +
+                (isBest ? ' <span class="pr-tracker__entry-badge">PR</span>' : '') +
+                '<span class="pr-tracker__entry-date">' + e.date + '</span>' +
+                '<button class="pr-tracker__entry-delete" onclick="deletePR(\'' + lift.key + '\',' + realIdx + ')" title="Delete">x</button>' +
+              '</div>';
+          });
+          historyHTML += '</div>';
+        }
+
+        liftEl.innerHTML = headerHTML + inputHTML + chartHTML + historyHTML;
+        container.appendChild(liftEl);
+      });
+    }
+
+    function addPR(liftKey) {
+      var lift = liftDefs.find(function(l) { return l.key === liftKey; });
+      var input = document.querySelector('[data-lift="' + liftKey + '"]');
+      var dateInput = document.querySelector('[data-lift-date="' + liftKey + '"]');
+      var raw = input.value.trim();
+      if (!raw) return;
+
+      var value;
+      if (lift.unit === 'time') {
+        value = parseTimeInput(raw);
+      } else {
+        value = parseInt(raw, 10);
+      }
+      if (isNaN(value) || value <= 0) return;
+
+      var history = loadPRHistory(liftKey);
+      var prevBest = getBestPR(history, lift.unit);
+
+      history.push({ value: value, date: dateInput.value });
+      savePRHistory(liftKey, history);
+
+      // Check if new PR
+      var newBest = getBestPR(history, lift.unit);
+      if (!prevBest || (lift.unit === 'time' ? newBest.value < prevBest.value : newBest.value > prevBest.value)) {
+        addXP(25);
+      }
+
+      input.value = '';
+      renderPRTracker();
+      renderPRLeaderboard(activePRTab);
+    }
+
+    function deletePR(liftKey, idx) {
+      var history = loadPRHistory(liftKey);
+      history.splice(idx, 1);
+      savePRHistory(liftKey, history);
+      renderPRTracker();
+      renderPRLeaderboard(activePRTab);
+    }
+
+    function togglePRHistory(btn) {
+      var historyEl = btn.nextElementSibling;
+      historyEl.classList.toggle('pr-tracker__history--open');
+      btn.textContent = historyEl.classList.contains('pr-tracker__history--open') ? 'Hide history' : 'Show history';
+    }
+
+    // ===== PR Leaderboard =====
+
+    var activePRTab = 'bench';
+
+    function renderPRLeaderboardTabs() {
+      var tabs = document.getElementById('pr-leaderboard-tabs');
+      tabs.innerHTML = '';
+      liftDefs.forEach(function(lift) {
+        var tab = document.createElement('button');
+        tab.className = 'pr-leaderboard__tab' + (activePRTab === lift.key ? ' pr-leaderboard__tab--active' : '');
+        tab.textContent = lift.icon + ' ' + lift.name;
+        tab.onclick = function() {
+          activePRTab = lift.key;
+          renderPRLeaderboardTabs();
+          renderPRLeaderboard(lift.key);
+        };
+        tabs.appendChild(tab);
+      });
+    }
+
+    function renderPRLeaderboard(liftKey) {
+      var lift = liftDefs.find(function(l) { return l.key === liftKey; });
+      var table = document.getElementById('pr-leaderboard-table');
+      table.innerHTML = '';
+
+      // Gather crew entries
+      var entries = crewPRs[liftKey].map(function(c) {
+        return { name: c.name, value: c.value, isUser: false };
+      });
+
+      // Add user's best
+      var history = loadPRHistory(liftKey);
+      var userBest = getBestPR(history, lift.unit);
+      var userName = appState.name || 'You';
+      entries.push({
+        name: userName,
+        value: userBest ? userBest.value : (lift.unit === 'time' ? 9999 : 0),
+        isUser: true
+      });
+
+      // Sort: for time lower is better, for weight higher is better
+      if (lift.unit === 'time') {
+        entries.sort(function(a, b) { return a.value - b.value; });
+      } else {
+        entries.sort(function(a, b) { return b.value - a.value; });
+      }
+
+      entries.forEach(function(entry, i) {
+        var row = document.createElement('div');
+        var classes = 'pr-leaderboard__row';
+        if (entry.isUser) classes += ' pr-leaderboard__row--you';
+        if (i === 0) classes += ' pr-leaderboard__row--1st';
+        row.className = classes;
+
+        var posEmoji = i === 0 ? '👑' : (i === 1 ? '🥈' : (i === 2 ? '🥉' : ''));
+        var displayVal = (entry.isUser && !userBest) ? '—' : formatPRValue(entry.value, lift.unit);
+
+        row.innerHTML =
+          '<span class="pr-leaderboard__rank">' + (posEmoji || (i + 1)) + '</span>' +
+          '<span class="pr-leaderboard__name">' + entry.name + (entry.isUser ? ' (you)' : '') + '</span>' +
+          '<span class="pr-leaderboard__value">' + displayVal + '</span>';
+
+        table.appendChild(row);
+      });
     }
 
     // ===== Macrocycle Program =====
@@ -1512,6 +2028,11 @@
 
       // Render daily challenge
       renderDailyChallenge(getDailyChallenge());
+
+      // Render PR tracker & leaderboard
+      renderPRTracker();
+      renderPRLeaderboardTabs();
+      renderPRLeaderboard(activePRTab);
 
       // Render macrocycle
       renderMacrocycle();
