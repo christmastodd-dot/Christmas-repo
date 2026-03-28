@@ -30,45 +30,45 @@
 
   /* START SCREEN */
   .title {
-    font-size: clamp(2rem, 8vw, 3.5rem);
+    font-size: clamp(1.6rem, 6vw, 2.8rem);
     color: #fff;
     text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
-    margin-bottom: 10px;
+    margin-bottom: 4px;
     text-align: center;
   }
   .subtitle {
-    font-size: clamp(1rem, 3.5vw, 1.4rem);
+    font-size: clamp(0.85rem, 2.8vw, 1.2rem);
     color: #e0d4f7;
-    margin-bottom: 30px;
+    margin-bottom: 12px;
     text-align: center;
   }
   .mode-grid {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-    gap: 14px;
+    gap: 8px;
     width: 100%;
-    max-width: 580px;
-    margin-bottom: 30px;
+    max-width: 540px;
+    margin-bottom: 10px;
   }
   .mode-btn {
     background: #fff;
     border: none;
-    border-radius: 20px;
-    padding: 20px 12px;
-    font-size: clamp(1rem, 3vw, 1.3rem);
+    border-radius: 14px;
+    padding: 10px 6px;
+    font-size: clamp(0.8rem, 2.5vw, 1rem);
     font-weight: bold;
     color: #444;
     cursor: pointer;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.12);
     transition: transform 0.15s, box-shadow 0.15s;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    gap: 3px;
   }
   .mode-btn:active { transform: scale(0.95); box-shadow: 0 3px 10px rgba(0,0,0,0.15); }
-  .mode-icon { font-size: clamp(2rem, 6vw, 3rem); }
-  .mode-label { font-size: clamp(0.75rem, 2.5vw, 1rem); color: #888; font-weight: normal; }
+  .mode-icon { font-size: clamp(1.4rem, 4.5vw, 2rem); }
+  .mode-label { font-size: clamp(0.55rem, 1.8vw, 0.75rem); color: #888; font-weight: normal; }
 
   /* Back button */
   .back-btn {
@@ -363,19 +363,24 @@
   }
   .lb-tab:active { transform: scale(0.95); }
   .no-scores { color: #bbb; font-size: 1.1rem; padding: 30px 0; }
+  .leaderboard-btns {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 12px;
+    flex-shrink: 0;
+  }
   .view-leaderboard-btn {
     background: rgba(255,255,255,0.2);
     color: #fff;
     border: none;
-    border-radius: 16px;
-    padding: 12px 28px;
-    font-size: clamp(1rem, 3vw, 1.2rem);
+    border-radius: 12px;
+    padding: 8px 18px;
+    font-size: clamp(0.85rem, 2.5vw, 1rem);
     font-weight: bold;
     cursor: pointer;
     transition: transform 0.12s;
-    margin-top: 5px;
-    margin-bottom: 20px;
-    flex-shrink: 0;
   }
   .view-leaderboard-btn:active { transform: scale(0.95); }
 
@@ -880,7 +885,10 @@
       <span class="mode-label">Big grid, more blanks!</span>
     </button>
   </div>
-  <button class="view-leaderboard-btn" onclick="showLeaderboard()">⚡ Speed Leaderboard</button>
+  <div class="leaderboard-btns">
+    <button class="view-leaderboard-btn" onclick="showLeaderboard()">⚡ Speed Leaderboard</button>
+    <button class="view-leaderboard-btn" onclick="showPuzzleLeaderboard()">🧩 Puzzle Leaderboard</button>
+  </div>
 </div>
 
 <!-- GAME SCREEN -->
@@ -979,8 +987,25 @@
         <div class="label">Time</div>
       </div>
     </div>
+    <div class="speed-results visible">
+      <div class="speed-time" id="puzzleTimeDisplay"></div>
+      <div class="name-input-row" id="puzzleNameRow">
+        <input class="name-input" id="puzzlePlayerName" type="text" placeholder="Your name" maxlength="12" autocomplete="off">
+        <button class="save-score-btn" id="puzzleSaveBtn" onclick="savePuzzleScore()">Save</button>
+      </div>
+      <div class="saved-msg" id="puzzleSavedMsg"></div>
+    </div>
     <button class="play-again-btn" onclick="startPuzzle(lastPuzzleDifficulty)">New Puzzle</button>
     <button class="play-again-btn secondary" onclick="showStart()">Home</button>
+  </div>
+</div>
+
+<!-- PUZZLE LEADERBOARD SCREEN -->
+<div id="puzzleLeaderboardScreen" class="screen">
+  <div class="leaderboard-card">
+    <div class="leaderboard-title">🧩 Puzzle Leaderboard</div>
+    <div id="puzzleLeaderboardBody"></div>
+    <button class="play-again-btn" onclick="showStart()">Back to Menu</button>
   </div>
 </div>
 
@@ -1577,8 +1602,76 @@
     document.getElementById('puzzleResultMistakes').textContent = puzzleMistakes;
     document.getElementById('puzzleResultTime').textContent = formatTime(elapsed);
 
+    // Show time and save option
+    puzzleElapsed = elapsed;
+    document.getElementById('puzzleTimeDisplay').textContent = 'Time: ' + formatTime(elapsed);
+    document.getElementById('puzzleSaveBtn').disabled = false;
+    document.getElementById('puzzleSavedMsg').textContent = '';
+    const lastN = localStorage.getItem('mathAdventureLastName');
+    if (lastN) document.getElementById('puzzlePlayerName').value = lastN;
+
     showScreen('puzzleResultsScreen');
     if (puzzleMistakes <= 3) launchConfetti();
+  }
+
+  let puzzleElapsed = 0;
+
+  const puzzleDiffs = {
+    easy:   { key: 'PuzzleEasy',   label: 'Easy' },
+    medium: { key: 'PuzzleMedium', label: 'Medium' },
+    hard:   { key: 'PuzzleHard',   label: 'Hard' }
+  };
+  let puzzleLbTab = 'easy';
+
+  function getPuzzleScores(diff) {
+    const k = puzzleDiffs[diff] ? puzzleDiffs[diff].key : 'PuzzleEasy';
+    try { return JSON.parse(localStorage.getItem('mathAdventure' + k + 'Scores') || '[]'); }
+    catch { return []; }
+  }
+
+  function savePuzzleScore() {
+    const nameEl = document.getElementById('puzzlePlayerName');
+    const name = nameEl.value.trim() || 'Player';
+    localStorage.setItem('mathAdventureLastName', name);
+
+    const scores = getPuzzleScores(lastPuzzleDifficulty);
+    scores.push({ name, time: puzzleElapsed, mistakes: puzzleMistakes, blanks: puzzleBlankCount, date: Date.now() });
+    scores.sort((a, b) => {
+      if (a.mistakes !== b.mistakes) return a.mistakes - b.mistakes;
+      return a.time - b.time;
+    });
+    if (scores.length > 10) scores.length = 10;
+    const k = puzzleDiffs[lastPuzzleDifficulty] ? puzzleDiffs[lastPuzzleDifficulty].key : 'PuzzleEasy';
+    localStorage.setItem('mathAdventure' + k + 'Scores', JSON.stringify(scores));
+
+    document.getElementById('puzzleSaveBtn').disabled = true;
+    document.getElementById('puzzleSavedMsg').textContent = 'Saved!';
+  }
+
+  function showPuzzleLeaderboard(tab) {
+    puzzleLbTab = tab || puzzleLbTab || 'easy';
+    const body = document.getElementById('puzzleLeaderboardBody');
+
+    let tabsHtml = '<div class="lb-tabs">';
+    for (const [d, info] of Object.entries(puzzleDiffs)) {
+      tabsHtml += '<button class="lb-tab' + (d === puzzleLbTab ? ' active' : '') + '" onclick="showPuzzleLeaderboard(\'' + d + '\')">' + info.label + '</button>';
+    }
+    tabsHtml += '</div>';
+
+    const scores = getPuzzleScores(puzzleLbTab);
+    let tableHtml;
+    if (scores.length === 0) {
+      tableHtml = '<div class="no-scores">No scores yet! Play Puzzle ' + puzzleDiffs[puzzleLbTab].label + ' to set a record.</div>';
+    } else {
+      tableHtml = '<table class="leaderboard-table"><tr><th class="rank-col">#</th><th>Name</th><th>Mistakes</th><th>Time</th></tr>';
+      scores.forEach((s, i) => {
+        const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1);
+        tableHtml += '<tr><td class="rank-col">' + medal + '</td><td>' + escapeHtml(s.name) + '</td><td>' + s.mistakes + '</td><td class="time-col">' + formatTime(s.time) + '</td></tr>';
+      });
+      tableHtml += '</table>';
+    }
+    body.innerHTML = tabsHtml + tableHtml;
+    showScreen('puzzleLeaderboardScreen');
   }
 
   // Times table hint
