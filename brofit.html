@@ -507,6 +507,48 @@
       text-transform: uppercase;
     }
 
+    /* ===== PR Log Toggle ===== */
+    .pr-log-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      padding: 14px;
+      margin-bottom: 12px;
+      background: var(--bg-card);
+      color: var(--color-gold);
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 700;
+      border: 2px solid var(--color-gold);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 0.5px;
+    }
+
+    .pr-log-toggle:hover {
+      background: rgba(255, 215, 0, 0.1);
+    }
+
+    .pr-log-toggle:active {
+      transform: scale(0.98);
+    }
+
+    .pr-log-toggle--open {
+      background: var(--color-gold);
+      color: var(--bg-primary);
+    }
+
+    .pr-log {
+      display: none;
+      margin-bottom: 8px;
+    }
+
+    .pr-log--open {
+      display: block;
+    }
+
     /* ===== PR Tracker ===== */
     .pr-tracker {
       margin-bottom: 32px;
@@ -1115,17 +1157,19 @@
       <button class="featured-challenge__btn" id="challenge-btn">I Did This (+50 XP)</button>
     </div>
 
-    <!-- PR Tracker -->
-    <div class="section-title">PR Tracker</div>
-    <div class="pr-tracker" id="pr-tracker">
-      <!-- Rendered by JS -->
-    </div>
+    <!-- PR Log -->
+    <button class="pr-log-toggle" id="pr-log-toggle" onclick="togglePRLog()">PR Log</button>
+    <div class="pr-log" id="pr-log">
+      <div class="section-title">2026 PR</div>
+      <div class="pr-tracker" id="pr-tracker">
+        <!-- Rendered by JS -->
+      </div>
 
-    <!-- PR Leaderboard -->
-    <div class="section-title">PR Leaderboard</div>
-    <div class="pr-leaderboard" id="pr-leaderboard">
-      <div class="pr-leaderboard__tabs" id="pr-leaderboard-tabs"></div>
-      <div class="pr-leaderboard__table" id="pr-leaderboard-table"></div>
+      <div class="section-title">PR Leaderboard</div>
+      <div class="pr-leaderboard" id="pr-leaderboard">
+        <div class="pr-leaderboard__tabs" id="pr-leaderboard-tabs"></div>
+        <div class="pr-leaderboard__table" id="pr-leaderboard-table"></div>
+      </div>
     </div>
 
     <!-- Weight Tracker -->
@@ -1298,6 +1342,16 @@
 
       // Daily open XP
       addXP(10);
+    }
+
+    // ===== PR Log Toggle =====
+
+    function togglePRLog() {
+      var log = document.getElementById('pr-log');
+      var btn = document.getElementById('pr-log-toggle');
+      var isOpen = log.classList.toggle('pr-log--open');
+      btn.classList.toggle('pr-log-toggle--open', isOpen);
+      btn.textContent = isOpen ? 'Close PR Log' : 'PR Log';
     }
 
     // ===== PR Tracker =====
