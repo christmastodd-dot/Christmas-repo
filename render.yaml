@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: postcard-generator
+    runtime: node
+    rootDir: postcard-generator
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: NODE_ENV
+        value: production
