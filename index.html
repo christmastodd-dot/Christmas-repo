@@ -633,6 +633,8 @@ function drawUnicornMount(px, py, flipX) {
 
   ctx.restore();
 }
+
+function spawnTrailParticle(x, y) {
   trailColorIdx = (trailColorIdx + 1) % TRAIL_COLORS.length;
   particles.push({
     x, y: y + Math.random() * 6 - 3,
