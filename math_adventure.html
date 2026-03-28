@@ -374,6 +374,8 @@
     cursor: pointer;
     transition: transform 0.12s;
     margin-top: 5px;
+    margin-bottom: 20px;
+    flex-shrink: 0;
   }
   .view-leaderboard-btn:active { transform: scale(0.95); }
 
@@ -862,10 +864,20 @@
       <span>Speed Mix</span>
       <span class="mode-label">10 questions, all types!</span>
     </button>
-    <button class="mode-btn" onclick="startPuzzle()">
+    <button class="mode-btn" onclick="startPuzzle('easy')">
       <span class="mode-icon">🧩</span>
-      <span>Puzzle</span>
-      <span class="mode-label">Fill in the times table!</span>
+      <span>Puzzle Easy</span>
+      <span class="mode-label">1-5 times tables</span>
+    </button>
+    <button class="mode-btn" onclick="startPuzzle('medium')">
+      <span class="mode-icon">🧩</span>
+      <span>Puzzle Med</span>
+      <span class="mode-label">Random 1-10 tables</span>
+    </button>
+    <button class="mode-btn" onclick="startPuzzle('hard')">
+      <span class="mode-icon">🧩</span>
+      <span>Puzzle Hard</span>
+      <span class="mode-label">Big grid, more blanks!</span>
     </button>
   </div>
   <button class="view-leaderboard-btn" onclick="showLeaderboard()">⚡ Speed Leaderboard</button>
@@ -936,7 +948,7 @@
 <div id="puzzleScreen" class="screen">
   <div class="puzzle-header">
     <button class="back-btn" onclick="goHome()">&#9664; Back</button>
-    <div class="puzzle-title-bar">🧩 Times Table Puzzle</div>
+    <div class="puzzle-title-bar" id="puzzleTitleBar">🧩 Times Table Puzzle</div>
     <div class="stat-badge" id="puzzleProgress">0/0</div>
   </div>
   <div class="puzzle-card">
@@ -967,7 +979,7 @@
         <div class="label">Time</div>
       </div>
     </div>
-    <button class="play-again-btn" onclick="startPuzzle()">New Puzzle</button>
+    <button class="play-again-btn" onclick="startPuzzle(lastPuzzleDifficulty)">New Puzzle</button>
     <button class="play-again-btn secondary" onclick="showStart()">Home</button>
   </div>
 </div>
@@ -1337,19 +1349,48 @@
   let puzzleStartTime = 0;
   let puzzleRows = [];      // which rows from 1–10
   let puzzleCols = [];      // which cols from 1–10
-  const PUZZLE_SIZE = 5;
-  const PUZZLE_BLANK_COUNT = 10;
+  let puzzleSize = 5;
+  let puzzleBlankCount = 10;
+  let lastPuzzleDifficulty = 'easy';
 
-  function startPuzzle() {
-    // Pick 5 random rows and 5 random cols from 1–10
-    puzzleRows = pickRandom([1,2,3,4,5,6,7,8,9,10], PUZZLE_SIZE).sort((a,b) => a-b);
-    puzzleCols = pickRandom([1,2,3,4,5,6,7,8,9,10], PUZZLE_SIZE).sort((a,b) => a-b);
+  const puzzleConfig = {
+    easy:   { size: 5, blanks: 8,  label: 'Easy',   consecutive: true,  maxNum: 5  },
+    medium: { size: 5, blanks: 12, label: 'Medium', consecutive: false, maxNum: 10 },
+    hard:   { size: 7, blanks: 20, label: 'Hard',   consecutive: false, maxNum: 10 }
+  };
+
+  function startPuzzle(diff) {
+    diff = diff || 'easy';
+    lastPuzzleDifficulty = diff;
+    const cfg = puzzleConfig[diff];
+    puzzleSize = cfg.size;
+    puzzleBlankCount = cfg.blanks;
+
+    if (cfg.consecutive) {
+      // Easy: pick a random starting number, use consecutive (e.g. 1,2,3,4,5)
+      const startR = randInt(1, 10 - cfg.size + 1);
+      const startC = randInt(1, 10 - cfg.size + 1);
+      puzzleRows = [];
+      puzzleCols = [];
+      for (let i = 0; i < cfg.size; i++) {
+        puzzleRows.push(startR + i);
+        puzzleCols.push(startC + i);
+      }
+    } else {
+      // Medium/Hard: random rows and cols from 1–10
+      puzzleRows = pickRandom([1,2,3,4,5,6,7,8,9,10], cfg.size).sort((a,b) => a-b);
+      puzzleCols = pickRandom([1,2,3,4,5,6,7,8,9,10], cfg.size).sort((a,b) => a-b);
+    }
+
     puzzleBlanks = [];
     puzzleSelected = null;
     puzzleInput = '';
     puzzleFilled = 0;
     puzzleMistakes = 0;
     puzzleStartTime = Date.now();
+
+    // Update title
+    document.getElementById('puzzleTitleBar').textContent = '🧩 Puzzle — ' + cfg.label;
 
     // Build grid
     const grid = document.getElementById('puzzleGrid');
@@ -1359,19 +1400,19 @@
 
     // Decide which cells are blanks
     const allCells = [];
-    for (let ri = 0; ri < PUZZLE_SIZE; ri++) {
-      for (let ci = 0; ci < PUZZLE_SIZE; ci++) {
+    for (let ri = 0; ri < puzzleSize; ri++) {
+      for (let ci = 0; ci < puzzleSize; ci++) {
         allCells.push({ ri, ci });
       }
     }
     const blankCells = new Set(
-      pickRandom(allCells, PUZZLE_BLANK_COUNT).map(c => c.ri + ',' + c.ci)
+      pickRandom(allCells, puzzleBlankCount).map(c => c.ri + ',' + c.ci)
     );
 
-    for (let ri = 0; ri < PUZZLE_SIZE; ri++) {
+    for (let ri = 0; ri < puzzleSize; ri++) {
       const r = puzzleRows[ri];
       html += '<tr><th>' + r + '</th>';
-      for (let ci = 0; ci < PUZZLE_SIZE; ci++) {
+      for (let ci = 0; ci < puzzleSize; ci++) {
         const c = puzzleCols[ci];
         const val = r * c;
         const key = ri + ',' + ci;
@@ -1387,7 +1428,7 @@
     }
     grid.innerHTML = html;
 
-    // Build numpad: numbers commonly in times tables + clear + check
+    // Build numpad
     buildNumpad();
     updatePuzzleProgress();
     document.getElementById('puzzleMsg').textContent = 'Tap a ? cell, then type the answer!';
@@ -1487,7 +1528,7 @@
       // Auto-advance to next unsolved blank
       puzzleSelected = null;
       puzzleInput = '';
-      if (puzzleFilled >= PUZZLE_BLANK_COUNT) {
+      if (puzzleFilled >= puzzleBlankCount) {
         setTimeout(endPuzzle, 400);
       } else {
         // Find next blank
@@ -1514,12 +1555,12 @@
   }
 
   function updatePuzzleProgress() {
-    document.getElementById('puzzleProgress').textContent = puzzleFilled + '/' + PUZZLE_BLANK_COUNT;
+    document.getElementById('puzzleProgress').textContent = puzzleFilled + '/' + puzzleBlankCount;
   }
 
   function endPuzzle() {
     const elapsed = (Date.now() - puzzleStartTime) / 1000;
-    const pct = PUZZLE_BLANK_COUNT / (PUZZLE_BLANK_COUNT + puzzleMistakes);
+    const pct = puzzleBlankCount / (puzzleBlankCount + puzzleMistakes);
     const stars = pct >= 0.95 ? 5 : pct >= 0.8 ? 4 : pct >= 0.65 ? 3 : pct >= 0.5 ? 2 : 1;
 
     let emoji, title, subtitle;
@@ -1532,7 +1573,7 @@
     document.getElementById('puzzleResultTitle').textContent = title;
     document.getElementById('puzzleResultSubtitle').textContent = subtitle;
     document.getElementById('puzzleStars').textContent = '⭐'.repeat(stars) + '☆'.repeat(5 - stars);
-    document.getElementById('puzzleResultCorrect').textContent = PUZZLE_BLANK_COUNT + '/' + PUZZLE_BLANK_COUNT;
+    document.getElementById('puzzleResultCorrect').textContent = puzzleBlankCount + '/' + puzzleBlankCount;
     document.getElementById('puzzleResultMistakes').textContent = puzzleMistakes;
     document.getElementById('puzzleResultTime').textContent = formatTime(elapsed);
 
