@@ -1001,7 +1001,6 @@
 
       // Greeting name
       const name = appState.name || 'king';
-      const greetPrefix = getTimeGreeting().split(' ').slice(0, -1).join(' ');
       document.getElementById('greeting-name').textContent =
         getTimeGreeting().replace(/[☀️🔥💪😴]/g, '').trim() + ', ' + name;
 
@@ -1015,6 +1014,9 @@
         btn.textContent = 'Crushed It! 💚';
         btn.classList.add('featured-challenge__btn--done');
       }
+
+      // Leaderboard
+      renderLeaderboard();
     }
 
     // ===== Badge Labels =====
@@ -1105,6 +1107,70 @@
       addXP(5);
     }
 
+    // ===== Crew Leaderboard =====
+
+    const crewMembers = [
+      { name: 'Jake', xp: 840 },
+      { name: 'Marcus', xp: 1250 },
+      { name: 'Dev', xp: 430 },
+      { name: 'Tyler', xp: 670 },
+      { name: 'Chris', xp: 310 },
+      { name: 'Aiden', xp: 95 }
+    ];
+
+    function renderLeaderboard() {
+      const userName = appState.name || 'You';
+      const userEntry = { name: userName, xp: appState.xp, isUser: true };
+
+      const board = [...crewMembers, userEntry].sort(function(a, b) { return b.xp - a.xp; });
+
+      const list = document.getElementById('leaderboard-list');
+      list.innerHTML = '';
+
+      board.forEach(function(entry, i) {
+        const li = document.createElement('li');
+        li.className = 'leaderboard__item' + (entry.isUser ? ' leaderboard__item--you' : '');
+
+        const posEmoji = i === 0 ? '👑' : (i === 1 ? '🥈' : (i === 2 ? '🥉' : ''));
+        const rank = getRank(entry.xp);
+
+        li.innerHTML =
+          '<span class="leaderboard__pos">' + (posEmoji || (i + 1)) + '</span>' +
+          '<span class="leaderboard__name">' + entry.name + (entry.isUser ? ' (you)' : '') + '</span>' +
+          '<span class="leaderboard__rank-badge">' + rank.name + '</span>' +
+          '<span class="leaderboard__xp">' + entry.xp + ' XP</span>';
+
+        list.appendChild(li);
+      });
+    }
+
+    // ===== Rotating Footer Taglines =====
+
+    const taglines = [
+      "No excuses. No days off. No mercy.",
+      "Iron sharpens iron.",
+      "Your only competition is yesterday's you.",
+      "Suffer the pain of discipline or the pain of regret.",
+      "The crew that lifts together, grows together.",
+      "Nobody said it would be easy. They said it would be worth it.",
+      "Be the hardest worker in the room.",
+      "Shut up and squat.",
+      "Excuses don't burn calories.",
+      "Sore today. Strong tomorrow."
+    ];
+
+    let taglineIndex = 0;
+
+    function rotateTagline() {
+      taglineIndex = (taglineIndex + 1) % taglines.length;
+      const el = document.getElementById('footer-tagline');
+      el.style.opacity = '0';
+      setTimeout(function() {
+        el.textContent = taglines[taglineIndex];
+        el.style.opacity = '1';
+      }, 300);
+    }
+
     // ===== Daily Challenge Button =====
 
     function handleChallengeComplete() {
@@ -1157,6 +1223,11 @@
         saveState(appState);
         refreshUI();
       });
+
+      // Rotating footer taglines
+      taglineIndex = Math.floor(Math.random() * taglines.length);
+      document.getElementById('footer-tagline').textContent = taglines[taglineIndex];
+      setInterval(rotateTagline, 5000);
     });
   </script>
 </body>
