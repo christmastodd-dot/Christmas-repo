@@ -1022,7 +1022,7 @@ function updateClouds() {
     if (c.disappearing) {
       if (c.disState === 'fading') {
         c.disTimer -= 1/60;
-        c.disAlpha = Math.max(0, c.disTimer / 1.5);
+        c.disAlpha = Math.max(0, c.disTimer / 1.125);
         if (c.disTimer <= 0) { c.disState = 'gone'; c.disTimer = 3; c.disAlpha = 0; }
       } else if (c.disState === 'gone') {
         c.disTimer -= 1/60;
@@ -1170,7 +1170,7 @@ function update() {
           // trigger disappearing cloud countdown
           if (c.disappearing && c.disState === 'solid') {
             c.disState = 'fading';
-            c.disTimer = 1.5;
+            c.disTimer = 1.125;
           }
         }
       }
@@ -1233,7 +1233,7 @@ function update() {
         const overlapX = player.x + player.w > crow.x && player.x < crow.x + CROW_W;
         const overlapY = player.y + player.h > crow.y && player.y < crow.y + CROW_H;
         if (overlapX && overlapY) {
-          if (player.vy > 0 && player.y + player.h < crow.y + CROW_H * 0.65) {
+          if (player.vy > 0 && player.y + player.h < crow.y + CROW_H * 0.85) {
             crow.alive = false;
             spawnPoof(crow.x + CROW_W/2, crow.y + CROW_H/2);
             player.vy = JUMP_FORCE * 0.55;
@@ -1524,19 +1524,9 @@ function draw() {
     if (c.disappearing && c.disState === 'gone') continue; // fully vanished
     ctx.save();
     if (c.disappearing) {
-      ctx.globalAlpha = c.disAlpha * (c.disState === 'solid' ? 0.75 : 1); // slightly transparent when solid to hint
+      ctx.globalAlpha = c.disAlpha * (c.disState === 'solid' ? 0.8 : 1);
     }
     drawCloud(c.x, c.y, c.w, c.h, camX, c.originX || c.x);
-    // shimmer indicator for disappearing clouds
-    if (c.disappearing && c.disState === 'solid') {
-      const sx = c.x - camX;
-      ctx.globalAlpha = 0.3 + Math.sin(Date.now() / 200) * 0.15;
-      ctx.strokeStyle = '#ffd600';
-      ctx.lineWidth = 1.5;
-      ctx.setLineDash([4, 4]);
-      ctx.strokeRect(sx + 4, c.y + 4, c.w - 8, c.h - 8);
-      ctx.setLineDash([]);
-    }
     ctx.restore();
   }
 
