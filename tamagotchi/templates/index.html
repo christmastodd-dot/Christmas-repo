@@ -356,7 +356,13 @@
     margin: 16px 0;
   }
   .evo-stage .evo-old, .evo-stage .evo-new {
-    position: absolute; transition: opacity 0.1s;
+    position: absolute;
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    transition: opacity 0.1s;
+  }
+  .evo-stage .evo-old svg, .evo-stage .evo-new svg {
+    max-width: 100%; max-height: 100%;
   }
   .evo-stage .evo-new { opacity: 0; }
 
