@@ -43,17 +43,20 @@
     background: var(--panel);
     border: 2px solid var(--border);
     border-radius: 12px;
-    padding: 32px;
+    padding: 20px 24px;
     max-width: 480px;
     width: 100%;
     text-align: center;
+    max-height: 100%;
+    overflow-y: auto;
   }
-  #welcome .egg-welcome { margin: 20px auto; }
-  #welcome .desc { color: var(--dim); font-size: 0.9em; margin-bottom: 16px; line-height: 1.5; }
+  #welcome .egg-welcome { margin: 12px auto; max-height: 30vh; }
+  #welcome .egg-welcome svg { max-height: 30vh; }
+  #welcome .desc { color: var(--dim); font-size: 0.85em; margin-bottom: 10px; line-height: 1.4; }
   #welcome input {
     background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
     color: var(--text); padding: 10px 16px; font-family: inherit; font-size: 1em;
-    width: 100%; max-width: 260px; margin: 12px 0; text-align: center;
+    width: 100%; max-width: 260px; margin: 8px 0; text-align: center;
   }
   #welcome input:focus { outline: none; border-color: var(--accent); }
   #welcome button {
