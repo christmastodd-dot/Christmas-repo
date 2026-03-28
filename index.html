@@ -860,6 +860,155 @@ const LEVELS = [
       { x: 7700, y: 260, w: 250, h: 60 },
     ],
   },
+  { // Level 4 — Windy Peaks (wind gusts push player sideways)
+    name: 'Windy Peaks',
+    bgType: 'starry',
+    worldWidth: 9500,
+    finalCloud: { x: 8800, y: 260, w: 250 },
+    potX: 8970,
+    potY: 210,
+    wind: { gustInterval: [4, 6], gustDuration: 2, gustForce: 1.8 },
+    unicorns: [
+      { cloudIndex: 14, offsetX: 60, offsetY: -50 },
+    ],
+    crows: [
+      { cloudIndex: 4,  speed: 1.4 },
+      { cloudIndex: 8,  speed: 1.6 },
+      { cloudIndex: 12, speed: 1.5 },
+      { cloudIndex: 17, speed: 1.7 },
+      { cloudIndex: 21, speed: 1.5 },
+      { cloudIndex: 25, speed: 1.8 },
+      { cloudIndex: 29, speed: 1.6 },
+      { cloudIndex: 32, speed: 1.7 },
+      { cloudIndex: 35, speed: 1.9 },
+      { cloudIndex: 37, speed: 1.5 },
+    ],
+    clouds: [
+      // --- Section 1: Intro (0-1500) ---
+      { x: 0,    y: 340, w: 200, h: 60 },
+      { x: 260,  y: 310, w: 140, h: 50, moveType:'h', moveRange:50, moveSpeed:1.5 },
+      { x: 480,  y: 280, w: 120, h: 50 },
+      { x: 700,  y: 300, w: 130, h: 50, disappearing: true },
+      { x: 920,  y: 270, w: 110, h: 45, moveType:'v', moveRange:35, moveSpeed:1.3 },
+      { x: 1140, y: 290, w: 140, h: 50 },
+      { x: 1370, y: 260, w: 110, h: 45, moveType:'h', moveRange:60, moveSpeed:1.8 },
+      // --- Section 2: Wind challenge (1550-3100) ---
+      { x: 1550, y: 310, w: 170, h: 55 },
+      { x: 1790, y: 270, w: 110, h: 45, moveType:'h', moveRange:70, moveSpeed:2.0 },
+      { x: 2020, y: 300, w: 120, h: 50, disappearing: true },
+      { x: 2250, y: 260, w: 100, h: 45, moveType:'v', moveRange:40, moveSpeed:1.5 },
+      { x: 2470, y: 290, w: 130, h: 50 },
+      { x: 2710, y: 270, w: 110, h: 45, moveType:'h', moveRange:55, moveSpeed:1.7 },
+      { x: 2940, y: 250, w: 120, h: 50, disappearing: true },
+      // --- Section 3: Rest + ramp (3100-4700) ---
+      { x: 3100, y: 310, w: 190, h: 55 },
+      { x: 3380, y: 270, w: 100, h: 45, moveType:'h', moveRange:65, moveSpeed:1.9 },
+      { x: 3600, y: 300, w: 120, h: 50 },
+      { x: 3830, y: 260, w: 110, h: 45, disappearing: true },
+      { x: 4060, y: 290, w: 130, h: 50, moveType:'v', moveRange:45, moveSpeed:1.4 },
+      { x: 4290, y: 270, w: 110, h: 45, moveType:'h', moveRange:70, moveSpeed:2.0 },
+      { x: 4520, y: 300, w: 140, h: 50 },
+      // --- Section 4: Hard stretch (4700-6500) ---
+      { x: 4740, y: 260, w: 100, h: 45, disappearing: true },
+      { x: 4960, y: 290, w: 110, h: 45, moveType:'h', moveRange:60, moveSpeed:1.8 },
+      { x: 5190, y: 270, w: 120, h: 50, moveType:'v', moveRange:40, moveSpeed:1.6 },
+      { x: 5420, y: 310, w: 160, h: 55 },
+      { x: 5660, y: 260, w: 100, h: 45, moveType:'h', moveRange:75, moveSpeed:2.1 },
+      { x: 5900, y: 290, w: 120, h: 50, disappearing: true },
+      { x: 6130, y: 270, w: 110, h: 45 },
+      { x: 6360, y: 300, w: 130, h: 50, moveType:'h', moveRange:55, moveSpeed:1.7 },
+      // --- Section 5: Final approach (6500-8800) ---
+      { x: 6580, y: 260, w: 100, h: 45, disappearing: true },
+      { x: 6810, y: 280, w: 120, h: 50, moveType:'v', moveRange:35, moveSpeed:1.5 },
+      { x: 7040, y: 300, w: 130, h: 50 },
+      { x: 7280, y: 270, w: 110, h: 45, moveType:'h', moveRange:65, moveSpeed:2.0 },
+      { x: 7520, y: 290, w: 120, h: 50, disappearing: true },
+      { x: 7750, y: 260, w: 100, h: 45 },
+      { x: 7980, y: 280, w: 130, h: 50, moveType:'h', moveRange:50, moveSpeed:1.6 },
+      { x: 8220, y: 300, w: 110, h: 45 },
+      { x: 8500, y: 270, w: 140, h: 50 },
+      // --- Final platform ---
+      { x: 8800, y: 260, w: 250, h: 60 },
+    ],
+  },
+  { // Level 5 — Rainbow's End (bouncy clouds + everything combined)
+    name: "Rainbow's End",
+    bgType: 'aurora',
+    worldWidth: 10500,
+    finalCloud: { x: 9800, y: 260, w: 280 },
+    potX: 9990,
+    potY: 210,
+    wind: { gustInterval: [5, 7], gustDuration: 1.5, gustForce: 1.5 },
+    unicorns: [
+      { cloudIndex: 10, offsetX: 55, offsetY: -50 },
+      { cloudIndex: 30, offsetX: 60, offsetY: -50 },
+    ],
+    crows: [
+      { cloudIndex: 3,  speed: 1.5 },
+      { cloudIndex: 7,  speed: 1.7 },
+      { cloudIndex: 12, speed: 1.6 },
+      { cloudIndex: 16, speed: 1.8 },
+      { cloudIndex: 20, speed: 1.7 },
+      { cloudIndex: 24, speed: 1.9 },
+      { cloudIndex: 28, speed: 1.6 },
+      { cloudIndex: 33, speed: 2.0 },
+      { cloudIndex: 36, speed: 1.8 },
+      { cloudIndex: 39, speed: 1.7 },
+    ],
+    clouds: [
+      // --- Section 1: Intro + bounce tutorial (0-1600) ---
+      { x: 0,    y: 340, w: 200, h: 60 },
+      { x: 270,  y: 310, w: 140, h: 50 },
+      { x: 490,  y: 280, w: 120, h: 50, bouncy: true },
+      { x: 700,  y: 300, w: 130, h: 50, moveType:'h', moveRange:50, moveSpeed:1.5 },
+      { x: 930,  y: 200, w: 120, h: 50 },
+      { x: 1150, y: 290, w: 110, h: 45 },
+      { x: 1380, y: 270, w: 130, h: 50, bouncy: true },
+      // --- Section 2: Mix (1600-3200) ---
+      { x: 1580, y: 310, w: 170, h: 55 },
+      { x: 1830, y: 270, w: 110, h: 45, moveType:'h', moveRange:60, moveSpeed:1.8 },
+      { x: 2060, y: 300, w: 120, h: 50, disappearing: true },
+      { x: 2290, y: 260, w: 130, h: 50 },
+      { x: 2520, y: 290, w: 110, h: 45, bouncy: true },
+      { x: 2740, y: 180, w: 120, h: 50, moveType:'v', moveRange:30, moveSpeed:1.2 },
+      { x: 2960, y: 270, w: 100, h: 45, disappearing: true },
+      { x: 3170, y: 300, w: 140, h: 50 },
+      // --- Section 3: Challenge ramp (3300-5000) ---
+      { x: 3380, y: 260, w: 110, h: 45, moveType:'h', moveRange:70, moveSpeed:2.0 },
+      { x: 3620, y: 290, w: 120, h: 50, bouncy: true },
+      { x: 3840, y: 180, w: 100, h: 45 },
+      { x: 4060, y: 270, w: 130, h: 50, disappearing: true },
+      { x: 4290, y: 310, w: 170, h: 55 },
+      { x: 4530, y: 260, w: 110, h: 45, moveType:'v', moveRange:40, moveSpeed:1.6 },
+      { x: 4760, y: 290, w: 120, h: 50, moveType:'h', moveRange:55, moveSpeed:1.8 },
+      // --- Section 4: Hard (5000-7000) ---
+      { x: 4990, y: 270, w: 100, h: 45, disappearing: true },
+      { x: 5210, y: 300, w: 120, h: 50, bouncy: true },
+      { x: 5430, y: 190, w: 110, h: 45, moveType:'h', moveRange:65, moveSpeed:2.0 },
+      { x: 5670, y: 260, w: 130, h: 50 },
+      { x: 5910, y: 290, w: 100, h: 45, disappearing: true },
+      { x: 6140, y: 270, w: 120, h: 50, moveType:'v', moveRange:45, moveSpeed:1.5 },
+      { x: 6370, y: 300, w: 110, h: 45 },
+      { x: 6600, y: 260, w: 130, h: 50, bouncy: true },
+      // --- Section 5: Gauntlet (7000-8500) ---
+      { x: 6830, y: 180, w: 100, h: 45, moveType:'h', moveRange:60, moveSpeed:1.9 },
+      { x: 7060, y: 290, w: 120, h: 50, disappearing: true },
+      { x: 7290, y: 270, w: 110, h: 45, moveType:'h', moveRange:70, moveSpeed:2.1 },
+      { x: 7530, y: 310, w: 160, h: 55 },
+      { x: 7770, y: 260, w: 100, h: 45, bouncy: true },
+      { x: 7990, y: 170, w: 120, h: 50, moveType:'v', moveRange:35, moveSpeed:1.7 },
+      { x: 8230, y: 290, w: 110, h: 45, disappearing: true },
+      { x: 8460, y: 270, w: 130, h: 50 },
+      // --- Section 6: Final approach (8500-9800) ---
+      { x: 8700, y: 300, w: 120, h: 50, moveType:'h', moveRange:55, moveSpeed:1.8 },
+      { x: 8940, y: 260, w: 110, h: 45 },
+      { x: 9180, y: 280, w: 130, h: 50, bouncy: true },
+      { x: 9420, y: 170, w: 100, h: 45 },
+      { x: 9600, y: 290, w: 140, h: 50 },
+      // --- Final platform ---
+      { x: 9800, y: 260, w: 280, h: 60 },
+    ],
+  },
 ];
 
 // ─────────────────────────────────────────────
@@ -874,6 +1023,12 @@ let camX;
 let animFrame;
 let animTick;
 let deadTimer;
+
+// wind gust state
+let windDir = 1;          // 1 = right, -1 = left
+let windGustTimer = 5;    // countdown to next gust
+let windActiveTimer = 0;  // time remaining in current gust
+let windForce = 0;        // current wind push strength
 
 function initGame() {
   currentLevel = 0;
@@ -939,6 +1094,7 @@ function resetLevel() {
   animFrame   = 0;
   animTick    = 0;
   particles   = [];
+  windGustTimer = 5; windActiveTimer = 0; windForce = 0; windDir = 1;
 }
 
 function startPlaying() {
@@ -1077,6 +1233,35 @@ function update() {
     player.y += player.ridingCloud.dy;
   }
 
+  // --- wind gusts ---
+  if (levelData.wind && !player.flying) {
+    const w = levelData.wind;
+    if (windActiveTimer > 0) {
+      windActiveTimer -= 1/60;
+      windForce = w.gustForce * windDir;
+      // wind particles
+      if (animTick % 3 === 0) {
+        particles.push({
+          x: windDir > 0 ? camX - 20 : camX + W + 20,
+          y: Math.random() * H * 0.8,
+          vx: windDir * (8 + Math.random() * 4),
+          vy: Math.random() * 2 - 1,
+          life: 0.6, color: 'rgba(200,200,255,0.4)', size: 2 + Math.random() * 2,
+        });
+      }
+    } else {
+      windForce = 0;
+      windGustTimer -= 1/60;
+      if (windGustTimer <= 0) {
+        windDir = Math.random() > 0.5 ? 1 : -1;
+        windActiveTimer = w.gustDuration;
+        windGustTimer = w.gustInterval[0] + Math.random() * (w.gustInterval[1] - w.gustInterval[0]);
+      }
+    }
+  } else {
+    windForce = 0;
+  }
+
   // --- input ---
   const movingLeft  = keys['ArrowLeft']  || keys['KeyA'] || touchState.left;
   const movingRight = keys['ArrowRight'] || keys['KeyD'] || touchState.right;
@@ -1159,7 +1344,7 @@ function update() {
       player.vy += GRAVITY;
     }
 
-    player.x += player.vx;
+    player.x += player.vx + windForce;
     player.y += player.vy;
 
     if (player.x < 0) player.x = 0;
@@ -1188,6 +1373,13 @@ function update() {
           if (c.disappearing && c.disState === 'solid') {
             c.disState = 'fading';
             c.disTimer = 1.125;
+          }
+          // bouncy cloud — launch player upward
+          if (c.bouncy) {
+            player.vy = JUMP_FORCE * 1.6;
+            player.onGround = false;
+            player.jumpsLeft = 2;
+            player.ridingCloud = null;
           }
         }
       }
@@ -1291,7 +1483,17 @@ function drawBackground() {
   const bg = levelData.bgType;
   const sky = ctx.createLinearGradient(0, 0, 0, H);
 
-  if (bg === 'storm') {
+  if (bg === 'aurora') {
+    sky.addColorStop(0,   '#0a0a1a');
+    sky.addColorStop(0.3, '#0d1530');
+    sky.addColorStop(0.6, '#1a1040');
+    sky.addColorStop(1,   '#0a0a18');
+  } else if (bg === 'starry') {
+    sky.addColorStop(0,   '#0a0a20');
+    sky.addColorStop(0.4, '#151535');
+    sky.addColorStop(0.7, '#1a1a40');
+    sky.addColorStop(1,   '#10102a');
+  } else if (bg === 'storm') {
     sky.addColorStop(0,   '#1a1a2e');
     sky.addColorStop(0.4, '#2d2844');
     sky.addColorStop(0.7, '#3d3556');
@@ -1309,6 +1511,44 @@ function drawBackground() {
   ctx.fillStyle = sky;
   ctx.fillRect(0, 0, W, H);
 
+  // stars for night sky levels
+  if (bg === 'starry' || bg === 'aurora') {
+    ctx.fillStyle = '#fff';
+    // seeded star positions
+    const starSeed = 12345;
+    let ss = starSeed;
+    for (let i = 0; i < 60; i++) {
+      ss = (ss * 16807 + 0) % 2147483647;
+      const sx = (ss % W);
+      ss = (ss * 16807 + 0) % 2147483647;
+      const sy = (ss % (H * 0.6));
+      ss = (ss * 16807 + 0) % 2147483647;
+      const sr = 0.5 + (ss % 20) / 20 * 1.5;
+      ctx.globalAlpha = 0.4 + Math.sin(Date.now()/1000 + i * 0.7) * 0.3;
+      ctx.beginPath(); ctx.arc(sx, sy, sr, 0, Math.PI*2); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  // aurora effect for Level 5
+  if (bg === 'aurora') {
+    ctx.save();
+    const at = Date.now() / 2000;
+    for (let i = 0; i < 4; i++) {
+      const aColors = ['rgba(0,255,128,', 'rgba(100,0,255,', 'rgba(0,200,255,', 'rgba(200,0,200,'];
+      ctx.strokeStyle = aColors[i] + '0.12)';
+      ctx.lineWidth = 30 + Math.sin(at + i) * 10;
+      ctx.beginPath();
+      for (let ax = 0; ax <= W; ax += 20) {
+        const ay = 60 + i * 25 + Math.sin(at * 0.7 + ax / 120 + i * 1.5) * 30;
+        if (ax === 0) ctx.moveTo(ax, ay);
+        else ctx.lineTo(ax, ay);
+      }
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
   // lightning flash for storm levels
   if (bg === 'storm' && state === 'playing') {
     lightningTimer -= 1/60;
@@ -1324,7 +1564,7 @@ function drawBackground() {
   }
 
   // hills (parallax)
-  const hillColor = bg === 'storm' ? '#1a1a28' : bg === 'sunset' ? '#4a2c0a' : '#6dbf5b';
+  const hillColor = bg === 'aurora' ? '#0a0a14' : bg === 'starry' ? '#0e0e1e' : bg === 'storm' ? '#1a1a28' : bg === 'sunset' ? '#4a2c0a' : '#6dbf5b';
   ctx.fillStyle = hillColor;
   const hillOff = -(camX * 0.3) % W;
   for (let hx = hillOff - W; hx < W * 2; hx += W) {
@@ -1336,12 +1576,12 @@ function drawBackground() {
     ctx.ellipse(hx + W*0.9,  H + 10, 180, 100, 0, 0, Math.PI*2); ctx.fill();
   }
 
-  const groundColor = bg === 'storm' ? '#151520' : bg === 'sunset' ? '#3e2409' : '#5aad48';
+  const groundColor = bg === 'aurora' ? '#080810' : bg === 'starry' ? '#0a0a16' : bg === 'storm' ? '#151520' : bg === 'sunset' ? '#3e2409' : '#5aad48';
   ctx.fillStyle = groundColor;
   ctx.fillRect(0, H - 30, W, 30);
 
   // distant clouds (cosmetic, parallax) — 50% smaller, bob up and down
-  const cloudColor = bg === 'storm' ? 'rgba(60,50,80,0.5)' : bg === 'sunset' ? 'rgba(255,180,100,0.4)' : 'rgba(255,255,255,0.5)';
+  const cloudColor = bg === 'aurora' ? 'rgba(80,40,120,0.35)' : bg === 'starry' ? 'rgba(50,50,90,0.4)' : bg === 'storm' ? 'rgba(60,50,80,0.5)' : bg === 'sunset' ? 'rgba(255,180,100,0.4)' : 'rgba(255,255,255,0.5)';
   ctx.fillStyle = cloudColor;
   const bgCloudOff = -(camX * 0.15) % W;
   const t = Date.now() / 1000;
@@ -1378,6 +1618,20 @@ function drawHUD() {
   ctx.strokeText(levelText, W - 12, 28);
   ctx.fillText(levelText, W - 12, 28);
   ctx.textAlign = 'left';
+
+  // wind indicator
+  if (windActiveTimer > 0) {
+    ctx.save();
+    const wx = W / 2;
+    const wy = 22;
+    ctx.globalAlpha = 0.7;
+    ctx.fillStyle = '#aaccff';
+    ctx.font = 'bold 14px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(windDir > 0 ? 'WIND >>>' : '<<< WIND', wx, wy);
+    ctx.textAlign = 'left';
+    ctx.restore();
+  }
 }
 
 function drawClover(x, y, color) {
@@ -1544,6 +1798,22 @@ function draw() {
       ctx.globalAlpha = c.disAlpha * (c.disState === 'solid' ? 0.8 : 1);
     }
     drawCloud(c.x, c.y, c.w, c.h, camX, c.originX || c.x);
+    // bouncy cloud indicator — green tint + spring lines
+    if (c.bouncy) {
+      const bsx = c.x - camX;
+      ctx.fillStyle = 'rgba(0,255,100,0.15)';
+      ctx.beginPath(); ctx.ellipse(bsx + c.w/2, c.y + c.h*0.4, c.w*0.35, c.h*0.35, 0, 0, Math.PI*2); ctx.fill();
+      // spring arrows
+      ctx.strokeStyle = 'rgba(0,255,100,0.5)';
+      ctx.lineWidth = 2;
+      const bt = Date.now() / 400;
+      const bounce = Math.sin(bt) * 3;
+      ctx.beginPath();
+      ctx.moveTo(bsx + c.w/2 - 8, c.y - 2 + bounce);
+      ctx.lineTo(bsx + c.w/2, c.y - 8 + bounce);
+      ctx.lineTo(bsx + c.w/2 + 8, c.y - 2 + bounce);
+      ctx.stroke();
+    }
     ctx.restore();
   }
 
