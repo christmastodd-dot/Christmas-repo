@@ -2,15 +2,14 @@
 
 # ── Life Stages ──────────────────────────────────────────────────────
 
-STAGES = ["egg", "baby", "child", "teen", "adult"]
+STAGES = ["egg", "baby", "child", "teen"]
 
 # Correct math answers required at each stage to evolve
 STAGE_THRESHOLDS = {
     "egg": 20,
     "baby": 40,
     "child": 60,
-    "teen": 80,
-    "adult": None,  # final stage — keep answering for fun
+    "teen": None,  # final stage
 }
 
 STAGE_LABELS = {
@@ -18,7 +17,6 @@ STAGE_LABELS = {
     "baby": "Baby",
     "child": "Child",
     "teen": "Teen",
-    "adult": "Adult",
 }
 
 
