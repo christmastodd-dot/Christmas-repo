@@ -1377,12 +1377,18 @@ def play_game(word, word_pool):
             print(f"\n  [Only 1 word left matching your clues!]")
             break
 
+    questions_used = MAX_QUESTIONS - questions_left
+
     print("\n" + "-" * 60)
     print("  TIME TO GUESS!")
     print("-" * 60)
 
+    print(f"\n  Bonus hints:")
+    print(f"    - The word has {len(word['name'])} letters")
+    print(f"    - It starts with '{word['name'][0].upper()}'")
+
     if len(possible_words) <= 10 and len(possible_words) > 1:
-        print(f"\n  Hint: Based on your questions, it could be one of these:")
+        print(f"\n  Based on your questions, it could be one of these:")
         for w in possible_words:
             print(f"    - {w['name']}")
 
@@ -1392,11 +1398,13 @@ def play_game(word, word_pool):
     if guess.lower() == word["name"].lower():
         print("\n  *** CORRECT! ***")
         print(f"  You guessed it! The word was: {word['name']}")
-        return True
+        print(f"  You used {questions_used} of {MAX_QUESTIONS} questions.")
+        return True, questions_used
     else:
         print(f"\n  Not quite! The word was: {word['name']}")
         print(f"  You guessed: {guess}")
-        return False
+        print(f"  You used {questions_used} of {MAX_QUESTIONS} questions.")
+        return False, questions_used
 
 
 def show_word_facts(word):
@@ -1446,24 +1454,45 @@ def main():
 
     wins = 0
     rounds = 0
+    streak = 0
+    best_streak = 0
 
     while True:
         word = random.choice(word_pool)
         rounds += 1
 
-        won = play_game(word, word_pool)
+        won, questions_used = play_game(word, word_pool)
         show_word_facts(word)
 
         if won:
             wins += 1
+            streak += 1
+            if streak > best_streak:
+                best_streak = streak
+            if streak == 3:
+                print("\n  *** 3 in a row! You're on fire! ***")
+            elif streak == 5:
+                print("\n  *** 5 in a row! Word master! ***")
+            elif streak >= 7:
+                print(f"\n  *** {streak} in a row! Unstoppable! ***")
+            if questions_used <= 2:
+                print("  Speed bonus — guessed with 2 or fewer questions!")
+        else:
+            if streak >= 3:
+                print(f"\n  Streak ended at {streak}. Great run!")
+            streak = 0
 
         print(f"\n  Score: {wins} wins out of {rounds} round(s)")
+        if streak >= 2:
+            print(f"  Current streak: {streak} | Best streak: {best_streak}")
         print()
 
         play_again = get_yes_no("  Play again? (yes/no): ")
         if not play_again:
             print("\n  Thanks for playing English Word Adventure!")
             print(f"  Final score: {wins} wins out of {rounds} round(s)")
+            if best_streak >= 2:
+                print(f"  Best win streak: {best_streak}")
             print("  Keep learning new words every day!")
             print("=" * 60)
             break
