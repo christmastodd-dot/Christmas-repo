@@ -1256,14 +1256,51 @@ def clear_screen():
     print("\n" + "=" * 60)
 
 
-def display_header():
+def display_header(difficulty=None):
     print("=" * 60)
     print("      *** ENGLISH WORD ADVENTURE ***")
     print("=" * 60)
-    print("  I'm thinking of one of 100 English words!")
+    if difficulty:
+        word_pool = get_word_pool(difficulty)
+        label = "all" if difficulty == "all" else difficulty
+        print(f"  Difficulty: {label.upper()} ({len(word_pool)} words)")
     print("  Ask up to 5 yes/no questions, then take your guess.")
     print("  Learn about word origins, spelling, and grammar!")
     print("=" * 60)
+
+
+def get_word_pool(difficulty):
+    if difficulty == "all":
+        return list(WORDS)
+    return [w for w in WORDS if w["difficulty"] == difficulty]
+
+
+def choose_difficulty():
+    easy_count = len([w for w in WORDS if w["difficulty"] == "easy"])
+    med_count = len([w for w in WORDS if w["difficulty"] == "medium"])
+    hard_count = len([w for w in WORDS if w["difficulty"] == "hard"])
+
+    print("\n  Choose your difficulty level:")
+    print(f"  [1] Easy   ({easy_count} words) — common, short words")
+    print(f"  [2] Medium ({med_count} words) — longer words with tricky spelling")
+    print(f"  [3] Hard   ({hard_count} words) — challenging vocabulary")
+    print(f"  [4] All    ({len(WORDS)} words) — the full word list")
+
+    while True:
+        try:
+            choice = int(input("  > ").strip())
+            if choice == 1:
+                return "easy"
+            elif choice == 2:
+                return "medium"
+            elif choice == 3:
+                return "hard"
+            elif choice == 4:
+                return "all"
+            else:
+                print("  Please enter 1, 2, 3, or 4.")
+        except ValueError:
+            print("  Please enter a valid number.")
 
 
 def display_available_questions(asked_indices):
@@ -1288,10 +1325,10 @@ def filter_words(words, attribute, value):
     return [w for w in words if w[attribute] == value]
 
 
-def play_game(word):
+def play_game(word, word_pool):
     questions_left = MAX_QUESTIONS
     asked_indices = set()
-    possible_words = list(WORDS)
+    possible_words = list(word_pool)
 
     print(f"\n  I'm thinking of a word... ({len(possible_words)} possibilities)")
 
@@ -1401,14 +1438,20 @@ def show_word_facts(word):
 
 def main():
     display_header()
+    difficulty = choose_difficulty()
+    word_pool = get_word_pool(difficulty)
+
+    clear_screen()
+    display_header(difficulty)
+
     wins = 0
     rounds = 0
 
     while True:
-        word = random.choice(WORDS)
+        word = random.choice(word_pool)
         rounds += 1
 
-        won = play_game(word)
+        won = play_game(word, word_pool)
         show_word_facts(word)
 
         if won:
@@ -1426,7 +1469,7 @@ def main():
             break
 
         clear_screen()
-        display_header()
+        display_header(difficulty)
 
 
 if __name__ == "__main__":
