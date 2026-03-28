@@ -19,11 +19,11 @@ def generate_problem(stage="child"):
         # All four operations, moderate difficulty
         return random.choice([_add_double, _sub_double, _mult_basic, _div_basic])()
     elif stage == "teen":
-        # Harder numbers, missing number problems
-        return random.choice([_add_harder, _sub_harder, _mult_basic, _div_basic, _missing_number])()
+        # All four operations, friendly mental math numbers
+        return random.choice([_add_double, _sub_double, _mult_basic, _div_basic, _missing_number])()
     else:  # adult
         # Full mix including word problems
-        return random.choice([_add_harder, _sub_harder, _mult_harder, _div_harder, _missing_number, _word_problem])()
+        return random.choice([_add_double, _sub_double, _mult_basic, _div_basic, _missing_number, _word_problem])()
 
 
 # ── Addition ─────────────────────────────────────────────────────────
@@ -35,8 +35,8 @@ def _add_single():
 
 
 def _add_double():
-    a = random.randint(10, 50)
-    b = random.randint(1, 30)
+    a = random.randint(5, 40)
+    b = random.randint(1, 25)
     return f"{a} + {b} = ?", a + b
 
 
@@ -55,8 +55,8 @@ def _sub_single():
 
 
 def _sub_double():
-    a = random.randint(20, 60)
-    b = random.randint(1, a)
+    a = random.randint(15, 50)
+    b = random.randint(1, min(a - 1, 25))
     return f"{a} - {b} = ?", a - b
 
 
@@ -107,21 +107,21 @@ def _div_harder():
 def _missing_number():
     op = random.choice(["+", "-", "x"])
     if op == "+":
-        answer = random.randint(1, 20)
-        a = random.randint(1, 30)
+        answer = random.randint(1, 15)
+        a = random.randint(1, 20)
         total = a + answer
         if random.random() < 0.5:
             return f"{a} + ___ = {total}", answer
         else:
             return f"___ + {a} = {total}", answer
     elif op == "-":
-        b = random.randint(1, 20)
-        answer = random.randint(1, 30)
+        b = random.randint(1, 15)
+        answer = random.randint(1, 20)
         a = answer + b  # a - b = answer
         return f"{a} - ___ = {answer}", b
     else:  # x
-        answer = random.randint(2, 9)
-        a = random.randint(2, 9)
+        answer = random.randint(2, 7)
+        a = random.randint(2, 7)
         total = a * answer
         return f"{a} x ___ = {total}", answer
 
