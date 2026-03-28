@@ -162,8 +162,9 @@ def on_answer(data):
     correct = player_answer == gs.current_answer
 
     if correct:
-        pet.answer_correct()
-        gs.message = f"Correct! {gs.current_question[:-1]}{gs.current_answer}"
+        earned_coin = pet.answer_correct()
+        coin_msg = " \U0001FA99+1" if earned_coin else ""
+        gs.message = f"Correct! {gs.current_question[:-1]}{gs.current_answer}{coin_msg}"
 
         # Check evolution
         if pet.just_evolved:

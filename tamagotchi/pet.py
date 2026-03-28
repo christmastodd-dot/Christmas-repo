@@ -162,9 +162,11 @@ class Pet:
         # Answering correctly gives a small happiness boost
         self.happiness = min(STAT_MAX, self.happiness + 5)
         # Random coin drop (~1 per 10 questions)
-        if random.random() < COIN_DROP_CHANCE:
+        earned_coin = random.random() < COIN_DROP_CHANCE
+        if earned_coin:
             self.coins += 1
         self._try_evolve()
+        return earned_coin
 
     def answer_wrong(self):
         self.total_wrong += 1
