@@ -1199,6 +1199,336 @@
       transform: scale(0.95);
     }
 
+    /* ===== Workout Logger Toggle ===== */
+    .workout-toggle {
+      background: transparent;
+      color: var(--color-blue);
+      font-family: var(--font-body);
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border: 1.5px solid var(--color-blue);
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+
+    .workout-toggle:active {
+      transform: scale(0.95);
+    }
+
+    .workout-toggle--open {
+      background: var(--color-blue);
+      color: var(--bg-primary);
+    }
+
+    .workout-panel {
+      display: none;
+      margin-bottom: 8px;
+    }
+
+    .workout-panel--open {
+      display: block;
+    }
+
+    /* ===== Workout Logger ===== */
+    .workout-logger {
+      margin-bottom: 16px;
+    }
+
+    .workout-logger__exercise {
+      background: var(--bg-card);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      margin-bottom: 8px;
+      box-shadow: var(--shadow-card);
+    }
+
+    .workout-logger__exercise-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .workout-logger__exercise-input {
+      flex: 1;
+      min-width: 0;
+      background: var(--bg-surface);
+      border: 1px solid var(--text-muted);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      padding: 8px 10px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .workout-logger__exercise-input:focus {
+      border-color: var(--color-blue);
+    }
+
+    .workout-logger__remove-exercise {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      cursor: pointer;
+      padding: 4px;
+      line-height: 1;
+    }
+
+    .workout-logger__remove-exercise:hover {
+      color: var(--color-red);
+    }
+
+    .workout-logger__set-row {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 6px;
+      align-items: center;
+    }
+
+    .workout-logger__set-label {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      font-weight: 700;
+      min-width: 18px;
+      text-align: center;
+    }
+
+    .workout-logger__set-input {
+      flex: 1;
+      min-width: 0;
+      background: var(--bg-surface);
+      border: 1px solid var(--text-muted);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      padding: 6px 8px;
+      outline: none;
+      text-align: center;
+    }
+
+    .workout-logger__set-input:focus {
+      border-color: var(--color-blue);
+    }
+
+    .workout-logger__set-remove {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      cursor: pointer;
+      padding: 2px 4px;
+    }
+
+    .workout-logger__set-remove:hover {
+      color: var(--color-red);
+    }
+
+    .workout-logger__add-set {
+      background: none;
+      border: 1px dashed var(--text-muted);
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      font-family: var(--font-body);
+      font-size: 0.7rem;
+      padding: 4px 10px;
+      cursor: pointer;
+      margin-top: 4px;
+      width: 100%;
+    }
+
+    .workout-logger__add-set:active {
+      background: var(--bg-surface);
+    }
+
+    .workout-logger__actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .workout-logger__add-exercise {
+      flex: 1;
+      background: var(--bg-card);
+      border: 1.5px dashed var(--color-blue);
+      border-radius: var(--radius-md);
+      color: var(--color-blue);
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 10px;
+      cursor: pointer;
+    }
+
+    .workout-logger__add-exercise:active {
+      background: var(--bg-card-hover);
+    }
+
+    .workout-logger__save {
+      flex: 1;
+      background: var(--color-blue);
+      border: none;
+      border-radius: var(--radius-md);
+      color: var(--bg-primary);
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 10px;
+      cursor: pointer;
+    }
+
+    .workout-logger__save:active {
+      transform: scale(0.97);
+    }
+
+    .workout-logger__date-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .workout-logger__date-label {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      font-weight: 700;
+    }
+
+    .workout-logger__date-input {
+      flex: 1;
+      min-width: 0;
+      background: var(--bg-surface);
+      border: 1px solid var(--text-muted);
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      padding: 6px 10px;
+      outline: none;
+      color-scheme: dark;
+    }
+
+    .workout-logger__date-input:focus {
+      border-color: var(--color-blue);
+    }
+
+    /* Autocomplete dropdown */
+    .workout-logger__autocomplete {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: var(--bg-card);
+      border: 1px solid var(--text-muted);
+      border-radius: var(--radius-sm);
+      max-height: 180px;
+      overflow-y: auto;
+      z-index: 50;
+      display: none;
+    }
+
+    .workout-logger__autocomplete--open {
+      display: block;
+    }
+
+    .workout-logger__autocomplete-cat {
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--color-blue);
+      padding: 6px 10px 2px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .workout-logger__autocomplete-item {
+      padding: 6px 10px;
+      font-size: 0.8rem;
+      color: var(--text-primary);
+      cursor: pointer;
+    }
+
+    .workout-logger__autocomplete-item:hover,
+    .workout-logger__autocomplete-item--active {
+      background: var(--bg-card-hover);
+    }
+
+    .workout-logger__exercise-header {
+      position: relative;
+    }
+
+    /* ===== Workout History ===== */
+    .workout-history__entry {
+      background: var(--bg-card);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      margin-bottom: 8px;
+      box-shadow: var(--shadow-card);
+    }
+
+    .workout-history__date {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      font-weight: 700;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .workout-history__delete {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.7rem;
+      cursor: pointer;
+      padding: 2px 6px;
+    }
+
+    .workout-history__delete:hover {
+      color: var(--color-red);
+    }
+
+    .workout-history__exercise-name {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 3px;
+    }
+
+    .workout-history__sets {
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+
+    .workout-history__stats {
+      display: flex;
+      gap: 12px;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      padding-top: 6px;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .workout-history__stat-val {
+      font-weight: 700;
+      color: var(--color-blue);
+    }
+
+    .workout-history__empty {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      padding: 20px;
+    }
+
     /* ===== Join Modal ===== */
     .join-modal {
       position: fixed;
@@ -1357,6 +1687,7 @@
     <header class="header">
       <div class="header__logo">BROFIT</div>
       <div class="header__stats">
+        <button class="workout-toggle" id="workout-toggle" onclick="toggleWorkout()">Log</button>
         <button class="pr-log-toggle" id="pr-log-toggle" onclick="togglePRLog()">PR Log</button>
         <button class="weighin-toggle" id="weighin-toggle" onclick="toggleWeighIn()">Weigh-In</button>
         <div class="header__streak" id="header-streak"></div>
@@ -1393,6 +1724,24 @@
         <div class="weight-lb__tabs" id="weight-lb-tabs"></div>
         <div class="weight-lb__table" id="weight-lb-table"></div>
       </div>
+    </div>
+
+    <!-- Workout Logger -->
+    <div class="workout-panel" id="workout-panel">
+      <div class="section-title">Log Workout</div>
+      <div class="workout-logger" id="workout-logger">
+        <div class="workout-logger__date-row">
+          <span class="workout-logger__date-label">Date:</span>
+          <input class="workout-logger__date-input" id="workout-date" type="date">
+        </div>
+        <div id="workout-exercises"></div>
+        <div class="workout-logger__actions">
+          <button class="workout-logger__add-exercise" id="workout-add-exercise" onclick="addWorkoutExercise()">+ Exercise</button>
+          <button class="workout-logger__save" id="workout-save" onclick="saveWorkout()">Save Workout</button>
+        </div>
+      </div>
+      <div class="section-title">Workout History</div>
+      <div id="workout-history"></div>
     </div>
 
     <!-- Greeting -->
@@ -2420,6 +2769,359 @@
       addXP(50);
     }
 
+    // ===== Workout Logger =====
+
+    var defaultExercises = {
+      'Chest': ['Bench Press', 'Incline Bench', 'Dumbbell Press', 'Cable Fly', 'Push-Ups'],
+      'Back': ['Barbell Row', 'Pull-Ups', 'Lat Pulldown', 'Cable Row', 'T-Bar Row'],
+      'Shoulders': ['Overhead Press', 'Lateral Raise', 'Face Pulls', 'Arnold Press', 'Rear Delt Fly'],
+      'Legs': ['Squat', 'Leg Press', 'RDL', 'Lunges', 'Leg Curl', 'Leg Extension', 'Calf Raise'],
+      'Arms': ['Barbell Curl', 'Hammer Curl', 'Tricep Pushdown', 'Skull Crushers', 'Dips'],
+      'Core': ['Plank', 'Hanging Leg Raise', 'Cable Crunch', 'Ab Wheel'],
+      'Cardio': ['Treadmill', 'Bike', 'Stair Climber', 'Jump Rope', 'Basketball']
+    };
+
+    var workoutExerciseCounter = 0;
+
+    function getExerciseList() {
+      // Merge defaults + custom from all shared workout history
+      var all = {};
+      Object.keys(defaultExercises).forEach(function(cat) {
+        defaultExercises[cat].forEach(function(name) {
+          all[name.toLowerCase()] = { name: name, cat: cat };
+        });
+      });
+
+      // Add from local workout history
+      var history = loadWorkoutHistory();
+      history.forEach(function(w) {
+        (w.exercises || []).forEach(function(ex) {
+          var key = ex.name.toLowerCase();
+          if (!all[key]) all[key] = { name: ex.name, cat: 'Custom' };
+        });
+      });
+
+      // Add from shared data
+      if (sharedData && sharedData.members) {
+        Object.keys(sharedData.members).forEach(function(member) {
+          var wk = sharedData.members[member].workouts;
+          if (wk) {
+            wk.forEach(function(w) {
+              (w.exercises || []).forEach(function(ex) {
+                var key = ex.name.toLowerCase();
+                if (!all[key]) all[key] = { name: ex.name, cat: 'Custom' };
+              });
+            });
+          }
+        });
+      }
+
+      // Group by category
+      var grouped = {};
+      Object.keys(all).forEach(function(key) {
+        var item = all[key];
+        if (!grouped[item.cat]) grouped[item.cat] = [];
+        grouped[item.cat].push(item.name);
+      });
+
+      // Sort each category
+      Object.keys(grouped).forEach(function(cat) {
+        grouped[cat].sort();
+      });
+
+      return grouped;
+    }
+
+    function loadWorkoutHistory() {
+      try {
+        return JSON.parse(localStorage.getItem('brofit_workouts') || '[]');
+      } catch(e) { return []; }
+    }
+
+    function saveWorkoutHistory(history) {
+      localStorage.setItem('brofit_workouts', JSON.stringify(history));
+    }
+
+    function addWorkoutExercise(prefillName) {
+      workoutExerciseCounter++;
+      var id = workoutExerciseCounter;
+      var container = document.getElementById('workout-exercises');
+      var div = document.createElement('div');
+      div.className = 'workout-logger__exercise';
+      div.id = 'workout-ex-' + id;
+      div.innerHTML =
+        '<div class="workout-logger__exercise-header">' +
+          '<input class="workout-logger__exercise-input" id="workout-ex-name-' + id + '" type="text" placeholder="Exercise name" autocomplete="off" value="' + (prefillName || '') + '">' +
+          '<button class="workout-logger__remove-exercise" onclick="removeWorkoutExercise(' + id + ')">&times;</button>' +
+          '<div class="workout-logger__autocomplete" id="workout-ac-' + id + '"></div>' +
+        '</div>' +
+        '<div class="workout-logger__set-row" style="margin-bottom:4px">' +
+          '<span class="workout-logger__set-label"></span>' +
+          '<span style="flex:1;font-size:0.65rem;color:var(--text-muted);text-align:center">Reps</span>' +
+          '<span style="flex:1;font-size:0.65rem;color:var(--text-muted);text-align:center">Weight</span>' +
+          '<span style="width:22px"></span>' +
+        '</div>' +
+        '<div id="workout-sets-' + id + '"></div>' +
+        '<button class="workout-logger__add-set" onclick="addWorkoutSet(' + id + ')">+ Add Set</button>';
+      container.appendChild(div);
+
+      // Add first set
+      addWorkoutSet(id);
+
+      // Setup autocomplete
+      var input = document.getElementById('workout-ex-name-' + id);
+      input.addEventListener('input', function() { showAutocomplete(id); });
+      input.addEventListener('focus', function() { showAutocomplete(id); });
+      input.addEventListener('blur', function() {
+        setTimeout(function() { hideAutocomplete(id); }, 200);
+      });
+
+      input.focus();
+    }
+
+    function removeWorkoutExercise(id) {
+      var el = document.getElementById('workout-ex-' + id);
+      if (el) el.remove();
+    }
+
+    var setCounters = {};
+    function addWorkoutSet(exerciseId) {
+      if (!setCounters[exerciseId]) setCounters[exerciseId] = 0;
+      setCounters[exerciseId]++;
+      var setNum = setCounters[exerciseId];
+      var container = document.getElementById('workout-sets-' + exerciseId);
+      var div = document.createElement('div');
+      div.className = 'workout-logger__set-row';
+      div.id = 'workout-set-' + exerciseId + '-' + setNum;
+      div.innerHTML =
+        '<span class="workout-logger__set-label">' + setNum + '</span>' +
+        '<input class="workout-logger__set-input" type="number" placeholder="Reps" data-field="reps" inputmode="numeric">' +
+        '<input class="workout-logger__set-input" type="number" placeholder="lbs" data-field="weight" inputmode="decimal">' +
+        '<button class="workout-logger__set-remove" onclick="removeWorkoutSet(\'' + exerciseId + '-' + setNum + '\')">&times;</button>';
+      container.appendChild(div);
+    }
+
+    function removeWorkoutSet(id) {
+      var el = document.getElementById('workout-set-' + id);
+      if (el) el.remove();
+    }
+
+    function showAutocomplete(exerciseId) {
+      var input = document.getElementById('workout-ex-name-' + exerciseId);
+      var ac = document.getElementById('workout-ac-' + exerciseId);
+      var query = input.value.toLowerCase().trim();
+      var exercises = getExerciseList();
+      var html = '';
+      var catOrder = ['Chest','Back','Shoulders','Legs','Arms','Core','Cardio','Custom'];
+      var hasResults = false;
+
+      catOrder.forEach(function(cat) {
+        if (!exercises[cat]) return;
+        var matches = exercises[cat].filter(function(name) {
+          return !query || name.toLowerCase().indexOf(query) !== -1;
+        });
+        if (matches.length > 0) {
+          hasResults = true;
+          html += '<div class="workout-logger__autocomplete-cat">' + cat + '</div>';
+          matches.forEach(function(name) {
+            html += '<div class="workout-logger__autocomplete-item" onmousedown="selectExercise(' + exerciseId + ',\'' + name.replace(/'/g, "\\'") + '\')">' + name + '</div>';
+          });
+        }
+      });
+
+      if (hasResults) {
+        ac.innerHTML = html;
+        ac.classList.add('workout-logger__autocomplete--open');
+      } else {
+        ac.classList.remove('workout-logger__autocomplete--open');
+      }
+    }
+
+    function hideAutocomplete(exerciseId) {
+      var ac = document.getElementById('workout-ac-' + exerciseId);
+      if (ac) ac.classList.remove('workout-logger__autocomplete--open');
+    }
+
+    function selectExercise(exerciseId, name) {
+      var input = document.getElementById('workout-ex-name-' + exerciseId);
+      input.value = name;
+      hideAutocomplete(exerciseId);
+    }
+
+    function saveWorkout() {
+      var dateInput = document.getElementById('workout-date');
+      var date = dateInput.value;
+      if (!date) {
+        date = new Date().toISOString().split('T')[0];
+      }
+
+      var exerciseEls = document.querySelectorAll('[id^="workout-ex-"]:not([id*="-name-"]):not([id*="-set-"])');
+      var exercises = [];
+
+      exerciseEls.forEach(function(el) {
+        var id = el.id.replace('workout-ex-', '');
+        var nameInput = document.getElementById('workout-ex-name-' + id);
+        if (!nameInput) return;
+        var name = nameInput.value.trim();
+        if (!name) return;
+
+        var sets = [];
+        var setEls = el.querySelectorAll('.workout-logger__set-row:not(:first-child)');
+        // Get sets from the sets container
+        var setsContainer = document.getElementById('workout-sets-' + id);
+        if (setsContainer) {
+          var setRows = setsContainer.querySelectorAll('.workout-logger__set-row');
+          setRows.forEach(function(row) {
+            var repsInput = row.querySelector('[data-field="reps"]');
+            var weightInput = row.querySelector('[data-field="weight"]');
+            var reps = repsInput ? parseInt(repsInput.value) || 0 : 0;
+            var weight = weightInput ? parseFloat(weightInput.value) || 0 : 0;
+            if (reps > 0 || weight > 0) {
+              sets.push({ reps: reps, weight: weight });
+            }
+          });
+        }
+
+        if (sets.length > 0) {
+          exercises.push({ name: name, sets: sets });
+        }
+      });
+
+      if (exercises.length === 0) return;
+
+      var workout = {
+        date: date,
+        exercises: exercises,
+        ts: Date.now()
+      };
+
+      var history = loadWorkoutHistory();
+      history.push(workout);
+      saveWorkoutHistory(history);
+
+      // Reset form
+      document.getElementById('workout-exercises').innerHTML = '';
+      workoutExerciseCounter = 0;
+      setCounters = {};
+      addWorkoutExercise();
+      dateInput.value = new Date().toISOString().split('T')[0];
+
+      renderWorkoutHistory();
+    }
+
+    function renderWorkoutHistory() {
+      var container = document.getElementById('workout-history');
+      var history = loadWorkoutHistory();
+
+      if (history.length === 0) {
+        container.innerHTML = '<div class="workout-history__empty">No workouts logged yet</div>';
+        return;
+      }
+
+      // Show most recent first
+      var sorted = history.slice().sort(function(a, b) { return (b.ts || 0) - (a.ts || 0); });
+      var html = '';
+
+      sorted.forEach(function(w, idx) {
+        var origIdx = history.indexOf(w);
+        var totalVol = 0;
+        var totalSets = 0;
+        var exHtml = '';
+
+        (w.exercises || []).forEach(function(ex) {
+          exHtml += '<div class="workout-history__exercise-name">' + ex.name + '</div>';
+          var setsStr = (ex.sets || []).map(function(s) {
+            totalSets++;
+            totalVol += (s.reps || 0) * (s.weight || 0);
+            return s.reps + (s.weight ? ' × ' + s.weight + ' lbs' : ' reps');
+          }).join(' &nbsp;|&nbsp; ');
+          exHtml += '<div class="workout-history__sets">' + setsStr + '</div>';
+        });
+
+        html += '<div class="workout-history__entry">' +
+          '<div class="workout-history__date">' +
+            '<span>' + w.date + '</span>' +
+            '<button class="workout-history__delete" onclick="deleteWorkout(' + origIdx + ')">Delete</button>' +
+          '</div>' +
+          exHtml +
+          '<div class="workout-history__stats">' +
+            '<span><span class="workout-history__stat-val">' + (w.exercises || []).length + '</span> exercises</span>' +
+            '<span><span class="workout-history__stat-val">' + totalSets + '</span> sets</span>' +
+            (totalVol > 0 ? '<span><span class="workout-history__stat-val">' + totalVol.toLocaleString() + '</span> lbs vol</span>' : '') +
+          '</div>' +
+        '</div>';
+      });
+
+      container.innerHTML = html;
+    }
+
+    function deleteWorkout(idx) {
+      var history = loadWorkoutHistory();
+      if (idx >= 0 && idx < history.length) {
+        history.splice(idx, 1);
+        saveWorkoutHistory(history);
+        renderWorkoutHistory();
+        schedulePush();
+      }
+    }
+
+    function toggleWorkout() {
+      var panel = document.getElementById('workout-panel');
+      var btn = document.getElementById('workout-toggle');
+
+      // Close other panels
+      var prLog = document.getElementById('pr-log');
+      if (prLog.classList.contains('pr-log--open')) {
+        prLog.classList.remove('pr-log--open');
+        document.getElementById('pr-log-toggle').classList.remove('pr-log-toggle--open');
+        document.getElementById('pr-log-toggle').textContent = 'PR Log';
+      }
+      var weighin = document.getElementById('weighin-panel');
+      if (weighin.classList.contains('weighin-panel--open')) {
+        weighin.classList.remove('weighin-panel--open');
+        document.getElementById('weighin-toggle').classList.remove('weighin-toggle--open');
+        document.getElementById('weighin-toggle').textContent = 'Weigh-In';
+      }
+
+      var isOpen = panel.classList.toggle('workout-panel--open');
+      btn.classList.toggle('workout-toggle--open', isOpen);
+      btn.textContent = isOpen ? 'Close' : 'Log';
+      if (isOpen) {
+        // Init form if empty
+        if (document.getElementById('workout-exercises').children.length === 0) {
+          document.getElementById('workout-date').value = new Date().toISOString().split('T')[0];
+          addWorkoutExercise();
+        }
+        renderWorkoutHistory();
+        setTimeout(function() {
+          var top = panel.getBoundingClientRect().top + window.scrollY - document.querySelector('.header').offsetHeight - 8;
+          window.scrollTo({ top: top, behavior: 'smooth' });
+        }, 10);
+      }
+    }
+
+    // Also close workout panel from other toggles
+    var _origToggleWeighIn = toggleWeighIn;
+    toggleWeighIn = function() {
+      var wp = document.getElementById('workout-panel');
+      if (wp.classList.contains('workout-panel--open')) {
+        wp.classList.remove('workout-panel--open');
+        document.getElementById('workout-toggle').classList.remove('workout-toggle--open');
+        document.getElementById('workout-toggle').textContent = 'Log';
+      }
+      _origToggleWeighIn();
+    };
+    var _origTogglePRLog = togglePRLog;
+    togglePRLog = function() {
+      var wp = document.getElementById('workout-panel');
+      if (wp.classList.contains('workout-panel--open')) {
+        wp.classList.remove('workout-panel--open');
+        document.getElementById('workout-toggle').classList.remove('workout-toggle--open');
+        document.getElementById('workout-toggle').textContent = 'Log';
+      }
+      _origTogglePRLog();
+    };
+
     // ===== Cloud Sync Layer =====
     // Uses GitHub repo as shared database
 
@@ -2532,6 +3234,7 @@
           start: wStart,
           current: wCurrent
         },
+        workouts: loadWorkoutHistory(),
         lastSync: new Date().toISOString()
       };
     }
@@ -2612,6 +3315,13 @@
     var _origSaveWeight = saveWeightHistory;
     saveWeightHistory = function(history) {
       _origSaveWeight(history);
+      schedulePush();
+    };
+
+    // Override saveWorkoutHistory to trigger sync
+    var _origSaveWorkout = saveWorkoutHistory;
+    saveWorkoutHistory = function(history) {
+      _origSaveWorkout(history);
       schedulePush();
     };
 
