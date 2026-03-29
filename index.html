@@ -144,13 +144,13 @@ let prevTouchJump = false;
 canvas.addEventListener('touchstart', e => {
   e.preventDefault();
   if (state === 'title') {
-    currentLevel = 0; lives = MAX_LIVES; startPlaying();
+    currentLevel = START_LEVEL; lives = MAX_LIVES; startPlaying();
   } else if (state === 'gameover') {
-    currentLevel = 0; lives = MAX_LIVES; startPlaying();
+    currentLevel = START_LEVEL; lives = MAX_LIVES; startPlaying();
   } else if (state === 'levelcomplete') {
     currentLevel++; startPlaying();
   } else if (state === 'gamecomplete') {
-    currentLevel = 0; lives = MAX_LIVES; startPlaying();
+    currentLevel = START_LEVEL; lives = MAX_LIVES; startPlaying();
   } else if (state === 'dead' && deadTimer <= 0) {
     startPlaying();
   }
@@ -227,6 +227,7 @@ const GRAVITY      = 0.55;
 const JUMP_FORCE   = -13;
 const MOVE_SPEED   = 4;
 const MAX_LIVES    = 3;
+const START_LEVEL  = 5; // 0-based: 5 = Frozen Falls (TESTING — change back to 0)
 
 // ─────────────────────────────────────────────
 //  PIXEL ART SPRITES
@@ -1204,7 +1205,7 @@ let windActiveTimer = 0;  // time remaining in current gust
 let windForce = 0;        // current wind push strength
 
 function initGame() {
-  currentLevel = 0;
+  currentLevel = START_LEVEL;
   lives = MAX_LIVES;
   resetLevel();
   state = 'title';
@@ -1286,7 +1287,7 @@ window.addEventListener('keydown', e => {
 
   if (state === 'title') {
     if (['Space','Enter','ArrowUp','KeyW'].includes(e.code)) {
-      currentLevel = 0;
+      currentLevel = START_LEVEL;
       lives = MAX_LIVES;
       startPlaying();
     }
@@ -1295,7 +1296,7 @@ window.addEventListener('keydown', e => {
 
   if (state === 'gameover') {
     if (['Space','Enter'].includes(e.code)) {
-      currentLevel = 0;
+      currentLevel = START_LEVEL;
       lives = MAX_LIVES;
       startPlaying();
     }
@@ -1312,7 +1313,7 @@ window.addEventListener('keydown', e => {
 
   if (state === 'gamecomplete') {
     if (['Space','Enter'].includes(e.code)) {
-      currentLevel = 0;
+      currentLevel = START_LEVEL;
       lives = MAX_LIVES;
       startPlaying();
     }
@@ -1340,7 +1341,7 @@ window.addEventListener('keyup', e => { keys[e.code] = false; });
 
 canvas.addEventListener('click', () => {
   if (state === 'title') {
-    currentLevel = 0;
+    currentLevel = START_LEVEL;
     lives = MAX_LIVES;
     startPlaying();
   }
