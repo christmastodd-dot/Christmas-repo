@@ -1463,6 +1463,34 @@
       position: relative;
     }
 
+    /* ===== Bodyweight Toggle ===== */
+    .workout-logger__bw-toggle {
+      display: flex;
+      gap: 0;
+      margin-bottom: 6px;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      border: 1px solid var(--text-muted);
+    }
+
+    .workout-logger__bw-opt {
+      flex: 1;
+      background: var(--bg-surface);
+      border: none;
+      color: var(--text-secondary);
+      font-family: var(--font-body);
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 5px 6px;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .workout-logger__bw-opt--active {
+      background: var(--color-gold);
+      color: var(--bg-primary);
+    }
+
     /* ===== Workout History ===== */
     .workout-history__entry {
       background: var(--bg-card);
@@ -2960,30 +2988,68 @@
       localStorage.setItem('brofit_workouts', JSON.stringify(history));
     }
 
+    // Track input type per exercise card
+    var exerciseInputTypes = {};
+
+    function getColumnHeaders(inputType) {
+      if (inputType === 'bw') return { col1: 'Reps', col2: '+/- lbs' };
+      if (inputType === 'cardio') return { col1: 'Duration', col2: 'Distance' };
+      if (inputType === 'duration') return { col1: 'Duration', col2: '' };
+      return { col1: 'Reps', col2: 'Weight' };
+    }
+
+    function buildHeaderRow(inputType) {
+      var h = getColumnHeaders(inputType);
+      if (inputType === 'duration') {
+        return '<div class="workout-logger__set-row" id="workout-ex-hdr-ID" style="margin-bottom:4px">' +
+          '<span class="workout-logger__set-label"></span>' +
+          '<span style="flex:1;font-size:0.65rem;color:var(--text-muted);text-align:center">' + h.col1 + '</span>' +
+          '<span style="width:22px"></span>' +
+        '</div>';
+      }
+      return '<div class="workout-logger__set-row" id="workout-ex-hdr-ID" style="margin-bottom:4px">' +
+        '<span class="workout-logger__set-label"></span>' +
+        '<span style="flex:1;font-size:0.65rem;color:var(--text-muted);text-align:center">' + h.col1 + '</span>' +
+        '<span style="flex:1;font-size:0.65rem;color:var(--text-muted);text-align:center">' + h.col2 + '</span>' +
+        '<span style="width:22px"></span>' +
+      '</div>';
+    }
+
     function addWorkoutExercise(prefillName) {
       workoutExerciseCounter++;
       var id = workoutExerciseCounter;
+      var info = prefillName ? getExerciseInfo(prefillName) : { input: 'weight' };
+      exerciseInputTypes[id] = info.input;
+
       var container = document.getElementById('workout-exercises');
       var div = document.createElement('div');
       div.className = 'workout-logger__exercise';
       div.id = 'workout-ex-' + id;
+
+      var bwToggle = '';
+      if (info.input === 'bw') {
+        bwToggle = '<div class="workout-logger__bw-toggle" id="workout-bw-toggle-' + id + '">' +
+          '<button class="workout-logger__bw-opt workout-logger__bw-opt--active" data-mode="bodyweight" onclick="setBWMode(' + id + ',\'bodyweight\',this)">Bodyweight</button>' +
+          '<button class="workout-logger__bw-opt" data-mode="assisted" onclick="setBWMode(' + id + ',\'assisted\',this)">Assisted</button>' +
+          '<button class="workout-logger__bw-opt" data-mode="added" onclick="setBWMode(' + id + ',\'added\',this)">+ Weight</button>' +
+        '</div>';
+      }
+
+      var hdr = buildHeaderRow(info.input).replace('ID', id);
+
       div.innerHTML =
         '<div class="workout-logger__exercise-header">' +
           '<input class="workout-logger__exercise-input" id="workout-ex-name-' + id + '" type="text" placeholder="Exercise name" autocomplete="off" value="' + (prefillName || '') + '">' +
           '<button class="workout-logger__remove-exercise" onclick="removeWorkoutExercise(' + id + ')">&times;</button>' +
           '<div class="workout-logger__autocomplete" id="workout-ac-' + id + '"></div>' +
         '</div>' +
-        '<div class="workout-logger__set-row" style="margin-bottom:4px">' +
-          '<span class="workout-logger__set-label"></span>' +
-          '<span style="flex:1;font-size:0.65rem;color:var(--text-muted);text-align:center">Reps</span>' +
-          '<span style="flex:1;font-size:0.65rem;color:var(--text-muted);text-align:center">Weight</span>' +
-          '<span style="width:22px"></span>' +
-        '</div>' +
+        bwToggle +
+        hdr +
         '<div id="workout-sets-' + id + '"></div>' +
         '<button class="workout-logger__add-set" onclick="addWorkoutSet(' + id + ')">+ Add Set</button>';
       container.appendChild(div);
 
-      // Add first set
+      // Add first set (or single row for cardio/duration)
       addWorkoutSet(id);
 
       // Setup autocomplete
@@ -2997,6 +3063,34 @@
       input.focus();
     }
 
+    function setBWMode(exerciseId, mode, btn) {
+      var toggle = document.getElementById('workout-bw-toggle-' + exerciseId);
+      toggle.querySelectorAll('.workout-logger__bw-opt').forEach(function(b) {
+        b.classList.remove('workout-logger__bw-opt--active');
+      });
+      btn.classList.add('workout-logger__bw-opt--active');
+
+      // Update placeholders in existing set rows
+      var container = document.getElementById('workout-sets-' + exerciseId);
+      var weightInputs = container.querySelectorAll('[data-field="weight"]');
+      weightInputs.forEach(function(inp) {
+        if (mode === 'bodyweight') {
+          inp.placeholder = '';
+          inp.disabled = true;
+          inp.value = '';
+          inp.style.opacity = '0.3';
+        } else if (mode === 'assisted') {
+          inp.placeholder = '- lbs';
+          inp.disabled = false;
+          inp.style.opacity = '1';
+        } else {
+          inp.placeholder = '+ lbs';
+          inp.disabled = false;
+          inp.style.opacity = '1';
+        }
+      });
+    }
+
     function removeWorkoutExercise(id) {
       var el = document.getElementById('workout-ex-' + id);
       if (el) el.remove();
@@ -3008,14 +3102,46 @@
       setCounters[exerciseId]++;
       var setNum = setCounters[exerciseId];
       var container = document.getElementById('workout-sets-' + exerciseId);
+      var inputType = exerciseInputTypes[exerciseId] || 'weight';
       var div = document.createElement('div');
       div.className = 'workout-logger__set-row';
       div.id = 'workout-set-' + exerciseId + '-' + setNum;
-      div.innerHTML =
-        '<span class="workout-logger__set-label">' + setNum + '</span>' +
-        '<input class="workout-logger__set-input" type="number" placeholder="Reps" data-field="reps" inputmode="numeric">' +
-        '<input class="workout-logger__set-input" type="number" placeholder="lbs" data-field="weight" inputmode="decimal">' +
-        '<button class="workout-logger__set-remove" onclick="removeWorkoutSet(\'' + exerciseId + '-' + setNum + '\')">&times;</button>';
+      var removeBtn = '<button class="workout-logger__set-remove" onclick="removeWorkoutSet(\'' + exerciseId + '-' + setNum + '\')">&times;</button>';
+
+      if (inputType === 'cardio') {
+        div.innerHTML =
+          '<span class="workout-logger__set-label">' + setNum + '</span>' +
+          '<input class="workout-logger__set-input" type="text" placeholder="mm:ss" data-field="duration" style="flex:1">' +
+          '<input class="workout-logger__set-input" type="number" placeholder="miles" data-field="distance" inputmode="decimal" step="0.01" style="flex:1">' +
+          removeBtn;
+      } else if (inputType === 'duration') {
+        div.innerHTML =
+          '<span class="workout-logger__set-label">' + setNum + '</span>' +
+          '<input class="workout-logger__set-input" type="text" placeholder="mm:ss" data-field="duration" style="flex:1">' +
+          removeBtn;
+      } else if (inputType === 'bw') {
+        // Check current BW mode
+        var mode = 'bodyweight';
+        var toggle = document.getElementById('workout-bw-toggle-' + exerciseId);
+        if (toggle) {
+          var active = toggle.querySelector('.workout-logger__bw-opt--active');
+          if (active) mode = active.getAttribute('data-mode');
+        }
+        var wDisabled = mode === 'bodyweight';
+        var wPlaceholder = mode === 'assisted' ? '- lbs' : mode === 'added' ? '+ lbs' : '';
+        div.innerHTML =
+          '<span class="workout-logger__set-label">' + setNum + '</span>' +
+          '<input class="workout-logger__set-input" type="number" placeholder="Reps" data-field="reps" inputmode="numeric">' +
+          '<input class="workout-logger__set-input" type="number" placeholder="' + wPlaceholder + '" data-field="weight" inputmode="decimal"' + (wDisabled ? ' disabled style="opacity:0.3"' : '') + '>' +
+          removeBtn;
+      } else {
+        // weight (default): reps + lbs
+        div.innerHTML =
+          '<span class="workout-logger__set-label">' + setNum + '</span>' +
+          '<input class="workout-logger__set-input" type="number" placeholder="Reps" data-field="reps" inputmode="numeric">' +
+          '<input class="workout-logger__set-input" type="number" placeholder="lbs" data-field="weight" inputmode="decimal">' +
+          removeBtn;
+      }
       container.appendChild(div);
     }
 
@@ -3069,6 +3195,44 @@
       var input = document.getElementById('workout-ex-name-' + exerciseId);
       input.value = name;
       hideAutocomplete(exerciseId);
+
+      // Check if input type changed — if so, rebuild the card
+      var info = getExerciseInfo(name);
+      var oldType = exerciseInputTypes[exerciseId] || 'weight';
+      if (info.input !== oldType) {
+        exerciseInputTypes[exerciseId] = info.input;
+        setCounters[exerciseId] = 0;
+
+        // Rebuild BW toggle
+        var exEl = document.getElementById('workout-ex-' + exerciseId);
+        var oldToggle = document.getElementById('workout-bw-toggle-' + exerciseId);
+        if (oldToggle) oldToggle.remove();
+
+        if (info.input === 'bw') {
+          var toggleDiv = document.createElement('div');
+          toggleDiv.className = 'workout-logger__bw-toggle';
+          toggleDiv.id = 'workout-bw-toggle-' + exerciseId;
+          toggleDiv.innerHTML =
+            '<button class="workout-logger__bw-opt workout-logger__bw-opt--active" data-mode="bodyweight" onclick="setBWMode(' + exerciseId + ',\'bodyweight\',this)">Bodyweight</button>' +
+            '<button class="workout-logger__bw-opt" data-mode="assisted" onclick="setBWMode(' + exerciseId + ',\'assisted\',this)">Assisted</button>' +
+            '<button class="workout-logger__bw-opt" data-mode="added" onclick="setBWMode(' + exerciseId + ',\'added\',this)">+ Weight</button>';
+          var hdrEl = document.getElementById('workout-ex-hdr-' + exerciseId);
+          exEl.insertBefore(toggleDiv, hdrEl);
+        }
+
+        // Rebuild header
+        var oldHdr = document.getElementById('workout-ex-hdr-' + exerciseId);
+        if (oldHdr) {
+          var newHdr = document.createElement('div');
+          newHdr.innerHTML = buildHeaderRow(info.input).replace('ID', exerciseId);
+          oldHdr.replaceWith(newHdr.firstChild);
+        }
+
+        // Rebuild sets
+        var setsContainer = document.getElementById('workout-sets-' + exerciseId);
+        setsContainer.innerHTML = '';
+        addWorkoutSet(exerciseId);
+      }
     }
 
     function saveWorkout() {
@@ -3088,25 +3252,53 @@
         var name = nameInput.value.trim();
         if (!name) return;
 
+        var inputType = exerciseInputTypes[id] || 'weight';
         var sets = [];
-        var setEls = el.querySelectorAll('.workout-logger__set-row:not(:first-child)');
-        // Get sets from the sets container
         var setsContainer = document.getElementById('workout-sets-' + id);
         if (setsContainer) {
           var setRows = setsContainer.querySelectorAll('.workout-logger__set-row');
           setRows.forEach(function(row) {
-            var repsInput = row.querySelector('[data-field="reps"]');
-            var weightInput = row.querySelector('[data-field="weight"]');
-            var reps = repsInput ? parseInt(repsInput.value) || 0 : 0;
-            var weight = weightInput ? parseFloat(weightInput.value) || 0 : 0;
-            if (reps > 0 || weight > 0) {
-              sets.push({ reps: reps, weight: weight });
+            if (inputType === 'cardio') {
+              var durInput = row.querySelector('[data-field="duration"]');
+              var distInput = row.querySelector('[data-field="distance"]');
+              var dur = durInput ? durInput.value.trim() : '';
+              var dist = distInput ? parseFloat(distInput.value) || 0 : 0;
+              if (dur || dist > 0) {
+                sets.push({ duration: dur, distance: dist });
+              }
+            } else if (inputType === 'duration') {
+              var durInput2 = row.querySelector('[data-field="duration"]');
+              var dur2 = durInput2 ? durInput2.value.trim() : '';
+              if (dur2) {
+                sets.push({ duration: dur2 });
+              }
+            } else {
+              // weight or bw
+              var repsInput = row.querySelector('[data-field="reps"]');
+              var weightInput = row.querySelector('[data-field="weight"]');
+              var reps = repsInput ? parseInt(repsInput.value) || 0 : 0;
+              var weight = weightInput ? parseFloat(weightInput.value) || 0 : 0;
+              var setData = { reps: reps, weight: weight };
+
+              // For BW, capture the mode
+              if (inputType === 'bw') {
+                var bwToggle = document.getElementById('workout-bw-toggle-' + id);
+                if (bwToggle) {
+                  var activeBtn = bwToggle.querySelector('.workout-logger__bw-opt--active');
+                  if (activeBtn) setData.bwMode = activeBtn.getAttribute('data-mode');
+                }
+              }
+
+              if (reps > 0 || weight > 0) {
+                sets.push(setData);
+              }
             }
           });
         }
 
         if (sets.length > 0) {
-          exercises.push({ name: name, sets: sets });
+          var exData = { name: name, sets: sets, inputType: inputType };
+          exercises.push(exData);
         }
       });
 
@@ -3149,17 +3341,43 @@
         var origIdx = history.indexOf(w);
         var totalVol = 0;
         var totalSets = 0;
+        var totalDist = 0;
         var exHtml = '';
 
         (w.exercises || []).forEach(function(ex) {
-          exHtml += '<div class="workout-history__exercise-name">' + ex.name + '</div>';
+          var info = getExerciseInfo(ex.name);
+          var iType = ex.inputType || info.input;
+          var equipTag = equipLabels[info.equip] ? '<span style="font-size:0.6rem;color:' + equipColors[info.equip] + ';font-weight:700;margin-left:4px">' + equipLabels[info.equip] + '</span>' : '';
+          exHtml += '<div class="workout-history__exercise-name">' + ex.name + equipTag + '</div>';
+
           var setsStr = (ex.sets || []).map(function(s) {
             totalSets++;
-            totalVol += (s.reps || 0) * (s.weight || 0);
-            return s.reps + (s.weight ? ' × ' + s.weight + ' lbs' : ' reps');
+            if (iType === 'cardio') {
+              if (s.distance) totalDist += s.distance;
+              var parts = [];
+              if (s.duration) parts.push(s.duration);
+              if (s.distance) parts.push(s.distance + ' mi');
+              return parts.join(', ') || '—';
+            } else if (iType === 'duration') {
+              return s.duration || '—';
+            } else if (iType === 'bw') {
+              var bwStr = s.reps + ' reps';
+              if (s.bwMode === 'assisted' && s.weight) bwStr += ' (-' + s.weight + ' lbs)';
+              else if (s.bwMode === 'added' && s.weight) bwStr += ' (+' + s.weight + ' lbs)';
+              totalVol += (s.reps || 0) * (s.weight || 0);
+              return bwStr;
+            } else {
+              totalVol += (s.reps || 0) * (s.weight || 0);
+              return s.reps + (s.weight ? ' × ' + s.weight + ' lbs' : ' reps');
+            }
           }).join(' &nbsp;|&nbsp; ');
           exHtml += '<div class="workout-history__sets">' + setsStr + '</div>';
         });
+
+        var statsHtml = '<span><span class="workout-history__stat-val">' + (w.exercises || []).length + '</span> exercises</span>' +
+          '<span><span class="workout-history__stat-val">' + totalSets + '</span> sets</span>';
+        if (totalVol > 0) statsHtml += '<span><span class="workout-history__stat-val">' + totalVol.toLocaleString() + '</span> lbs vol</span>';
+        if (totalDist > 0) statsHtml += '<span><span class="workout-history__stat-val">' + totalDist.toFixed(2) + '</span> mi</span>';
 
         html += '<div class="workout-history__entry">' +
           '<div class="workout-history__date">' +
@@ -3167,11 +3385,7 @@
             '<button class="workout-history__delete" onclick="deleteWorkout(' + origIdx + ')">Delete</button>' +
           '</div>' +
           exHtml +
-          '<div class="workout-history__stats">' +
-            '<span><span class="workout-history__stat-val">' + (w.exercises || []).length + '</span> exercises</span>' +
-            '<span><span class="workout-history__stat-val">' + totalSets + '</span> sets</span>' +
-            (totalVol > 0 ? '<span><span class="workout-history__stat-val">' + totalVol.toLocaleString() + '</span> lbs vol</span>' : '') +
-          '</div>' +
+          '<div class="workout-history__stats">' + statsHtml + '</div>' +
         '</div>';
       });
 
