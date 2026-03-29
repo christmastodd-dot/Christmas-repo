@@ -173,23 +173,28 @@
           "exercises": [
             {
               "name": "Walking",
-              "sets": 1
+              "sets": 1,
+              "duration": "20"
             },
             {
               "name": "Walking Backwards",
-              "sets": 1
+              "sets": 1,
+              "duration": "5"
             },
             {
               "name": "Dumbbell Curl",
-              "sets": 3
+              "sets": 3,
+              "reps": 20
             },
             {
               "name": "Lateral Raise",
-              "sets": 3
+              "sets": 3,
+              "reps": 25
             },
             {
               "name": "Hammer Curl",
-              "sets": 3
+              "sets": 3,
+              "reps": 18
             },
             {
               "name": "Front Raise",
@@ -207,7 +212,7 @@
           "author": "Coach"
         }
       ],
-      "lastSync": "2026-03-29T23:32:23.393Z"
+      "lastSync": "2026-03-29T23:33:26.754Z"
     },
     "Manny Fresh": {
       "xp": 10,
