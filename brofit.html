@@ -1590,6 +1590,125 @@
       padding: 20px;
     }
 
+    /* ===== Workout Chooser ===== */
+    .workout-chooser {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .workout-chooser--hidden {
+      display: none;
+    }
+
+    .workout-chooser__option {
+      background: var(--bg-card);
+      border: 1.5px solid var(--text-muted);
+      border-radius: var(--radius-md);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 14px 16px;
+      cursor: pointer;
+      text-align: left;
+      transition: border-color 0.2s, background 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .workout-chooser__option:active {
+      transform: scale(0.98);
+    }
+
+    .workout-chooser__option--blank {
+      border-color: var(--color-blue);
+    }
+
+    .workout-chooser__option--copy {
+      border-color: var(--color-green);
+    }
+
+    .workout-chooser__option--template {
+      border-color: var(--color-purple);
+    }
+
+    .workout-chooser__icon {
+      font-size: 1.2rem;
+    }
+
+    .workout-chooser__label {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .workout-chooser__label-sub {
+      font-size: 0.7rem;
+      font-weight: 400;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    .workout-chooser__templates {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding-left: 36px;
+      margin-top: -2px;
+    }
+
+    .workout-chooser__tmpl-btn {
+      background: var(--bg-surface);
+      border: 1px solid var(--text-muted);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 8px 12px;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .workout-chooser__tmpl-btn:active {
+      background: var(--bg-card-hover);
+    }
+
+    .workout-chooser__tmpl-sub {
+      font-size: 0.65rem;
+      font-weight: 400;
+      color: var(--text-muted);
+    }
+
+    .workout-chooser__prior {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding-left: 36px;
+      margin-top: -2px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .workout-chooser__prior-btn {
+      background: var(--bg-surface);
+      border: 1px solid var(--text-muted);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 8px 12px;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .workout-chooser__prior-btn:active {
+      background: var(--bg-card-hover);
+    }
+
     /* ===== Workout Templates ===== */
     .templates-section {
       margin-bottom: 16px;
@@ -2080,7 +2199,25 @@
 
     <!-- Workout Sheet -->
     <div class="workout-panel" id="workout-panel">
-      <div class="workout-logger" id="workout-logger">
+      <!-- Chooser -->
+      <div class="workout-chooser" id="workout-chooser">
+        <button class="workout-chooser__option workout-chooser__option--blank" onclick="startBlankWorkout()">
+          <span class="workout-chooser__icon">📝</span>
+          <span class="workout-chooser__label">Start Blank Workout<span class="workout-chooser__label-sub">Build from scratch</span></span>
+        </button>
+        <button class="workout-chooser__option workout-chooser__option--copy" onclick="togglePriorWorkouts()">
+          <span class="workout-chooser__icon">🔄</span>
+          <span class="workout-chooser__label">Copy Prior Workout<span class="workout-chooser__label-sub">Repeat a recent session</span></span>
+        </button>
+        <div class="workout-chooser__prior workout-chooser--hidden" id="workout-prior-list"></div>
+        <button class="workout-chooser__option workout-chooser__option--template" onclick="toggleTemplateList()">
+          <span class="workout-chooser__icon">📋</span>
+          <span class="workout-chooser__label">Use Template<span class="workout-chooser__label-sub">Start from a saved template</span></span>
+        </button>
+        <div class="workout-chooser__templates workout-chooser--hidden" id="workout-template-list"></div>
+      </div>
+      <!-- Logger form (hidden until choice made) -->
+      <div class="workout-logger workout-chooser--hidden" id="workout-logger">
         <div class="workout-logger__meta-row">
           <div class="workout-logger__meta-field">
             <span class="workout-logger__meta-label">Date</span>
@@ -3680,14 +3817,10 @@
       history.push(workout);
       saveWorkoutHistory(history);
 
-      // Reset form
-      document.getElementById('workout-exercises').innerHTML = '';
-      workoutExerciseCounter = 0;
-      setCounters = {};
-      exerciseInputTypes = {};
-      var now = new Date();
-      dateInput.value = now.toISOString().split('T')[0];
-      if (timeInput) timeInput.value = now.toTimeString().slice(0, 5);
+      // Reset form and go back to chooser
+      resetWorkoutForm();
+      document.getElementById('workout-chooser').classList.remove('workout-chooser--hidden');
+      document.getElementById('workout-logger').classList.add('workout-chooser--hidden');
 
       renderWorkoutHistory();
     }
@@ -3778,14 +3911,12 @@
 
       if (isOpen) {
         btn.querySelector('.workout-start-btn__text').textContent = 'Close Workout';
-
-        // Init form if empty
-        if (document.getElementById('workout-exercises').children.length === 0) {
-          var now = new Date();
-          document.getElementById('workout-date').value = now.toISOString().split('T')[0];
-          document.getElementById('workout-time').value = now.toTimeString().slice(0, 5);
-          addWorkoutExercise();
-        }
+        // Show chooser, hide logger form
+        document.getElementById('workout-chooser').classList.remove('workout-chooser--hidden');
+        document.getElementById('workout-logger').classList.add('workout-chooser--hidden');
+        // Reset sub-lists
+        document.getElementById('workout-prior-list').classList.add('workout-chooser--hidden');
+        document.getElementById('workout-template-list').classList.add('workout-chooser--hidden');
         renderWorkoutHistory();
         setTimeout(function() {
           var top = panel.getBoundingClientRect().top + window.scrollY - document.querySelector('.header').offsetHeight - 8;
@@ -3793,7 +3924,153 @@
         }, 10);
       } else {
         btn.querySelector('.workout-start-btn__text').textContent = 'Start a New Workout';
+        // Reset form
+        resetWorkoutForm();
       }
+    }
+
+    function resetWorkoutForm() {
+      document.getElementById('workout-exercises').innerHTML = '';
+      workoutExerciseCounter = 0;
+      setCounters = {};
+      exerciseInputTypes = {};
+    }
+
+    function initWorkoutForm() {
+      var now = new Date();
+      document.getElementById('workout-date').value = now.toISOString().split('T')[0];
+      document.getElementById('workout-time').value = now.toTimeString().slice(0, 5);
+      // Hide chooser, show logger
+      document.getElementById('workout-chooser').classList.add('workout-chooser--hidden');
+      document.getElementById('workout-logger').classList.remove('workout-chooser--hidden');
+    }
+
+    function startBlankWorkout() {
+      resetWorkoutForm();
+      initWorkoutForm();
+      addWorkoutExercise();
+    }
+
+    function togglePriorWorkouts() {
+      var list = document.getElementById('workout-prior-list');
+      var isHidden = list.classList.contains('workout-chooser--hidden');
+      // Hide templates if open
+      document.getElementById('workout-template-list').classList.add('workout-chooser--hidden');
+
+      if (isHidden) {
+        var history = loadWorkoutHistory();
+        if (history.length === 0) {
+          list.innerHTML = '<div style="font-size:0.75rem;color:var(--text-muted);padding:8px 0">No prior workouts</div>';
+        } else {
+          var sorted = history.slice().sort(function(a, b) { return (b.ts || 0) - (a.ts || 0); });
+          var html = '';
+          sorted.slice(0, 10).forEach(function(w, idx) {
+            var exNames = (w.exercises || []).map(function(e) { return e.name; }).join(', ');
+            html += '<button class="workout-chooser__prior-btn" onclick="startFromPrior(' + idx + ')">' +
+              w.date + (w.startTime ? ' at ' + w.startTime : '') +
+              '<br><span class="workout-chooser__tmpl-sub">' + exNames + '</span></button>';
+          });
+          list.innerHTML = html;
+        }
+        list.classList.remove('workout-chooser--hidden');
+      } else {
+        list.classList.add('workout-chooser--hidden');
+      }
+    }
+
+    function startFromPrior(sortedIdx) {
+      var history = loadWorkoutHistory();
+      var sorted = history.slice().sort(function(a, b) { return (b.ts || 0) - (a.ts || 0); });
+      var w = sorted[sortedIdx];
+      if (!w) return;
+
+      resetWorkoutForm();
+      initWorkoutForm();
+
+      (w.exercises || []).forEach(function(ex) {
+        addWorkoutExercise(ex.name);
+        // Find the exercise card just added
+        var exId = workoutExerciseCounter;
+        var info = getExerciseInfo(ex.name);
+        // Pre-fill sets from the prior workout
+        if (ex.sets && ex.sets.length > 0) {
+          // First set was already added by addWorkoutExercise, remove it
+          var setsContainer = document.getElementById('workout-sets-' + exId);
+          setsContainer.innerHTML = '';
+          setCounters[exId] = 0;
+          ex.sets.forEach(function(s) {
+            addWorkoutSet(exId);
+            var setNum = setCounters[exId];
+            var row = document.getElementById('workout-set-' + exId + '-' + setNum);
+            if (!row) return;
+            if (s.reps) {
+              var repsInp = row.querySelector('[data-field="reps"]');
+              if (repsInp) repsInp.value = s.reps;
+            }
+            if (s.weight) {
+              var weightInp = row.querySelector('[data-field="weight"]');
+              if (weightInp) { weightInp.value = s.weight; weightInp.disabled = false; weightInp.style.opacity = '1'; }
+            }
+            if (s.duration) {
+              var durInp = row.querySelector('[data-field="duration"]');
+              if (durInp) durInp.value = s.duration;
+            }
+            if (s.distance) {
+              var distInp = row.querySelector('[data-field="distance"]');
+              if (distInp) distInp.value = s.distance;
+            }
+            // Reveal add-set button
+            revealAddSetBtn(exId);
+          });
+        }
+      });
+    }
+
+    function toggleTemplateList() {
+      var list = document.getElementById('workout-template-list');
+      var isHidden = list.classList.contains('workout-chooser--hidden');
+      // Hide prior if open
+      document.getElementById('workout-prior-list').classList.add('workout-chooser--hidden');
+
+      if (isHidden) {
+        var templates = getAllTemplates();
+        if (templates.length === 0) {
+          list.innerHTML = '<div style="font-size:0.75rem;color:var(--text-muted);padding:8px 0">No templates yet</div>';
+        } else {
+          var html = '';
+          templates.forEach(function(t) {
+            var exNames = (t.exercises || []).map(function(e) { return e.name; }).join(', ');
+            var author = t.author && t.author !== userId ? ' · by ' + t.author : '';
+            html += '<button class="workout-chooser__tmpl-btn" onclick="startFromTemplate(\'' + t.id + '\')">' +
+              t.name + '<br><span class="workout-chooser__tmpl-sub">' + exNames + author + '</span></button>';
+          });
+          list.innerHTML = html;
+        }
+        list.classList.remove('workout-chooser--hidden');
+      } else {
+        list.classList.add('workout-chooser--hidden');
+      }
+    }
+
+    function startFromTemplate(templateId) {
+      var templates = getAllTemplates();
+      var t = templates.find(function(tmpl) { return tmpl.id === templateId; });
+      if (!t) return;
+
+      resetWorkoutForm();
+      initWorkoutForm();
+
+      (t.exercises || []).forEach(function(ex) {
+        addWorkoutExercise(ex.name);
+        var exId = workoutExerciseCounter;
+        // Add the right number of sets (template specifies default set count)
+        var targetSets = ex.sets || 3;
+        // First set already added, add remaining
+        for (var i = 1; i < targetSets; i++) {
+          addWorkoutSet(exId);
+        }
+        revealAddSetBtn(exId);
+      });
     }
 
     // ===== Workout Templates =====
