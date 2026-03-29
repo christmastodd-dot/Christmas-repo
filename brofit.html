@@ -1590,6 +1590,275 @@
       padding: 20px;
     }
 
+    /* ===== Workout Templates ===== */
+    .templates-section {
+      margin-bottom: 16px;
+    }
+
+    .templates__list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .templates__card {
+      background: var(--bg-card);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      box-shadow: var(--shadow-card);
+    }
+
+    .templates__card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .templates__card-name {
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .templates__card-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .templates__card-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.7rem;
+      cursor: pointer;
+      padding: 2px 6px;
+      font-family: var(--font-body);
+    }
+
+    .templates__card-btn:hover {
+      color: var(--text-primary);
+    }
+
+    .templates__card-btn--delete:hover {
+      color: var(--color-red);
+    }
+
+    .templates__card-exercises {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    .templates__card-author {
+      font-size: 0.6rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .templates__create-btn {
+      width: 100%;
+      background: var(--bg-card);
+      border: 1.5px dashed var(--color-purple);
+      border-radius: var(--radius-md);
+      color: var(--color-purple);
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 12px;
+      cursor: pointer;
+    }
+
+    .templates__create-btn:active {
+      background: var(--bg-card-hover);
+    }
+
+    .templates__empty {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      padding: 16px;
+    }
+
+    /* Template Editor Modal */
+    .template-editor {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 900;
+      display: none;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .template-editor--open {
+      display: flex;
+    }
+
+    .template-editor__box {
+      background: var(--bg-card);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      max-width: 420px;
+      width: 100%;
+      margin-top: 40px;
+    }
+
+    .template-editor__title {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: var(--text-primary);
+    }
+
+    .template-editor__name-input {
+      width: 100%;
+      background: var(--bg-surface);
+      border: 1px solid var(--text-muted);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding: 10px 12px;
+      outline: none;
+      margin-bottom: 12px;
+    }
+
+    .template-editor__name-input:focus {
+      border-color: var(--color-purple);
+    }
+
+    .template-editor__exercises {
+      margin-bottom: 10px;
+    }
+
+    .template-editor__ex-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    .template-editor__ex-input {
+      flex: 1;
+      min-width: 0;
+      background: var(--bg-surface);
+      border: 1px solid var(--text-muted);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      padding: 8px 10px;
+      outline: none;
+      position: relative;
+    }
+
+    .template-editor__ex-input:focus {
+      border-color: var(--color-purple);
+    }
+
+    .template-editor__ex-sets {
+      width: 50px;
+      background: var(--bg-surface);
+      border: 1px solid var(--text-muted);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      padding: 8px 6px;
+      outline: none;
+      text-align: center;
+    }
+
+    .template-editor__ex-sets:focus {
+      border-color: var(--color-purple);
+    }
+
+    .template-editor__ex-remove {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1rem;
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    .template-editor__ex-remove:hover {
+      color: var(--color-red);
+    }
+
+    .template-editor__add-ex {
+      width: 100%;
+      background: none;
+      border: 1px dashed var(--text-muted);
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      font-family: var(--font-body);
+      font-size: 0.75rem;
+      padding: 6px;
+      cursor: pointer;
+      margin-bottom: 14px;
+    }
+
+    .template-editor__add-ex:active {
+      background: var(--bg-surface);
+    }
+
+    .template-editor__footer {
+      display: flex;
+      gap: 8px;
+    }
+
+    .template-editor__cancel {
+      flex: 1;
+      background: var(--bg-surface);
+      border: 1px solid var(--text-muted);
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 10px;
+      cursor: pointer;
+    }
+
+    .template-editor__save {
+      flex: 1;
+      background: var(--color-purple);
+      border: none;
+      border-radius: var(--radius-sm);
+      color: #fff;
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 10px;
+      cursor: pointer;
+    }
+
+    .template-editor__save:active {
+      transform: scale(0.97);
+    }
+
+    .template-editor__ex-header {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 6px;
+      padding: 0 0 0 0;
+    }
+
+    .template-editor__ex-header span {
+      font-size: 0.6rem;
+      color: var(--text-muted);
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
     /* ===== Join Modal ===== */
     .join-modal {
       position: fixed;
@@ -1848,6 +2117,32 @@
       <div class="macrocycle__week-label" id="macro-week-label"></div>
       <div class="macrocycle__progress" id="macro-progress"></div>
       <!-- Phases rendered by JS -->
+    </div>
+
+    <!-- Workout Templates -->
+    <div class="section-title">Workout Templates</div>
+    <div class="templates-section" id="templates-section">
+      <div class="templates__list" id="templates-list"></div>
+      <button class="templates__create-btn" onclick="openTemplateEditor()">+ Create Template</button>
+    </div>
+
+    <!-- Template Editor Modal -->
+    <div class="template-editor" id="template-editor">
+      <div class="template-editor__box">
+        <div class="template-editor__title" id="template-editor-title">New Template</div>
+        <input class="template-editor__name-input" id="template-name" type="text" placeholder="Template name (e.g. Push Day)" maxlength="40">
+        <div class="template-editor__ex-header">
+          <span style="flex:1">Exercise</span>
+          <span style="width:50px;text-align:center">Sets</span>
+          <span style="width:28px"></span>
+        </div>
+        <div class="template-editor__exercises" id="template-exercises"></div>
+        <button class="template-editor__add-ex" onclick="addTemplateExercise()">+ Add Exercise</button>
+        <div class="template-editor__footer">
+          <button class="template-editor__cancel" onclick="closeTemplateEditor()">Cancel</button>
+          <button class="template-editor__save" onclick="saveTemplate()">Save Template</button>
+        </div>
+      </div>
     </div>
 
     <!-- Leaderboard -->
@@ -3501,6 +3796,245 @@
       }
     }
 
+    // ===== Workout Templates =====
+
+    var editingTemplateId = null;
+    var templateExCounter = 0;
+
+    function loadTemplates() {
+      try {
+        return JSON.parse(localStorage.getItem('brofit_templates') || '[]');
+      } catch(e) { return []; }
+    }
+
+    function saveTemplates(templates) {
+      localStorage.setItem('brofit_templates', JSON.stringify(templates));
+    }
+
+    function getAllTemplates() {
+      // Local templates + shared templates from other users
+      var local = loadTemplates();
+      var all = local.slice();
+      if (sharedData && sharedData.members) {
+        Object.keys(sharedData.members).forEach(function(name) {
+          var member = sharedData.members[name];
+          if (member.templates && name !== userId) {
+            member.templates.forEach(function(t) {
+              // Avoid duplicates by id
+              var exists = all.some(function(a) { return a.id === t.id; });
+              if (!exists) {
+                var copy = JSON.parse(JSON.stringify(t));
+                copy.author = name;
+                copy.shared = true;
+                all.push(copy);
+              }
+            });
+          }
+        });
+      }
+      return all;
+    }
+
+    function renderTemplates() {
+      var container = document.getElementById('templates-list');
+      var templates = getAllTemplates();
+
+      if (templates.length === 0) {
+        container.innerHTML = '<div class="templates__empty">No templates yet — create one to get started</div>';
+        return;
+      }
+
+      var html = '';
+      templates.forEach(function(t) {
+        var exList = (t.exercises || []).map(function(ex) {
+          return ex.name + (ex.sets ? ' (' + ex.sets + ' sets)' : '');
+        }).join(' · ');
+        var author = t.author ? '<div class="templates__card-author">by ' + t.author + '</div>' : '';
+        var actions = '';
+        if (!t.shared) {
+          actions = '<button class="templates__card-btn" onclick="editTemplate(\'' + t.id + '\')">Edit</button>' +
+            '<button class="templates__card-btn templates__card-btn--delete" onclick="deleteTemplate(\'' + t.id + '\')">Delete</button>';
+        }
+        html += '<div class="templates__card">' +
+          '<div class="templates__card-header">' +
+            '<span class="templates__card-name">' + t.name + '</span>' +
+            '<div class="templates__card-actions">' + actions + '</div>' +
+          '</div>' +
+          '<div class="templates__card-exercises">' + (exList || 'No exercises') + '</div>' +
+          author +
+        '</div>';
+      });
+
+      container.innerHTML = html;
+    }
+
+    function openTemplateEditor(templateId) {
+      editingTemplateId = templateId || null;
+      templateExCounter = 0;
+      document.getElementById('template-exercises').innerHTML = '';
+
+      if (templateId) {
+        var templates = loadTemplates();
+        var t = templates.find(function(t) { return t.id === templateId; });
+        if (t) {
+          document.getElementById('template-editor-title').textContent = 'Edit Template';
+          document.getElementById('template-name').value = t.name;
+          (t.exercises || []).forEach(function(ex) {
+            addTemplateExercise(ex.name, ex.sets);
+          });
+        }
+      } else {
+        document.getElementById('template-editor-title').textContent = 'New Template';
+        document.getElementById('template-name').value = '';
+        addTemplateExercise();
+      }
+
+      document.getElementById('template-editor').classList.add('template-editor--open');
+    }
+
+    function closeTemplateEditor() {
+      document.getElementById('template-editor').classList.remove('template-editor--open');
+      editingTemplateId = null;
+    }
+
+    function addTemplateExercise(prefillName, prefillSets) {
+      templateExCounter++;
+      var id = templateExCounter;
+      var container = document.getElementById('template-exercises');
+      var div = document.createElement('div');
+      div.className = 'template-editor__ex-row';
+      div.id = 'template-ex-' + id;
+      div.innerHTML =
+        '<input class="template-editor__ex-input" id="template-ex-name-' + id + '" type="text" placeholder="Exercise name" autocomplete="off" value="' + (prefillName || '') + '">' +
+        '<input class="template-editor__ex-sets" id="template-ex-sets-' + id + '" type="number" placeholder="3" inputmode="numeric" value="' + (prefillSets || '') + '">' +
+        '<button class="template-editor__ex-remove" onclick="removeTemplateExercise(' + id + ')">&times;</button>';
+      container.appendChild(div);
+
+      // Autocomplete for template exercises
+      var input = document.getElementById('template-ex-name-' + id);
+      var acDiv = document.createElement('div');
+      acDiv.className = 'workout-logger__autocomplete';
+      acDiv.id = 'template-ac-' + id;
+      acDiv.style.position = 'fixed';
+      acDiv.style.zIndex = '950';
+      div.style.position = 'relative';
+      div.appendChild(acDiv);
+
+      input.addEventListener('input', function() { showTemplateAutocomplete(id); });
+      input.addEventListener('focus', function() { showTemplateAutocomplete(id); });
+      input.addEventListener('blur', function() {
+        setTimeout(function() {
+          var ac = document.getElementById('template-ac-' + id);
+          if (ac) ac.classList.remove('workout-logger__autocomplete--open');
+        }, 200);
+      });
+    }
+
+    function removeTemplateExercise(id) {
+      var el = document.getElementById('template-ex-' + id);
+      if (el) el.remove();
+    }
+
+    function showTemplateAutocomplete(exId) {
+      var input = document.getElementById('template-ex-name-' + exId);
+      var ac = document.getElementById('template-ac-' + exId);
+      var query = input.value.toLowerCase().trim();
+      var exercises = getExerciseList();
+      var html = '';
+      var equipOrder = ['barbell','dumbbell','machine','cable','bodyweight','cardio','custom'];
+      var equipNames = { barbell: 'Barbell', dumbbell: 'Dumbbell', machine: 'Machine', cable: 'Cable', bodyweight: 'Bodyweight', cardio: 'Cardio', custom: 'Custom' };
+      var hasResults = false;
+
+      equipOrder.forEach(function(equip) {
+        if (!exercises[equip]) return;
+        var matches = exercises[equip].filter(function(item) {
+          return !query || item.name.toLowerCase().indexOf(query) !== -1 || item.muscle.toLowerCase().indexOf(query) !== -1;
+        });
+        if (matches.length > 0) {
+          hasResults = true;
+          html += '<div class="workout-logger__autocomplete-cat">' +
+            '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:' + (equipColors[equip] || '#888') + ';margin-right:4px"></span>' +
+            (equipNames[equip] || equip) + '</div>';
+          matches.forEach(function(item) {
+            html += '<div class="workout-logger__autocomplete-item" onmousedown="selectTemplateExercise(' + exId + ',\'' + item.name.replace(/'/g, "\\'") + '\')">' + item.name + '</div>';
+          });
+        }
+      });
+
+      // Position the dropdown relative to the input
+      var rect = input.getBoundingClientRect();
+      ac.style.top = rect.bottom + 'px';
+      ac.style.left = rect.left + 'px';
+      ac.style.width = rect.width + 'px';
+
+      if (hasResults) {
+        ac.innerHTML = html;
+        ac.classList.add('workout-logger__autocomplete--open');
+      } else {
+        ac.classList.remove('workout-logger__autocomplete--open');
+      }
+    }
+
+    function selectTemplateExercise(exId, name) {
+      document.getElementById('template-ex-name-' + exId).value = name;
+      var ac = document.getElementById('template-ac-' + exId);
+      if (ac) ac.classList.remove('workout-logger__autocomplete--open');
+    }
+
+    function saveTemplate() {
+      var name = document.getElementById('template-name').value.trim();
+      if (!name) return;
+
+      var exercises = [];
+      var rows = document.querySelectorAll('[id^="template-ex-"]:not([id*="-name-"]):not([id*="-sets-"]):not([id*="-ac-"])');
+      rows.forEach(function(row) {
+        var id = row.id.replace('template-ex-', '');
+        var nameInput = document.getElementById('template-ex-name-' + id);
+        var setsInput = document.getElementById('template-ex-sets-' + id);
+        if (!nameInput) return;
+        var exName = nameInput.value.trim();
+        if (!exName) return;
+        var sets = setsInput ? parseInt(setsInput.value) || 3 : 3;
+        exercises.push({ name: exName, sets: sets });
+      });
+
+      if (exercises.length === 0) return;
+
+      var templates = loadTemplates();
+
+      if (editingTemplateId) {
+        var idx = templates.findIndex(function(t) { return t.id === editingTemplateId; });
+        if (idx !== -1) {
+          templates[idx].name = name;
+          templates[idx].exercises = exercises;
+        }
+      } else {
+        templates.push({
+          id: 'tmpl_' + Date.now(),
+          name: name,
+          exercises: exercises,
+          author: userId
+        });
+      }
+
+      saveTemplates(templates);
+      closeTemplateEditor();
+      renderTemplates();
+      schedulePush();
+    }
+
+    function editTemplate(id) {
+      openTemplateEditor(id);
+    }
+
+    function deleteTemplate(id) {
+      var templates = loadTemplates();
+      templates = templates.filter(function(t) { return t.id !== id; });
+      saveTemplates(templates);
+      renderTemplates();
+      schedulePush();
+    }
+
     // ===== Cloud Sync Layer =====
     // Uses GitHub repo as shared database
 
@@ -3620,6 +4154,7 @@
           current: wCurrent
         },
         workouts: loadWorkoutHistory(),
+        templates: loadTemplates(),
         lastSync: new Date().toISOString()
       };
     }
@@ -3628,6 +4163,7 @@
       renderLeaderboard();
       renderPRLeaderboard(activePRTab);
       renderWeightLossLeaderboard(activeWeightLBTab);
+      renderTemplates();
     }
 
     // Get all crew members from shared data (excluding current user)
@@ -3800,6 +4336,9 @@
 
       // Render macrocycle
       renderMacrocycle();
+
+      // Render templates
+      renderTemplates();
 
       // Update challenge timer every minute
       setInterval(updateChallengeTimer, 60000);
