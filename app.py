@@ -9,7 +9,8 @@ from flask import Flask, render_template, session, redirect, url_for, request
 
 from english_word_game import (
     WORDS_1ST_GRADE, WORDS_2ND_GRADE, GRADES,
-    ROUNDS_PER_GAME, get_word_list, get_word_pool, build_choices,
+    ROUNDS_PER_GAME, get_word_list, get_word_pool,
+    build_choices, build_antonym_choices,
 )
 
 app = Flask(__name__)
@@ -22,6 +23,7 @@ def get_game_state():
         session["game"] = {
             "grade": None,
             "difficulty": None,
+            "mode": "synonym",
             "wins": 0,
             "round_num": 0,
             "total_rounds": 0,
@@ -63,15 +65,25 @@ def difficulty():
                            all_count=all_count)
 
 
-@app.route("/start", methods=["POST"])
-def start():
-    """Start a new game session with chosen grade and difficulty."""
+@app.route("/mode", methods=["POST"])
+def mode():
+    """Game mode selection after difficulty is chosen."""
     grade = request.form.get("grade", "2nd")
     difficulty = request.form.get("difficulty", "all")
+    return render_template("mode.html", grade=grade, difficulty=difficulty)
+
+
+@app.route("/start", methods=["POST"])
+def start():
+    """Start a new game session with chosen grade, difficulty, and mode."""
+    grade = request.form.get("grade", "2nd")
+    difficulty = request.form.get("difficulty", "all")
+    mode = request.form.get("mode", "synonym")
     session.clear()
     game = get_game_state()
     game["grade"] = grade
     game["difficulty"] = difficulty
+    game["mode"] = mode
 
     words = get_word_list(grade)
     pool_indices = [i for i, w in enumerate(words) if difficulty == "all" or w["difficulty"] == difficulty]
@@ -92,7 +104,10 @@ def play():
 
     word_idx = game["word_indices"][game["round_num"]]
     word = get_word_by_index(game["grade"], word_idx)
-    choices, correct = build_choices(word)
+    if game.get("mode") == "antonym":
+        choices, correct = build_antonym_choices(word)
+    else:
+        choices, correct = build_choices(word)
 
     session["current_round"] = {
         "word_idx": word_idx,

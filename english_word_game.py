@@ -2289,6 +2289,15 @@ def build_choices(word):
     return choices, correct
 
 
+def build_antonym_choices(word):
+    """Build 4 shuffled choices: 1 correct antonym + 3 antonym distractors."""
+    correct = random.choice(word["antonyms"])
+    wrong = random.sample(word["antonym_distractors"], 3)
+    choices = [correct] + wrong
+    random.shuffle(choices)
+    return choices, correct
+
+
 def play_round(word, round_num, total_rounds):
     """Play one round: show word + definition, pick synonym from 4 choices."""
     choices, correct = build_choices(word)

@@ -11,7 +11,7 @@
 <div class="correct-box">
     <div class="icon">&#10003;</div>
     <h2>Correct!</h2>
-    <p>"<strong>{{ chosen }}</strong>" is a synonym of "<strong>{{ word.name }}</strong>"</p>
+    <p>"<strong>{{ chosen }}</strong>" is {{ "an antonym" if game.mode == "antonym" else "a synonym" }} of "<strong>{{ word.name }}</strong>"</p>
 </div>
 {% else %}
 <div class="incorrect-box">
@@ -41,10 +41,11 @@
         <div class="fact-value"><em>{{ word.example }}</em></div>
     </div>
     <div class="fact-row">
-        <div class="fact-label">All Synonyms</div>
+        <div class="fact-label">All {{ "Antonyms" if game.mode == "antonym" else "Synonyms" }}</div>
         <div class="word-list">
-            {% for syn in word.synonyms %}
-            <span class="word-chip">{{ syn }}</span>
+            {% set word_list = word.antonyms if game.mode == "antonym" else word.synonyms %}
+            {% for w in word_list %}
+            <span class="word-chip">{{ w }}</span>
             {% endfor %}
         </div>
     </div>

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Choose Mode - Word Adventure{% endblock %}
+{% block content %}
+<h1>English Word Adventure</h1>
+<p class="subtitle">{{ grade }} Grade / {{ difficulty|upper }} — Choose Game Mode</p>
+
+<div class="card">
+    <h2>Choose Your Game Mode</h2>
+    <form method="POST" action="/start">
+        <input type="hidden" name="grade" value="{{ grade }}">
+        <input type="hidden" name="difficulty" value="{{ difficulty }}">
+        <button type="submit" name="mode" value="synonym" class="difficulty-btn">
+            <div class="label">Synonym Quiz <span class="badge badge-blue">Classic</span></div>
+            <div class="desc">Pick the word that means the same thing</div>
+        </button>
+        <button type="submit" name="mode" value="antonym" class="difficulty-btn">
+            <div class="label">Antonym Challenge <span class="badge badge-red">New!</span></div>
+            <div class="desc">Pick the word that means the opposite</div>
+        </button>
+    </form>
+</div>
+
+<a href="/" class="btn btn-secondary">Back to Grade Selection</a>
+{% endblock %}

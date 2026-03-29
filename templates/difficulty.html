@@ -6,7 +6,7 @@
 
 <div class="card">
     <h2>Choose Your Difficulty</h2>
-    <form method="POST" action="/start">
+    <form method="POST" action="/mode">
         <input type="hidden" name="grade" value="{{ grade }}">
         {% if easy_count > 0 %}
         <button type="submit" name="difficulty" value="easy" class="difficulty-btn">

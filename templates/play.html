@@ -11,6 +11,7 @@
     <div class="status">
         <span class="badge badge-blue">{{ game.grade }} Grade</span>
         <span class="badge badge-purple">{{ game.difficulty|upper }}</span>
+        <span class="badge badge-{{ 'red' if game.mode == 'antonym' else 'blue' }}">{{ "Antonym" if game.mode == "antonym" else "Synonym" }}</span>
         {% if game.streak >= 2 %}
         <span class="badge badge-amber">Streak: {{ game.streak }}</span>
         {% endif %}
@@ -21,7 +22,7 @@
         "{{ word.definition }}"
     </p>
 
-    <p style="font-weight: 600; margin-bottom: 12px;">Which is a SYNONYM?</p>
+    <p style="font-weight: 600; margin-bottom: 12px;">Which is {{ "an ANTONYM" if game.mode == "antonym" else "a SYNONYM" }}?</p>
 
     <form method="POST" action="/answer">
         {% for choice in choices %}
