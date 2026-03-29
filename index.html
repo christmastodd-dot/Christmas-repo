@@ -1005,6 +1005,183 @@ const LEVELS = [
       { x: 9800, y: 260, w: 280, h: 60 },
     ],
   },
+  { // Level 6 — Frozen Falls (icy slippery clouds + snowfall)
+    name: 'Frozen Falls',
+    bgType: 'frozen',
+    worldWidth: 11500,
+    finalCloud: { x: 10800, y: 260, w: 250 },
+    potX: 10970,
+    potY: 210,
+    wind: { gustInterval: [5, 8], gustDuration: 1.5, gustForce: 1.3 },
+    unicorns: [
+      { cloudIndex: 18, offsetX: 185, offsetY: -130 },
+    ],
+    crows: [
+      { cloudIndex: 4,  speed: 1.5 },
+      { cloudIndex: 9,  speed: 1.7 },
+      { cloudIndex: 13, speed: 1.6 },
+      { cloudIndex: 17, speed: 1.8 },
+      { cloudIndex: 22, speed: 1.7 },
+      { cloudIndex: 26, speed: 1.9 },
+      { cloudIndex: 30, speed: 1.6 },
+      { cloudIndex: 34, speed: 2.0 },
+      { cloudIndex: 37, speed: 1.8 },
+      { cloudIndex: 40, speed: 1.7 },
+    ],
+    clouds: [
+      // --- Section 1 (0-1800) ---
+      { x: 0,    y: 340, w: 200, h: 60 },
+      { x: 270,  y: 310, w: 140, h: 50, icy: true },
+      { x: 490,  y: 280, w: 120, h: 50, moveType:'h', moveRange:50, moveSpeed:1.5 },
+      { x: 710,  y: 300, w: 130, h: 50, icy: true },
+      { x: 940,  y: 270, w: 110, h: 45, moveType:'v', moveRange:35, moveSpeed:1.4 },
+      { x: 1160, y: 290, w: 140, h: 50, disappearing: true },
+      { x: 1390, y: 260, w: 120, h: 50, icy: true },
+      { x: 1620, y: 300, w: 110, h: 45, moveType:'h', moveRange:60, moveSpeed:1.8 },
+      // --- Section 2 (1800-3600) ---
+      { x: 1830, y: 310, w: 170, h: 55 },
+      { x: 2070, y: 270, w: 110, h: 45, icy: true, moveType:'h', moveRange:55, moveSpeed:1.6 },
+      { x: 2300, y: 290, w: 120, h: 50, disappearing: true },
+      { x: 2530, y: 260, w: 130, h: 50, icy: true },
+      { x: 2760, y: 300, w: 100, h: 45, moveType:'v', moveRange:40, moveSpeed:1.5 },
+      { x: 2980, y: 270, w: 120, h: 50, icy: true },
+      { x: 3210, y: 290, w: 110, h: 45, moveType:'h', moveRange:65, moveSpeed:2.0 },
+      { x: 3440, y: 260, w: 130, h: 50, disappearing: true },
+      // --- Section 3 (3600-5400) ---
+      { x: 3640, y: 310, w: 180, h: 55 },
+      { x: 3890, y: 270, w: 110, h: 45, icy: true, moveType:'h', moveRange:55, moveSpeed:1.7 },
+      { x: 4120, y: 300, w: 120, h: 50, bouncy: true },
+      { x: 4340, y: 190, w: 100, h: 45, icy: true },
+      { x: 4560, y: 260, w: 130, h: 50, disappearing: true },
+      { x: 4790, y: 290, w: 110, h: 45, moveType:'v', moveRange:45, moveSpeed:1.6 },
+      { x: 5020, y: 270, w: 120, h: 50, icy: true },
+      { x: 5250, y: 300, w: 140, h: 50, moveType:'h', moveRange:70, moveSpeed:2.0 },
+      // --- Section 4 (5400-7400) ---
+      { x: 5460, y: 260, w: 100, h: 45, icy: true, disappearing: true },
+      { x: 5690, y: 290, w: 120, h: 50, moveType:'h', moveRange:60, moveSpeed:1.8 },
+      { x: 5920, y: 270, w: 110, h: 45, icy: true },
+      { x: 6150, y: 310, w: 160, h: 55 },
+      { x: 6390, y: 260, w: 100, h: 45, bouncy: true },
+      { x: 6610, y: 180, w: 120, h: 50, icy: true, moveType:'v', moveRange:35, moveSpeed:1.5 },
+      { x: 6840, y: 290, w: 110, h: 45, disappearing: true },
+      { x: 7070, y: 270, w: 130, h: 50, icy: true },
+      // --- Section 5 (7400-9200) ---
+      { x: 7300, y: 300, w: 120, h: 50, moveType:'h', moveRange:65, moveSpeed:2.1 },
+      { x: 7540, y: 260, w: 100, h: 45, icy: true, disappearing: true },
+      { x: 7770, y: 280, w: 130, h: 50, moveType:'v', moveRange:40, moveSpeed:1.7 },
+      { x: 8000, y: 310, w: 160, h: 55 },
+      { x: 8240, y: 270, w: 110, h: 45, icy: true, moveType:'h', moveRange:55, moveSpeed:1.9 },
+      { x: 8470, y: 290, w: 120, h: 50, disappearing: true },
+      { x: 8700, y: 260, w: 100, h: 45, icy: true },
+      { x: 8930, y: 280, w: 130, h: 50, bouncy: true },
+      // --- Section 6: Final approach (9200-10800) ---
+      { x: 9160, y: 170, w: 110, h: 45, icy: true },
+      { x: 9390, y: 300, w: 120, h: 50, moveType:'h', moveRange:60, moveSpeed:1.8 },
+      { x: 9620, y: 270, w: 100, h: 45, icy: true, disappearing: true },
+      { x: 9850, y: 290, w: 130, h: 50 },
+      { x: 10080, y: 260, w: 110, h: 45, moveType:'v', moveRange:35, moveSpeed:2.0 },
+      { x: 10310, y: 280, w: 120, h: 50, icy: true },
+      { x: 10550, y: 300, w: 140, h: 50 },
+      // --- Final platform ---
+      { x: 10800, y: 260, w: 250, h: 60 },
+    ],
+  },
+  { // Level 7 — Golden Summit (tiny platforms, fast crumble, max difficulty)
+    name: 'Golden Summit',
+    bgType: 'golden',
+    worldWidth: 12500,
+    finalCloud: { x: 11800, y: 260, w: 280 },
+    potX: 11990,
+    potY: 210,
+    wind: { gustInterval: [3, 5], gustDuration: 2.5, gustForce: 2.0 },
+    unicorns: [
+      { cloudIndex: 14, offsetX: 180, offsetY: -135 },
+      { cloudIndex: 35, offsetX: 190, offsetY: -130 },
+    ],
+    crows: [
+      { cloudIndex: 3,  speed: 1.8 },
+      { cloudIndex: 7,  speed: 2.0 },
+      { cloudIndex: 11, speed: 1.9 },
+      { cloudIndex: 16, speed: 2.1 },
+      { cloudIndex: 20, speed: 1.8 },
+      { cloudIndex: 24, speed: 2.0 },
+      { cloudIndex: 28, speed: 2.2 },
+      { cloudIndex: 32, speed: 1.9 },
+      { cloudIndex: 37, speed: 2.1 },
+      { cloudIndex: 41, speed: 2.0 },
+      { cloudIndex: 44, speed: 2.2 },
+    ],
+    clouds: [
+      // --- Section 1: Tiny intro (0-1800) ---
+      { x: 0,    y: 340, w: 180, h: 55 },
+      { x: 250,  y: 310, w: 80,  h: 40 },
+      { x: 420,  y: 280, w: 70,  h: 40, moveType:'h', moveRange:40, moveSpeed:1.6 },
+      { x: 600,  y: 300, w: 90,  h: 40, icy: true },
+      { x: 780,  y: 270, w: 75,  h: 40, disappearing: true },
+      { x: 950,  y: 290, w: 80,  h: 40, moveType:'v', moveRange:30, moveSpeed:1.4 },
+      { x: 1130, y: 260, w: 70,  h: 40, icy: true },
+      { x: 1310, y: 300, w: 90,  h: 40 },
+      { x: 1490, y: 270, w: 75,  h: 40, moveType:'h', moveRange:50, moveSpeed:1.8 },
+      { x: 1680, y: 310, w: 150, h: 50 },
+      // --- Section 2: Crumble gauntlet (1800-3600) ---
+      { x: 1880, y: 280, w: 80,  h: 40, disappearing: true },
+      { x: 2060, y: 260, w: 70,  h: 40, moveType:'h', moveRange:55, moveSpeed:2.0 },
+      { x: 2250, y: 290, w: 85,  h: 40, disappearing: true },
+      { x: 2430, y: 270, w: 75,  h: 40, icy: true },
+      { x: 2610, y: 300, w: 80,  h: 40, bouncy: true },
+      { x: 2800, y: 190, w: 70,  h: 40, moveType:'v', moveRange:35, moveSpeed:1.7 },
+      { x: 2990, y: 260, w: 90,  h: 40, disappearing: true },
+      { x: 3180, y: 310, w: 160, h: 50 },
+      { x: 3420, y: 270, w: 75,  h: 40, moveType:'h', moveRange:60, moveSpeed:2.1 },
+      // --- Section 3: Mixed madness (3600-5400) ---
+      { x: 3610, y: 290, w: 80,  h: 40, icy: true },
+      { x: 3790, y: 260, w: 70,  h: 40, disappearing: true },
+      { x: 3970, y: 300, w: 85,  h: 40, moveType:'h', moveRange:65, moveSpeed:1.9 },
+      { x: 4160, y: 270, w: 75,  h: 40, bouncy: true },
+      { x: 4350, y: 180, w: 80,  h: 40, icy: true, moveType:'v', moveRange:30, moveSpeed:1.5 },
+      { x: 4540, y: 290, w: 70,  h: 40, disappearing: true },
+      { x: 4720, y: 310, w: 150, h: 50 },
+      { x: 4950, y: 260, w: 80,  h: 40, moveType:'h', moveRange:55, moveSpeed:2.0 },
+      { x: 5140, y: 280, w: 75,  h: 40, icy: true },
+      // --- Section 4: Harder (5400-7400) ---
+      { x: 5330, y: 300, w: 70,  h: 40, disappearing: true },
+      { x: 5510, y: 270, w: 85,  h: 40, moveType:'v', moveRange:40, moveSpeed:1.8 },
+      { x: 5700, y: 290, w: 75,  h: 40, icy: true, moveType:'h', moveRange:50, moveSpeed:2.1 },
+      { x: 5890, y: 260, w: 80,  h: 40, disappearing: true },
+      { x: 6080, y: 310, w: 160, h: 50 },
+      { x: 6320, y: 270, w: 70,  h: 40, bouncy: true },
+      { x: 6510, y: 180, w: 80,  h: 40, moveType:'h', moveRange:60, moveSpeed:2.0 },
+      { x: 6700, y: 290, w: 75,  h: 40, icy: true, disappearing: true },
+      { x: 6890, y: 260, w: 90,  h: 40 },
+      { x: 7080, y: 300, w: 70,  h: 40, moveType:'v', moveRange:35, moveSpeed:1.9 },
+      // --- Section 5: The gauntlet (7400-9600) ---
+      { x: 7280, y: 270, w: 75,  h: 40, icy: true },
+      { x: 7470, y: 290, w: 80,  h: 40, disappearing: true },
+      { x: 7660, y: 260, w: 70,  h: 40, moveType:'h', moveRange:70, moveSpeed:2.2 },
+      { x: 7850, y: 310, w: 150, h: 50 },
+      { x: 8090, y: 270, w: 75,  h: 40, bouncy: true },
+      { x: 8280, y: 170, w: 80,  h: 40, icy: true, moveType:'v', moveRange:40, moveSpeed:2.0 },
+      { x: 8470, y: 290, w: 70,  h: 40, disappearing: true },
+      { x: 8660, y: 260, w: 85,  h: 40, moveType:'h', moveRange:55, moveSpeed:2.1 },
+      { x: 8850, y: 280, w: 75,  h: 40, icy: true },
+      // --- Section 6: Final (9600-11800) ---
+      { x: 9050, y: 300, w: 80,  h: 40, disappearing: true },
+      { x: 9240, y: 270, w: 70,  h: 40, moveType:'h', moveRange:60, moveSpeed:2.0 },
+      { x: 9430, y: 310, w: 160, h: 50 },
+      { x: 9670, y: 260, w: 75,  h: 40, icy: true, moveType:'v', moveRange:35, moveSpeed:1.8 },
+      { x: 9860, y: 290, w: 80,  h: 40, disappearing: true },
+      { x: 10050, y: 270, w: 70, h: 40, bouncy: true },
+      { x: 10240, y: 180, w: 85, h: 40, icy: true },
+      { x: 10430, y: 300, w: 75, h: 40, moveType:'h', moveRange:50, moveSpeed:2.2 },
+      { x: 10620, y: 260, w: 80, h: 40, disappearing: true },
+      { x: 10810, y: 280, w: 130, h: 45 },
+      { x: 11050, y: 300, w: 100, h: 40, moveType:'h', moveRange:55, moveSpeed:1.9 },
+      { x: 11280, y: 270, w: 75, h: 40, icy: true },
+      { x: 11510, y: 290, w: 140, h: 50 },
+      // --- Final platform ---
+      { x: 11800, y: 260, w: 280, h: 60 },
+    ],
+  },
 ];
 
 // ─────────────────────────────────────────────
@@ -1330,7 +1507,21 @@ function update() {
 
     if (movingLeft)  { player.vx = -MOVE_SPEED; player.facingLeft = true; }
     else if (movingRight) { player.vx =  MOVE_SPEED; player.facingLeft = false; }
-    else             { player.vx = 0; }
+    else {
+      // icy cloud: slide with friction instead of instant stop
+      if (player.ridingCloud && player.ridingCloud.icy) {
+        player.vx *= 0.94;
+        if (Math.abs(player.vx) < 0.2) player.vx = 0;
+      } else {
+        player.vx = 0;
+      }
+    }
+
+    // on icy cloud: input blends with momentum instead of overriding
+    if (player.ridingCloud && player.ridingCloud.icy && (movingLeft || movingRight)) {
+      const target = movingLeft ? -MOVE_SPEED : MOVE_SPEED;
+      player.vx += (target - player.vx) * 0.12;
+    }
 
     // gravity (reduced during grace period)
     if (player.graceTimer > 0) {
@@ -1479,7 +1670,18 @@ function drawBackground() {
   const bg = levelData.bgType;
   const sky = ctx.createLinearGradient(0, 0, 0, H);
 
-  if (bg === 'aurora') {
+  if (bg === 'golden') {
+    sky.addColorStop(0,   '#1a0a00');
+    sky.addColorStop(0.2, '#4a1a00');
+    sky.addColorStop(0.5, '#cc6600');
+    sky.addColorStop(0.8, '#ffb300');
+    sky.addColorStop(1,   '#ffe082');
+  } else if (bg === 'frozen') {
+    sky.addColorStop(0,   '#0a1028');
+    sky.addColorStop(0.3, '#1a2848');
+    sky.addColorStop(0.6, '#2a4068');
+    sky.addColorStop(1,   '#4a6888');
+  } else if (bg === 'aurora') {
     sky.addColorStop(0,   '#0a0a1a');
     sky.addColorStop(0.3, '#0d1530');
     sky.addColorStop(0.6, '#1a1040');
@@ -1507,8 +1709,30 @@ function drawBackground() {
   ctx.fillStyle = sky;
   ctx.fillRect(0, 0, W, H);
 
+  // snowfall for frozen level
+  if (bg === 'frozen' && state === 'playing') {
+    if (animTick % 2 === 0) {
+      particles.push({
+        x: camX + Math.random() * W, y: -5,
+        vx: -0.5 + Math.random(), vy: 1 + Math.random() * 2,
+        life: 1.5, color: '#fff', size: 2 + Math.random() * 3,
+      });
+    }
+  }
+
+  // golden sunrise glow
+  if (bg === 'golden') {
+    ctx.save();
+    const glow = ctx.createRadialGradient(W*0.5, H*0.85, 20, W*0.5, H*0.85, W*0.7);
+    glow.addColorStop(0, 'rgba(255,220,100,0.25)');
+    glow.addColorStop(1, 'rgba(255,180,0,0)');
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, 0, W, H);
+    ctx.restore();
+  }
+
   // stars for night sky levels
-  if (bg === 'starry' || bg === 'aurora') {
+  if (bg === 'starry' || bg === 'aurora' || bg === 'frozen' || bg === 'golden') {
     ctx.fillStyle = '#fff';
     // seeded star positions
     const starSeed = 12345;
@@ -1560,7 +1784,7 @@ function drawBackground() {
   }
 
   // hills (parallax)
-  const hillColor = bg === 'aurora' ? '#0a0a14' : bg === 'starry' ? '#0e0e1e' : bg === 'storm' ? '#1a1a28' : bg === 'sunset' ? '#4a2c0a' : '#6dbf5b';
+  const hillColor = bg === 'golden' ? '#3a1a00' : bg === 'frozen' ? '#0e1830' : bg === 'aurora' ? '#0a0a14' : bg === 'starry' ? '#0e0e1e' : bg === 'storm' ? '#1a1a28' : bg === 'sunset' ? '#4a2c0a' : '#6dbf5b';
   ctx.fillStyle = hillColor;
   const hillOff = -(camX * 0.3) % W;
   for (let hx = hillOff - W; hx < W * 2; hx += W) {
@@ -1572,12 +1796,12 @@ function drawBackground() {
     ctx.ellipse(hx + W*0.9,  H + 10, 180, 100, 0, 0, Math.PI*2); ctx.fill();
   }
 
-  const groundColor = bg === 'aurora' ? '#080810' : bg === 'starry' ? '#0a0a16' : bg === 'storm' ? '#151520' : bg === 'sunset' ? '#3e2409' : '#5aad48';
+  const groundColor = bg === 'golden' ? '#2a1200' : bg === 'frozen' ? '#0a1225' : bg === 'aurora' ? '#080810' : bg === 'starry' ? '#0a0a16' : bg === 'storm' ? '#151520' : bg === 'sunset' ? '#3e2409' : '#5aad48';
   ctx.fillStyle = groundColor;
   ctx.fillRect(0, H - 30, W, 30);
 
   // distant clouds (cosmetic, parallax) — 50% smaller, bob up and down
-  const cloudColor = bg === 'aurora' ? 'rgba(80,40,120,0.35)' : bg === 'starry' ? 'rgba(50,50,90,0.4)' : bg === 'storm' ? 'rgba(60,50,80,0.5)' : bg === 'sunset' ? 'rgba(255,180,100,0.4)' : 'rgba(255,255,255,0.5)';
+  const cloudColor = bg === 'golden' ? 'rgba(255,180,50,0.3)' : bg === 'frozen' ? 'rgba(100,140,200,0.4)' : bg === 'aurora' ? 'rgba(80,40,120,0.35)' : bg === 'starry' ? 'rgba(50,50,90,0.4)' : bg === 'storm' ? 'rgba(60,50,80,0.5)' : bg === 'sunset' ? 'rgba(255,180,100,0.4)' : 'rgba(255,255,255,0.5)';
   ctx.fillStyle = cloudColor;
   const bgCloudOff = -(camX * 0.15) % W;
   const t = Date.now() / 1000;
@@ -1809,6 +2033,20 @@ function draw() {
       ctx.lineTo(bsx + c.w/2, c.y - 8 + bounce);
       ctx.lineTo(bsx + c.w/2 + 8, c.y - 2 + bounce);
       ctx.stroke();
+    }
+    // icy cloud indicator — blue tint overlay + ice crystals
+    if (c.icy) {
+      const isx = c.x - camX;
+      ctx.fillStyle = 'rgba(100,180,255,0.2)';
+      ctx.beginPath(); ctx.ellipse(isx + c.w/2, c.y + c.h*0.4, c.w*0.4, c.h*0.4, 0, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = 'rgba(200,230,255,0.6)';
+      const it = Date.now() / 500;
+      for (let i = 0; i < 3; i++) {
+        const ix = isx + c.w * (0.2 + i * 0.3) + Math.sin(it + i) * 3;
+        const iy = c.y + c.h * 0.3;
+        ctx.fillRect(ix - 1, iy - 3, 2, 6);
+        ctx.fillRect(ix - 3, iy - 1, 6, 2);
+      }
     }
     ctx.restore();
   }
