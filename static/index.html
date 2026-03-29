@@ -169,6 +169,9 @@ let invincibleTimer, tutorialTimer, playerMoving = false, walkTimer = 0;
 let kbX, kbY, kbVX, kbVY, kbTimer;
 let goats = [];
 let confetti = [];
+let hasFish = false;       // Level 2: player carries a fish
+let l2Obstacles = [];      // Level 2: ice rocks to jump over
+let snowParticles = [];    // Level 2: falling snow effect
 let keys = {};
 let lastTime = 0;
 
@@ -218,7 +221,28 @@ function resetLevel() {
       });
     }
   }
-  // Level 2 setup will be added in milestone 2
+  // Level 2 setup
+  hasFish = (currentLevel === 2);
+  l2Obstacles = [];
+  if (currentLevel === 2) {
+    // Ice rocks/boulders to jump over in the first half
+    const obsPositions = [600, 1200, 1900, 2600];
+    for (const wx of obsPositions) {
+      l2Obstacles.push({ wx, wy: trailY(wx), width: 36, height: 30, type: 'ice' });
+    }
+    // Init falling snow
+    snowParticles = [];
+    for (let i = 0; i < 60; i++) {
+      snowParticles.push({
+        x: Math.random() * (W + 200) - 100,
+        y: Math.random() * H,
+        r: 1.5 + Math.random() * 3,
+        vx: -10 + Math.random() * 20,
+        vy: 20 + Math.random() * 40,
+        wobble: Math.random() * Math.PI * 2
+      });
+    }
+  }
 
   kbTimer = 0;
   confetti = [];
@@ -741,6 +765,104 @@ function drawSanta(sx, sy) {
   c.beginPath(); c.arc(bx + 14, by - 30, 5, 0, Math.PI*2); c.fill();
 }
 
+// ── Level 2 drawing ──────────────────────────────────────────────────────
+function drawFallingSnow(dt) {
+  ctx.fillStyle = 'rgba(255,255,255,0.8)';
+  for (const s of snowParticles) {
+    s.x += s.vx * dt;
+    s.y += s.vy * dt;
+    s.wobble += dt * 2;
+    s.x += Math.sin(s.wobble) * 0.5;
+    if (s.y > H + 10) { s.y = -10; s.x = Math.random() * (W + 200) - 100; }
+    if (s.x < -20) s.x = W + 20;
+    if (s.x > W + 20) s.x = -20;
+    ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2); ctx.fill();
+  }
+}
+
+function drawIceObstacle(sx, sy) {
+  const c = ctx;
+  // Icy boulder
+  c.fillStyle = 'rgb(180,210,230)';
+  c.beginPath();
+  c.moveTo(sx - 18, sy);
+  c.lineTo(sx - 14, sy - 22);
+  c.lineTo(sx + 2, sy - 28);
+  c.lineTo(sx + 16, sy - 20);
+  c.lineTo(sx + 18, sy);
+  c.closePath(); c.fill();
+  // Highlight facets
+  c.fillStyle = 'rgba(255,255,255,0.35)';
+  c.beginPath();
+  c.moveTo(sx - 12, sy - 18);
+  c.lineTo(sx + 2, sy - 28);
+  c.lineTo(sx + 6, sy - 14);
+  c.closePath(); c.fill();
+  // Darker edge
+  c.fillStyle = 'rgba(100,140,170,0.4)';
+  c.beginPath();
+  c.moveTo(sx + 6, sy - 14);
+  c.lineTo(sx + 16, sy - 20);
+  c.lineTo(sx + 18, sy);
+  c.lineTo(sx + 4, sy);
+  c.closePath(); c.fill();
+  // Snow on top
+  c.fillStyle = 'rgba(255,255,255,0.7)';
+  c.beginPath();
+  c.ellipse(sx, sy - 24, 14, 4, 0, Math.PI, 0);
+  c.fill();
+}
+
+function drawL2Obstacles(camWX, camWY) {
+  for (const ob of l2Obstacles) {
+    const [sx, sy] = worldToScreen(ob.wx, ob.wy, camWX, camWY);
+    if (sx < -50 || sx > W + 50) continue;
+    drawIceObstacle(Math.round(sx), Math.round(sy));
+  }
+}
+
+function drawEndShelter(camWX, camWY) {
+  const [sx, sy] = worldToScreen(levelCfg.length, trailY(levelCfg.length), camWX, camWY);
+  const c = ctx;
+  // Wooden shelter/lean-to
+  // Back wall
+  c.fillStyle = 'rgb(110,75,40)';
+  c.fillRect(sx - 25, sy - 50, 50, 50);
+  // Planks
+  c.strokeStyle = 'rgb(85,55,30)'; c.lineWidth = 1;
+  for (let i = 0; i < 5; i++) {
+    c.beginPath(); c.moveTo(sx - 25, sy - 50 + i*10); c.lineTo(sx + 25, sy - 50 + i*10); c.stroke();
+  }
+  // Sloped roof
+  c.fillStyle = 'rgb(90,60,30)';
+  c.beginPath();
+  c.moveTo(sx - 30, sy - 50);
+  c.lineTo(sx + 30, sy - 50);
+  c.lineTo(sx + 35, sy - 40);
+  c.lineTo(sx - 35, sy - 55);
+  c.closePath(); c.fill();
+  // Snow on roof
+  c.fillStyle = 'rgba(255,255,255,0.6)';
+  c.beginPath();
+  c.moveTo(sx - 34, sy - 55);
+  c.lineTo(sx + 34, sy - 41);
+  c.lineTo(sx + 32, sy - 38);
+  c.quadraticCurveTo(sx, sy - 50, sx - 32, sy - 52);
+  c.closePath(); c.fill();
+  // Door opening
+  c.fillStyle = 'rgb(50,35,20)';
+  c.fillRect(sx - 8, sy - 36, 16, 36);
+  // Warm glow
+  c.fillStyle = 'rgba(255,200,100,0.2)';
+  c.fillRect(sx - 6, sy - 34, 12, 32);
+  // "SAFE" sign
+  c.fillStyle = 'rgb(180,140,80)';
+  c.beginPath(); c.roundRect(sx - 16, sy - 62, 32, 12, 2); c.fill();
+  c.fillStyle = 'rgb(60,40,20)'; c.font = 'bold 9px Arial'; c.textAlign = 'center';
+  c.fillText('SAFE!', sx, sy - 53);
+  c.textAlign = 'left';
+}
+
 function drawSummitFlag(camWX, camWY) {
   const [sx, sy] = worldToScreen(levelCfg.length, trailY(levelCfg.length), camWX, camWY);
   // Pole
@@ -777,7 +899,7 @@ function drawSummitFlag(camWX, camWY) {
   ctx.closePath(); ctx.fill();
 }
 
-function drawArm(c, shoulderX, shoulderY, angle, flip) {
+function drawArm(c, shoulderX, shoulderY, angle, flip, carryFish) {
   c.save();
   c.translate(shoulderX, shoulderY);
   c.rotate(angle);
@@ -790,7 +912,37 @@ function drawArm(c, shoulderX, shoulderY, angle, flip) {
   // Hand
   c.fillStyle = 'rgb(245,205,170)';
   c.beginPath(); c.ellipse(0, 24, 4, 4, 0, 0, Math.PI*2); c.fill();
+  // Fish held in hand
+  if (carryFish) {
+    drawFish(c, 0, 22);
+  }
   c.restore();
+}
+
+function drawFish(c, fx, fy) {
+  // Body — silvery blue
+  c.fillStyle = 'rgb(140,180,210)';
+  c.beginPath();
+  c.ellipse(fx, fy, 14, 6, 0, 0, Math.PI*2);
+  c.fill();
+  // Belly highlight
+  c.fillStyle = 'rgb(190,210,230)';
+  c.beginPath();
+  c.ellipse(fx, fy + 2, 10, 3, 0, 0, Math.PI*2);
+  c.fill();
+  // Tail
+  c.fillStyle = 'rgb(120,160,195)';
+  c.beginPath();
+  c.moveTo(fx + 12, fy);
+  c.lineTo(fx + 22, fy - 6);
+  c.lineTo(fx + 22, fy + 6);
+  c.closePath(); c.fill();
+  // Eye
+  c.fillStyle = 'rgb(30,30,30)';
+  c.beginPath(); c.arc(fx - 8, fy - 1, 1.5, 0, Math.PI*2); c.fill();
+  // Mouth
+  c.strokeStyle = 'rgb(100,130,160)'; c.lineWidth = 0.8;
+  c.beginPath(); c.arc(fx - 13, fy, 2, -0.5, 0.5); c.stroke();
 }
 
 function drawPlayer(sx, sy, right, flash, moving, walkOffset) {
@@ -914,7 +1066,7 @@ function drawPlayer(sx, sy, right, flash, moving, walkOffset) {
   c.beginPath(); c.ellipse(sx, by - 42, 10, 4, 0, 0, Math.PI*2); c.stroke();
 
   // ── 6. Near arm (closest to viewer, in front) ───────────────────────────
-  drawArm(c, sx - f*10, by - 32, nearArmAngle, f);
+  drawArm(c, sx - f*10, by - 32, nearArmAngle, f, hasFish);
 
   // ── 7. Head from behind (no face — simple circle) ────────────────────────
   // Neck
@@ -1622,6 +1774,7 @@ function update(dt) {
   // Collision → knockback
   const pRect = { x: playerWX - 14, y: playerWY - 48, w: 28, h: 50 };
   if (invincibleTimer <= 0) {
+    // Level 1: goat collision
     for (const g of goats) {
       if (!g.active) continue;
       const gRect = { x: g.wx - g.width/2, y: g.wy - g.height, w: g.width, h: g.height };
@@ -1629,13 +1782,29 @@ function update(dt) {
         lives--;
         g.active = false;
         if (lives <= 0) { onGameOver(); return; }
-        // Launch knockback — fly back and down the slope
         kbX = playerWX; kbY = playerWY;
-        kbVX = -(facingRight ? 1 : -1) * 300;  // pushed back
-        kbVY = -500;                             // launched upward
+        kbVX = -(facingRight ? 1 : -1) * 300;
+        kbVY = -500;
         kbTimer = 2.0;
         state = 'knockback';
         return;
+      }
+    }
+    // Level 2: ice obstacle collision (only when on the ground — jumping over is safe)
+    if (currentLevel === 2 && onGround) {
+      for (const ob of l2Obstacles) {
+        const oRect = { x: ob.wx - ob.width/2, y: ob.wy - ob.height, w: ob.width, h: ob.height };
+        if (rectsOverlap(pRect, oRect)) {
+          lives--;
+          if (lives <= 0) { onGameOver(); return; }
+          kbX = playerWX; kbY = playerWY;
+          kbVX = -(facingRight ? 1 : -1) * 200;
+          kbVY = -400;
+          kbTimer = 1.5;
+          invincibleTimer = INVINCIBILITY_TIME;
+          state = 'knockback';
+          return;
+        }
       }
     }
   }
@@ -1681,19 +1850,29 @@ function draw(dt) {
     // so the trail stays visible while the player flies off
   }
 
-  drawGradientSky();
+  if (currentLevel === 2) {
+    // Overcast snowy sky
+    const grad = ctx.createLinearGradient(0, 0, 0, H);
+    grad.addColorStop(0, 'rgb(160,170,190)');
+    grad.addColorStop(0.5, 'rgb(190,200,215)');
+    grad.addColorStop(1, 'rgb(220,225,235)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+  } else {
+    drawGradientSky();
+  }
   drawClouds(camWX, camWY, progress);
   drawDistantMountains(camWX, camWY);
   drawMidMountains(camWX, camWY);
-  drawTerrain(camWX, camWY, progress);
+  drawTerrain(camWX, camWY, currentLevel === 2 ? 1.0 : progress);
   if (currentLevel === 1) {
     drawAlpineItems(camWX, camWY);
     drawTrees(camWX, camWY, progress);
     drawSummitFlag(camWX, camWY);
   } else {
-    // Level 2: snowy trees everywhere, end marker (to be expanded in milestone 2)
-    drawTrees(camWX, camWY, 1.0); // pass progress=1.0 to force full snow on all trees
-    drawSummitFlag(camWX, camWY);
+    drawTrees(camWX, camWY, 1.0);
+    drawL2Obstacles(camWX, camWY);
+    drawEndShelter(camWX, camWY);
   }
 
   for (const g of goats) {
@@ -1716,6 +1895,9 @@ function draw(dt) {
     const [psx, psy] = worldToScreen(playerWX, playerWY, camWX, camWY);
     drawPlayer(Math.round(psx), Math.round(psy), facingRight, invincibleTimer > 0, playerMoving, walkTimer);
   }
+
+  // Falling snow (Level 2) — drawn over everything for atmosphere
+  if (currentLevel === 2) drawFallingSnow(dt);
 
   drawHearts(lives);
   drawProgressBar(progress);
