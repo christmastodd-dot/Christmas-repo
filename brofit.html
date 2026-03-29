@@ -4158,8 +4158,9 @@
               var repsInput = row.querySelector('[data-field="reps"]');
               var weightInput = row.querySelector('[data-field="weight"]');
               var reps = repsInput ? parseInt(repsInput.value) || 0 : 0;
-              var weight = weightInput ? parseFloat(weightInput.value) || 0 : 0;
-              var setData = { reps: reps, weight: weight };
+              var rawW = weightInput ? weightInput.value.trim() : '';
+              var weight = rawW !== '' ? parseFloat(rawW) || 0 : null;
+              var setData = { reps: reps, weight: weight !== null ? weight : 0 };
 
               // For BW, capture the mode
               if (inputType === 'bw') {
@@ -4170,7 +4171,7 @@
                 }
               }
 
-              if (reps > 0 || weight > 0) {
+              if (reps > 0 || weight !== null) {
                 sets.push(setData);
               }
             }
@@ -4268,7 +4269,7 @@
               return bwStr;
             } else {
               totalVol += (s.reps || 0) * (s.weight || 0);
-              return s.reps + (s.weight ? ' × ' + s.weight + ' lbs' : ' reps');
+              return s.weight || s.weight === 0 ? s.reps + ' × ' + s.weight + ' lbs' : s.reps + ' reps';
             }
           }).join(' &nbsp;|&nbsp; ');
           exHtml += '<div class="workout-history__sets">' + setsStr + '</div>';
@@ -4368,7 +4369,7 @@
               return bwStr;
             } else {
               totalVol += (s.reps || 0) * (s.weight || 0);
-              return s.reps + (s.weight ? ' × ' + s.weight + ' lbs' : ' reps');
+              return s.weight || s.weight === 0 ? s.reps + ' × ' + s.weight + ' lbs' : s.reps + ' reps';
             }
           }).join(' &nbsp;|&nbsp; ');
           exHtml += '<div class="workout-history__sets">' + setsStr + '</div>';
@@ -4582,13 +4583,15 @@
             if (dur2) sets.push({ duration: dur2 });
           } else if (iType === 'bw') {
             var reps = parseInt(row.querySelector('[data-field="reps"]').value) || 0;
-            var weight = parseFloat(row.querySelector('[data-field="weight"]').value) || 0;
+            var rawBw = row.querySelector('[data-field="weight"]').value.trim();
+            var weight = rawBw !== '' ? parseFloat(rawBw) || 0 : null;
             var mode = row.querySelector('[data-field="bwMode"]').value;
-            if (reps > 0 || weight > 0) sets.push({ reps: reps, weight: weight, bwMode: mode });
+            if (reps > 0 || weight !== null) sets.push({ reps: reps, weight: weight !== null ? weight : 0, bwMode: mode });
           } else {
             var reps2 = parseInt(row.querySelector('[data-field="reps"]').value) || 0;
-            var weight2 = parseFloat(row.querySelector('[data-field="weight"]').value) || 0;
-            if (reps2 > 0 || weight2 > 0) sets.push({ reps: reps2, weight: weight2 });
+            var rawW2 = row.querySelector('[data-field="weight"]').value.trim();
+            var weight2 = rawW2 !== '' ? parseFloat(rawW2) || 0 : null;
+            if (reps2 > 0 || weight2 !== null) sets.push({ reps: reps2, weight: weight2 !== null ? weight2 : 0 });
           }
         });
 
