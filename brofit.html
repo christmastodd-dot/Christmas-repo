@@ -202,23 +202,6 @@
       margin-bottom: 12px;
     }
 
-    .profile__name-input {
-      background: var(--bg-surface);
-      border: 1px solid var(--text-muted);
-      border-radius: var(--radius-sm);
-      color: var(--text-primary);
-      font-family: var(--font-body);
-      font-size: 0.95rem;
-      font-weight: 600;
-      padding: 8px 12px;
-      width: 60%;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    .profile__name-input:focus {
-      border-color: var(--color-orange);
-    }
 
     .profile__rank {
       font-size: 0.8rem;
@@ -553,6 +536,19 @@
       margin-top: 8px;
       letter-spacing: 1px;
       text-transform: uppercase;
+    }
+
+    .footer__edit-name {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-family: var(--font-body);
+      font-size: 0.6rem;
+      cursor: pointer;
+      margin-top: 10px;
+      padding: 4px 8px;
+      text-decoration: underline;
+      text-underline-offset: 2px;
     }
 
     /* ===== PR Log Toggle ===== */
@@ -1799,7 +1795,6 @@
     <!-- Profile -->
     <section class="profile" id="profile">
       <div class="profile__row">
-        <input class="profile__name-input" id="name-input" type="text" placeholder="Your name" maxlength="20">
         <span class="profile__rank" id="profile-rank">NEWBIE</span>
       </div>
       <div class="profile__progress-bar">
@@ -1867,6 +1862,7 @@
     <footer class="footer">
       <div class="footer__tagline" id="footer-tagline">No excuses. No days off. No mercy.</div>
       <div class="footer__brand">BroFit 2026</div>
+      <button class="footer__edit-name" id="edit-name-btn" onclick="promptEditName()">Change display name</button>
     </footer>
 
   </div>
@@ -2731,9 +2727,6 @@
       const name = appState.name || 'king';
       document.getElementById('greeting-name').textContent =
         getTimeGreeting().replace(/[☀️🔥💪😴]/g, '').trim() + ', ' + name;
-
-      // Name input
-      document.getElementById('name-input').value = appState.name;
 
       // Daily challenge button state
       const today = getTodayString();
@@ -3745,9 +3738,6 @@
       // Hide modal
       document.getElementById('join-modal').classList.add('join-modal--hidden');
 
-      // Update name input
-      document.getElementById('name-input').value = appState.name;
-
       // Push initial data
       pushToRoom();
 
@@ -3757,6 +3747,28 @@
       // Render everything
       refreshUI();
       renderAllLeaderboards();
+    }
+
+    function promptEditName() {
+      var current = appState.name || '';
+      var newName = prompt('Change display name:', current);
+      if (newName === null) return; // cancelled
+      newName = newName.trim();
+      if (!newName || newName === current) return;
+
+      if (!previousUserId) previousUserId = userId;
+      if (sharedData && sharedData.members) {
+        var oldData = sharedData.members[userId];
+        delete sharedData.members[userId];
+        userId = newName;
+        sharedData.members[userId] = oldData;
+      } else {
+        userId = newName;
+      }
+      appState.name = newName;
+      saveState(appState);
+      refreshUI();
+      schedulePush();
     }
 
     // ===== Init =====
@@ -3795,26 +3807,7 @@
       // Wire up buttons
       document.getElementById('challenge-btn').addEventListener('click', handleChallengeComplete);
 
-      // Name input saves to state and re-syncs
-      document.getElementById('name-input').addEventListener('input', function(e) {
-        var newName = e.target.value.trim();
-        if (newName && newName !== userId) {
-          // Track old name so pushToRoom can delete it from server
-          if (!previousUserId) previousUserId = userId;
-          if (sharedData && sharedData.members) {
-            var oldData = sharedData.members[userId];
-            delete sharedData.members[userId];
-            userId = newName;
-            sharedData.members[userId] = oldData;
-          } else {
-            userId = newName;
-          }
-        }
-        appState.name = newName;
-        saveState(appState);
-        refreshUI();
-        schedulePush();
-      });
+      // (name editing handled by promptEditName)
 
       // Rotating footer taglines
       taglineIndex = Math.floor(Math.random() * taglines.length);
