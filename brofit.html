@@ -2654,7 +2654,7 @@
         setRoomInURL(roomId);
         finishJoin();
       }).catch(function(err) {
-        document.getElementById('join-error').textContent = 'Could not connect. Try again.';
+        document.getElementById('join-error').textContent = 'Error: ' + (err.message || err) + '. Tap to retry.';
         document.getElementById('join-error').classList.remove('join-modal--hidden');
         console.error('Create room failed:', err);
       });
