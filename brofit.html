@@ -642,7 +642,6 @@
 
     .pr-tracker__input-row {
       display: flex;
-      flex-wrap: wrap;
       gap: 6px;
       margin-bottom: 10px;
     }
@@ -666,8 +665,8 @@
     }
 
     .pr-tracker__input--date {
-      flex: 0 0 auto;
-      width: 100%;
+      flex: 1;
+      min-width: 0;
       color-scheme: dark;
       font-size: 0.8rem;
       padding: 6px 10px;
@@ -915,7 +914,6 @@
 
     .weight-tracker__input-row {
       display: flex;
-      flex-wrap: wrap;
       gap: 6px;
       margin-bottom: 12px;
     }
@@ -939,8 +937,8 @@
     }
 
     .weight-tracker__input--date {
-      flex: 0 0 auto;
-      width: 100%;
+      flex: 1;
+      min-width: 0;
       color-scheme: dark;
       font-size: 0.8rem;
       padding: 6px 10px;
