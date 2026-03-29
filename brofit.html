@@ -2082,6 +2082,87 @@
       background: var(--bg-card-hover);
     }
 
+    /* ===== Exercise Manager (Admin) ===== */
+    .exercise-manager {
+      display: none;
+      margin-bottom: 16px;
+    }
+
+    .exercise-manager--visible {
+      display: block;
+    }
+
+    .exercise-manager__toggle {
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      border: 1px dashed rgba(255,255,255,0.15);
+      font-family: var(--font-body);
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 8px 14px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      width: 100%;
+      margin-bottom: 8px;
+    }
+
+    .exercise-manager__list {
+      max-height: 400px;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .exercise-manager__item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 8px;
+      background: var(--bg-card);
+      border-radius: 6px;
+      margin-bottom: 4px;
+    }
+
+    .exercise-manager__name {
+      flex: 1;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .exercise-manager__tag {
+      font-size: 0.6rem;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+
+    .exercise-manager__select {
+      background: var(--bg-surface);
+      color: var(--text-primary);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 4px;
+      font-size: 0.7rem;
+      padding: 3px 4px;
+      flex-shrink: 0;
+    }
+
+    .exercise-manager__search {
+      width: 100%;
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: var(--radius-sm);
+      padding: 8px 10px;
+      font-size: 0.8rem;
+      font-family: var(--font-body);
+      margin-bottom: 8px;
+    }
+
     /* ===== Workout Templates ===== */
     .templates-section {
       margin-bottom: 16px;
@@ -2666,6 +2747,15 @@
           <button class="template-editor__cancel" onclick="closeTemplateEditor()">Cancel</button>
           <button class="template-editor__save" onclick="saveTemplate()">Save Template</button>
         </div>
+      </div>
+    </div>
+
+    <!-- Exercise Manager (Coach only) -->
+    <div class="exercise-manager" id="exercise-manager">
+      <button class="exercise-manager__toggle" onclick="toggleExerciseManager()">Manage Exercise Types</button>
+      <div id="exercise-manager-panel" style="display:none">
+        <input class="exercise-manager__search" id="exercise-manager-search" type="text" placeholder="Search exercises...">
+        <div class="exercise-manager__list" id="exercise-manager-list"></div>
       </div>
     </div>
 
@@ -5126,9 +5216,11 @@
     ];
 
     function getAllTemplates() {
-      // Built-in + local + shared templates from other users
+      // Built-in (minus hidden) + local + shared templates from other users
       var local = loadTemplates();
-      var all = builtInTemplates.concat(local);
+      var hidden = JSON.parse(localStorage.getItem('brofit_hidden_templates') || '[]');
+      var visibleBuiltins = builtInTemplates.filter(function(t) { return hidden.indexOf(t.id) === -1; });
+      var all = visibleBuiltins.concat(local);
       if (sharedData && sharedData.members) {
         Object.keys(sharedData.members).forEach(function(name) {
           var member = sharedData.members[name];
@@ -5183,9 +5275,11 @@
         }).join(' · ');
         var author = t.author ? '<div class="templates__card-author">by ' + t.author + '</div>' : '';
         var actions = '';
-        if (!t.shared && !t.builtin) {
-          actions = '<button class="templates__card-btn" onclick="editTemplate(\'' + t.id + '\')">Edit</button>' +
-            '<button class="templates__card-btn templates__card-btn--delete" onclick="deleteTemplate(\'' + t.id + '\')">Delete</button>';
+        var isAdmin = userId === 'Coach';
+        var canEdit = !t.shared && !t.builtin;
+        if (canEdit || isAdmin) {
+          actions = '<button class="templates__card-btn" onclick="editTemplate(\'' + t.id + '\')">' + (t.builtin || t.shared ? 'Edit Copy' : 'Edit') + '</button>' +
+            '<button class="templates__card-btn templates__card-btn--delete" onclick="deleteTemplate(\'' + t.id + '\')">' + (t.builtin ? 'Hide' : 'Delete') + '</button>';
         }
         html += '<div class="templates__card">' +
           '<div class="templates__card-header">' +
@@ -5223,10 +5317,17 @@
       document.getElementById('template-exercises').innerHTML = '';
 
       if (templateId) {
-        var templates = loadTemplates();
-        var t = templates.find(function(t) { return t.id === templateId; });
+        // Search all templates (local, built-in, shared)
+        var allTemplates = getAllTemplates();
+        var t = allTemplates.find(function(t) { return t.id === templateId; });
         if (t) {
-          document.getElementById('template-editor-title').textContent = 'Edit Template';
+          // If editing a built-in or shared template, create a local copy
+          if (t.builtin || t.shared) {
+            editingTemplateId = null; // Will create new
+            document.getElementById('template-editor-title').textContent = 'Edit Copy of ' + t.name;
+          } else {
+            document.getElementById('template-editor-title').textContent = 'Edit Template';
+          }
           document.getElementById('template-name').value = t.name;
           (t.exercises || []).forEach(function(ex) {
             var sd = normalizeTemplateSetData(ex);
@@ -5554,11 +5655,136 @@
     }
 
     function deleteTemplate(id) {
+      // Check if it's a built-in template — hide instead of delete
+      var builtin = builtInTemplates.find(function(t) { return t.id === id; });
+      if (builtin) {
+        var hidden = JSON.parse(localStorage.getItem('brofit_hidden_templates') || '[]');
+        if (hidden.indexOf(id) === -1) hidden.push(id);
+        localStorage.setItem('brofit_hidden_templates', JSON.stringify(hidden));
+        renderTemplates();
+        return;
+      }
       var templates = loadTemplates();
       templates = templates.filter(function(t) { return t.id !== id; });
       saveTemplates(templates);
       renderTemplates();
       schedulePush();
+    }
+
+    // ===== Exercise Manager (Coach admin) =====
+
+    function showExerciseManagerIfAdmin() {
+      var mgr = document.getElementById('exercise-manager');
+      if (userId === 'Coach') {
+        mgr.classList.add('exercise-manager--visible');
+      } else {
+        mgr.classList.remove('exercise-manager--visible');
+      }
+    }
+
+    function toggleExerciseManager() {
+      var panel = document.getElementById('exercise-manager-panel');
+      if (panel.style.display === 'none') {
+        panel.style.display = 'block';
+        renderExerciseManager();
+        document.getElementById('exercise-manager-search').addEventListener('input', renderExerciseManager);
+      } else {
+        panel.style.display = 'none';
+      }
+    }
+
+    function renderExerciseManager() {
+      var container = document.getElementById('exercise-manager-list');
+      var search = document.getElementById('exercise-manager-search').value.toLowerCase().trim();
+
+      // Merge default exercises with any custom overrides
+      var allExercises = defaultExerciseList.slice();
+      // Add custom exercises from customExerciseTypes that aren't in defaultExerciseList
+      Object.keys(customExerciseTypes).forEach(function(key) {
+        var exists = allExercises.some(function(e) { return e.name.toLowerCase() === key; });
+        if (!exists) allExercises.push(customExerciseTypes[key]);
+      });
+
+      var filtered = allExercises.filter(function(ex) {
+        return !search || ex.name.toLowerCase().indexOf(search) !== -1 || (ex.muscle && ex.muscle.toLowerCase().indexOf(search) !== -1);
+      });
+
+      // Sort alphabetically
+      filtered.sort(function(a, b) { return a.name.localeCompare(b.name); });
+
+      var typeOptions = [
+        { equip: 'barbell', input: 'weight', label: 'Barbell' },
+        { equip: 'dumbbell', input: 'weight', label: 'Dumbbell' },
+        { equip: 'machine', input: 'weight', label: 'Machine' },
+        { equip: 'cable', input: 'weight', label: 'Cable' },
+        { equip: 'bodyweight', input: 'bw', label: 'Bodyweight' },
+        { equip: 'cardio', input: 'cardio', label: 'Cardio' },
+        { equip: 'custom', input: 'duration', label: 'Duration' },
+        { equip: 'custom', input: 'weight', label: 'Other (Weight)' }
+      ];
+
+      var html = '';
+      filtered.forEach(function(ex) {
+        var currentEquip = ex.equip;
+        var currentInput = ex.input;
+        var color = equipColors[currentEquip] || '#888';
+        var tag = equipLabels[currentEquip] || currentEquip;
+
+        var optionsHtml = typeOptions.map(function(opt) {
+          var sel = (opt.equip === currentEquip && opt.input === currentInput) ? ' selected' : '';
+          return '<option value="' + opt.equip + '|' + opt.input + '"' + sel + '>' + opt.label + '</option>';
+        }).join('');
+
+        html += '<div class="exercise-manager__item">' +
+          '<span class="exercise-manager__name">' + ex.name + '</span>' +
+          '<span class="exercise-manager__tag" style="color:' + color + ';border:1px solid ' + color + '">' + tag + '</span>' +
+          '<select class="exercise-manager__select" onchange="reclassifyExercise(\'' + ex.name.replace(/'/g, "\\'") + '\', this.value)">' +
+          optionsHtml +
+          '</select>' +
+        '</div>';
+      });
+
+      container.innerHTML = html || '<div style="padding:12px;color:var(--text-muted);font-size:0.8rem">No matches</div>';
+    }
+
+    function reclassifyExercise(name, value) {
+      var parts = value.split('|');
+      var equip = parts[0];
+      var inputType = parts[1];
+
+      // Update the exercise DB directly
+      var key = name.toLowerCase();
+      var existing = exerciseDB[key];
+      if (existing) {
+        existing.equip = equip;
+        existing.input = inputType;
+      } else {
+        exerciseDB[key] = { name: name, equip: equip, input: inputType, muscle: 'Custom' };
+      }
+      // Also update custom overrides
+      setCustomExerciseType(name, equip, inputType);
+
+      // Save overrides to localStorage so they persist
+      var overrides = JSON.parse(localStorage.getItem('brofit_exercise_overrides') || '{}');
+      overrides[key] = { equip: equip, input: inputType };
+      localStorage.setItem('brofit_exercise_overrides', JSON.stringify(overrides));
+
+      renderExerciseManager();
+    }
+
+    // Load exercise overrides on startup
+    function loadExerciseOverrides() {
+      var overrides = JSON.parse(localStorage.getItem('brofit_exercise_overrides') || '{}');
+      Object.keys(overrides).forEach(function(key) {
+        var o = overrides[key];
+        if (exerciseDB[key]) {
+          exerciseDB[key].equip = o.equip;
+          exerciseDB[key].input = o.input;
+        } else {
+          exerciseDB[key] = { name: key, equip: o.equip, input: o.input, muscle: 'Custom' };
+        }
+        customExerciseTypes[key] = exerciseDB[key];
+      });
     }
 
     function offerSaveAsTemplate(exercises) {
@@ -5815,6 +6041,7 @@
       userId = name;
       appState.name = name;
       saveState(appState);
+      showExerciseManagerIfAdmin();
 
       // Fetch existing shared data, then finish join
       fetchRoom().then(function(data) {
@@ -5867,6 +6094,9 @@
     // ===== Init =====
 
     document.addEventListener('DOMContentLoaded', function() {
+      // Load exercise type overrides
+      loadExerciseOverrides();
+
       // Load state and update streak
       appState = loadState();
       updateStreak();
@@ -5915,6 +6145,7 @@
       if (savedName) {
         // Auto-connect with saved name
         userId = savedName;
+        showExerciseManagerIfAdmin();
         fetchRoom().then(function(data) {
           sharedData = data;
           pushToRoom();
