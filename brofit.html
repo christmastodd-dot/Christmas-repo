@@ -1297,11 +1297,9 @@
       top: 0; left: 0; right: 0; bottom: 0;
       background: rgba(0,0,0,0.85);
       z-index: 9999;
-      display: flex;
-      flex-direction: column;
       overflow-y: auto;
-      padding: 12px;
       -webkit-overflow-scrolling: touch;
+      padding: 12px 12px 40px;
     }
 
     .workout-edit-container {
@@ -1310,8 +1308,7 @@
       padding: 14px;
       max-width: 500px;
       width: 100%;
-      margin: auto;
-      overflow: hidden;
+      margin: 0 auto;
     }
 
     .workout-edit-title {
@@ -1356,7 +1353,34 @@
       font-size: 0.8rem;
       font-weight: 700;
       color: var(--text-primary);
-      margin-bottom: 6px;
+      margin-bottom: 2px;
+    }
+
+    .workout-edit-hdr {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+      margin-bottom: 4px;
+      padding-bottom: 2px;
+    }
+
+    .workout-edit-hdr span {
+      flex: 1;
+      font-size: 0.6rem;
+      color: var(--text-muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .workout-edit-hdr .hdr-spacer {
+      width: 16px;
+      flex: none;
+    }
+
+    .workout-edit-hdr .hdr-del-spacer {
+      width: 20px;
+      flex: none;
     }
 
     .workout-edit-set-row {
@@ -4384,6 +4408,21 @@
       }
     }
 
+    function buildEditHeader(iType) {
+      var h = '<div class="workout-edit-hdr"><span class="hdr-spacer"></span>';
+      if (iType === 'cardio') {
+        h += '<span>Duration</span><span>Distance</span>';
+      } else if (iType === 'duration') {
+        h += '<span>Duration</span>';
+      } else if (iType === 'bw') {
+        h += '<span>Reps</span><span>+/- lbs</span><span style="flex:0.6">Mode</span>';
+      } else {
+        h += '<span>Reps</span><span>Weight</span>';
+      }
+      h += '<span class="hdr-del-spacer"></span></div>';
+      return h;
+    }
+
     function editWorkout(idx) {
       var history = loadWorkoutHistory();
       var w = history[idx];
@@ -4414,6 +4453,7 @@
         html += '<div class="workout-edit-exercise" data-ex-idx="' + exIdx + '">';
         html += '<button class="workout-edit-del-exercise" onclick="editRemoveExercise(this)" title="Remove exercise">✕</button>';
         html += '<div class="workout-edit-exercise-name">' + ex.name + '</div>';
+        html += buildEditHeader(iType);
 
         (ex.sets || []).forEach(function(s, sIdx) {
           html += '<div class="workout-edit-set-row" data-set-idx="' + sIdx + '" data-input-type="' + iType + '">';
