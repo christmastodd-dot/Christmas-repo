@@ -1196,12 +1196,18 @@
     }
 
     /* ===== Workout Start Button ===== */
+    .workout-btn-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
     .workout-start-btn {
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 10px;
-      width: 100%;
+      flex: 1;
       background: linear-gradient(135deg, var(--color-blue), #0088cc);
       color: #fff;
       font-family: var(--font-display);
@@ -1211,7 +1217,6 @@
       border: none;
       border-radius: var(--radius-md);
       cursor: pointer;
-      margin-bottom: 16px;
       box-shadow: 0 4px 16px rgba(0, 191, 255, 0.3);
       transition: transform 0.15s, box-shadow 0.15s;
       letter-spacing: 0.5px;
@@ -1229,6 +1234,215 @@
 
     .workout-start-btn__icon {
       font-size: 1.2rem;
+    }
+
+    .workout-history-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: var(--bg-card);
+      color: var(--text-primary);
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 14px 16px;
+      border: none;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      box-shadow: var(--shadow-card);
+      transition: transform 0.15s, box-shadow 0.15s;
+      white-space: nowrap;
+    }
+
+    .workout-history-btn:active {
+      transform: scale(0.97);
+    }
+
+    .workout-history-btn--active {
+      background: var(--color-orange);
+      color: #fff;
+    }
+
+    /* ===== Full Workout History Panel ===== */
+    .workout-history-panel {
+      display: none;
+      margin-bottom: 16px;
+    }
+
+    .workout-history-panel--open {
+      display: block;
+    }
+
+    .workout-history__edit {
+      background: none;
+      border: 1px solid var(--color-blue);
+      color: var(--color-blue);
+      font-size: 0.65rem;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-left: 6px;
+    }
+
+    .workout-history__edit:hover {
+      background: var(--color-blue);
+      color: #fff;
+    }
+
+    /* Edit mode fields in history */
+    .workout-edit-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      padding: 16px;
+    }
+
+    .workout-edit-container {
+      background: var(--bg-surface);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      max-width: 500px;
+      width: 100%;
+      margin: auto;
+    }
+
+    .workout-edit-title {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      color: var(--color-orange);
+      margin-bottom: 12px;
+    }
+
+    .workout-edit-field {
+      margin-bottom: 10px;
+    }
+
+    .workout-edit-field label {
+      display: block;
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .workout-edit-field input {
+      width: 100%;
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: var(--radius-sm);
+      padding: 8px 10px;
+      font-size: 0.85rem;
+      font-family: var(--font-body);
+    }
+
+    .workout-edit-exercise {
+      background: var(--bg-card);
+      border-radius: var(--radius-sm);
+      padding: 10px;
+      margin-bottom: 8px;
+    }
+
+    .workout-edit-exercise-name {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+
+    .workout-edit-set-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
+    .workout-edit-set-row span.set-label {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      width: 18px;
+      flex-shrink: 0;
+    }
+
+    .workout-edit-set-row input {
+      flex: 1;
+      background: var(--bg-surface);
+      color: var(--text-primary);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 4px;
+      padding: 6px 8px;
+      font-size: 0.8rem;
+      font-family: var(--font-body);
+    }
+
+    .workout-edit-set-row .del-set-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      cursor: pointer;
+      padding: 2px 4px;
+    }
+
+    .workout-edit-set-row .del-set-btn:hover {
+      color: var(--color-red);
+    }
+
+    .workout-edit-add-set {
+      background: none;
+      border: 1px dashed rgba(255,255,255,0.15);
+      color: var(--text-secondary);
+      font-size: 0.7rem;
+      padding: 4px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+
+    .workout-edit-del-exercise {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.65rem;
+      cursor: pointer;
+      float: right;
+    }
+
+    .workout-edit-del-exercise:hover {
+      color: var(--color-red);
+    }
+
+    .workout-edit-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .workout-edit-actions button {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .workout-edit-save {
+      background: var(--color-green);
+      color: var(--bg-primary);
+    }
+
+    .workout-edit-cancel {
+      background: var(--bg-card);
+      color: var(--text-primary);
     }
 
     .workout-panel {
@@ -2228,10 +2442,19 @@
     </section>
 
     <!-- Workout Launcher -->
-    <button class="workout-start-btn" id="workout-toggle" onclick="toggleWorkout()">
-      <span class="workout-start-btn__icon">🏋️</span>
-      <span class="workout-start-btn__text">Start a New Workout</span>
-    </button>
+    <div class="workout-btn-row">
+      <button class="workout-start-btn" id="workout-toggle" onclick="toggleWorkout()">
+        <span class="workout-start-btn__icon">🏋️</span>
+        <span class="workout-start-btn__text">Start a New Workout</span>
+      </button>
+      <button class="workout-history-btn" id="history-toggle" onclick="toggleHistoryPanel()">
+        <span>📖</span>
+        <span>History</span>
+      </button>
+    </div>
+
+    <!-- Full Workout History Panel -->
+    <div class="workout-history-panel" id="workout-history-panel"></div>
 
     <!-- Workout Sheet -->
     <div class="workout-panel" id="workout-panel">
@@ -3964,6 +4187,7 @@
       document.getElementById('workout-logger').classList.add('workout-chooser--hidden');
 
       renderWorkoutHistory();
+      renderHistoryPanel();
     }
 
     function renderWorkoutHistory() {
@@ -4041,8 +4265,295 @@
         history.splice(idx, 1);
         saveWorkoutHistory(history);
         renderWorkoutHistory();
+        renderHistoryPanel();
         schedulePush();
       }
+    }
+
+    /* ===== Workout History Panel ===== */
+    function toggleHistoryPanel() {
+      var panel = document.getElementById('workout-history-panel');
+      var btn = document.getElementById('history-toggle');
+      var isOpen = panel.classList.toggle('workout-history-panel--open');
+      btn.classList.toggle('workout-history-btn--active', isOpen);
+
+      // Close workout panel if open
+      if (isOpen) {
+        var wp = document.getElementById('workout-panel');
+        if (wp.classList.contains('workout-panel--open')) {
+          wp.classList.remove('workout-panel--open');
+          var wb = document.getElementById('workout-toggle');
+          wb.classList.remove('workout-start-btn--active');
+          wb.querySelector('.workout-start-btn__text').textContent = 'Start a New Workout';
+          resetWorkoutForm();
+        }
+        renderHistoryPanel();
+      }
+    }
+
+    function renderHistoryPanel() {
+      var container = document.getElementById('workout-history-panel');
+      var history = loadWorkoutHistory();
+
+      if (history.length === 0) {
+        container.innerHTML = '<div class="workout-history__empty">No workouts logged yet</div>';
+        return;
+      }
+
+      var sorted = history.slice().sort(function(a, b) { return (b.ts || 0) - (a.ts || 0); });
+      var html = '<div class="section-title">Workout History</div>';
+
+      sorted.forEach(function(w) {
+        var origIdx = history.indexOf(w);
+        var totalVol = 0;
+        var totalSets = 0;
+        var totalDist = 0;
+        var exHtml = '';
+
+        (w.exercises || []).forEach(function(ex) {
+          var info = getExerciseInfo(ex.name);
+          var iType = ex.inputType || info.input;
+          var equipTag = equipLabels[info.equip] ? '<span style="font-size:0.6rem;color:' + equipColors[info.equip] + ';font-weight:700;margin-left:4px">' + equipLabels[info.equip] + '</span>' : '';
+          exHtml += '<div class="workout-history__exercise-name">' + ex.name + equipTag + '</div>';
+
+          var setsStr = (ex.sets || []).map(function(s) {
+            totalSets++;
+            if (iType === 'cardio') {
+              if (s.distance) totalDist += s.distance;
+              var parts = [];
+              if (s.duration) parts.push(s.duration);
+              if (s.distance) parts.push(s.distance + ' mi');
+              return parts.join(', ') || '—';
+            } else if (iType === 'duration') {
+              return s.duration || '—';
+            } else if (iType === 'bw') {
+              var bwStr = s.reps + ' reps';
+              if (s.bwMode === 'assisted' && s.weight) bwStr += ' (-' + s.weight + ' lbs)';
+              else if (s.bwMode === 'added' && s.weight) bwStr += ' (+' + s.weight + ' lbs)';
+              totalVol += (s.reps || 0) * (s.weight || 0);
+              return bwStr;
+            } else {
+              totalVol += (s.reps || 0) * (s.weight || 0);
+              return s.reps + (s.weight ? ' × ' + s.weight + ' lbs' : ' reps');
+            }
+          }).join(' &nbsp;|&nbsp; ');
+          exHtml += '<div class="workout-history__sets">' + setsStr + '</div>';
+        });
+
+        var statsHtml = '<span><span class="workout-history__stat-val">' + (w.exercises || []).length + '</span> exercises</span>' +
+          '<span><span class="workout-history__stat-val">' + totalSets + '</span> sets</span>';
+        if (totalVol > 0) statsHtml += '<span><span class="workout-history__stat-val">' + totalVol.toLocaleString() + '</span> lbs vol</span>';
+        if (totalDist > 0) statsHtml += '<span><span class="workout-history__stat-val">' + totalDist.toFixed(2) + '</span> mi</span>';
+        if (w.duration) statsHtml += '<span><span class="workout-history__stat-val">' + w.duration + '</span> time</span>';
+
+        html += '<div class="workout-history__entry">' +
+          '<div class="workout-history__date">' +
+            '<span>' + w.date + (w.startTime ? ' at ' + w.startTime : '') + '</span>' +
+            '<span>' +
+              '<button class="workout-history__edit" onclick="editWorkout(' + origIdx + ')">Edit</button>' +
+              '<button class="workout-history__delete" onclick="deleteWorkoutFromHistory(' + origIdx + ')">Delete</button>' +
+            '</span>' +
+          '</div>' +
+          exHtml +
+          '<div class="workout-history__stats">' + statsHtml + '</div>' +
+        '</div>';
+      });
+
+      container.innerHTML = html;
+    }
+
+    function deleteWorkoutFromHistory(idx) {
+      var history = loadWorkoutHistory();
+      if (idx >= 0 && idx < history.length) {
+        if (!confirm('Delete this workout?')) return;
+        history.splice(idx, 1);
+        saveWorkoutHistory(history);
+        renderWorkoutHistory();
+        renderHistoryPanel();
+        schedulePush();
+      }
+    }
+
+    function editWorkout(idx) {
+      var history = loadWorkoutHistory();
+      var w = history[idx];
+      if (!w) return;
+
+      var overlay = document.createElement('div');
+      overlay.className = 'workout-edit-overlay';
+      overlay.id = 'workout-edit-overlay';
+
+      var html = '<div class="workout-edit-container">';
+      html += '<div class="workout-edit-title">Edit Workout</div>';
+
+      // Date field
+      html += '<div class="workout-edit-field"><label>Date</label>' +
+        '<input type="date" id="edit-workout-date" value="' + (w.date || '') + '"></div>';
+
+      // Start time field
+      html += '<div class="workout-edit-field"><label>Start Time</label>' +
+        '<input type="time" id="edit-workout-time" value="' + (w.startTime || '') + '"></div>';
+
+      // Duration field
+      html += '<div class="workout-edit-field"><label>Workout Duration</label>' +
+        '<input type="text" id="edit-workout-duration" value="' + (w.duration || '') + '" placeholder="mm:ss or h:mm:ss" inputmode="numeric"></div>';
+
+      // Exercises
+      (w.exercises || []).forEach(function(ex, exIdx) {
+        var iType = ex.inputType || getExerciseInfo(ex.name).input;
+        html += '<div class="workout-edit-exercise" data-ex-idx="' + exIdx + '">';
+        html += '<button class="workout-edit-del-exercise" onclick="editRemoveExercise(this)" title="Remove exercise">✕</button>';
+        html += '<div class="workout-edit-exercise-name">' + ex.name + '</div>';
+
+        (ex.sets || []).forEach(function(s, sIdx) {
+          html += '<div class="workout-edit-set-row" data-set-idx="' + sIdx + '" data-input-type="' + iType + '">';
+          html += '<span class="set-label">' + (sIdx + 1) + '</span>';
+
+          if (iType === 'cardio') {
+            html += '<input type="text" data-field="duration" value="' + (s.duration || '') + '" placeholder="Duration" inputmode="numeric">';
+            html += '<input type="text" data-field="distance" value="' + (s.distance || '') + '" placeholder="Distance (mi)">';
+          } else if (iType === 'duration') {
+            html += '<input type="text" data-field="duration" value="' + (s.duration || '') + '" placeholder="Duration" inputmode="numeric">';
+          } else if (iType === 'bw') {
+            html += '<input type="number" data-field="reps" value="' + (s.reps || '') + '" placeholder="Reps">';
+            html += '<input type="number" data-field="weight" value="' + (s.weight || '') + '" placeholder="+/- lbs" step="any">';
+            html += '<select data-field="bwMode" style="flex:0.6;background:var(--bg-surface);color:var(--text-primary);border:1px solid rgba(255,255,255,0.1);border-radius:4px;padding:6px;font-size:0.75rem">' +
+              '<option value="bw"' + (!s.bwMode || s.bwMode === 'bw' ? ' selected' : '') + '>BW</option>' +
+              '<option value="assisted"' + (s.bwMode === 'assisted' ? ' selected' : '') + '>Assisted</option>' +
+              '<option value="added"' + (s.bwMode === 'added' ? ' selected' : '') + '>Added</option>' +
+            '</select>';
+          } else {
+            html += '<input type="number" data-field="reps" value="' + (s.reps || '') + '" placeholder="Reps">';
+            html += '<input type="number" data-field="weight" value="' + (s.weight || '') + '" placeholder="Weight" step="any">';
+          }
+
+          html += '<button class="del-set-btn" onclick="editRemoveSet(this)" title="Remove set">✕</button>';
+          html += '</div>';
+        });
+
+        html += '<button class="workout-edit-add-set" onclick="editAddSet(this, \'' + iType + '\')" data-input-type="' + iType + '">+ Add Set</button>';
+        html += '</div>';
+      });
+
+      html += '<div class="workout-edit-actions">' +
+        '<button class="workout-edit-cancel" onclick="closeEditWorkout()">Cancel</button>' +
+        '<button class="workout-edit-save" onclick="saveEditedWorkout(' + idx + ')">Save Changes</button>' +
+      '</div>';
+
+      html += '</div>';
+      overlay.innerHTML = html;
+      document.body.appendChild(overlay);
+    }
+
+    function closeEditWorkout() {
+      var overlay = document.getElementById('workout-edit-overlay');
+      if (overlay) overlay.remove();
+    }
+
+    function editRemoveSet(btn) {
+      var row = btn.closest('.workout-edit-set-row');
+      var exercise = row.closest('.workout-edit-exercise');
+      row.remove();
+      // Renumber sets
+      var rows = exercise.querySelectorAll('.workout-edit-set-row');
+      rows.forEach(function(r, i) {
+        r.querySelector('.set-label').textContent = i + 1;
+        r.setAttribute('data-set-idx', i);
+      });
+    }
+
+    function editRemoveExercise(btn) {
+      var exercise = btn.closest('.workout-edit-exercise');
+      exercise.remove();
+    }
+
+    function editAddSet(btn, inputType) {
+      var exercise = btn.closest('.workout-edit-exercise');
+      var rows = exercise.querySelectorAll('.workout-edit-set-row');
+      var newIdx = rows.length;
+
+      var html = '<div class="workout-edit-set-row" data-set-idx="' + newIdx + '" data-input-type="' + inputType + '">';
+      html += '<span class="set-label">' + (newIdx + 1) + '</span>';
+
+      if (inputType === 'cardio') {
+        html += '<input type="text" data-field="duration" value="" placeholder="Duration" inputmode="numeric">';
+        html += '<input type="text" data-field="distance" value="" placeholder="Distance (mi)">';
+      } else if (inputType === 'duration') {
+        html += '<input type="text" data-field="duration" value="" placeholder="Duration" inputmode="numeric">';
+      } else if (inputType === 'bw') {
+        html += '<input type="number" data-field="reps" value="" placeholder="Reps">';
+        html += '<input type="number" data-field="weight" value="" placeholder="+/- lbs" step="any">';
+        html += '<select data-field="bwMode" style="flex:0.6;background:var(--bg-surface);color:var(--text-primary);border:1px solid rgba(255,255,255,0.1);border-radius:4px;padding:6px;font-size:0.75rem">' +
+          '<option value="bw">BW</option><option value="assisted">Assisted</option><option value="added">Added</option></select>';
+      } else {
+        html += '<input type="number" data-field="reps" value="" placeholder="Reps">';
+        html += '<input type="number" data-field="weight" value="" placeholder="Weight" step="any">';
+      }
+
+      html += '<button class="del-set-btn" onclick="editRemoveSet(this)" title="Remove set">✕</button>';
+      html += '</div>';
+
+      var temp = document.createElement('div');
+      temp.innerHTML = html;
+      btn.before(temp.firstChild);
+    }
+
+    function saveEditedWorkout(idx) {
+      var history = loadWorkoutHistory();
+      var w = history[idx];
+      if (!w) return;
+
+      var overlay = document.getElementById('workout-edit-overlay');
+
+      // Update date, time, duration
+      w.date = overlay.querySelector('#edit-workout-date').value || w.date;
+      w.startTime = overlay.querySelector('#edit-workout-time').value || '';
+      w.duration = overlay.querySelector('#edit-workout-duration').value.trim() || '';
+
+      // Update exercises
+      var exerciseEls = overlay.querySelectorAll('.workout-edit-exercise');
+      var exercises = [];
+
+      exerciseEls.forEach(function(exEl) {
+        var origIdx = parseInt(exEl.getAttribute('data-ex-idx'));
+        var origEx = (w.exercises || [])[origIdx];
+        if (!origEx) return;
+
+        var sets = [];
+        var setRows = exEl.querySelectorAll('.workout-edit-set-row');
+        setRows.forEach(function(row) {
+          var iType = row.getAttribute('data-input-type');
+          if (iType === 'cardio') {
+            var dur = row.querySelector('[data-field="duration"]').value.trim();
+            var dist = parseFloat(row.querySelector('[data-field="distance"]').value) || 0;
+            if (dur || dist > 0) sets.push({ duration: dur, distance: dist });
+          } else if (iType === 'duration') {
+            var dur2 = row.querySelector('[data-field="duration"]').value.trim();
+            if (dur2) sets.push({ duration: dur2 });
+          } else if (iType === 'bw') {
+            var reps = parseInt(row.querySelector('[data-field="reps"]').value) || 0;
+            var weight = parseFloat(row.querySelector('[data-field="weight"]').value) || 0;
+            var mode = row.querySelector('[data-field="bwMode"]').value;
+            if (reps > 0 || weight > 0) sets.push({ reps: reps, weight: weight, bwMode: mode });
+          } else {
+            var reps2 = parseInt(row.querySelector('[data-field="reps"]').value) || 0;
+            var weight2 = parseFloat(row.querySelector('[data-field="weight"]').value) || 0;
+            if (reps2 > 0 || weight2 > 0) sets.push({ reps: reps2, weight: weight2 });
+          }
+        });
+
+        if (sets.length > 0) {
+          exercises.push({ name: origEx.name, sets: sets, inputType: origEx.inputType || getExerciseInfo(origEx.name).input });
+        }
+      });
+
+      w.exercises = exercises;
+      history[idx] = w;
+      saveWorkoutHistory(history);
+      renderWorkoutHistory();
+      renderHistoryPanel();
+      closeEditWorkout();
+      schedulePush();
     }
 
     function toggleWorkout() {
@@ -4053,6 +4564,10 @@
 
       if (isOpen) {
         btn.querySelector('.workout-start-btn__text').textContent = 'Close Workout';
+        // Close history panel if open
+        var hp = document.getElementById('workout-history-panel');
+        hp.classList.remove('workout-history-panel--open');
+        document.getElementById('history-toggle').classList.remove('workout-history-btn--active');
         // Show chooser, hide logger form
         document.getElementById('workout-chooser').classList.remove('workout-chooser--hidden');
         document.getElementById('workout-logger').classList.add('workout-chooser--hidden');
