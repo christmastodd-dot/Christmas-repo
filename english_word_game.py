@@ -27,6 +27,8 @@ WORDS_1ST_GRADE = [
         "difficulty": "easy",
         "synonyms": ["large", "huge", "giant"],
         "distractors": ["small", "tiny", "short"],
+        "antonyms": ["small", "tiny", "little"],
+        "antonym_distractors": ["tall", "round", "heavy"],
     },
     {
         "name": "small",
@@ -36,6 +38,8 @@ WORDS_1ST_GRADE = [
         "difficulty": "easy",
         "synonyms": ["little", "tiny", "mini"],
         "distractors": ["big", "tall", "wide"],
+        "antonyms": ["big", "large", "huge"],
+        "antonym_distractors": ["short", "round", "flat"],
     },
     {
         "name": "fast",
@@ -45,6 +49,8 @@ WORDS_1ST_GRADE = [
         "difficulty": "easy",
         "synonyms": ["quick", "speedy", "rapid"],
         "distractors": ["slow", "lazy", "still"],
+        "antonyms": ["slow", "sluggish", "poky"],
+        "antonym_distractors": ["loud", "heavy", "strong"],
     },
     {
         "name": "sad",
@@ -54,6 +60,8 @@ WORDS_1ST_GRADE = [
         "difficulty": "easy",
         "synonyms": ["unhappy", "upset", "gloomy"],
         "distractors": ["happy", "glad", "excited"],
+        "antonyms": ["happy", "glad", "cheerful"],
+        "antonym_distractors": ["tired", "hungry", "shy"],
     },
     {
         "name": "glad",
@@ -63,6 +71,8 @@ WORDS_1ST_GRADE = [
         "difficulty": "easy",
         "synonyms": ["happy", "pleased", "cheerful"],
         "distractors": ["sad", "mad", "bored"],
+        "antonyms": ["sad", "unhappy", "upset"],
+        "antonym_distractors": ["tired", "shy", "hungry"],
     },
     {
         "name": "look",
@@ -72,6 +82,8 @@ WORDS_1ST_GRADE = [
         "difficulty": "easy",
         "synonyms": ["see", "watch", "peek"],
         "distractors": ["hear", "smell", "taste"],
+        "antonyms": ["ignore", "overlook", "miss"],
+        "antonym_distractors": ["touch", "hear", "smell"],
     },
     {
         "name": "jump",
@@ -81,6 +93,8 @@ WORDS_1ST_GRADE = [
         "difficulty": "easy",
         "synonyms": ["leap", "hop", "bounce"],
         "distractors": ["sit", "crawl", "stop"],
+        "antonyms": ["sit", "stay", "stand"],
+        "antonym_distractors": ["walk", "clap", "wave"],
     },
     {
         "name": "talk",
@@ -90,6 +104,8 @@ WORDS_1ST_GRADE = [
         "difficulty": "easy",
         "synonyms": ["speak", "chat", "say"],
         "distractors": ["listen", "read", "sleep"],
+        "antonyms": ["listen", "hush", "be quiet"],
+        "antonym_distractors": ["walk", "eat", "jump"],
     },
     {
         "name": "eat",
@@ -99,6 +115,8 @@ WORDS_1ST_GRADE = [
         "difficulty": "easy",
         "synonyms": ["munch", "chew", "nibble"],
         "distractors": ["drink", "cook", "wash"],
+        "antonyms": ["starve", "fast", "skip meals"],
+        "antonym_distractors": ["cook", "wash", "sleep"],
     },
     {
         "name": "nice",
@@ -108,6 +126,8 @@ WORDS_1ST_GRADE = [
         "difficulty": "easy",
         "synonyms": ["kind", "friendly", "sweet"],
         "distractors": ["mean", "rude", "grumpy"],
+        "antonyms": ["mean", "rude", "nasty"],
+        "antonym_distractors": ["tall", "slow", "loud"],
     },
     {
         "name": "start",
@@ -117,6 +137,8 @@ WORDS_1ST_GRADE = [
         "difficulty": "easy",
         "synonyms": ["begin", "go", "launch"],
         "distractors": ["stop", "end", "finish"],
+        "antonyms": ["stop", "end", "finish"],
+        "antonym_distractors": ["run", "try", "play"],
     },
     {
         "name": "stop",
@@ -126,6 +148,8 @@ WORDS_1ST_GRADE = [
         "difficulty": "easy",
         "synonyms": ["halt", "end", "quit"],
         "distractors": ["start", "go", "begin"],
+        "antonyms": ["start", "begin", "go"],
+        "antonym_distractors": ["run", "walk", "sit"],
     },
     {
         "name": "cold",
@@ -135,6 +159,8 @@ WORDS_1ST_GRADE = [
         "difficulty": "easy",
         "synonyms": ["chilly", "cool", "freezing"],
         "distractors": ["hot", "warm", "sunny"],
+        "antonyms": ["hot", "warm", "boiling"],
+        "antonym_distractors": ["wet", "dry", "dark"],
     },
     {
         "name": "hot",
@@ -144,6 +170,8 @@ WORDS_1ST_GRADE = [
         "difficulty": "easy",
         "synonyms": ["warm", "boiling", "burning"],
         "distractors": ["cold", "cool", "frozen"],
+        "antonyms": ["cold", "cool", "freezing"],
+        "antonym_distractors": ["wet", "dry", "bright"],
     },
     {
         "name": "pretty",
@@ -153,6 +181,8 @@ WORDS_1ST_GRADE = [
         "difficulty": "easy",
         "synonyms": ["beautiful", "lovely", "cute"],
         "distractors": ["ugly", "plain", "dull"],
+        "antonyms": ["ugly", "plain", "hideous"],
+        "antonym_distractors": ["tall", "short", "loud"],
     },
     {
         "name": "scary",
@@ -162,6 +192,8 @@ WORDS_1ST_GRADE = [
         "difficulty": "easy",
         "synonyms": ["frightening", "spooky", "creepy"],
         "distractors": ["funny", "calm", "boring"],
+        "antonyms": ["safe", "calm", "comforting"],
+        "antonym_distractors": ["fast", "loud", "big"],
     },
     {
         "name": "funny",
@@ -171,6 +203,8 @@ WORDS_1ST_GRADE = [
         "difficulty": "easy",
         "synonyms": ["silly", "hilarious", "amusing"],
         "distractors": ["serious", "sad", "boring"],
+        "antonyms": ["serious", "boring", "dull"],
+        "antonym_distractors": ["loud", "fast", "hard"],
     },
     {
         "name": "fix",
@@ -180,6 +214,8 @@ WORDS_1ST_GRADE = [
         "difficulty": "easy",
         "synonyms": ["repair", "mend", "patch"],
         "distractors": ["break", "smash", "ruin"],
+        "antonyms": ["break", "smash", "ruin"],
+        "antonym_distractors": ["find", "keep", "hold"],
     },
     {
         "name": "hard",
@@ -189,6 +225,8 @@ WORDS_1ST_GRADE = [
         "difficulty": "easy",
         "synonyms": ["tough", "difficult", "tricky"],
         "distractors": ["easy", "simple", "soft"],
+        "antonyms": ["easy", "simple", "soft"],
+        "antonym_distractors": ["fast", "loud", "big"],
     },
     {
         "name": "easy",
@@ -198,6 +236,8 @@ WORDS_1ST_GRADE = [
         "difficulty": "easy",
         "synonyms": ["simple", "basic", "effortless"],
         "distractors": ["hard", "tough", "tricky"],
+        "antonyms": ["hard", "difficult", "tough"],
+        "antonym_distractors": ["fast", "loud", "big"],
     },
     {
         "name": "help",
@@ -207,6 +247,8 @@ WORDS_1ST_GRADE = [
         "difficulty": "easy",
         "synonyms": ["assist", "aid", "support"],
         "distractors": ["hurt", "ignore", "leave"],
+        "antonyms": ["hurt", "harm", "hinder"],
+        "antonym_distractors": ["ask", "find", "run"],
     },
     {
         "name": "pull",
@@ -216,6 +258,8 @@ WORDS_1ST_GRADE = [
         "difficulty": "easy",
         "synonyms": ["tug", "drag", "yank"],
         "distractors": ["push", "throw", "drop"],
+        "antonyms": ["push", "shove", "press"],
+        "antonym_distractors": ["hold", "lift", "carry"],
     },
     {
         "name": "push",
@@ -225,6 +269,8 @@ WORDS_1ST_GRADE = [
         "difficulty": "easy",
         "synonyms": ["shove", "press", "nudge"],
         "distractors": ["pull", "grab", "hold"],
+        "antonyms": ["pull", "tug", "drag"],
+        "antonym_distractors": ["hold", "lift", "carry"],
     },
     {
         "name": "pick",
@@ -234,6 +280,8 @@ WORDS_1ST_GRADE = [
         "difficulty": "easy",
         "synonyms": ["choose", "select", "grab"],
         "distractors": ["drop", "leave", "throw"],
+        "antonyms": ["drop", "leave", "reject"],
+        "antonym_distractors": ["hold", "carry", "find"],
     },
     {
         "name": "mad",
@@ -243,6 +291,8 @@ WORDS_1ST_GRADE = [
         "difficulty": "easy",
         "synonyms": ["angry", "upset", "furious"],
         "distractors": ["happy", "calm", "sleepy"],
+        "antonyms": ["calm", "happy", "pleased"],
+        "antonym_distractors": ["tired", "shy", "slow"],
     },
     {
         "name": "shut",
@@ -252,6 +302,8 @@ WORDS_1ST_GRADE = [
         "difficulty": "easy",
         "synonyms": ["close", "seal", "slam"],
         "distractors": ["open", "unlock", "lift"],
+        "antonyms": ["open", "unlock", "unfold"],
+        "antonym_distractors": ["push", "hold", "turn"],
     },
     {
         "name": "loud",
@@ -261,6 +313,8 @@ WORDS_1ST_GRADE = [
         "difficulty": "easy",
         "synonyms": ["noisy", "booming", "roaring"],
         "distractors": ["quiet", "silent", "soft"],
+        "antonyms": ["quiet", "silent", "soft"],
+        "antonym_distractors": ["fast", "big", "hard"],
     },
     {
         "name": "quiet",
@@ -270,6 +324,8 @@ WORDS_1ST_GRADE = [
         "difficulty": "easy",
         "synonyms": ["silent", "hushed", "still"],
         "distractors": ["loud", "noisy", "wild"],
+        "antonyms": ["loud", "noisy", "roaring"],
+        "antonym_distractors": ["fast", "big", "hard"],
     },
     {
         "name": "wet",
@@ -279,6 +335,8 @@ WORDS_1ST_GRADE = [
         "difficulty": "easy",
         "synonyms": ["damp", "soaked", "moist"],
         "distractors": ["dry", "dusty", "crispy"],
+        "antonyms": ["dry", "parched", "arid"],
+        "antonym_distractors": ["cold", "hard", "dark"],
     },
     {
         "name": "clean",
@@ -288,6 +346,8 @@ WORDS_1ST_GRADE = [
         "difficulty": "easy",
         "synonyms": ["neat", "tidy", "spotless"],
         "distractors": ["dirty", "messy", "dusty"],
+        "antonyms": ["dirty", "messy", "filthy"],
+        "antonym_distractors": ["old", "cold", "dark"],
     },
     {
         "name": "fall",
@@ -297,6 +357,8 @@ WORDS_1ST_GRADE = [
         "difficulty": "easy",
         "synonyms": ["drop", "tumble", "slip"],
         "distractors": ["rise", "climb", "jump"],
+        "antonyms": ["rise", "climb", "ascend"],
+        "antonym_distractors": ["run", "sit", "stop"],
     },
     {
         "name": "gift",
@@ -306,6 +368,8 @@ WORDS_1ST_GRADE = [
         "difficulty": "easy",
         "synonyms": ["present", "surprise", "treat"],
         "distractors": ["bill", "chore", "task"],
+        "antonyms": ["penalty", "fine", "punishment"],
+        "antonym_distractors": ["chore", "rule", "test"],
     },
     {
         "name": "brave",
@@ -315,6 +379,8 @@ WORDS_1ST_GRADE = [
         "difficulty": "easy",
         "synonyms": ["courageous", "bold", "fearless"],
         "distractors": ["scared", "shy", "weak"],
+        "antonyms": ["scared", "afraid", "cowardly"],
+        "antonym_distractors": ["slow", "quiet", "small"],
     },
     {
         "name": "sick",
@@ -324,6 +390,8 @@ WORDS_1ST_GRADE = [
         "difficulty": "easy",
         "synonyms": ["ill", "unwell", "poorly"],
         "distractors": ["healthy", "strong", "fine"],
+        "antonyms": ["healthy", "well", "strong"],
+        "antonym_distractors": ["tall", "fast", "loud"],
     },
     {
         "name": "sleep",
@@ -333,6 +401,8 @@ WORDS_1ST_GRADE = [
         "difficulty": "easy",
         "synonyms": ["rest", "nap", "snooze"],
         "distractors": ["wake", "play", "run"],
+        "antonyms": ["wake", "rise", "get up"],
+        "antonym_distractors": ["eat", "run", "talk"],
     },
     {
         "name": "yell",
@@ -342,6 +412,8 @@ WORDS_1ST_GRADE = [
         "difficulty": "easy",
         "synonyms": ["shout", "scream", "holler"],
         "distractors": ["whisper", "hum", "mumble"],
+        "antonyms": ["whisper", "hush", "murmur"],
+        "antonym_distractors": ["walk", "sit", "wait"],
     },
     {
         "name": "new",
@@ -351,6 +423,8 @@ WORDS_1ST_GRADE = [
         "difficulty": "easy",
         "synonyms": ["fresh", "brand-new", "recent"],
         "distractors": ["old", "broken", "used"],
+        "antonyms": ["old", "used", "worn"],
+        "antonym_distractors": ["big", "fast", "loud"],
     },
     {
         "name": "old",
@@ -360,6 +434,8 @@ WORDS_1ST_GRADE = [
         "difficulty": "easy",
         "synonyms": ["ancient", "aged", "worn"],
         "distractors": ["new", "young", "fresh"],
+        "antonyms": ["new", "young", "fresh"],
+        "antonym_distractors": ["big", "fast", "loud"],
     },
     {
         "name": "like",
@@ -369,6 +445,8 @@ WORDS_1ST_GRADE = [
         "difficulty": "easy",
         "synonyms": ["enjoy", "love", "prefer"],
         "distractors": ["hate", "dislike", "avoid"],
+        "antonyms": ["hate", "dislike", "loathe"],
+        "antonym_distractors": ["find", "see", "hold"],
     },
     {
         "name": "rich",
@@ -378,6 +456,8 @@ WORDS_1ST_GRADE = [
         "difficulty": "easy",
         "synonyms": ["wealthy", "loaded", "prosperous"],
         "distractors": ["poor", "broke", "empty"],
+        "antonyms": ["poor", "broke", "needy"],
+        "antonym_distractors": ["small", "slow", "dark"],
     },
     {
         "name": "cut",
@@ -387,6 +467,8 @@ WORDS_1ST_GRADE = [
         "difficulty": "easy",
         "synonyms": ["slice", "chop", "trim"],
         "distractors": ["glue", "tape", "tie"],
+        "antonyms": ["join", "attach", "connect"],
+        "antonym_distractors": ["hold", "find", "keep"],
     },
     {
         "name": "late",
@@ -396,6 +478,8 @@ WORDS_1ST_GRADE = [
         "difficulty": "easy",
         "synonyms": ["tardy", "delayed", "overdue"],
         "distractors": ["early", "quick", "first"],
+        "antonyms": ["early", "prompt", "on time"],
+        "antonym_distractors": ["fast", "loud", "big"],
     },
     {
         "name": "thin",
@@ -405,6 +489,8 @@ WORDS_1ST_GRADE = [
         "difficulty": "easy",
         "synonyms": ["slim", "narrow", "skinny"],
         "distractors": ["thick", "wide", "fat"],
+        "antonyms": ["thick", "wide", "fat"],
+        "antonym_distractors": ["long", "tall", "heavy"],
     },
     {
         "name": "same",
@@ -414,6 +500,8 @@ WORDS_1ST_GRADE = [
         "difficulty": "easy",
         "synonyms": ["alike", "equal", "matching"],
         "distractors": ["different", "other", "unique"],
+        "antonyms": ["different", "unlike", "opposite"],
+        "antonym_distractors": ["big", "new", "fast"],
     },
     {
         "name": "rock",
@@ -423,6 +511,8 @@ WORDS_1ST_GRADE = [
         "difficulty": "easy",
         "synonyms": ["stone", "pebble", "boulder"],
         "distractors": ["stick", "leaf", "sand"],
+        "antonyms": ["feather", "pillow", "cushion"],
+        "antonym_distractors": ["tree", "water", "grass"],
     },
     {
         "name": "glad",
@@ -432,6 +522,8 @@ WORDS_1ST_GRADE = [
         "difficulty": "easy",
         "synonyms": ["happy", "joyful", "pleased"],
         "distractors": ["sad", "angry", "bored"],
+        "antonyms": ["sad", "unhappy", "upset"],
+        "antonym_distractors": ["tired", "shy", "hungry"],
     },
     {
         "name": "fast",
@@ -441,6 +533,8 @@ WORDS_1ST_GRADE = [
         "difficulty": "easy",
         "synonyms": ["quick", "swift", "speedy"],
         "distractors": ["slow", "lazy", "heavy"],
+        "antonyms": ["slow", "sluggish", "poky"],
+        "antonym_distractors": ["loud", "heavy", "strong"],
     },
     {
         "name": "mix",
@@ -450,6 +544,8 @@ WORDS_1ST_GRADE = [
         "difficulty": "easy",
         "synonyms": ["blend", "stir", "combine"],
         "distractors": ["split", "sort", "separate"],
+        "antonyms": ["separate", "sort", "divide"],
+        "antonym_distractors": ["find", "keep", "hold"],
     },
     {
         "name": "hide",
@@ -459,6 +555,8 @@ WORDS_1ST_GRADE = [
         "difficulty": "easy",
         "synonyms": ["conceal", "cover", "tuck away"],
         "distractors": ["show", "find", "reveal"],
+        "antonyms": ["show", "reveal", "display"],
+        "antonym_distractors": ["find", "keep", "hold"],
     },
     {
         "name": "grin",
@@ -468,6 +566,8 @@ WORDS_1ST_GRADE = [
         "difficulty": "easy",
         "synonyms": ["smile", "beam", "smirk"],
         "distractors": ["frown", "cry", "pout"],
+        "antonyms": ["frown", "scowl", "pout"],
+        "antonym_distractors": ["yell", "cry", "wave"],
     },
 ]
 
@@ -489,6 +589,8 @@ WORDS_2ND_GRADE = [
         "tip": "'Happy' has double 'p' — many English words double a consonant before adding '-y'.",
         "synonyms": ["glad", "cheerful", "pleased"],
         "distractors": ["angry", "tired", "hungry"],
+        "antonyms": ["sad", "miserable", "unhappy"],
+        "antonym_distractors": ["tired", "hungry", "shy"],
     },
     {
         "name": "run",
@@ -503,6 +605,8 @@ WORDS_2ND_GRADE = [
         "tip": "'Run' is both a noun and a verb — 'go for a run' vs 'run fast'.",
         "synonyms": ["sprint", "dash", "jog"],
         "distractors": ["crawl", "sit", "sleep"],
+        "antonyms": ["stop", "stand", "freeze"],
+        "antonym_distractors": ["talk", "eat", "sleep"],
     },
     {
         "name": "beautiful",
@@ -517,6 +621,8 @@ WORDS_2ND_GRADE = [
         "tip": "The 'eau' in 'beautiful' comes from French 'beau' meaning handsome.",
         "synonyms": ["gorgeous", "stunning", "lovely"],
         "distractors": ["ugly", "plain", "dull"],
+        "antonyms": ["ugly", "hideous", "plain"],
+        "antonym_distractors": ["tall", "loud", "fast"],
     },
     {
         "name": "knight",
@@ -531,6 +637,8 @@ WORDS_2ND_GRADE = [
         "tip": "The 'k' in 'knight' is silent — Old English used to pronounce it!",
         "synonyms": ["warrior", "champion", "defender"],
         "distractors": ["peasant", "merchant", "jester"],
+        "antonyms": ["villain", "coward", "peasant"],
+        "antonym_distractors": ["king", "prince", "soldier"],
     },
     {
         "name": "umbrella",
@@ -545,6 +653,8 @@ WORDS_2ND_GRADE = [
         "tip": "'Umbrella' comes from Latin 'umbra' meaning shade or shadow.",
         "synonyms": ["parasol", "canopy", "shade"],
         "distractors": ["blanket", "jacket", "helmet"],
+        "antonyms": ["sunshine", "clear sky", "drought"],
+        "antonym_distractors": ["jacket", "hat", "scarf"],
     },
     {
         "name": "tree",
@@ -559,6 +669,8 @@ WORDS_2ND_GRADE = [
         "tip": "'Tree' has the double 'e' pattern — like 'free', 'see', 'bee'.",
         "synonyms": ["oak", "timber", "sapling"],
         "distractors": ["rock", "river", "cloud"],
+        "antonyms": ["desert", "wasteland", "barren land"],
+        "antonym_distractors": ["river", "cloud", "hill"],
     },
     {
         "name": "write",
@@ -573,6 +685,8 @@ WORDS_2ND_GRADE = [
         "tip": "The 'w' in 'write' is silent — it's a homophone of 'right'!",
         "synonyms": ["compose", "record", "inscribe"],
         "distractors": ["erase", "shout", "forget"],
+        "antonyms": ["erase", "delete", "remove"],
+        "antonym_distractors": ["draw", "read", "speak"],
     },
     {
         "name": "adventure",
@@ -587,6 +701,8 @@ WORDS_2ND_GRADE = [
         "tip": "From Latin 'adventura' — the '-ture' suffix turns verbs into nouns.",
         "synonyms": ["quest", "journey", "expedition"],
         "distractors": ["routine", "chore", "rest"],
+        "antonyms": ["routine", "boredom", "monotony"],
+        "antonym_distractors": ["sleep", "work", "rest"],
     },
     {
         "name": "elephant",
@@ -601,6 +717,8 @@ WORDS_2ND_GRADE = [
         "tip": "'Ph' makes an 'f' sound in English — from Greek 'elephas'.",
         "synonyms": ["pachyderm", "mammoth", "tusker"],
         "distractors": ["giraffe", "dolphin", "sparrow"],
+        "antonyms": ["ant", "mouse", "insect"],
+        "antonym_distractors": ["lion", "bear", "horse"],
     },
     {
         "name": "unhappy",
@@ -615,6 +733,8 @@ WORDS_2ND_GRADE = [
         "tip": "The prefix 'un-' means 'not' — one of the most common English prefixes.",
         "synonyms": ["sad", "miserable", "gloomy"],
         "distractors": ["excited", "calm", "proud"],
+        "antonyms": ["happy", "joyful", "cheerful"],
+        "antonym_distractors": ["tired", "hungry", "bored"],
     },
     {
         "name": "knowledge",
@@ -629,6 +749,8 @@ WORDS_2ND_GRADE = [
         "tip": "The 'k' in 'knowledge' is silent — same pattern as 'know' and 'knee'.",
         "synonyms": ["wisdom", "understanding", "learning"],
         "distractors": ["ignorance", "confusion", "doubt"],
+        "antonyms": ["ignorance", "confusion", "stupidity"],
+        "antonym_distractors": ["memory", "thought", "dream"],
     },
     {
         "name": "quickly",
@@ -643,6 +765,8 @@ WORDS_2ND_GRADE = [
         "tip": "The suffix '-ly' turns adjectives into adverbs: quick → quickly.",
         "synonyms": ["rapidly", "swiftly", "fast"],
         "distractors": ["slowly", "carefully", "quietly"],
+        "antonyms": ["slowly", "gradually", "lazily"],
+        "antonym_distractors": ["quietly", "loudly", "softly"],
     },
     {
         "name": "rain",
@@ -657,6 +781,8 @@ WORDS_2ND_GRADE = [
         "tip": "'Rain', 'reign', and 'rein' all sound the same — classic English homophones!",
         "synonyms": ["drizzle", "downpour", "shower"],
         "distractors": ["sunshine", "breeze", "fog"],
+        "antonyms": ["sunshine", "drought", "clear skies"],
+        "antonym_distractors": ["wind", "snow", "fog"],
     },
     {
         "name": "discover",
@@ -671,6 +797,8 @@ WORDS_2ND_GRADE = [
         "tip": "'Dis-' is a Latin prefix meaning 'apart' — discover literally means 'uncover'.",
         "synonyms": ["find", "uncover", "detect"],
         "distractors": ["hide", "lose", "ignore"],
+        "antonyms": ["hide", "lose", "conceal"],
+        "antonym_distractors": ["keep", "hold", "carry"],
     },
     {
         "name": "ocean",
@@ -685,6 +813,8 @@ WORDS_2ND_GRADE = [
         "tip": "The 'ce' in 'ocean' makes a 'sh' sound — an unusual English spelling pattern.",
         "synonyms": ["sea", "deep", "waters"],
         "distractors": ["desert", "forest", "meadow"],
+        "antonyms": ["desert", "land", "shore"],
+        "antonym_distractors": ["river", "lake", "pond"],
     },
     {
         "name": "lamb",
@@ -699,6 +829,8 @@ WORDS_2ND_GRADE = [
         "tip": "The 'b' in 'lamb' is silent — same pattern as 'comb', 'thumb', 'climb'.",
         "synonyms": ["sheep", "ewe", "yearling"],
         "distractors": ["calf", "foal", "piglet"],
+        "antonyms": ["wolf", "predator", "hunter"],
+        "antonym_distractors": ["cow", "horse", "pig"],
     },
     {
         "name": "impossible",
@@ -713,6 +845,8 @@ WORDS_2ND_GRADE = [
         "tip": "The prefix 'im-' is a form of 'in-' (meaning 'not') used before 'b', 'm', 'p'.",
         "synonyms": ["unachievable", "hopeless", "unattainable"],
         "distractors": ["simple", "likely", "certain"],
+        "antonyms": ["possible", "easy", "achievable"],
+        "antonym_distractors": ["likely", "common", "normal"],
     },
     {
         "name": "flower",
@@ -727,6 +861,8 @@ WORDS_2ND_GRADE = [
         "tip": "'Flower' and 'flour' are homophones — they used to be the same word!",
         "synonyms": ["bloom", "blossom", "petal"],
         "distractors": ["thorn", "root", "stone"],
+        "antonyms": ["weed", "thorn", "dead plant"],
+        "antonym_distractors": ["rock", "sand", "mud"],
     },
     {
         "name": "remember",
@@ -741,6 +877,8 @@ WORDS_2ND_GRADE = [
         "tip": "'Re-' means 'again' — to remember is to bring a 'member' (thought) back again.",
         "synonyms": ["recall", "recollect", "reminisce"],
         "distractors": ["forget", "ignore", "overlook"],
+        "antonyms": ["forget", "overlook", "ignore"],
+        "antonym_distractors": ["think", "dream", "wish"],
     },
     {
         "name": "bright",
@@ -755,6 +893,8 @@ WORDS_2ND_GRADE = [
         "tip": "The 'gh' in 'bright' is silent — same as 'night', 'light', 'right'.",
         "synonyms": ["radiant", "luminous", "shining"],
         "distractors": ["dim", "dull", "murky"],
+        "antonyms": ["dark", "dim", "gloomy"],
+        "antonym_distractors": ["cold", "quiet", "slow"],
     },
     {
         "name": "education",
@@ -769,6 +909,8 @@ WORDS_2ND_GRADE = [
         "tip": "The suffix '-tion' (pronounced 'shun') is one of the most common noun endings.",
         "synonyms": ["learning", "schooling", "instruction"],
         "distractors": ["vacation", "entertainment", "relaxation"],
+        "antonyms": ["ignorance", "illiteracy", "neglect"],
+        "antonym_distractors": ["vacation", "play", "rest"],
     },
     {
         "name": "cold",
@@ -783,6 +925,8 @@ WORDS_2ND_GRADE = [
         "tip": "'Cold' is both a noun ('catch a cold') and an adjective ('cold water').",
         "synonyms": ["chilly", "freezing", "frigid"],
         "distractors": ["warm", "humid", "dry"],
+        "antonyms": ["hot", "warm", "boiling"],
+        "antonym_distractors": ["wet", "dry", "dark"],
     },
     {
         "name": "butterfly",
@@ -797,6 +941,8 @@ WORDS_2ND_GRADE = [
         "tip": "'Butterfly' is a compound word: 'butter' + 'fly'. Nobody knows why!",
         "synonyms": ["moth", "insect", "winged creature"],
         "distractors": ["beetle", "spider", "worm"],
+        "antonyms": ["caterpillar", "larva", "cocoon"],
+        "antonym_distractors": ["beetle", "spider", "ant"],
     },
     {
         "name": "accept",
@@ -811,6 +957,8 @@ WORDS_2ND_GRADE = [
         "tip": "Don't confuse 'accept' (verb: to receive) with 'except' (preposition: excluding).",
         "synonyms": ["agree", "approve", "embrace"],
         "distractors": ["reject", "refuse", "deny"],
+        "antonyms": ["reject", "refuse", "decline"],
+        "antonym_distractors": ["ignore", "forget", "drop"],
     },
     {
         "name": "sleep",
@@ -825,6 +973,8 @@ WORDS_2ND_GRADE = [
         "tip": "'Sleep' is both a noun and verb — 'a good sleep' vs 'I sleep well'.",
         "synonyms": ["rest", "slumber", "nap"],
         "distractors": ["wake", "work", "exercise"],
+        "antonyms": ["wake", "arise", "get up"],
+        "antonym_distractors": ["eat", "run", "talk"],
     },
     {
         "name": "mysterious",
@@ -839,6 +989,8 @@ WORDS_2ND_GRADE = [
         "tip": "The suffix '-ous' turns nouns into adjectives: mystery → mysterious.",
         "synonyms": ["enigmatic", "puzzling", "cryptic"],
         "distractors": ["obvious", "clear", "simple"],
+        "antonyms": ["obvious", "clear", "plain"],
+        "antonym_distractors": ["loud", "fast", "bright"],
     },
     {
         "name": "island",
@@ -853,6 +1005,8 @@ WORDS_2ND_GRADE = [
         "tip": "The 's' in 'island' is silent! It was added by mistake — influenced by Latin 'insula'.",
         "synonyms": ["isle", "atoll", "islet"],
         "distractors": ["peninsula", "continent", "valley"],
+        "antonyms": ["mainland", "continent", "shore"],
+        "antonym_distractors": ["river", "lake", "mountain"],
     },
     {
         "name": "return",
@@ -867,6 +1021,8 @@ WORDS_2ND_GRADE = [
         "tip": "'Re-' means 'back' — return literally means 'to turn back'.",
         "synonyms": ["come back", "go back", "restore"],
         "distractors": ["depart", "leave", "abandon"],
+        "antonyms": ["leave", "depart", "go away"],
+        "antonym_distractors": ["stay", "wait", "rest"],
     },
     {
         "name": "gentle",
@@ -881,6 +1037,8 @@ WORDS_2ND_GRADE = [
         "tip": "From French 'gentil' — the '-le' ending is common in English adjectives.",
         "synonyms": ["soft", "tender", "mild"],
         "distractors": ["rough", "harsh", "fierce"],
+        "antonyms": ["rough", "harsh", "violent"],
+        "antonym_distractors": ["loud", "fast", "dark"],
     },
     {
         "name": "mountain",
@@ -895,6 +1053,8 @@ WORDS_2ND_GRADE = [
         "tip": "The 'ai' in 'mountain' makes a short 'i' sound — English spelling is tricky!",
         "synonyms": ["peak", "summit", "ridge"],
         "distractors": ["valley", "canyon", "plain"],
+        "antonyms": ["valley", "canyon", "ditch"],
+        "antonym_distractors": ["river", "lake", "forest"],
     },
     {
         "name": "disappear",
@@ -909,6 +1069,8 @@ WORDS_2ND_GRADE = [
         "tip": "'Dis-' means 'not' or 'opposite' — disappear = opposite of appear.",
         "synonyms": ["vanish", "fade", "evaporate"],
         "distractors": ["appear", "arrive", "emerge"],
+        "antonyms": ["appear", "show up", "emerge"],
+        "antonym_distractors": ["stay", "wait", "rest"],
     },
     {
         "name": "light",
@@ -923,6 +1085,8 @@ WORDS_2ND_GRADE = [
         "tip": "'Light' can be a noun, verb, AND adjective — one of English's most flexible words.",
         "synonyms": ["glow", "radiance", "brightness"],
         "distractors": ["darkness", "shadow", "gloom"],
+        "antonyms": ["dark", "heavy", "shadow"],
+        "antonym_distractors": ["cold", "quiet", "slow"],
     },
     {
         "name": "kindness",
@@ -937,6 +1101,8 @@ WORDS_2ND_GRADE = [
         "tip": "The suffix '-ness' turns adjectives into nouns: kind → kindness.",
         "synonyms": ["generosity", "compassion", "goodness"],
         "distractors": ["cruelty", "meanness", "greed"],
+        "antonyms": ["cruelty", "meanness", "hatred"],
+        "antonym_distractors": ["sadness", "weakness", "shyness"],
     },
     {
         "name": "whisper",
@@ -951,6 +1117,8 @@ WORDS_2ND_GRADE = [
         "tip": "The 'wh-' in 'whisper' was once pronounced with a puff of air — some dialects still do!",
         "synonyms": ["murmur", "mutter", "hush"],
         "distractors": ["shout", "scream", "yell"],
+        "antonyms": ["shout", "yell", "scream"],
+        "antonym_distractors": ["sing", "talk", "hum"],
     },
     {
         "name": "ancient",
@@ -965,6 +1133,8 @@ WORDS_2ND_GRADE = [
         "tip": "From Latin 'antiquus' via French — the '-ient' ending is a Latin pattern.",
         "synonyms": ["old", "antique", "prehistoric"],
         "distractors": ["modern", "recent", "new"],
+        "antonyms": ["modern", "new", "recent"],
+        "antonym_distractors": ["big", "fast", "bright"],
     },
     {
         "name": "storm",
@@ -979,6 +1149,8 @@ WORDS_2ND_GRADE = [
         "tip": "'Storm' is Germanic — many short, strong English weather words are Germanic.",
         "synonyms": ["tempest", "gale", "squall"],
         "distractors": ["calm", "breeze", "stillness"],
+        "antonyms": ["calm", "peace", "stillness"],
+        "antonym_distractors": ["cloud", "wind", "rain"],
     },
     {
         "name": "rebuild",
@@ -993,6 +1165,8 @@ WORDS_2ND_GRADE = [
         "tip": "'Re-' means 'again' — rebuild, redo, restart all follow this pattern.",
         "synonyms": ["reconstruct", "restore", "renovate"],
         "distractors": ["demolish", "destroy", "abandon"],
+        "antonyms": ["destroy", "demolish", "wreck"],
+        "antonym_distractors": ["move", "sell", "leave"],
     },
     {
         "name": "tongue",
@@ -1007,6 +1181,8 @@ WORDS_2ND_GRADE = [
         "tip": "The 'ue' at the end of 'tongue' is silent — one of English's trickiest spellings.",
         "synonyms": ["language", "speech", "dialect"],
         "distractors": ["finger", "elbow", "ankle"],
+        "antonyms": ["silence", "muteness", "speechlessness"],
+        "antonym_distractors": ["hand", "foot", "ear"],
     },
     {
         "name": "joyful",
@@ -1021,6 +1197,8 @@ WORDS_2ND_GRADE = [
         "tip": "The suffix '-ful' means 'full of' — joyful = full of joy.",
         "synonyms": ["delighted", "elated", "jubilant"],
         "distractors": ["sorrowful", "gloomy", "bitter"],
+        "antonyms": ["sad", "miserable", "sorrowful"],
+        "antonym_distractors": ["tired", "shy", "quiet"],
     },
     {
         "name": "wolf",
@@ -1035,6 +1213,8 @@ WORDS_2ND_GRADE = [
         "tip": "Plural is 'wolves' — English changes 'f' to 'v' before adding '-es' (wife/wives, leaf/leaves).",
         "synonyms": ["canine", "predator", "beast"],
         "distractors": ["rabbit", "deer", "lamb"],
+        "antonyms": ["sheep", "lamb", "prey"],
+        "antonym_distractors": ["cat", "bird", "fish"],
     },
     {
         "name": "precious",
@@ -1049,6 +1229,8 @@ WORDS_2ND_GRADE = [
         "tip": "The '-ious' suffix (from Latin) is common in adjectives: precious, curious, serious.",
         "synonyms": ["valuable", "treasured", "priceless"],
         "distractors": ["worthless", "cheap", "common"],
+        "antonyms": ["worthless", "cheap", "disposable"],
+        "antonym_distractors": ["heavy", "dark", "old"],
     },
     {
         "name": "eagle",
@@ -1063,6 +1245,8 @@ WORDS_2ND_GRADE = [
         "tip": "The 'le' at the end is a common English pattern — eagle, table, little, apple.",
         "synonyms": ["hawk", "falcon", "raptor"],
         "distractors": ["penguin", "parrot", "robin"],
+        "antonyms": ["mouse", "worm", "prey"],
+        "antonym_distractors": ["cat", "dog", "horse"],
     },
     {
         "name": "predict",
@@ -1077,6 +1261,8 @@ WORDS_2ND_GRADE = [
         "tip": "'Pre-' means 'before' and 'dict' means 'say' — predict = say beforehand.",
         "synonyms": ["forecast", "foresee", "anticipate"],
         "distractors": ["recall", "review", "reflect"],
+        "antonyms": ["guess blindly", "react", "be surprised"],
+        "antonym_distractors": ["remember", "forget", "dream"],
     },
     {
         "name": "angry",
@@ -1091,6 +1277,8 @@ WORDS_2ND_GRADE = [
         "tip": "'Angry' comes from Old Norse 'angr' meaning grief — Vikings influenced English!",
         "synonyms": ["furious", "mad", "enraged"],
         "distractors": ["calm", "peaceful", "pleased"],
+        "antonyms": ["calm", "peaceful", "happy"],
+        "antonym_distractors": ["tired", "shy", "slow"],
     },
     {
         "name": "scissors",
@@ -1105,6 +1293,8 @@ WORDS_2ND_GRADE = [
         "tip": "The 'sc' makes an 's' sound (the 'c' is silent) — 'scissors' is always plural!",
         "synonyms": ["shears", "clippers", "cutters"],
         "distractors": ["stapler", "ruler", "eraser"],
+        "antonyms": ["glue", "tape", "stapler"],
+        "antonym_distractors": ["ruler", "pencil", "eraser"],
     },
     {
         "name": "freeze",
@@ -1119,6 +1309,8 @@ WORDS_2ND_GRADE = [
         "tip": "Irregular past tense: freeze → froze → frozen. Many old Germanic verbs are irregular.",
         "synonyms": ["solidify", "ice over", "chill"],
         "distractors": ["melt", "boil", "evaporate"],
+        "antonyms": ["melt", "thaw", "heat up"],
+        "antonym_distractors": ["pour", "drip", "flow"],
     },
     {
         "name": "comfortable",
@@ -1133,6 +1325,8 @@ WORDS_2ND_GRADE = [
         "tip": "Most people say 'COMF-ter-ble' (3 syllables) — the 'or' is often silent in speech.",
         "synonyms": ["cozy", "snug", "relaxed"],
         "distractors": ["stiff", "tense", "painful"],
+        "antonyms": ["uncomfortable", "painful", "stiff"],
+        "antonym_distractors": ["dark", "cold", "loud"],
     },
     {
         "name": "explore",
@@ -1147,6 +1341,8 @@ WORDS_2ND_GRADE = [
         "tip": "'Ex-' means 'out' — explore originally meant 'to search out'.",
         "synonyms": ["investigate", "discover", "examine"],
         "distractors": ["ignore", "avoid", "retreat"],
+        "antonyms": ["avoid", "ignore", "stay home"],
+        "antonym_distractors": ["rest", "sleep", "sit"],
     },
     # --- Words 51-100 (M1c) ---
     {
@@ -1162,6 +1358,8 @@ WORDS_2ND_GRADE = [
         "tip": "From French 'coeur' (heart) — courage literally means 'heartfulness'.",
         "synonyms": ["bravery", "valor", "nerve"],
         "distractors": ["cowardice", "fear", "doubt"],
+        "antonyms": ["fear", "cowardice", "timidity"],
+        "antonym_distractors": ["sadness", "anger", "pride"],
     },
     {
         "name": "bread",
@@ -1176,6 +1374,8 @@ WORDS_2ND_GRADE = [
         "tip": "The 'ea' in 'bread' sounds like 'eh' — compare 'read' (past) vs 'read' (present).",
         "synonyms": ["loaf", "roll", "baguette"],
         "distractors": ["cake", "cookie", "candy"],
+        "antonyms": ["hunger", "starvation", "famine"],
+        "antonym_distractors": ["water", "milk", "juice"],
     },
     {
         "name": "invisible",
@@ -1190,6 +1390,8 @@ WORDS_2ND_GRADE = [
         "tip": "'In-' means 'not' + 'visible' = not visible. The prefix 'in-' becomes 'im-' before b/m/p.",
         "synonyms": ["unseen", "hidden", "concealed"],
         "distractors": ["obvious", "visible", "bright"],
+        "antonyms": ["visible", "obvious", "clear"],
+        "antonym_distractors": ["loud", "big", "bright"],
     },
     {
         "name": "climb",
@@ -1204,6 +1406,8 @@ WORDS_2ND_GRADE = [
         "tip": "The 'b' in 'climb' is silent — same pattern as 'lamb', 'comb', 'thumb'.",
         "synonyms": ["ascend", "scale", "mount"],
         "distractors": ["descend", "fall", "slide"],
+        "antonyms": ["descend", "fall", "drop"],
+        "antonym_distractors": ["walk", "sit", "rest"],
     },
     {
         "name": "wonderful",
@@ -1218,6 +1422,8 @@ WORDS_2ND_GRADE = [
         "tip": "'Wonder' + '-ful' = full of wonder. Compare: beautiful, grateful, powerful.",
         "synonyms": ["amazing", "marvelous", "fantastic"],
         "distractors": ["terrible", "boring", "ordinary"],
+        "antonyms": ["terrible", "awful", "dreadful"],
+        "antonym_distractors": ["boring", "quiet", "slow"],
     },
     {
         "name": "receive",
@@ -1232,6 +1438,8 @@ WORDS_2ND_GRADE = [
         "tip": "Remember: 'i before e, except after c' — receive, ceiling, deceive.",
         "synonyms": ["get", "obtain", "acquire"],
         "distractors": ["give", "send", "donate"],
+        "antonyms": ["give", "send", "donate"],
+        "antonym_distractors": ["keep", "hold", "carry"],
     },
     {
         "name": "shadow",
@@ -1246,6 +1454,8 @@ WORDS_2ND_GRADE = [
         "tip": "'Shadow' comes from Old English 'sceadwe' — the 'ow' ending is Germanic.",
         "synonyms": ["shade", "silhouette", "outline"],
         "distractors": ["spotlight", "glare", "flash"],
+        "antonyms": ["light", "sunshine", "brightness"],
+        "antonym_distractors": ["color", "sky", "cloud"],
     },
     {
         "name": "pronunciation",
@@ -1260,6 +1470,8 @@ WORDS_2ND_GRADE = [
         "tip": "Note: it's 'pronUNciation' not 'proNOUNciation' — a common mistake!",
         "synonyms": ["articulation", "enunciation", "accent"],
         "distractors": ["spelling", "grammar", "vocabulary"],
+        "antonyms": ["silence", "muteness", "quiet"],
+        "antonym_distractors": ["spelling", "writing", "reading"],
     },
     {
         "name": "strong",
@@ -1274,6 +1486,8 @@ WORDS_2ND_GRADE = [
         "tip": "'Strong' is Germanic — short, punchy adjectives in English tend to be Germanic.",
         "synonyms": ["powerful", "mighty", "sturdy"],
         "distractors": ["weak", "fragile", "delicate"],
+        "antonyms": ["weak", "fragile", "feeble"],
+        "antonym_distractors": ["slow", "small", "quiet"],
     },
     {
         "name": "environment",
@@ -1288,6 +1502,8 @@ WORDS_2ND_GRADE = [
         "tip": "The '-ment' suffix turns verbs into nouns: environ → environment.",
         "synonyms": ["surroundings", "habitat", "ecosystem"],
         "distractors": ["furniture", "equipment", "machinery"],
+        "antonyms": ["wasteland", "pollution", "destruction"],
+        "antonym_distractors": ["building", "machine", "factory"],
     },
     {
         "name": "fish",
@@ -1302,6 +1518,8 @@ WORDS_2ND_GRADE = [
         "tip": "'Fish' is the same in singular and plural — 'one fish, two fish'!",
         "synonyms": ["trout", "bass", "seafood"],
         "distractors": ["bird", "mammal", "insect"],
+        "antonyms": ["bird", "land animal", "mammal"],
+        "antonym_distractors": ["frog", "crab", "whale"],
     },
     {
         "name": "unbelievable",
@@ -1316,6 +1534,8 @@ WORDS_2ND_GRADE = [
         "tip": "Three parts: 'un-' (not) + 'believe' + '-able' (can be). English loves stacking affixes!",
         "synonyms": ["incredible", "astonishing", "astounding"],
         "distractors": ["ordinary", "expected", "typical"],
+        "antonyms": ["believable", "ordinary", "expected"],
+        "antonym_distractors": ["boring", "quiet", "slow"],
     },
     {
         "name": "whistle",
@@ -1330,6 +1550,8 @@ WORDS_2ND_GRADE = [
         "tip": "The 't' in 'whistle' is silent — same as 'castle', 'listen', 'fasten'.",
         "synonyms": ["tweet", "toot", "pipe"],
         "distractors": ["drum", "clap", "stomp"],
+        "antonyms": ["silence", "hush", "quiet"],
+        "antonym_distractors": ["clap", "wave", "nod"],
     },
     {
         "name": "curious",
@@ -1344,6 +1566,8 @@ WORDS_2ND_GRADE = [
         "tip": "From Latin 'curiosus' — the '-ous' suffix means 'full of': full of curiosity.",
         "synonyms": ["inquisitive", "nosy", "eager"],
         "distractors": ["bored", "indifferent", "apathetic"],
+        "antonyms": ["bored", "indifferent", "uninterested"],
+        "antonym_distractors": ["tired", "shy", "slow"],
     },
     {
         "name": "earth",
@@ -1358,6 +1582,8 @@ WORDS_2ND_GRADE = [
         "tip": "'Earth' has two meanings: the planet (capitalize) and soil (lowercase).",
         "synonyms": ["world", "globe", "soil"],
         "distractors": ["sky", "space", "void"],
+        "antonyms": ["sky", "space", "heaven"],
+        "antonym_distractors": ["water", "fire", "wind"],
     },
     {
         "name": "rewrite",
@@ -1372,6 +1598,8 @@ WORDS_2ND_GRADE = [
         "tip": "'Re-' + 'write' — both the prefix 're-' and silent 'w' in one word!",
         "synonyms": ["revise", "edit", "rework"],
         "distractors": ["copy", "delete", "ignore"],
+        "antonyms": ["erase", "delete", "discard"],
+        "antonym_distractors": ["read", "copy", "print"],
     },
     {
         "name": "happiness",
@@ -1386,6 +1614,8 @@ WORDS_2ND_GRADE = [
         "tip": "When adding '-ness' to words ending in 'y', change 'y' to 'i': happy → happiness.",
         "synonyms": ["joy", "bliss", "delight"],
         "distractors": ["sadness", "misery", "sorrow"],
+        "antonyms": ["sadness", "misery", "sorrow"],
+        "antonym_distractors": ["anger", "fear", "worry"],
     },
     {
         "name": "foreign",
@@ -1400,6 +1630,8 @@ WORDS_2ND_GRADE = [
         "tip": "The 'g' in 'foreign' is silent — and 'eig' breaks the 'i before e' rule!",
         "synonyms": ["overseas", "alien", "exotic"],
         "distractors": ["local", "native", "domestic"],
+        "antonyms": ["local", "native", "domestic"],
+        "antonym_distractors": ["nearby", "common", "simple"],
     },
     {
         "name": "search",
@@ -1414,6 +1646,8 @@ WORDS_2ND_GRADE = [
         "tip": "From Old French 'cerchier' — the 'ea' makes an 'er' sound here.",
         "synonyms": ["seek", "hunt", "look for"],
         "distractors": ["hide", "ignore", "forget"],
+        "antonyms": ["hide", "lose", "give up"],
+        "antonym_distractors": ["keep", "hold", "wait"],
     },
     {
         "name": "peaceful",
@@ -1428,6 +1662,8 @@ WORDS_2ND_GRADE = [
         "tip": "'Peace' + '-ful' — the suffix '-ful' always has one 'l' (not 'full').",
         "synonyms": ["calm", "tranquil", "serene"],
         "distractors": ["chaotic", "noisy", "violent"],
+        "antonyms": ["violent", "chaotic", "noisy"],
+        "antonym_distractors": ["dark", "cold", "fast"],
     },
     {
         "name": "thunder",
@@ -1442,6 +1678,8 @@ WORDS_2ND_GRADE = [
         "tip": "'Thunder' comes from the Norse god Thor — 'Thursday' is 'Thor's day'!",
         "synonyms": ["rumble", "boom", "roar"],
         "distractors": ["whisper", "silence", "hum"],
+        "antonyms": ["silence", "quiet", "calm"],
+        "antonym_distractors": ["rain", "wind", "snow"],
     },
     {
         "name": "photograph",
@@ -1456,6 +1694,8 @@ WORDS_2ND_GRADE = [
         "tip": "'Photo' (light) + 'graph' (write) — Greek roots meaning 'writing with light'.",
         "synonyms": ["picture", "snapshot", "image"],
         "distractors": ["painting", "sculpture", "drawing"],
+        "antonyms": ["blank", "empty frame", "void"],
+        "antonym_distractors": ["painting", "drawing", "sketch"],
     },
     {
         "name": "awkward",
@@ -1470,6 +1710,8 @@ WORDS_2ND_GRADE = [
         "tip": "From Old Norse 'afugr' (turned the wrong way) — another Viking word in English!",
         "synonyms": ["clumsy", "uncomfortable", "embarrassing"],
         "distractors": ["graceful", "smooth", "natural"],
+        "antonyms": ["graceful", "smooth", "elegant"],
+        "antonym_distractors": ["fast", "loud", "bright"],
     },
     {
         "name": "growth",
@@ -1484,6 +1726,8 @@ WORDS_2ND_GRADE = [
         "tip": "'Grow' + '-th' — the suffix '-th' turns verbs into nouns: warm→warmth, grow→growth.",
         "synonyms": ["expansion", "development", "increase"],
         "distractors": ["decline", "shrinkage", "loss"],
+        "antonyms": ["shrinkage", "decline", "decay"],
+        "antonym_distractors": ["change", "speed", "weight"],
     },
     {
         "name": "wreck",
@@ -1498,6 +1742,8 @@ WORDS_2ND_GRADE = [
         "tip": "The 'w' in 'wreck' is silent — from Old Norse. Compare: wrap, wrist, wrong.",
         "synonyms": ["ruin", "destroy", "demolish"],
         "distractors": ["repair", "build", "protect"],
+        "antonyms": ["repair", "fix", "restore"],
+        "antonym_distractors": ["keep", "hold", "save"],
     },
     {
         "name": "imagination",
@@ -1512,6 +1758,8 @@ WORDS_2ND_GRADE = [
         "tip": "From Latin 'imaginatio' — the '-ation' suffix is one of the most productive in English.",
         "synonyms": ["creativity", "fantasy", "vision"],
         "distractors": ["reality", "logic", "fact"],
+        "antonyms": ["reality", "fact", "truth"],
+        "antonym_distractors": ["memory", "dream", "thought"],
     },
     {
         "name": "speak",
@@ -1526,6 +1774,8 @@ WORDS_2ND_GRADE = [
         "tip": "Irregular: speak → spoke → spoken. The vowel change pattern is common in Germanic verbs.",
         "synonyms": ["talk", "say", "utter"],
         "distractors": ["listen", "read", "watch"],
+        "antonyms": ["listen", "be silent", "hush"],
+        "antonym_distractors": ["walk", "eat", "sleep"],
     },
     {
         "name": "delicious",
@@ -1540,6 +1790,8 @@ WORDS_2ND_GRADE = [
         "tip": "From Latin 'deliciosus' — the '-ious' ending often signals a Latin-origin adjective.",
         "synonyms": ["tasty", "scrumptious", "appetizing"],
         "distractors": ["bland", "bitter", "sour"],
+        "antonyms": ["disgusting", "tasteless", "bland"],
+        "antonym_distractors": ["cold", "hard", "dry"],
     },
     {
         "name": "rainbow",
@@ -1554,6 +1806,8 @@ WORDS_2ND_GRADE = [
         "tip": "'Rain' + 'bow' (arc) — a compound word. The 'bow' here means a curved shape.",
         "synonyms": ["spectrum", "arc", "prism"],
         "distractors": ["cloud", "fog", "haze"],
+        "antonyms": ["gray sky", "darkness", "gloom"],
+        "antonym_distractors": ["cloud", "fog", "wind"],
     },
     {
         "name": "misspell",
@@ -1568,6 +1822,8 @@ WORDS_2ND_GRADE = [
         "tip": "'Mis-' + 'spell' — the double 's' comes from the prefix ending and root starting with 's'.",
         "synonyms": ["miswrite", "err", "blunder"],
         "distractors": ["correct", "proofread", "fix"],
+        "antonyms": ["spell correctly", "proofread", "correct"],
+        "antonym_distractors": ["read", "write", "type"],
     },
     {
         "name": "knee",
@@ -1582,6 +1838,8 @@ WORDS_2ND_GRADE = [
         "tip": "The 'k' in 'knee' is silent — in Old English, it was pronounced! Same for 'knot', 'knife'.",
         "synonyms": ["joint", "kneecap", "leg bend"],
         "distractors": ["elbow", "shoulder", "ankle"],
+        "antonyms": ["elbow", "shoulder", "hip"],
+        "antonym_distractors": ["hand", "foot", "head"],
     },
     {
         "name": "dangerous",
@@ -1596,6 +1854,8 @@ WORDS_2ND_GRADE = [
         "tip": "'Danger' + '-ous' — from Old French 'dangeros'. The '-ous' makes it an adjective.",
         "synonyms": ["hazardous", "risky", "perilous"],
         "distractors": ["safe", "harmless", "secure"],
+        "antonyms": ["safe", "harmless", "secure"],
+        "antonym_distractors": ["slow", "quiet", "small"],
     },
     {
         "name": "understand",
@@ -1610,6 +1870,8 @@ WORDS_2ND_GRADE = [
         "tip": "'Under-' + 'stand' — in Old English, 'understandan' meant 'to stand among' (to grasp).",
         "synonyms": ["comprehend", "grasp", "get"],
         "distractors": ["confuse", "misread", "doubt"],
+        "antonyms": ["misunderstand", "confuse", "puzzle"],
+        "antonym_distractors": ["forget", "ignore", "skip"],
     },
     {
         "name": "squirrel",
@@ -1624,6 +1886,8 @@ WORDS_2ND_GRADE = [
         "tip": "From Greek 'skiouros' (shadow-tail). One of the hardest English words to pronounce!",
         "synonyms": ["rodent", "chipmunk", "critter"],
         "distractors": ["rabbit", "fox", "owl"],
+        "antonyms": ["hawk", "eagle", "predator"],
+        "antonym_distractors": ["rabbit", "deer", "frog"],
     },
     {
         "name": "silent",
@@ -1638,6 +1902,8 @@ WORDS_2ND_GRADE = [
         "tip": "Ironic: 'silent' itself has no silent letters, but it's an anagram of 'listen'!",
         "synonyms": ["quiet", "mute", "hushed"],
         "distractors": ["loud", "noisy", "booming"],
+        "antonyms": ["loud", "noisy", "deafening"],
+        "antonym_distractors": ["fast", "big", "bright"],
     },
     {
         "name": "autumn",
@@ -1652,6 +1918,8 @@ WORDS_2ND_GRADE = [
         "tip": "The 'n' in 'autumn' is silent — but it appears in 'autumnal' (aw-TUM-nul)!",
         "synonyms": ["fall", "harvest time", "season"],
         "distractors": ["spring", "summer", "winter"],
+        "antonyms": ["spring", "bloom time", "renewal"],
+        "antonym_distractors": ["summer", "winter", "night"],
     },
     {
         "name": "believe",
@@ -1666,6 +1934,8 @@ WORDS_2ND_GRADE = [
         "tip": "'I before E except after C' works here: beLIEve. But 'weird' breaks the rule!",
         "synonyms": ["trust", "have faith", "accept"],
         "distractors": ["doubt", "deny", "question"],
+        "antonyms": ["doubt", "deny", "distrust"],
+        "antonym_distractors": ["forget", "ignore", "skip"],
     },
     {
         "name": "together",
@@ -1680,6 +1950,8 @@ WORDS_2ND_GRADE = [
         "tip": "'To-' + 'gather' — literally 'to gather (in one place)'. Old English compound!",
         "synonyms": ["united", "jointly", "collectively"],
         "distractors": ["apart", "alone", "separately"],
+        "antonyms": ["apart", "alone", "separately"],
+        "antonym_distractors": ["slowly", "quietly", "sadly"],
     },
     {
         "name": "vocabulary",
@@ -1694,6 +1966,8 @@ WORDS_2ND_GRADE = [
         "tip": "From Latin 'vocabulum' (word). The '-ary' suffix means 'related to'.",
         "synonyms": ["lexicon", "glossary", "word list"],
         "distractors": ["grammar", "syntax", "punctuation"],
+        "antonyms": ["silence", "wordlessness", "speechlessness"],
+        "antonym_distractors": ["grammar", "math", "art"],
     },
     {
         "name": "warm",
@@ -1708,6 +1982,8 @@ WORDS_2ND_GRADE = [
         "tip": "'Warm' works as both a verb ('warm up') and adjective ('warm day').",
         "synonyms": ["toasty", "heated", "mild"],
         "distractors": ["cold", "frozen", "icy"],
+        "antonyms": ["cold", "cool", "freezing"],
+        "antonym_distractors": ["wet", "dark", "dry"],
     },
     {
         "name": "unfortunately",
@@ -1722,6 +1998,8 @@ WORDS_2ND_GRADE = [
         "tip": "Four parts: 'un-' + 'fortun(e)' + '-ate' + '-ly'. English can stack many affixes!",
         "synonyms": ["sadly", "regrettably", "unluckily"],
         "distractors": ["happily", "luckily", "thankfully"],
+        "antonyms": ["fortunately", "luckily", "thankfully"],
+        "antonym_distractors": ["slowly", "quietly", "hardly"],
     },
     {
         "name": "apple",
@@ -1736,6 +2014,8 @@ WORDS_2ND_GRADE = [
         "tip": "One of the oldest English words — 'aeppel' in Old English. Double 'p' is key to spelling it.",
         "synonyms": ["fruit", "pip", "orchard fruit"],
         "distractors": ["carrot", "potato", "onion"],
+        "antonyms": ["candy", "junk food", "sweets"],
+        "antonym_distractors": ["banana", "grape", "orange"],
     },
     {
         "name": "language",
@@ -1750,6 +2030,8 @@ WORDS_2ND_GRADE = [
         "tip": "From French 'langage' — the '-age' ending is a French suffix (voyage, courage).",
         "synonyms": ["tongue", "speech", "dialect"],
         "distractors": ["silence", "gesture", "noise"],
+        "antonyms": ["silence", "gestures", "muteness"],
+        "antonym_distractors": ["music", "art", "dance"],
     },
     {
         "name": "thought",
@@ -1764,6 +2046,8 @@ WORDS_2ND_GRADE = [
         "tip": "The 'ough' in 'thought' makes an 'aw' sound — 'ough' has 7+ pronunciations in English!",
         "synonyms": ["idea", "notion", "reflection"],
         "distractors": ["action", "movement", "reflex"],
+        "antonyms": ["action", "impulse", "reflex"],
+        "antonym_distractors": ["dream", "wish", "hope"],
     },
     {
         "name": "create",
@@ -1778,6 +2062,8 @@ WORDS_2ND_GRADE = [
         "tip": "From Latin 'creare'. Related words: creation, creative, creature — all share the root.",
         "synonyms": ["make", "produce", "invent"],
         "distractors": ["destroy", "remove", "erase"],
+        "antonyms": ["destroy", "demolish", "ruin"],
+        "antonym_distractors": ["keep", "hold", "find"],
     },
     {
         "name": "neighbor",
@@ -1792,6 +2078,8 @@ WORDS_2ND_GRADE = [
         "tip": "The 'gh' is silent. In British English it's 'neighbour' — American drops the 'u'.",
         "synonyms": ["resident", "local", "fellow citizen"],
         "distractors": ["stranger", "tourist", "foreigner"],
+        "antonyms": ["stranger", "outsider", "foreigner"],
+        "antonym_distractors": ["friend", "relative", "teacher"],
     },
     {
         "name": "enormous",
@@ -1806,6 +2094,8 @@ WORDS_2ND_GRADE = [
         "tip": "'E-' (out of) + 'norm' (standard) + '-ous' — literally 'out of the normal' in Latin.",
         "synonyms": ["huge", "massive", "gigantic"],
         "distractors": ["tiny", "small", "miniature"],
+        "antonyms": ["tiny", "miniature", "microscopic"],
+        "antonym_distractors": ["short", "thin", "light"],
     },
     {
         "name": "wrist",
@@ -1820,6 +2110,8 @@ WORDS_2ND_GRADE = [
         "tip": "The 'w' in 'wrist' is silent — from Old English 'wrist' (a turning joint).",
         "synonyms": ["forearm joint", "hand joint", "carpus"],
         "distractors": ["ankle", "elbow", "knuckle"],
+        "antonyms": ["ankle", "elbow", "shoulder"],
+        "antonym_distractors": ["hand", "finger", "thumb"],
     },
     {
         "name": "travel",
@@ -1834,6 +2126,8 @@ WORDS_2ND_GRADE = [
         "tip": "From French 'travail' (hard work) — traveling used to be very difficult!",
         "synonyms": ["journey", "voyage", "trip"],
         "distractors": ["stay", "remain", "settle"],
+        "antonyms": ["stay", "remain", "settle"],
+        "antonym_distractors": ["rest", "sleep", "wait"],
     },
     {
         "name": "grateful",
@@ -1848,6 +2142,8 @@ WORDS_2ND_GRADE = [
         "tip": "It's 'grate-ful' not 'great-ful' — a very common spelling mistake!",
         "synonyms": ["thankful", "appreciative", "obliged"],
         "distractors": ["ungrateful", "resentful", "bitter"],
+        "antonyms": ["ungrateful", "thankless", "unappreciative"],
+        "antonym_distractors": ["angry", "tired", "bored"],
     },
     {
         "name": "midnight",
@@ -1862,6 +2158,8 @@ WORDS_2ND_GRADE = [
         "tip": "'Mid' + 'night' — a compound word. The 'gh' in 'night' is silent.",
         "synonyms": ["twelve o'clock", "dead of night", "witching hour"],
         "distractors": ["noon", "dawn", "dusk"],
+        "antonyms": ["noon", "midday", "high noon"],
+        "antonym_distractors": ["morning", "evening", "dawn"],
     },
     {
         "name": "listen",
@@ -1876,6 +2174,8 @@ WORDS_2ND_GRADE = [
         "tip": "The 't' in 'listen' is silent — and 'listen' is an anagram of 'silent'!",
         "synonyms": ["hear", "pay attention", "tune in"],
         "distractors": ["ignore", "shout", "speak"],
+        "antonyms": ["ignore", "disregard", "tune out"],
+        "antonym_distractors": ["talk", "sing", "shout"],
     },
 ]
 
