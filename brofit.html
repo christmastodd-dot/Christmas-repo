@@ -2420,10 +2420,10 @@
       addXP(50);
     }
 
-    // ===== npoint.io Sync Layer =====
+    // ===== JSONBlob Sync Layer =====
 
-    var NPOINT_API = 'https://api.npoint.io';
-    var roomId = null;         // npoint document ID
+    var BLOB_API = 'https://jsonblob.com/api/jsonblob';
+    var roomId = null;         // JSONBlob ID
     var sharedData = null;     // Full room data from server
     var syncInterval = null;
     var userId = null;         // This user's key in sharedData.members
@@ -2443,28 +2443,45 @@
       var data = { members: {} };
       data.members[userName] = buildMyData();
 
-      return fetch(NPOINT_API, {
+      return fetch(BLOB_API, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify(data)
       }).then(function(res) {
         if (!res.ok) {
-          return res.text().then(function(t) { throw new Error('Create ' + res.status + ': ' + t.substring(0, 100)); });
+          return res.text().then(function(t) { throw new Error('Create ' + res.status + ': ' + t.substring(0, 80)); });
         }
-        return res.json();
-      }).then(function(doc) {
-        // npoint may return the data directly or wrapped
-        var id = doc.id || doc._id;
+        // Try every way to get the blob ID
+        var id = null;
+
+        // Check headers (JSONBlob uses various header names)
+        var loc = res.headers.get('Location') || res.headers.get('location');
+        if (loc) id = loc.split('/').pop();
         if (!id) {
-          // If npoint doesn't return an ID, fall back to generating a local room
-          throw new Error('No ID in response: ' + JSON.stringify(doc).substring(0, 100));
+          var xblob = res.headers.get('x-jsonblob') || res.headers.get('X-Jsonblob') || res.headers.get('X-jsonblob');
+          if (xblob) id = xblob;
         }
-        return { id: id, data: data };
+
+        // Check response URL (some browsers expose the final URL after redirect)
+        if (!id && res.url && res.url.indexOf('/api/jsonblob/') !== -1) {
+          id = res.url.split('/api/jsonblob/').pop();
+        }
+
+        if (id && id.length > 5) {
+          return { id: id, data: data };
+        }
+
+        // Dump all headers for debugging
+        var hdrs = [];
+        res.headers.forEach(function(val, key) { hdrs.push(key + ': ' + val); });
+        throw new Error('No blob ID. URL: ' + (res.url || 'none').substring(0, 80) + ' Headers: ' + hdrs.join(', ').substring(0, 150));
       });
     }
 
     function fetchRoom(id) {
-      return fetch(NPOINT_API + '/' + id).then(function(res) {
+      return fetch(BLOB_API + '/' + id, {
+        headers: { 'Accept': 'application/json' }
+      }).then(function(res) {
         if (!res.ok) throw new Error('Room not found');
         return res.json();
       });
@@ -2484,9 +2501,9 @@
 
         setSyncStatus('syncing');
 
-        return fetch(NPOINT_API + '/' + roomId, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+        return fetch(BLOB_API + '/' + roomId, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
           body: JSON.stringify(sharedData)
         });
       }).then(function(res) {
