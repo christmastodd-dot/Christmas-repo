@@ -173,46 +173,111 @@
           "exercises": [
             {
               "name": "Walking",
-              "sets": 1,
-              "duration": "20"
+              "setData": [
+                {
+                  "duration": "20",
+                  "distance": 0.8
+                }
+              ]
             },
             {
               "name": "Walking Backwards",
-              "sets": 1,
-              "duration": "5"
+              "setData": [
+                {
+                  "duration": "5",
+                  "distance": 0
+                }
+              ]
             },
             {
               "name": "Dumbbell Curl",
-              "sets": 3,
-              "reps": 20
+              "setData": [
+                {
+                  "reps": 20
+                },
+                {
+                  "reps": 18
+                },
+                {
+                  "reps": 16
+                }
+              ]
             },
             {
               "name": "Lateral Raise",
-              "sets": 3,
-              "reps": 25
+              "setData": [
+                {
+                  "reps": 25
+                },
+                {
+                  "reps": 20
+                },
+                {
+                  "reps": 20
+                }
+              ]
             },
             {
               "name": "Hammer Curl",
-              "sets": 3,
-              "reps": 18
+              "setData": [
+                {
+                  "reps": 18
+                },
+                {
+                  "reps": 16
+                },
+                {
+                  "reps": 14
+                }
+              ]
             },
             {
               "name": "Front Raise",
-              "sets": 3
+              "setData": [
+                {
+                  "reps": 25
+                },
+                {
+                  "reps": 20
+                },
+                {
+                  "reps": 20
+                }
+              ]
             },
             {
               "name": "Forearm Curls",
-              "sets": 3
+              "setData": [
+                {
+                  "reps": 20
+                },
+                {
+                  "reps": 18
+                },
+                {
+                  "reps": 16
+                }
+              ]
             },
             {
               "name": "Rear Delt Fly",
-              "sets": 3
+              "setData": [
+                {
+                  "reps": 25
+                },
+                {
+                  "reps": 20
+                },
+                {
+                  "reps": 20
+                }
+              ]
             }
           ],
           "author": "Coach"
         }
       ],
-      "lastSync": "2026-03-29T23:40:09.106Z"
+      "lastSync": "2026-03-29T23:42:43.075Z"
     },
     "Manny Fresh": {
       "xp": 10,
