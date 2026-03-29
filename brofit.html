@@ -1346,8 +1346,10 @@
     <div class="join-modal join-modal--hidden" id="join-modal">
       <div class="join-modal__box">
         <div class="join-modal__title">BROFIT</div>
-        <div class="join-modal__sub">Enter your name to get started</div>
+        <div class="join-modal__sub">Enter your name and GitHub token to sync</div>
         <input class="join-modal__input" id="join-name" type="text" placeholder="Your name" maxlength="20" autofocus>
+        <input class="join-modal__input" id="join-token" type="password" placeholder="GitHub token (for sync)">
+        <div style="color:#888;font-size:0.7rem;margin:-8px 0 8px;text-align:left;">Token needs repo scope. Create at github.com/settings/tokens</div>
         <button class="join-modal__btn join-modal__btn--primary" id="join-btn" onclick="joinRoom()">Let's Go</button>
         <div class="join-modal__error join-modal--hidden" id="join-error"></div>
       </div>
@@ -2421,144 +2423,78 @@
     }
 
     // ===== Cloud Sync Layer =====
-    // Uses multiple JSON storage backends with fallback
+    // Uses GitHub repo as shared database
 
-    var BACKENDS = [
-      {
-        name: 'jsonblob',
-        create: function(data) {
-          return fetch('https://jsonblob.com/api/jsonblob', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-            body: JSON.stringify(data)
-          }).then(function(res) {
-            if (!res.ok) throw new Error(res.status);
-            var id = null;
-            var loc = res.headers.get('Location');
-            if (loc) id = loc.split('/').pop();
-            if (!id && res.url && res.url.indexOf('/api/jsonblob/') !== -1) {
-              id = res.url.split('/api/jsonblob/').pop();
-            }
-            if (!id) throw new Error('No ID from jsonblob');
-            return { id: 'jb_' + id, rawId: id };
-          });
-        },
-        read: function(rawId) {
-          return fetch('https://jsonblob.com/api/jsonblob/' + rawId, {
-            headers: { 'Accept': 'application/json' }
-          }).then(function(res) {
-            if (!res.ok) throw new Error(res.status);
-            return res.json();
-          });
-        },
-        write: function(rawId, data) {
-          return fetch('https://jsonblob.com/api/jsonblob/' + rawId, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-            body: JSON.stringify(data)
-          });
-        }
-      },
-      {
-        name: 'extendsclass',
-        create: function(data) {
-          return fetch('https://json.extendsclass.com/bin', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-          }).then(function(res) {
-            if (!res.ok) throw new Error(res.status);
-            return res.json();
-          }).then(function(j) {
-            var id = j.id || j.uri;
-            if (!id) throw new Error('No ID from extendsclass');
-            return { id: 'ec_' + id, rawId: id };
-          });
-        },
-        read: function(rawId) {
-          return fetch('https://json.extendsclass.com/bin/' + rawId).then(function(res) {
-            if (!res.ok) throw new Error(res.status);
-            return res.json();
-          });
-        },
-        write: function(rawId, data) {
-          return fetch('https://json.extendsclass.com/bin/' + rawId, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-          });
-        }
-      }
-    ];
+    // GitHub repo as database — reads from raw URL (no auth), writes via API
+    var GH_OWNER = 'christmastodd-dot';
+    var GH_REPO = 'Christmas-repo';
+    var GH_BRANCH = 'claude/fitness-motivation-app-nAT3r';
+    var GH_FILE = 'brofit-data.json';
+    var GH_RAW = 'https://raw.githubusercontent.com/' + GH_OWNER + '/' + GH_REPO + '/' + GH_BRANCH + '/' + GH_FILE;
+    var GH_API = 'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + GH_FILE;
+    var ghToken = null;
+    var ghFileSha = null;
 
-    var activeBackend = null;
-    var roomId = null;
-    var roomRawId = null;
+    var roomId = 'github';
     var sharedData = null;
     var syncInterval = null;
     var userId = null;
 
-    function getRoomIdFromURL() {
-      var params = new URLSearchParams(window.location.search);
-      return params.get('room');
+    function loadGHToken() {
+      return localStorage.getItem('brofit_gh_token') || null;
     }
 
-    function setRoomInURL(id) {
-      var url = new URL(window.location.href);
-      url.searchParams.set('room', id);
-      window.history.replaceState(null, '', url.toString());
-    }
-
-    function getBackendAndRawId(prefixedId) {
-      if (prefixedId.indexOf('jb_') === 0) return { backend: BACKENDS[0], rawId: prefixedId.substring(3) };
-      if (prefixedId.indexOf('ec_') === 0) return { backend: BACKENDS[1], rawId: prefixedId.substring(3) };
-      // Legacy: assume jsonblob
-      return { backend: BACKENDS[0], rawId: prefixedId };
-    }
-
-    function createRoom(userName) {
-      var data = { members: {} };
-      data.members[userName] = buildMyData();
-
-      var errors = [];
-
-      function tryBackend(idx) {
-        if (idx >= BACKENDS.length) {
-          return Promise.reject(new Error('All backends failed: ' + errors.join(' | ')));
-        }
-        var b = BACKENDS[idx];
-        return b.create(data).then(function(result) {
-          activeBackend = b;
-          roomRawId = result.rawId;
-          return { id: result.id, data: data };
-        }).catch(function(err) {
-          errors.push(b.name + ': ' + err.message);
-          return tryBackend(idx + 1);
-        });
-      }
-
-      return tryBackend(0);
-    }
-
-    function fetchRoom(prefixedId) {
-      var info = getBackendAndRawId(prefixedId);
-      activeBackend = info.backend;
-      roomRawId = info.rawId;
-      return info.backend.read(info.rawId);
+    function fetchRoom() {
+      // Read from raw GitHub (no auth, cache-bust)
+      return fetch(GH_RAW + '?t=' + Date.now()).then(function(res) {
+        if (res.status === 404) return { members: {} };
+        if (!res.ok) throw new Error('Fetch ' + res.status);
+        return res.json();
+      });
     }
 
     function pushToRoom() {
-      if (!roomId || !userId || !activeBackend) return Promise.resolve();
+      if (!userId || !ghToken) return Promise.resolve();
 
-      return activeBackend.read(roomRawId).then(function(latest) {
-        sharedData = latest;
-        if (!sharedData) sharedData = { members: {} };
+      // Get latest file SHA first (needed for updates)
+      return fetch(GH_API + '?ref=' + GH_BRANCH, {
+        headers: { 'Authorization': 'token ' + ghToken, 'Accept': 'application/vnd.github.v3+json' }
+      }).then(function(res) {
+        if (res.status === 404) {
+          ghFileSha = null;
+          return fetchRoom();
+        }
+        if (!res.ok) throw new Error('API ' + res.status);
+        return res.json().then(function(file) {
+          ghFileSha = file.sha;
+          return JSON.parse(atob(file.content));
+        });
+      }).then(function(latest) {
+        sharedData = latest || { members: {} };
         if (!sharedData.members) sharedData.members = {};
         sharedData.members[userId] = buildMyData();
 
         setSyncStatus('syncing');
-        return activeBackend.write(roomRawId, sharedData);
+
+        var body = {
+          message: 'BroFit sync: ' + userId,
+          content: btoa(unescape(encodeURIComponent(JSON.stringify(sharedData, null, 2)))),
+          branch: GH_BRANCH
+        };
+        if (ghFileSha) body.sha = ghFileSha;
+
+        return fetch(GH_API, {
+          method: 'PUT',
+          headers: { 'Authorization': 'token ' + ghToken, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
+          body: JSON.stringify(body)
+        });
       }).then(function(res) {
+        if (!res.ok) {
+          return res.json().then(function(j) { throw new Error('Push ' + res.status + ': ' + (j.message || '')); });
+        }
+        return res.json();
+      }).then(function(result) {
+        if (result.content) ghFileSha = result.content.sha;
         setSyncStatus('online');
         renderAllLeaderboards();
       }).catch(function(err) {
@@ -2568,9 +2504,7 @@
     }
 
     function pullFromRoom() {
-      if (!roomId) return Promise.resolve();
-
-      return fetchRoom(roomId).then(function(data) {
+      return fetchRoom().then(function(data) {
         sharedData = data;
         setSyncStatus('online');
         renderAllLeaderboards();
@@ -2647,8 +2581,7 @@
     }
 
     function shareRoom() {
-      if (!roomId) return;
-      var url = window.location.origin + window.location.pathname + '?room=' + roomId;
+      var url = window.location.origin + window.location.pathname;
       if (navigator.share) {
         navigator.share({ title: 'BroFit — Join the crew', url: url });
       } else if (navigator.clipboard) {
@@ -2690,47 +2623,34 @@
 
     function joinRoom() {
       var nameInput = document.getElementById('join-name');
+      var tokenInput = document.getElementById('join-token');
       var name = nameInput.value.trim();
+      var token = tokenInput.value.trim();
       if (!name) {
         document.getElementById('join-error').textContent = 'Enter a name first';
         document.getElementById('join-error').classList.remove('join-modal--hidden');
         return;
       }
+      if (!token) {
+        document.getElementById('join-error').textContent = 'GitHub token is required for sync';
+        document.getElementById('join-error').classList.remove('join-modal--hidden');
+        return;
+      }
 
       userId = name;
+      ghToken = token;
       appState.name = name;
       saveState(appState);
+      localStorage.setItem('brofit_gh_token', token);
 
-      var existingRoom = getRoomIdFromURL() || localStorage.getItem('brofit_room_id');
-
-      if (existingRoom) {
-        // Join existing room
-        fetchRoom(existingRoom).then(function(data) {
-          roomId = existingRoom;
-          sharedData = data;
-          localStorage.setItem('brofit_room_id', roomId);
-          setRoomInURL(roomId);
-          finishJoin();
-        }).catch(function() {
-          // Room gone, create new
-          createNewRoom(name);
-        });
-      } else {
-        createNewRoom(name);
-      }
-    }
-
-    function createNewRoom(name) {
-      createRoom(name).then(function(result) {
-        roomId = result.id;
-        sharedData = result.data;
-        localStorage.setItem('brofit_room_id', roomId);
-        setRoomInURL(roomId);
+      // Fetch existing shared data, then finish join
+      fetchRoom().then(function(data) {
+        sharedData = data;
         finishJoin();
       }).catch(function(err) {
-        document.getElementById('join-error').textContent = 'Error: ' + (err.message || err) + '. Tap to retry.';
-        document.getElementById('join-error').classList.remove('join-modal--hidden');
-        console.error('Create room failed:', err);
+        // Even if fetch fails, proceed with empty data
+        sharedData = { members: {} };
+        finishJoin();
       });
     }
 
@@ -2812,34 +2732,26 @@
 
       // Check if user needs to join
       var savedName = appState.name;
-      var savedRoom = getRoomIdFromURL() || localStorage.getItem('brofit_room_id');
+      var savedToken = loadGHToken();
 
-      if (savedName && savedRoom) {
-        // Auto-join
+      if (savedName && savedToken) {
+        // Auto-connect with saved credentials
         userId = savedName;
-        fetchRoom(savedRoom).then(function(data) {
-          roomId = savedRoom;
+        ghToken = savedToken;
+        fetchRoom().then(function(data) {
           sharedData = data;
-          localStorage.setItem('brofit_room_id', roomId);
-          setRoomInURL(roomId);
           pushToRoom();
           syncInterval = setInterval(pullFromRoom, 30000);
           renderAllLeaderboards();
         }).catch(function() {
-          // Room gone, create fresh
-          createRoom(savedName).then(function(result) {
-            roomId = result.id;
-            sharedData = result.data;
-            localStorage.setItem('brofit_room_id', roomId);
-            setRoomInURL(roomId);
-            syncInterval = setInterval(pullFromRoom, 30000);
-            renderAllLeaderboards();
-          });
+          sharedData = { members: {} };
+          setSyncStatus('offline');
         });
       } else {
         // Show join modal
         document.getElementById('join-modal').classList.remove('join-modal--hidden');
         if (savedName) document.getElementById('join-name').value = savedName;
+        if (savedToken) document.getElementById('join-token').value = savedToken;
       }
     });
   </script>
