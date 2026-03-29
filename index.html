@@ -1919,8 +1919,14 @@ function drawHUD() {
   ctx.lineWidth = 3;
   ctx.strokeText('LIVES', 12, 28);
   ctx.fillText('LIVES', 12, 28);
-  for (let i = 0; i < MAX_LIVES; i++) {
+  for (let i = 0; i < 3; i++) {
     drawClover(70 + i * 28, 16, i < lives ? '#28b839' : '#555');
+  }
+  // show count if lives > 3
+  if (lives > 3) {
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 13px monospace';
+    ctx.fillText('x' + lives, 70 + 3 * 28, 22);
   }
 
   // level indicator
