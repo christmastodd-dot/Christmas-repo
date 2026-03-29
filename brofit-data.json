@@ -1,34 +1,5 @@
 {
   "members": {
-    "Bo Tosaka": {
-      "xp": 10,
-      "streak": 1,
-      "prs": {
-        "bench": {
-          "history": [],
-          "best": null
-        },
-        "squat": {
-          "history": [],
-          "best": null
-        },
-        "deadlift": {
-          "history": [],
-          "best": null
-        },
-        "mile": {
-          "history": [],
-          "best": null
-        }
-      },
-      "weight": {
-        "history": [],
-        "start": null,
-        "current": null
-      },
-      "workouts": [],
-      "lastSync": "2026-03-29T09:14:43.072Z"
-    },
     "Riyo": {
       "xp": 10,
       "streak": 1,
