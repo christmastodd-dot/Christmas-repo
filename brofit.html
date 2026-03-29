@@ -1148,6 +1148,145 @@
       min-width: 60px;
     }
 
+    /* ===== Sync Indicator ===== */
+    .sync-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg-card);
+      border-radius: var(--radius-sm);
+      padding: 8px 12px;
+      margin-bottom: 12px;
+      font-size: 0.75rem;
+    }
+
+    .sync-bar__status {
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .sync-bar__dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--color-green);
+    }
+
+    .sync-bar__dot--offline {
+      background: var(--color-red);
+    }
+
+    .sync-bar__dot--syncing {
+      background: var(--color-gold);
+      animation: pulse 1s ease infinite;
+    }
+
+    .sync-bar__share {
+      background: none;
+      border: 1px solid var(--text-muted);
+      color: var(--text-secondary);
+      font-family: var(--font-body);
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+
+    .sync-bar__share:active {
+      transform: scale(0.95);
+    }
+
+    /* ===== Join Modal ===== */
+    .join-modal {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .join-modal--hidden {
+      display: none;
+    }
+
+    .join-modal__box {
+      background: var(--bg-card);
+      border-radius: var(--radius-md);
+      padding: 28px 24px;
+      max-width: 360px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .join-modal__title {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      margin-bottom: 6px;
+    }
+
+    .join-modal__sub {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 20px;
+    }
+
+    .join-modal__input {
+      width: 100%;
+      background: var(--bg-surface);
+      border: 1px solid var(--text-muted);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-size: 1rem;
+      padding: 10px 14px;
+      outline: none;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+
+    .join-modal__input:focus {
+      border-color: var(--color-orange);
+    }
+
+    .join-modal__btn {
+      width: 100%;
+      padding: 12px;
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      font-weight: 700;
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      margin-bottom: 8px;
+      transition: transform 0.15s;
+    }
+
+    .join-modal__btn:active {
+      transform: scale(0.97);
+    }
+
+    .join-modal__btn--primary {
+      background: linear-gradient(135deg, var(--color-orange), var(--color-red));
+      color: #fff;
+    }
+
+    .join-modal__btn--secondary {
+      background: var(--bg-surface);
+      color: var(--text-secondary);
+    }
+
+    .join-modal__error {
+      color: var(--color-red);
+      font-size: 0.8rem;
+      margin-top: 8px;
+    }
+
     /* ===== Animations ===== */
     @keyframes slideUp {
       to {
@@ -1203,6 +1342,17 @@
 <body>
   <div class="app">
 
+    <!-- Join Modal -->
+    <div class="join-modal join-modal--hidden" id="join-modal">
+      <div class="join-modal__box">
+        <div class="join-modal__title">BROFIT</div>
+        <div class="join-modal__sub">Enter your name to get started</div>
+        <input class="join-modal__input" id="join-name" type="text" placeholder="Your name" maxlength="20" autofocus>
+        <button class="join-modal__btn join-modal__btn--primary" id="join-btn" onclick="joinRoom()">Let's Go</button>
+        <div class="join-modal__error join-modal--hidden" id="join-error"></div>
+      </div>
+    </div>
+
     <!-- Header -->
     <header class="header">
       <div class="header__logo">BROFIT</div>
@@ -1213,6 +1363,15 @@
         <div class="header__xp" id="header-xp">0 XP</div>
       </div>
     </header>
+
+    <!-- Sync Bar -->
+    <div class="sync-bar" id="sync-bar">
+      <div class="sync-bar__status">
+        <div class="sync-bar__dot" id="sync-dot"></div>
+        <span id="sync-label">Connecting...</span>
+      </div>
+      <button class="sync-bar__share" onclick="shareRoom()">Share Link</button>
+    </div>
 
     <!-- PR Log (appears near top when opened) -->
     <div class="pr-log" id="pr-log">
@@ -1475,12 +1634,14 @@
     ];
 
     // Mock crew PRs for leaderboard
-    const crewPRs = {
-      bench:    [{ name: 'Jake', value: 275 }, { name: 'Marcus', value: 315 }, { name: 'Dev', value: 225 }, { name: 'Tyler', value: 255 }, { name: 'Chris', value: 195 }, { name: 'Aiden', value: 185 }],
-      squat:    [{ name: 'Jake', value: 365 }, { name: 'Marcus', value: 405 }, { name: 'Dev', value: 315 }, { name: 'Tyler', value: 345 }, { name: 'Chris', value: 275 }, { name: 'Aiden', value: 245 }],
-      deadlift: [{ name: 'Jake', value: 425 }, { name: 'Marcus', value: 495 }, { name: 'Dev', value: 365 }, { name: 'Tyler', value: 405 }, { name: 'Chris', value: 335 }, { name: 'Aiden', value: 295 }],
-      mile:     [{ name: 'Jake', value: 398 }, { name: 'Marcus', value: 372 }, { name: 'Dev', value: 445 }, { name: 'Tyler', value: 410 }, { name: 'Chris', value: 480 }, { name: 'Aiden', value: 520 }]
-    };
+    function getCrewPRs(liftKey) {
+      var crew = getCrewFromShared();
+      return crew.filter(function(c) {
+        return c.data && c.data.prs && c.data.prs[liftKey] && c.data.prs[liftKey].best != null;
+      }).map(function(c) {
+        return { name: c.name, value: c.data.prs[liftKey].best };
+      });
+    }
 
     function loadPRHistory(liftKey) {
       const raw = localStorage.getItem('brofit_pr_' + liftKey);
@@ -1670,8 +1831,8 @@
       var table = document.getElementById('pr-leaderboard-table');
       table.innerHTML = '';
 
-      // Gather crew entries
-      var entries = crewPRs[liftKey].map(function(c) {
+      // Gather crew entries from shared data
+      var entries = getCrewPRs(liftKey).map(function(c) {
         return { name: c.name, value: c.value, isUser: false };
       });
 
@@ -1713,15 +1874,14 @@
 
     // ===== Weight Tracker =====
 
-    // Mock crew starting weights and current weights
-    const crewWeights = [
-      { name: 'Jake', start: 218, current: 203 },
-      { name: 'Marcus', start: 235, current: 224 },
-      { name: 'Dev', start: 195, current: 188 },
-      { name: 'Tyler', start: 210, current: 198 },
-      { name: 'Chris', start: 245, current: 239 },
-      { name: 'Aiden', start: 178, current: 176 }
-    ];
+    function getCrewWeights() {
+      var crew = getCrewFromShared();
+      return crew.filter(function(c) {
+        return c.data && c.data.weight && c.data.weight.start != null;
+      }).map(function(c) {
+        return { name: c.name, start: c.data.weight.start, current: c.data.weight.current || c.data.weight.start };
+      });
+    }
 
     function loadWeightHistory() {
       var raw = localStorage.getItem('brofit_weight');
@@ -1884,8 +2044,8 @@
       var table = document.getElementById('weight-lb-table');
       table.innerHTML = '';
 
-      // Build entries from crew
-      var entries = crewWeights.map(function(c) {
+      // Build entries from shared crew data
+      var entries = getCrewWeights().map(function(c) {
         var lost = c.start - c.current;
         var pct = (lost / c.start) * 100;
         return { name: c.name, lbs: lost, pct: pct, start: c.start, current: c.current, isUser: false };
@@ -2183,20 +2343,16 @@
 
     // ===== Crew Leaderboard =====
 
-    const crewMembers = [
-      { name: 'Jake', xp: 840 },
-      { name: 'Marcus', xp: 1250 },
-      { name: 'Dev', xp: 430 },
-      { name: 'Tyler', xp: 670 },
-      { name: 'Chris', xp: 310 },
-      { name: 'Aiden', xp: 95 }
-    ];
-
     function renderLeaderboard() {
       const userName = appState.name || 'You';
       const userEntry = { name: userName, xp: appState.xp, isUser: true };
 
-      const board = [...crewMembers, userEntry].sort(function(a, b) { return b.xp - a.xp; });
+      // Build crew from shared data
+      var crewEntries = getCrewFromShared().map(function(c) {
+        return { name: c.name, xp: (c.data && c.data.xp) || 0, isUser: false };
+      });
+
+      const board = crewEntries.concat([userEntry]).sort(function(a, b) { return b.xp - a.xp; });
 
       const list = document.getElementById('leaderboard-list');
       list.innerHTML = '';
@@ -2264,6 +2420,269 @@
       addXP(50);
     }
 
+    // ===== JSONBlob Sync Layer =====
+
+    var BLOB_API = 'https://jsonblob.com/api/jsonblob';
+    var roomId = null;         // JSONBlob ID
+    var sharedData = null;     // Full room data from server
+    var syncInterval = null;
+    var userId = null;         // This user's key in sharedData.members
+
+    function getRoomIdFromURL() {
+      var params = new URLSearchParams(window.location.search);
+      return params.get('room');
+    }
+
+    function setRoomInURL(id) {
+      var url = new URL(window.location.href);
+      url.searchParams.set('room', id);
+      window.history.replaceState(null, '', url.toString());
+    }
+
+    function createRoom(userName) {
+      var data = { members: {} };
+      data.members[userName] = buildMyData();
+
+      return fetch(BLOB_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(data)
+      }).then(function(res) {
+        // JSONBlob returns the blob URL in the Location header
+        var loc = res.headers.get('Location') || res.headers.get('location');
+        if (loc) {
+          var id = loc.split('/').pop();
+          return { id: id, data: data };
+        }
+        // Fallback: try X-jsonblob header
+        var xid = res.headers.get('X-jsonblob');
+        if (xid) return { id: xid, data: data };
+        return res.json().then(function(j) {
+          throw new Error('Could not get blob ID');
+        });
+      });
+    }
+
+    function fetchRoom(id) {
+      return fetch(BLOB_API + '/' + id, {
+        headers: { 'Accept': 'application/json' }
+      }).then(function(res) {
+        if (!res.ok) throw new Error('Room not found');
+        return res.json();
+      });
+    }
+
+    function pushToRoom() {
+      if (!roomId || !userId) return Promise.resolve();
+
+      // Build my data
+      var myData = buildMyData();
+
+      // Merge into shared data
+      if (!sharedData) sharedData = { members: {} };
+      if (!sharedData.members) sharedData.members = {};
+      sharedData.members[userId] = myData;
+
+      setSyncStatus('syncing');
+
+      return fetch(BLOB_API + '/' + roomId, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(sharedData)
+      }).then(function(res) {
+        if (!res.ok) throw new Error('Sync failed');
+        setSyncStatus('online');
+      }).catch(function(err) {
+        console.error('Push failed:', err);
+        setSyncStatus('offline');
+      });
+    }
+
+    function pullFromRoom() {
+      if (!roomId) return Promise.resolve();
+
+      return fetchRoom(roomId).then(function(data) {
+        sharedData = data;
+        setSyncStatus('online');
+        renderAllLeaderboards();
+      }).catch(function(err) {
+        console.error('Pull failed:', err);
+        setSyncStatus('offline');
+      });
+    }
+
+    function buildMyData() {
+      var prData = {};
+      liftDefs.forEach(function(lift) {
+        var history = loadPRHistory(lift.key);
+        var best = getBestPR(history, lift.unit);
+        prData[lift.key] = {
+          history: history,
+          best: best ? best.value : null
+        };
+      });
+
+      var weightHistory = loadWeightHistory();
+      var wStart = weightHistory.length > 0 ? weightHistory[0].value : null;
+      var wCurrent = weightHistory.length > 0 ? weightHistory[weightHistory.length - 1].value : null;
+
+      return {
+        xp: appState.xp,
+        streak: appState.streak,
+        prs: prData,
+        weight: {
+          history: weightHistory,
+          start: wStart,
+          current: wCurrent
+        },
+        lastSync: new Date().toISOString()
+      };
+    }
+
+    function renderAllLeaderboards() {
+      renderLeaderboard();
+      renderPRLeaderboard(activePRTab);
+      renderWeightLossLeaderboard(activeWeightLBTab);
+    }
+
+    // Get all crew members from shared data (excluding current user)
+    function getCrewFromShared() {
+      if (!sharedData || !sharedData.members) return [];
+      var crew = [];
+      Object.keys(sharedData.members).forEach(function(name) {
+        if (name !== userId) {
+          crew.push({ name: name, data: sharedData.members[name] });
+        }
+      });
+      return crew;
+    }
+
+    function setSyncStatus(status) {
+      var dot = document.getElementById('sync-dot');
+      var label = document.getElementById('sync-label');
+      dot.className = 'sync-bar__dot';
+      if (status === 'online') {
+        dot.classList.add('');
+        var count = sharedData && sharedData.members ? Object.keys(sharedData.members).length : 0;
+        label.textContent = count + ' member' + (count !== 1 ? 's' : '') + ' synced';
+      } else if (status === 'syncing') {
+        dot.classList.add('sync-bar__dot--syncing');
+        label.textContent = 'Syncing...';
+      } else if (status === 'offline') {
+        dot.classList.add('sync-bar__dot--offline');
+        label.textContent = 'Offline — using local data';
+      } else {
+        dot.classList.add('sync-bar__dot--syncing');
+        label.textContent = 'Connecting...';
+      }
+    }
+
+    function shareRoom() {
+      if (!roomId) return;
+      var url = window.location.origin + window.location.pathname + '?room=' + roomId;
+      if (navigator.share) {
+        navigator.share({ title: 'BroFit — Join the crew', url: url });
+      } else if (navigator.clipboard) {
+        navigator.clipboard.writeText(url).then(function() {
+          var btn = document.querySelector('.sync-bar__share');
+          btn.textContent = 'Copied!';
+          setTimeout(function() { btn.textContent = 'Share Link'; }, 2000);
+        });
+      }
+    }
+
+    // Auto-push after data changes
+    var pushDebounceTimer = null;
+    function schedulePush() {
+      clearTimeout(pushDebounceTimer);
+      pushDebounceTimer = setTimeout(pushToRoom, 1000);
+    }
+
+    // Override addXP to also trigger sync
+    var _origAddXP = addXP;
+    addXP = function(amount) {
+      _origAddXP(amount);
+      schedulePush();
+    };
+
+    // Override savePRHistory to trigger sync
+    var _origSavePR = savePRHistory;
+    savePRHistory = function(liftKey, history) {
+      _origSavePR(liftKey, history);
+      schedulePush();
+    };
+
+    // Override saveWeightHistory to trigger sync
+    var _origSaveWeight = saveWeightHistory;
+    saveWeightHistory = function(history) {
+      _origSaveWeight(history);
+      schedulePush();
+    };
+
+    function joinRoom() {
+      var nameInput = document.getElementById('join-name');
+      var name = nameInput.value.trim();
+      if (!name) {
+        document.getElementById('join-error').textContent = 'Enter a name first';
+        document.getElementById('join-error').classList.remove('join-modal--hidden');
+        return;
+      }
+
+      userId = name;
+      appState.name = name;
+      saveState(appState);
+
+      var existingRoom = getRoomIdFromURL() || localStorage.getItem('brofit_room_id');
+
+      if (existingRoom) {
+        // Join existing room
+        fetchRoom(existingRoom).then(function(data) {
+          roomId = existingRoom;
+          sharedData = data;
+          localStorage.setItem('brofit_room_id', roomId);
+          setRoomInURL(roomId);
+          finishJoin();
+        }).catch(function() {
+          // Room gone, create new
+          createNewRoom(name);
+        });
+      } else {
+        createNewRoom(name);
+      }
+    }
+
+    function createNewRoom(name) {
+      createRoom(name).then(function(result) {
+        roomId = result.id;
+        sharedData = result.data;
+        localStorage.setItem('brofit_room_id', roomId);
+        setRoomInURL(roomId);
+        finishJoin();
+      }).catch(function(err) {
+        document.getElementById('join-error').textContent = 'Could not connect. Try again.';
+        document.getElementById('join-error').classList.remove('join-modal--hidden');
+        console.error('Create room failed:', err);
+      });
+    }
+
+    function finishJoin() {
+      // Hide modal
+      document.getElementById('join-modal').classList.add('join-modal--hidden');
+
+      // Update name input
+      document.getElementById('name-input').value = appState.name;
+
+      // Push initial data
+      pushToRoom();
+
+      // Start polling
+      syncInterval = setInterval(pullFromRoom, 30000);
+
+      // Render everything
+      refreshUI();
+      renderAllLeaderboards();
+    }
+
     // ===== Init =====
 
     document.addEventListener('DOMContentLoaded', function() {
@@ -2300,17 +2719,59 @@
       // Wire up buttons
       document.getElementById('challenge-btn').addEventListener('click', handleChallengeComplete);
 
-      // Name input saves to state
+      // Name input saves to state and re-syncs
       document.getElementById('name-input').addEventListener('input', function(e) {
-        appState.name = e.target.value.trim();
+        var newName = e.target.value.trim();
+        if (newName && newName !== userId && sharedData && sharedData.members) {
+          // Rename in shared data
+          var oldData = sharedData.members[userId];
+          delete sharedData.members[userId];
+          userId = newName;
+          sharedData.members[userId] = oldData;
+        }
+        appState.name = newName;
+        userId = newName;
         saveState(appState);
         refreshUI();
+        schedulePush();
       });
 
       // Rotating footer taglines
       taglineIndex = Math.floor(Math.random() * taglines.length);
       document.getElementById('footer-tagline').textContent = taglines[taglineIndex];
       setInterval(rotateTagline, 5000);
+
+      // Check if user needs to join
+      var savedName = appState.name;
+      var savedRoom = getRoomIdFromURL() || localStorage.getItem('brofit_room_id');
+
+      if (savedName && savedRoom) {
+        // Auto-join
+        userId = savedName;
+        fetchRoom(savedRoom).then(function(data) {
+          roomId = savedRoom;
+          sharedData = data;
+          localStorage.setItem('brofit_room_id', roomId);
+          setRoomInURL(roomId);
+          pushToRoom();
+          syncInterval = setInterval(pullFromRoom, 30000);
+          renderAllLeaderboards();
+        }).catch(function() {
+          // Room gone, create fresh
+          createRoom(savedName).then(function(result) {
+            roomId = result.id;
+            sharedData = result.data;
+            localStorage.setItem('brofit_room_id', roomId);
+            setRoomInURL(roomId);
+            syncInterval = setInterval(pullFromRoom, 30000);
+            renderAllLeaderboards();
+          });
+        });
+      } else {
+        // Show join modal
+        document.getElementById('join-modal').classList.remove('join-modal--hidden');
+        if (savedName) document.getElementById('join-name').value = savedName;
+      }
     });
   </script>
 </body>
