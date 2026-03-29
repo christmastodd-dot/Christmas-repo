@@ -1300,16 +1300,18 @@
       display: flex;
       flex-direction: column;
       overflow-y: auto;
-      padding: 16px;
+      padding: 12px;
+      -webkit-overflow-scrolling: touch;
     }
 
     .workout-edit-container {
       background: var(--bg-surface);
       border-radius: var(--radius-md);
-      padding: 16px;
+      padding: 14px;
       max-width: 500px;
       width: 100%;
       margin: auto;
+      overflow: hidden;
     }
 
     .workout-edit-title {
@@ -1345,8 +1347,9 @@
     .workout-edit-exercise {
       background: var(--bg-card);
       border-radius: var(--radius-sm);
-      padding: 10px;
+      padding: 8px;
       margin-bottom: 8px;
+      overflow: hidden;
     }
 
     .workout-edit-exercise-name {
@@ -1358,7 +1361,7 @@
 
     .workout-edit-set-row {
       display: flex;
-      gap: 8px;
+      gap: 4px;
       align-items: center;
       margin-bottom: 4px;
     }
@@ -1366,28 +1369,35 @@
     .workout-edit-set-row span.set-label {
       font-size: 0.65rem;
       color: var(--text-muted);
-      width: 18px;
+      width: 16px;
       flex-shrink: 0;
+      text-align: center;
     }
 
     .workout-edit-set-row input {
       flex: 1;
+      min-width: 0;
       background: var(--bg-surface);
       color: var(--text-primary);
       border: 1px solid rgba(255,255,255,0.1);
       border-radius: 4px;
-      padding: 6px 8px;
-      font-size: 0.8rem;
+      padding: 6px 6px;
+      font-size: 0.75rem;
       font-family: var(--font-body);
+    }
+
+    .workout-edit-set-row select {
+      min-width: 0;
     }
 
     .workout-edit-set-row .del-set-btn {
       background: none;
       border: none;
       color: var(--text-muted);
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       cursor: pointer;
-      padding: 2px 4px;
+      padding: 2px;
+      flex-shrink: 0;
     }
 
     .workout-edit-set-row .del-set-btn:hover {
