@@ -2420,13 +2420,83 @@
       addXP(50);
     }
 
-    // ===== JSONBlob Sync Layer =====
+    // ===== Cloud Sync Layer =====
+    // Uses multiple JSON storage backends with fallback
 
-    var BLOB_API = 'https://jsonblob.com/api/jsonblob';
-    var roomId = null;         // JSONBlob ID
-    var sharedData = null;     // Full room data from server
+    var BACKENDS = [
+      {
+        name: 'jsonblob',
+        create: function(data) {
+          return fetch('https://jsonblob.com/api/jsonblob', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify(data)
+          }).then(function(res) {
+            if (!res.ok) throw new Error(res.status);
+            var id = null;
+            var loc = res.headers.get('Location');
+            if (loc) id = loc.split('/').pop();
+            if (!id && res.url && res.url.indexOf('/api/jsonblob/') !== -1) {
+              id = res.url.split('/api/jsonblob/').pop();
+            }
+            if (!id) throw new Error('No ID from jsonblob');
+            return { id: 'jb_' + id, rawId: id };
+          });
+        },
+        read: function(rawId) {
+          return fetch('https://jsonblob.com/api/jsonblob/' + rawId, {
+            headers: { 'Accept': 'application/json' }
+          }).then(function(res) {
+            if (!res.ok) throw new Error(res.status);
+            return res.json();
+          });
+        },
+        write: function(rawId, data) {
+          return fetch('https://jsonblob.com/api/jsonblob/' + rawId, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify(data)
+          });
+        }
+      },
+      {
+        name: 'extendsclass',
+        create: function(data) {
+          return fetch('https://json.extendsclass.com/bin', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          }).then(function(res) {
+            if (!res.ok) throw new Error(res.status);
+            return res.json();
+          }).then(function(j) {
+            var id = j.id || j.uri;
+            if (!id) throw new Error('No ID from extendsclass');
+            return { id: 'ec_' + id, rawId: id };
+          });
+        },
+        read: function(rawId) {
+          return fetch('https://json.extendsclass.com/bin/' + rawId).then(function(res) {
+            if (!res.ok) throw new Error(res.status);
+            return res.json();
+          });
+        },
+        write: function(rawId, data) {
+          return fetch('https://json.extendsclass.com/bin/' + rawId, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          });
+        }
+      }
+    ];
+
+    var activeBackend = null;
+    var roomId = null;
+    var roomRawId = null;
+    var sharedData = null;
     var syncInterval = null;
-    var userId = null;         // This user's key in sharedData.members
+    var userId = null;
 
     function getRoomIdFromURL() {
       var params = new URLSearchParams(window.location.search);
@@ -2439,75 +2509,56 @@
       window.history.replaceState(null, '', url.toString());
     }
 
+    function getBackendAndRawId(prefixedId) {
+      if (prefixedId.indexOf('jb_') === 0) return { backend: BACKENDS[0], rawId: prefixedId.substring(3) };
+      if (prefixedId.indexOf('ec_') === 0) return { backend: BACKENDS[1], rawId: prefixedId.substring(3) };
+      // Legacy: assume jsonblob
+      return { backend: BACKENDS[0], rawId: prefixedId };
+    }
+
     function createRoom(userName) {
       var data = { members: {} };
       data.members[userName] = buildMyData();
 
-      return fetch(BLOB_API, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify(data)
-      }).then(function(res) {
-        if (!res.ok) {
-          return res.text().then(function(t) { throw new Error('Create ' + res.status + ': ' + t.substring(0, 80)); });
-        }
-        // Try every way to get the blob ID
-        var id = null;
+      var errors = [];
 
-        // Check headers (JSONBlob uses various header names)
-        var loc = res.headers.get('Location') || res.headers.get('location');
-        if (loc) id = loc.split('/').pop();
-        if (!id) {
-          var xblob = res.headers.get('x-jsonblob') || res.headers.get('X-Jsonblob') || res.headers.get('X-jsonblob');
-          if (xblob) id = xblob;
+      function tryBackend(idx) {
+        if (idx >= BACKENDS.length) {
+          return Promise.reject(new Error('All backends failed: ' + errors.join(' | ')));
         }
+        var b = BACKENDS[idx];
+        return b.create(data).then(function(result) {
+          activeBackend = b;
+          roomRawId = result.rawId;
+          return { id: result.id, data: data };
+        }).catch(function(err) {
+          errors.push(b.name + ': ' + err.message);
+          return tryBackend(idx + 1);
+        });
+      }
 
-        // Check response URL (some browsers expose the final URL after redirect)
-        if (!id && res.url && res.url.indexOf('/api/jsonblob/') !== -1) {
-          id = res.url.split('/api/jsonblob/').pop();
-        }
-
-        if (id && id.length > 5) {
-          return { id: id, data: data };
-        }
-
-        // Dump all headers for debugging
-        var hdrs = [];
-        res.headers.forEach(function(val, key) { hdrs.push(key + ': ' + val); });
-        throw new Error('No blob ID. URL: ' + (res.url || 'none').substring(0, 80) + ' Headers: ' + hdrs.join(', ').substring(0, 150));
-      });
+      return tryBackend(0);
     }
 
-    function fetchRoom(id) {
-      return fetch(BLOB_API + '/' + id, {
-        headers: { 'Accept': 'application/json' }
-      }).then(function(res) {
-        if (!res.ok) throw new Error('Room not found');
-        return res.json();
-      });
+    function fetchRoom(prefixedId) {
+      var info = getBackendAndRawId(prefixedId);
+      activeBackend = info.backend;
+      roomRawId = info.rawId;
+      return info.backend.read(info.rawId);
     }
 
     function pushToRoom() {
-      if (!roomId || !userId) return Promise.resolve();
+      if (!roomId || !userId || !activeBackend) return Promise.resolve();
 
-      // First pull latest to avoid overwriting other users' changes
-      return fetchRoom(roomId).then(function(latest) {
+      return activeBackend.read(roomRawId).then(function(latest) {
         sharedData = latest;
         if (!sharedData) sharedData = { members: {} };
         if (!sharedData.members) sharedData.members = {};
-
-        // Merge my data in
         sharedData.members[userId] = buildMyData();
 
         setSyncStatus('syncing');
-
-        return fetch(BLOB_API + '/' + roomId, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-          body: JSON.stringify(sharedData)
-        });
+        return activeBackend.write(roomRawId, sharedData);
       }).then(function(res) {
-        if (!res.ok) throw new Error('Sync failed');
         setSyncStatus('online');
         renderAllLeaderboards();
       }).catch(function(err) {
