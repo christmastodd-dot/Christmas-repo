@@ -3525,6 +3525,7 @@
     var sharedData = null;
     var syncInterval = null;
     var userId = null;
+    var previousUserId = null;
 
     function fetchRoom() {
       // Read from raw GitHub (no auth, cache-bust)
@@ -3554,6 +3555,11 @@
       }).then(function(latest) {
         sharedData = latest || { members: {} };
         if (!sharedData.members) sharedData.members = {};
+        // If user renamed, delete old name from server data
+        if (previousUserId && previousUserId !== userId && sharedData.members[previousUserId]) {
+          delete sharedData.members[previousUserId];
+          previousUserId = null;
+        }
         sharedData.members[userId] = buildMyData();
 
         setSyncStatus('syncing');
@@ -3792,15 +3798,19 @@
       // Name input saves to state and re-syncs
       document.getElementById('name-input').addEventListener('input', function(e) {
         var newName = e.target.value.trim();
-        if (newName && newName !== userId && sharedData && sharedData.members) {
-          // Rename in shared data
-          var oldData = sharedData.members[userId];
-          delete sharedData.members[userId];
-          userId = newName;
-          sharedData.members[userId] = oldData;
+        if (newName && newName !== userId) {
+          // Track old name so pushToRoom can delete it from server
+          if (!previousUserId) previousUserId = userId;
+          if (sharedData && sharedData.members) {
+            var oldData = sharedData.members[userId];
+            delete sharedData.members[userId];
+            userId = newName;
+            sharedData.members[userId] = oldData;
+          } else {
+            userId = newName;
+          }
         }
         appState.name = newName;
-        userId = newName;
         saveState(appState);
         refreshUI();
         schedulePush();
