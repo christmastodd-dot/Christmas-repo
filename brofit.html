@@ -4879,11 +4879,35 @@
       (t.exercises || []).forEach(function(ex) {
         addWorkoutExercise(ex.name);
         var exId = workoutExerciseCounter;
+        var info = getExerciseInfo(ex.name);
         // Add the right number of sets (template specifies default set count)
         var targetSets = ex.sets || 3;
         // First set already added, add remaining
         for (var i = 1; i < targetSets; i++) {
           addWorkoutSet(exId);
+        }
+        // Pre-fill default values into each set
+        var setsContainer = document.getElementById('workout-sets-' + exId);
+        if (setsContainer) {
+          var setRows = setsContainer.querySelectorAll('.workout-logger__set-row');
+          setRows.forEach(function(row) {
+            if (ex.reps) {
+              var repsInp = row.querySelector('[data-field="reps"]');
+              if (repsInp) repsInp.value = ex.reps;
+            }
+            if (ex.weight || ex.weight === 0) {
+              var weightInp = row.querySelector('[data-field="weight"]');
+              if (weightInp) { weightInp.value = ex.weight; weightInp.disabled = false; weightInp.style.opacity = '1'; }
+            }
+            if (ex.duration) {
+              var durInp = row.querySelector('[data-field="duration"]');
+              if (durInp) durInp.value = ex.duration;
+            }
+            if (ex.distance) {
+              var distInp = row.querySelector('[data-field="distance"]');
+              if (distInp) distInp.value = ex.distance;
+            }
+          });
         }
         revealAddSetBtn(exId);
       });
@@ -4907,96 +4931,96 @@
     var builtInTemplates = [
       // === MOBILITY (4 workouts per week) ===
       { id: 'builtin_mob1', name: 'Mobility 1 — Lower Body', builtin: true, exercises: [
-        { name: 'Bodyweight Squat', sets: 3 },
-        { name: 'Lunges', sets: 3 },
-        { name: 'RDL', sets: 3 },
-        { name: 'Calf Raise Machine', sets: 2 },
-        { name: 'Plank', sets: 3 }
+        { name: 'Bodyweight Squat', sets: 3, reps: 15 },
+        { name: 'Lunges', sets: 3, reps: 12 },
+        { name: 'RDL', sets: 3, reps: 12, weight: 95 },
+        { name: 'Calf Raise Machine', sets: 2, reps: 20 },
+        { name: 'Plank', sets: 3, duration: '0:45' }
       ]},
       { id: 'builtin_mob2', name: 'Mobility 2 — Upper Body', builtin: true, exercises: [
-        { name: 'Face Pulls', sets: 3 },
-        { name: 'Lateral Raise', sets: 3 },
-        { name: 'Push-Ups', sets: 3 },
-        { name: 'Rear Delt Fly', sets: 3 },
-        { name: 'Hanging Leg Raise', sets: 3 }
+        { name: 'Face Pulls', sets: 3, reps: 15 },
+        { name: 'Lateral Raise', sets: 3, reps: 15 },
+        { name: 'Push-Ups', sets: 3, reps: 15 },
+        { name: 'Rear Delt Fly', sets: 3, reps: 15 },
+        { name: 'Hanging Leg Raise', sets: 3, reps: 12 }
       ]},
       { id: 'builtin_mob3', name: 'Mobility 3 — Full Body Flow', builtin: true, exercises: [
-        { name: 'Goblet Squat', sets: 3 },
-        { name: 'Dumbbell Row', sets: 3 },
-        { name: 'Arnold Press', sets: 3 },
-        { name: 'Ab Wheel', sets: 3 },
-        { name: 'Jump Rope', sets: 3 }
+        { name: 'Goblet Squat', sets: 3, reps: 12 },
+        { name: 'Dumbbell Row', sets: 3, reps: 12 },
+        { name: 'Arnold Press', sets: 3, reps: 12 },
+        { name: 'Ab Wheel', sets: 3, reps: 10 },
+        { name: 'Jump Rope', sets: 3, duration: '2:00' }
       ]},
       { id: 'builtin_mob4', name: 'Mobility 4 — Recovery & Balance', builtin: true, exercises: [
-        { name: 'Walking', sets: 1 },
-        { name: 'Pull-Ups', sets: 3 },
-        { name: 'Dips', sets: 3 },
-        { name: 'Plank', sets: 3 },
-        { name: 'Sit-Ups', sets: 2 }
+        { name: 'Walking', sets: 1, duration: '20:00', distance: 1.0 },
+        { name: 'Pull-Ups', sets: 3, reps: 8 },
+        { name: 'Dips', sets: 3, reps: 10 },
+        { name: 'Plank', sets: 3, duration: '0:45' },
+        { name: 'Sit-Ups', sets: 2, reps: 20 }
       ]},
 
       // === STRENGTH (4 workouts per week) ===
       { id: 'builtin_str1', name: 'Strength 1 — Upper Push', builtin: true, exercises: [
-        { name: 'Bench Press', sets: 5 },
-        { name: 'Overhead Press', sets: 4 },
-        { name: 'Incline Dumbbell Press', sets: 3 },
-        { name: 'Tricep Pushdown', sets: 3 },
-        { name: 'Cable Fly', sets: 3 }
+        { name: 'Bench Press', sets: 5, reps: 5, weight: 185 },
+        { name: 'Overhead Press', sets: 4, reps: 6, weight: 115 },
+        { name: 'Incline Dumbbell Press', sets: 3, reps: 8, weight: 60 },
+        { name: 'Tricep Pushdown', sets: 3, reps: 10 },
+        { name: 'Cable Fly', sets: 3, reps: 12 }
       ]},
       { id: 'builtin_str2', name: 'Strength 2 — Lower Pull', builtin: true, exercises: [
-        { name: 'Deadlift', sets: 5 },
-        { name: 'RDL', sets: 4 },
-        { name: 'Leg Curl', sets: 3 },
-        { name: 'Barbell Row', sets: 3 },
-        { name: 'Calf Raise Machine', sets: 3 }
+        { name: 'Deadlift', sets: 5, reps: 5, weight: 275 },
+        { name: 'RDL', sets: 4, reps: 8, weight: 185 },
+        { name: 'Leg Curl', sets: 3, reps: 10 },
+        { name: 'Barbell Row', sets: 3, reps: 8, weight: 155 },
+        { name: 'Calf Raise Machine', sets: 3, reps: 15 }
       ]},
       { id: 'builtin_str3', name: 'Strength 3 — Upper Pull', builtin: true, exercises: [
-        { name: 'Pull-Ups', sets: 4 },
-        { name: 'Barbell Row', sets: 4 },
-        { name: 'Cable Row', sets: 3 },
-        { name: 'Barbell Curl', sets: 3 },
-        { name: 'Face Pulls', sets: 3 }
+        { name: 'Pull-Ups', sets: 4, reps: 8 },
+        { name: 'Barbell Row', sets: 4, reps: 6, weight: 165 },
+        { name: 'Cable Row', sets: 3, reps: 10 },
+        { name: 'Barbell Curl', sets: 3, reps: 10, weight: 65 },
+        { name: 'Face Pulls', sets: 3, reps: 15 }
       ]},
       { id: 'builtin_str4', name: 'Strength 4 — Lower Push', builtin: true, exercises: [
-        { name: 'Squat', sets: 5 },
-        { name: 'Leg Press', sets: 4 },
-        { name: 'Leg Extension', sets: 3 },
-        { name: 'Bulgarian Split Squat', sets: 3 },
-        { name: 'Hanging Leg Raise', sets: 3 }
+        { name: 'Squat', sets: 5, reps: 5, weight: 225 },
+        { name: 'Leg Press', sets: 4, reps: 8 },
+        { name: 'Leg Extension', sets: 3, reps: 12 },
+        { name: 'Bulgarian Split Squat', sets: 3, reps: 10 },
+        { name: 'Hanging Leg Raise', sets: 3, reps: 12 }
       ]},
 
       // === HYPERTROPHY (4 workouts per week) ===
       { id: 'builtin_hyp1', name: 'Hypertrophy 1 — Chest & Triceps', builtin: true, exercises: [
-        { name: 'Bench Press', sets: 4 },
-        { name: 'Incline Dumbbell Press', sets: 4 },
-        { name: 'Cable Fly', sets: 3 },
-        { name: 'Pec Deck', sets: 3 },
-        { name: 'Skull Crushers', sets: 3 },
-        { name: 'Tricep Pushdown', sets: 3 }
+        { name: 'Bench Press', sets: 4, reps: 10, weight: 155 },
+        { name: 'Incline Dumbbell Press', sets: 4, reps: 10, weight: 50 },
+        { name: 'Cable Fly', sets: 3, reps: 12 },
+        { name: 'Pec Deck', sets: 3, reps: 12 },
+        { name: 'Skull Crushers', sets: 3, reps: 12 },
+        { name: 'Tricep Pushdown', sets: 3, reps: 15 }
       ]},
       { id: 'builtin_hyp2', name: 'Hypertrophy 2 — Back & Biceps', builtin: true, exercises: [
-        { name: 'Lat Pulldown', sets: 4 },
-        { name: 'Dumbbell Row', sets: 4 },
-        { name: 'Cable Row', sets: 3 },
-        { name: 'Straight-Arm Pulldown', sets: 3 },
-        { name: 'Hammer Curl', sets: 3 },
-        { name: 'Cable Curl', sets: 3 }
+        { name: 'Lat Pulldown', sets: 4, reps: 10 },
+        { name: 'Dumbbell Row', sets: 4, reps: 10 },
+        { name: 'Cable Row', sets: 3, reps: 12 },
+        { name: 'Straight-Arm Pulldown', sets: 3, reps: 12 },
+        { name: 'Hammer Curl', sets: 3, reps: 12 },
+        { name: 'Cable Curl', sets: 3, reps: 12 }
       ]},
       { id: 'builtin_hyp3', name: 'Hypertrophy 3 — Shoulders & Arms', builtin: true, exercises: [
-        { name: 'Arnold Press', sets: 4 },
-        { name: 'Lateral Raise', sets: 4 },
-        { name: 'Rear Delt Fly', sets: 3 },
-        { name: 'Barbell Curl', sets: 3 },
-        { name: 'Overhead Tricep Extension', sets: 3 },
-        { name: 'Dips', sets: 3 }
+        { name: 'Arnold Press', sets: 4, reps: 10 },
+        { name: 'Lateral Raise', sets: 4, reps: 15 },
+        { name: 'Rear Delt Fly', sets: 3, reps: 15 },
+        { name: 'Barbell Curl', sets: 3, reps: 10, weight: 65 },
+        { name: 'Overhead Tricep Extension', sets: 3, reps: 12 },
+        { name: 'Dips', sets: 3, reps: 12 }
       ]},
       { id: 'builtin_hyp4', name: 'Hypertrophy 4 — Legs', builtin: true, exercises: [
-        { name: 'Squat', sets: 4 },
-        { name: 'Leg Press', sets: 4 },
-        { name: 'RDL', sets: 3 },
-        { name: 'Leg Extension', sets: 3 },
-        { name: 'Leg Curl', sets: 3 },
-        { name: 'Calf Raise Machine', sets: 4 }
+        { name: 'Squat', sets: 4, reps: 10, weight: 185 },
+        { name: 'Leg Press', sets: 4, reps: 12 },
+        { name: 'RDL', sets: 3, reps: 10, weight: 155 },
+        { name: 'Leg Extension', sets: 3, reps: 12 },
+        { name: 'Leg Curl', sets: 3, reps: 12 },
+        { name: 'Calf Raise Machine', sets: 4, reps: 15 }
       ]}
     ];
 
@@ -5037,13 +5061,20 @@
       templates.forEach(function(t) {
         var exList = (t.exercises || []).map(function(ex) {
           var info = getExerciseInfo(ex.name);
-          var typeLabel = '';
-          if (info.input === 'cardio') typeLabel = ' · Cardio';
-          else if (info.input === 'duration') typeLabel = ' · Duration';
-          else if (info.input === 'bw') typeLabel = ' · BW';
-          else typeLabel = ' · Weight';
           var equipTag = equipLabels[info.equip] ? '<span style="font-size:0.55rem;color:' + equipColors[info.equip] + ';font-weight:700;margin-left:2px">' + equipLabels[info.equip] + '</span>' : '';
-          return ex.name + equipTag + ' (' + (ex.sets || 3) + ' sets' + typeLabel + ')';
+          var details = (ex.sets || 3) + 'x';
+          if (info.input === 'cardio') {
+            var cParts = [];
+            if (ex.duration) cParts.push(ex.duration);
+            if (ex.distance) cParts.push(ex.distance + ' mi');
+            details += cParts.length ? ' ' + cParts.join(', ') : '';
+          } else if (info.input === 'duration') {
+            if (ex.duration) details += ' ' + ex.duration;
+          } else {
+            if (ex.weight || ex.weight === 0) details += ' ' + ex.weight + ' lbs';
+            if (ex.reps) details += ' × ' + ex.reps;
+          }
+          return ex.name + equipTag + ' (' + details + ')';
         }).join(' · ');
         var author = t.author ? '<div class="templates__card-author">by ' + t.author + '</div>' : '';
         var actions = '';
@@ -5076,7 +5107,7 @@
           document.getElementById('template-editor-title').textContent = 'Edit Template';
           document.getElementById('template-name').value = t.name;
           (t.exercises || []).forEach(function(ex) {
-            addTemplateExercise(ex.name, ex.sets);
+            addTemplateExercise(ex.name, ex.sets, { reps: ex.reps, weight: ex.weight, duration: ex.duration, distance: ex.distance });
           });
         }
       } else {
@@ -5093,13 +5124,14 @@
       editingTemplateId = null;
     }
 
-    function addTemplateExercise(prefillName, prefillSets) {
+    function addTemplateExercise(prefillName, prefillSets, prefillDefaults) {
       templateExCounter++;
       var id = templateExCounter;
       var container = document.getElementById('template-exercises');
       var div = document.createElement('div');
       div.className = 'template-editor__ex-row';
       div.id = 'template-ex-' + id;
+      div.style.flexWrap = 'wrap';
       div.innerHTML =
         '<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">' +
           '<input class="template-editor__ex-input" id="template-ex-name-' + id + '" type="text" placeholder="Exercise name" autocomplete="off" value="' + (prefillName || '') + '">' +
@@ -5107,11 +5139,15 @@
         '</div>' +
         '<input class="template-editor__ex-sets" id="template-ex-sets-' + id + '" type="number" placeholder="3" inputmode="numeric" value="' + (prefillSets || '') + '">' +
         '<span class="template-editor__ex-sets-label" id="template-ex-sets-label-' + id + '" style="font-size:0.6rem;color:var(--text-muted);width:28px">sets</span>' +
-        '<button class="template-editor__ex-remove" onclick="removeTemplateExercise(' + id + ')">&times;</button>';
+        '<button class="template-editor__ex-remove" onclick="removeTemplateExercise(' + id + ')">&times;</button>' +
+        '<div class="template-editor__ex-defaults" id="template-ex-defaults-' + id + '" style="width:100%;display:none;margin-top:4px"></div>';
       container.appendChild(div);
 
-      // Show type tag if prefilled
-      if (prefillName) updateTemplateExType(id, prefillName);
+      // Show type tag and defaults if prefilled
+      if (prefillName) {
+        updateTemplateExType(id, prefillName);
+        showTemplateExDefaults(id, prefillName, prefillDefaults);
+      }
 
       // Autocomplete for template exercises
       var input = document.getElementById('template-ex-name-' + id);
@@ -5131,7 +5167,10 @@
           if (ac) ac.classList.remove('workout-logger__autocomplete--open');
           // Update type on blur in case they typed a name manually
           var nameVal = document.getElementById('template-ex-name-' + id);
-          if (nameVal && nameVal.value.trim()) updateTemplateExType(id, nameVal.value.trim());
+          if (nameVal && nameVal.value.trim()) {
+            updateTemplateExType(id, nameVal.value.trim());
+            showTemplateExDefaults(id, nameVal.value.trim());
+          }
         }, 200);
       });
     }
@@ -5191,11 +5230,40 @@
       typeEl.innerHTML = equipTag + label;
     }
 
+    function showTemplateExDefaults(exId, name, prefill) {
+      var info = getExerciseInfo(name);
+      var container = document.getElementById('template-ex-defaults-' + exId);
+      if (!container) return;
+      var iType = info.input;
+      var defs = prefill || {};
+      var inputStyle = 'background:var(--bg-surface);border:1px solid var(--text-muted);border-radius:4px;color:var(--text-primary);font-family:var(--font-body);font-size:0.75rem;padding:6px;width:100%;min-width:0';
+      var labelStyle = 'font-size:0.6rem;color:var(--text-muted);font-weight:700;margin-bottom:2px';
+      var html = '<div style="display:flex;gap:6px;align-items:flex-end">';
+
+      if (iType === 'cardio') {
+        html += '<div style="flex:1"><div style="' + labelStyle + '">Duration</div><input id="template-ex-dur-' + exId + '" type="text" placeholder="mm:ss" inputmode="numeric" value="' + (defs.duration || '') + '" style="' + inputStyle + '"></div>';
+        html += '<div style="flex:1"><div style="' + labelStyle + '">Distance (mi)</div><input id="template-ex-dist-' + exId + '" type="text" placeholder="0.0" inputmode="decimal" value="' + (defs.distance || '') + '" style="' + inputStyle + '"></div>';
+      } else if (iType === 'duration') {
+        html += '<div style="flex:1"><div style="' + labelStyle + '">Duration</div><input id="template-ex-dur-' + exId + '" type="text" placeholder="mm:ss" inputmode="numeric" value="' + (defs.duration || '') + '" style="' + inputStyle + '"></div>';
+      } else if (iType === 'bw') {
+        html += '<div style="flex:1"><div style="' + labelStyle + '">Reps</div><input id="template-ex-reps-' + exId + '" type="number" placeholder="10" inputmode="numeric" value="' + (defs.reps || '') + '" style="' + inputStyle + '"></div>';
+        html += '<div style="flex:1"><div style="' + labelStyle + '">+/- lbs</div><input id="template-ex-weight-' + exId + '" type="number" placeholder="0" inputmode="decimal" step="any" value="' + (defs.weight != null ? defs.weight : '') + '" style="' + inputStyle + '"></div>';
+      } else {
+        html += '<div style="flex:1"><div style="' + labelStyle + '">Weight (lbs)</div><input id="template-ex-weight-' + exId + '" type="number" placeholder="0" inputmode="decimal" step="any" value="' + (defs.weight != null ? defs.weight : '') + '" style="' + inputStyle + '"></div>';
+        html += '<div style="flex:1"><div style="' + labelStyle + '">Reps</div><input id="template-ex-reps-' + exId + '" type="number" placeholder="10" inputmode="numeric" value="' + (defs.reps || '') + '" style="' + inputStyle + '"></div>';
+      }
+
+      html += '</div>';
+      container.innerHTML = html;
+      container.style.display = 'block';
+    }
+
     function selectTemplateExercise(exId, name) {
       document.getElementById('template-ex-name-' + exId).value = name;
       var ac = document.getElementById('template-ac-' + exId);
       if (ac) ac.classList.remove('workout-logger__autocomplete--open');
       updateTemplateExType(exId, name);
+      showTemplateExDefaults(exId, name);
     }
 
     function saveTemplate() {
@@ -5203,7 +5271,7 @@
       if (!name) return;
 
       var exercises = [];
-      var rows = document.querySelectorAll('[id^="template-ex-"]:not([id*="-name-"]):not([id*="-sets-"]):not([id*="-ac-"])');
+      var rows = document.querySelectorAll('[id^="template-ex-"]:not([id*="-name-"]):not([id*="-sets-"]):not([id*="-ac-"]):not([id*="-type-"]):not([id*="-defaults-"]):not([id*="-reps-"]):not([id*="-weight-"]):not([id*="-dur-"]):not([id*="-dist-"]):not([id*="-sets-label-"])');
       rows.forEach(function(row) {
         var id = row.id.replace('template-ex-', '');
         var nameInput = document.getElementById('template-ex-name-' + id);
@@ -5212,7 +5280,19 @@
         var exName = nameInput.value.trim();
         if (!exName) return;
         var sets = setsInput ? parseInt(setsInput.value) || 3 : 3;
-        exercises.push({ name: exName, sets: sets });
+        var exData = { name: exName, sets: sets };
+
+        // Capture default values
+        var repsEl = document.getElementById('template-ex-reps-' + id);
+        var weightEl = document.getElementById('template-ex-weight-' + id);
+        var durEl = document.getElementById('template-ex-dur-' + id);
+        var distEl = document.getElementById('template-ex-dist-' + id);
+        if (repsEl && repsEl.value) exData.reps = parseInt(repsEl.value) || 0;
+        if (weightEl && weightEl.value) exData.weight = parseFloat(weightEl.value) || 0;
+        if (durEl && durEl.value) exData.duration = durEl.value.trim();
+        if (distEl && distEl.value) exData.distance = parseFloat(distEl.value) || 0;
+
+        exercises.push(exData);
       });
 
       if (exercises.length === 0) return;
@@ -5258,7 +5338,16 @@
       tmplName = tmplName.trim();
 
       var tmplExercises = exercises.map(function(ex) {
-        return { name: ex.name, sets: (ex.sets || []).length || 3 };
+        var td = { name: ex.name, sets: (ex.sets || []).length || 3 };
+        // Capture typical values from first set
+        var firstSet = (ex.sets || [])[0];
+        if (firstSet) {
+          if (firstSet.reps) td.reps = firstSet.reps;
+          if (firstSet.weight || firstSet.weight === 0) td.weight = firstSet.weight;
+          if (firstSet.duration) td.duration = firstSet.duration;
+          if (firstSet.distance) td.distance = firstSet.distance;
+        }
+        return td;
       });
 
       var templates = loadTemplates();
