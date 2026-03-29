@@ -1374,6 +1374,11 @@
       cursor: pointer;
       margin-top: 4px;
       width: 100%;
+      display: none;
+    }
+
+    .workout-logger__add-set--visible {
+      display: block;
     }
 
     .workout-logger__add-set:active {
@@ -3148,7 +3153,7 @@
       var div = document.createElement('div');
       div.className = 'workout-logger__set-row';
       div.id = 'workout-set-' + exerciseId + '-' + setNum;
-      var removeBtn = '<button class="workout-logger__set-remove" onclick="removeWorkoutSet(\'' + exerciseId + '-' + setNum + '\')">&times;</button>';
+      var removeBtn = '<button class="workout-logger__set-remove" onclick="removeWorkoutSet(\'' + exerciseId + '-' + setNum + '\',\'' + exerciseId + '\')">&times;</button>';
 
       if (inputType === 'cardio') {
         div.innerHTML =
@@ -3162,7 +3167,6 @@
           '<input class="workout-logger__set-input" type="text" placeholder="mm:ss" data-field="duration" style="flex:1">' +
           removeBtn;
       } else if (inputType === 'bw') {
-        // Check current BW mode
         var mode = 'bodyweight';
         var toggle = document.getElementById('workout-bw-toggle-' + exerciseId);
         if (toggle) {
@@ -3177,7 +3181,6 @@
           '<input class="workout-logger__set-input" type="number" placeholder="' + wPlaceholder + '" data-field="weight" inputmode="decimal"' + (wDisabled ? ' disabled style="opacity:0.3"' : '') + '>' +
           removeBtn;
       } else {
-        // weight (default): reps + lbs
         div.innerHTML =
           '<span class="workout-logger__set-label">' + setNum + '</span>' +
           '<input class="workout-logger__set-input" type="number" placeholder="Reps" data-field="reps" inputmode="numeric">' +
@@ -3185,11 +3188,40 @@
           removeBtn;
       }
       container.appendChild(div);
+
+      // Hide the "+ Add Set" button until user enters data in this set
+      var addSetBtn = document.getElementById('workout-ex-' + exerciseId).querySelector('.workout-logger__add-set');
+      if (addSetBtn) addSetBtn.classList.remove('workout-logger__add-set--visible');
+
+      // Listen for input on this set's fields to reveal "+ Add Set"
+      var inputs = div.querySelectorAll('.workout-logger__set-input');
+      inputs.forEach(function(inp) {
+        inp.addEventListener('input', function() {
+          revealAddSetBtn(exerciseId);
+        });
+      });
     }
 
-    function removeWorkoutSet(id) {
+    function revealAddSetBtn(exerciseId) {
+      var exEl = document.getElementById('workout-ex-' + exerciseId);
+      if (!exEl) return;
+      var addSetBtn = exEl.querySelector('.workout-logger__add-set');
+      if (addSetBtn) addSetBtn.classList.add('workout-logger__add-set--visible');
+    }
+
+    function removeWorkoutSet(id, exerciseId) {
       var el = document.getElementById('workout-set-' + id);
       if (el) el.remove();
+      // If no sets left, hide the add-set button
+      if (exerciseId) {
+        var container = document.getElementById('workout-sets-' + exerciseId);
+        if (container && container.children.length === 0) {
+          var addSetBtn = document.getElementById('workout-ex-' + exerciseId).querySelector('.workout-logger__add-set');
+          if (addSetBtn) addSetBtn.classList.remove('workout-logger__add-set--visible');
+          // Re-add a fresh set
+          addWorkoutSet(exerciseId);
+        }
+      }
     }
 
     function showAutocomplete(exerciseId) {
