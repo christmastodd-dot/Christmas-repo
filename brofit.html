@@ -4184,10 +4184,106 @@
       localStorage.setItem('brofit_templates', JSON.stringify(templates));
     }
 
+    var builtInTemplates = [
+      // === MOBILITY (4 workouts per week) ===
+      { id: 'builtin_mob1', name: 'Mobility 1 — Lower Body', builtin: true, exercises: [
+        { name: 'Bodyweight Squat', sets: 3 },
+        { name: 'Lunges', sets: 3 },
+        { name: 'RDL', sets: 3 },
+        { name: 'Calf Raise Machine', sets: 2 },
+        { name: 'Plank', sets: 3 }
+      ]},
+      { id: 'builtin_mob2', name: 'Mobility 2 — Upper Body', builtin: true, exercises: [
+        { name: 'Face Pulls', sets: 3 },
+        { name: 'Lateral Raise', sets: 3 },
+        { name: 'Push-Ups', sets: 3 },
+        { name: 'Rear Delt Fly', sets: 3 },
+        { name: 'Hanging Leg Raise', sets: 3 }
+      ]},
+      { id: 'builtin_mob3', name: 'Mobility 3 — Full Body Flow', builtin: true, exercises: [
+        { name: 'Goblet Squat', sets: 3 },
+        { name: 'Dumbbell Row', sets: 3 },
+        { name: 'Arnold Press', sets: 3 },
+        { name: 'Ab Wheel', sets: 3 },
+        { name: 'Jump Rope', sets: 3 }
+      ]},
+      { id: 'builtin_mob4', name: 'Mobility 4 — Recovery & Balance', builtin: true, exercises: [
+        { name: 'Walking', sets: 1 },
+        { name: 'Pull-Ups', sets: 3 },
+        { name: 'Dips', sets: 3 },
+        { name: 'Plank', sets: 3 },
+        { name: 'Sit-Ups', sets: 2 }
+      ]},
+
+      // === STRENGTH (4 workouts per week) ===
+      { id: 'builtin_str1', name: 'Strength 1 — Upper Push', builtin: true, exercises: [
+        { name: 'Bench Press', sets: 5 },
+        { name: 'Overhead Press', sets: 4 },
+        { name: 'Incline Dumbbell Press', sets: 3 },
+        { name: 'Tricep Pushdown', sets: 3 },
+        { name: 'Cable Fly', sets: 3 }
+      ]},
+      { id: 'builtin_str2', name: 'Strength 2 — Lower Pull', builtin: true, exercises: [
+        { name: 'Deadlift', sets: 5 },
+        { name: 'RDL', sets: 4 },
+        { name: 'Leg Curl', sets: 3 },
+        { name: 'Barbell Row', sets: 3 },
+        { name: 'Calf Raise Machine', sets: 3 }
+      ]},
+      { id: 'builtin_str3', name: 'Strength 3 — Upper Pull', builtin: true, exercises: [
+        { name: 'Pull-Ups', sets: 4 },
+        { name: 'Barbell Row', sets: 4 },
+        { name: 'Cable Row', sets: 3 },
+        { name: 'Barbell Curl', sets: 3 },
+        { name: 'Face Pulls', sets: 3 }
+      ]},
+      { id: 'builtin_str4', name: 'Strength 4 — Lower Push', builtin: true, exercises: [
+        { name: 'Squat', sets: 5 },
+        { name: 'Leg Press', sets: 4 },
+        { name: 'Leg Extension', sets: 3 },
+        { name: 'Bulgarian Split Squat', sets: 3 },
+        { name: 'Hanging Leg Raise', sets: 3 }
+      ]},
+
+      // === HYPERTROPHY (4 workouts per week) ===
+      { id: 'builtin_hyp1', name: 'Hypertrophy 1 — Chest & Triceps', builtin: true, exercises: [
+        { name: 'Bench Press', sets: 4 },
+        { name: 'Incline Dumbbell Press', sets: 4 },
+        { name: 'Cable Fly', sets: 3 },
+        { name: 'Pec Deck', sets: 3 },
+        { name: 'Skull Crushers', sets: 3 },
+        { name: 'Tricep Pushdown', sets: 3 }
+      ]},
+      { id: 'builtin_hyp2', name: 'Hypertrophy 2 — Back & Biceps', builtin: true, exercises: [
+        { name: 'Lat Pulldown', sets: 4 },
+        { name: 'Dumbbell Row', sets: 4 },
+        { name: 'Cable Row', sets: 3 },
+        { name: 'Straight-Arm Pulldown', sets: 3 },
+        { name: 'Hammer Curl', sets: 3 },
+        { name: 'Cable Curl', sets: 3 }
+      ]},
+      { id: 'builtin_hyp3', name: 'Hypertrophy 3 — Shoulders & Arms', builtin: true, exercises: [
+        { name: 'Arnold Press', sets: 4 },
+        { name: 'Lateral Raise', sets: 4 },
+        { name: 'Rear Delt Fly', sets: 3 },
+        { name: 'Barbell Curl', sets: 3 },
+        { name: 'Overhead Tricep Extension', sets: 3 },
+        { name: 'Dips', sets: 3 }
+      ]},
+      { id: 'builtin_hyp4', name: 'Hypertrophy 4 — Legs', builtin: true, exercises: [
+        { name: 'Squat', sets: 4 },
+        { name: 'Leg Press', sets: 4 },
+        { name: 'RDL', sets: 3 },
+        { name: 'Leg Extension', sets: 3 },
+        { name: 'Leg Curl', sets: 3 },
+        { name: 'Calf Raise Machine', sets: 4 }
+      ]}
+    ];
+
     function getAllTemplates() {
-      // Local templates + shared templates from other users
+      // Built-in + local + shared templates from other users
       var local = loadTemplates();
-      var all = local.slice();
+      var all = builtInTemplates.concat(local);
       if (sharedData && sharedData.members) {
         Object.keys(sharedData.members).forEach(function(name) {
           var member = sharedData.members[name];
@@ -4224,7 +4320,7 @@
         }).join(' · ');
         var author = t.author ? '<div class="templates__card-author">by ' + t.author + '</div>' : '';
         var actions = '';
-        if (!t.shared) {
+        if (!t.shared && !t.builtin) {
           actions = '<button class="templates__card-btn" onclick="editTemplate(\'' + t.id + '\')">Edit</button>' +
             '<button class="templates__card-btn templates__card-btn--delete" onclick="deleteTemplate(\'' + t.id + '\')">Delete</button>';
         }
