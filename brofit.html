@@ -2771,14 +2771,127 @@
 
     // ===== Workout Logger =====
 
-    var defaultExercises = {
-      'Chest': ['Bench Press', 'Incline Bench', 'Dumbbell Press', 'Cable Fly', 'Push-Ups'],
-      'Back': ['Barbell Row', 'Pull-Ups', 'Lat Pulldown', 'Cable Row', 'T-Bar Row'],
-      'Shoulders': ['Overhead Press', 'Lateral Raise', 'Face Pulls', 'Arnold Press', 'Rear Delt Fly'],
-      'Legs': ['Squat', 'Leg Press', 'RDL', 'Lunges', 'Leg Curl', 'Leg Extension', 'Calf Raise'],
-      'Arms': ['Barbell Curl', 'Hammer Curl', 'Tricep Pushdown', 'Skull Crushers', 'Dips'],
-      'Core': ['Plank', 'Hanging Leg Raise', 'Cable Crunch', 'Ab Wheel'],
-      'Cardio': ['Treadmill', 'Bike', 'Stair Climber', 'Jump Rope', 'Basketball']
+    // Exercise database: { name, equip, input, muscle }
+    // equip: barbell, dumbbell, machine, cable, bodyweight, cardio
+    // input: 'weight' (reps+lbs), 'bw' (bodyweight: assisted/added), 'duration' (time+distance)
+    var defaultExerciseList = [
+      // Chest - Barbell
+      { name: 'Bench Press', equip: 'barbell', input: 'weight', muscle: 'Chest' },
+      { name: 'Incline Bench Press', equip: 'barbell', input: 'weight', muscle: 'Chest' },
+      { name: 'Close-Grip Bench Press', equip: 'barbell', input: 'weight', muscle: 'Chest' },
+      // Chest - Dumbbell
+      { name: 'Dumbbell Press', equip: 'dumbbell', input: 'weight', muscle: 'Chest' },
+      { name: 'Incline Dumbbell Press', equip: 'dumbbell', input: 'weight', muscle: 'Chest' },
+      { name: 'Dumbbell Fly', equip: 'dumbbell', input: 'weight', muscle: 'Chest' },
+      // Chest - Cable
+      { name: 'Cable Fly', equip: 'cable', input: 'weight', muscle: 'Chest' },
+      { name: 'Cable Crossover', equip: 'cable', input: 'weight', muscle: 'Chest' },
+      // Chest - Machine
+      { name: 'Chest Press Machine', equip: 'machine', input: 'weight', muscle: 'Chest' },
+      { name: 'Pec Deck', equip: 'machine', input: 'weight', muscle: 'Chest' },
+      // Chest - Bodyweight
+      { name: 'Push-Ups', equip: 'bodyweight', input: 'bw', muscle: 'Chest' },
+
+      // Back - Barbell
+      { name: 'Barbell Row', equip: 'barbell', input: 'weight', muscle: 'Back' },
+      { name: 'Deadlift', equip: 'barbell', input: 'weight', muscle: 'Back' },
+      { name: 'T-Bar Row', equip: 'barbell', input: 'weight', muscle: 'Back' },
+      // Back - Dumbbell
+      { name: 'Dumbbell Row', equip: 'dumbbell', input: 'weight', muscle: 'Back' },
+      // Back - Cable
+      { name: 'Cable Row', equip: 'cable', input: 'weight', muscle: 'Back' },
+      { name: 'Straight-Arm Pulldown', equip: 'cable', input: 'weight', muscle: 'Back' },
+      // Back - Machine
+      { name: 'Lat Pulldown', equip: 'machine', input: 'weight', muscle: 'Back' },
+      { name: 'Seated Row Machine', equip: 'machine', input: 'weight', muscle: 'Back' },
+      // Back - Bodyweight
+      { name: 'Pull-Ups', equip: 'bodyweight', input: 'bw', muscle: 'Back' },
+      { name: 'Chin-Ups', equip: 'bodyweight', input: 'bw', muscle: 'Back' },
+
+      // Shoulders - Barbell
+      { name: 'Overhead Press', equip: 'barbell', input: 'weight', muscle: 'Shoulders' },
+      { name: 'Push Press', equip: 'barbell', input: 'weight', muscle: 'Shoulders' },
+      // Shoulders - Dumbbell
+      { name: 'Arnold Press', equip: 'dumbbell', input: 'weight', muscle: 'Shoulders' },
+      { name: 'Lateral Raise', equip: 'dumbbell', input: 'weight', muscle: 'Shoulders' },
+      { name: 'Front Raise', equip: 'dumbbell', input: 'weight', muscle: 'Shoulders' },
+      { name: 'Rear Delt Fly', equip: 'dumbbell', input: 'weight', muscle: 'Shoulders' },
+      // Shoulders - Cable
+      { name: 'Face Pulls', equip: 'cable', input: 'weight', muscle: 'Shoulders' },
+      { name: 'Cable Lateral Raise', equip: 'cable', input: 'weight', muscle: 'Shoulders' },
+      // Shoulders - Machine
+      { name: 'Shoulder Press Machine', equip: 'machine', input: 'weight', muscle: 'Shoulders' },
+      { name: 'Reverse Pec Deck', equip: 'machine', input: 'weight', muscle: 'Shoulders' },
+
+      // Legs - Barbell
+      { name: 'Squat', equip: 'barbell', input: 'weight', muscle: 'Legs' },
+      { name: 'Front Squat', equip: 'barbell', input: 'weight', muscle: 'Legs' },
+      { name: 'RDL', equip: 'barbell', input: 'weight', muscle: 'Legs' },
+      { name: 'Hip Thrust', equip: 'barbell', input: 'weight', muscle: 'Legs' },
+      // Legs - Dumbbell
+      { name: 'Lunges', equip: 'dumbbell', input: 'weight', muscle: 'Legs' },
+      { name: 'Bulgarian Split Squat', equip: 'dumbbell', input: 'weight', muscle: 'Legs' },
+      { name: 'Goblet Squat', equip: 'dumbbell', input: 'weight', muscle: 'Legs' },
+      // Legs - Machine
+      { name: 'Leg Press', equip: 'machine', input: 'weight', muscle: 'Legs' },
+      { name: 'Leg Curl', equip: 'machine', input: 'weight', muscle: 'Legs' },
+      { name: 'Leg Extension', equip: 'machine', input: 'weight', muscle: 'Legs' },
+      { name: 'Calf Raise Machine', equip: 'machine', input: 'weight', muscle: 'Legs' },
+      { name: 'Hack Squat', equip: 'machine', input: 'weight', muscle: 'Legs' },
+      // Legs - Bodyweight
+      { name: 'Bodyweight Squat', equip: 'bodyweight', input: 'bw', muscle: 'Legs' },
+      { name: 'Box Jumps', equip: 'bodyweight', input: 'bw', muscle: 'Legs' },
+
+      // Arms - Barbell
+      { name: 'Barbell Curl', equip: 'barbell', input: 'weight', muscle: 'Arms' },
+      { name: 'Skull Crushers', equip: 'barbell', input: 'weight', muscle: 'Arms' },
+      // Arms - Dumbbell
+      { name: 'Hammer Curl', equip: 'dumbbell', input: 'weight', muscle: 'Arms' },
+      { name: 'Dumbbell Curl', equip: 'dumbbell', input: 'weight', muscle: 'Arms' },
+      { name: 'Overhead Tricep Extension', equip: 'dumbbell', input: 'weight', muscle: 'Arms' },
+      // Arms - Cable
+      { name: 'Tricep Pushdown', equip: 'cable', input: 'weight', muscle: 'Arms' },
+      { name: 'Cable Curl', equip: 'cable', input: 'weight', muscle: 'Arms' },
+      // Arms - Bodyweight
+      { name: 'Dips', equip: 'bodyweight', input: 'bw', muscle: 'Arms' },
+
+      // Core - Cable
+      { name: 'Cable Crunch', equip: 'cable', input: 'weight', muscle: 'Core' },
+      // Core - Bodyweight
+      { name: 'Plank', equip: 'bodyweight', input: 'duration', muscle: 'Core' },
+      { name: 'Hanging Leg Raise', equip: 'bodyweight', input: 'bw', muscle: 'Core' },
+      { name: 'Ab Wheel', equip: 'bodyweight', input: 'bw', muscle: 'Core' },
+      { name: 'Sit-Ups', equip: 'bodyweight', input: 'bw', muscle: 'Core' },
+
+      // Cardio
+      { name: 'Walking', equip: 'cardio', input: 'cardio', muscle: 'Cardio' },
+      { name: 'Jogging', equip: 'cardio', input: 'cardio', muscle: 'Cardio' },
+      { name: 'Sprinting', equip: 'cardio', input: 'cardio', muscle: 'Cardio' },
+      { name: 'Walking Backwards', equip: 'cardio', input: 'cardio', muscle: 'Cardio' },
+      { name: 'Elliptical', equip: 'cardio', input: 'cardio', muscle: 'Cardio' },
+      { name: 'Stationary Bike', equip: 'cardio', input: 'cardio', muscle: 'Cardio' },
+      { name: 'Stair Climber', equip: 'cardio', input: 'cardio', muscle: 'Cardio' },
+      { name: 'Jump Rope', equip: 'cardio', input: 'duration', muscle: 'Cardio' },
+      { name: 'Basketball', equip: 'cardio', input: 'duration', muscle: 'Cardio' }
+    ];
+
+    // Build a lookup map by lowercase name
+    var exerciseDB = {};
+    defaultExerciseList.forEach(function(ex) {
+      exerciseDB[ex.name.toLowerCase()] = ex;
+    });
+
+    function getExerciseInfo(name) {
+      return exerciseDB[name.toLowerCase()] || { name: name, equip: 'custom', input: 'weight', muscle: 'Custom' };
+    }
+
+    var equipLabels = {
+      barbell: 'BB', dumbbell: 'DB', machine: 'M', cable: 'C',
+      bodyweight: 'BW', cardio: '', custom: ''
+    };
+    var equipColors = {
+      barbell: '#ff6b35', dumbbell: '#7b2ff7', machine: '#00bfff',
+      cable: '#00ff88', bodyweight: '#ffd700', cardio: '#ff3366', custom: '#888'
     };
 
     var workoutExerciseCounter = 0;
@@ -2786,10 +2899,8 @@
     function getExerciseList() {
       // Merge defaults + custom from all shared workout history
       var all = {};
-      Object.keys(defaultExercises).forEach(function(cat) {
-        defaultExercises[cat].forEach(function(name) {
-          all[name.toLowerCase()] = { name: name, cat: cat };
-        });
+      defaultExerciseList.forEach(function(ex) {
+        all[ex.name.toLowerCase()] = { name: ex.name, equip: ex.equip, muscle: ex.muscle };
       });
 
       // Add from local workout history
@@ -2797,7 +2908,10 @@
       history.forEach(function(w) {
         (w.exercises || []).forEach(function(ex) {
           var key = ex.name.toLowerCase();
-          if (!all[key]) all[key] = { name: ex.name, cat: 'Custom' };
+          if (!all[key]) {
+            var info = getExerciseInfo(ex.name);
+            all[key] = { name: ex.name, equip: info.equip, muscle: info.muscle };
+          }
         });
       });
 
@@ -2809,24 +2923,28 @@
             wk.forEach(function(w) {
               (w.exercises || []).forEach(function(ex) {
                 var key = ex.name.toLowerCase();
-                if (!all[key]) all[key] = { name: ex.name, cat: 'Custom' };
+                if (!all[key]) {
+                  var info = getExerciseInfo(ex.name);
+                  all[key] = { name: ex.name, equip: info.equip, muscle: info.muscle };
+                }
               });
             });
           }
         });
       }
 
-      // Group by category
+      // Group by equipment type
       var grouped = {};
       Object.keys(all).forEach(function(key) {
         var item = all[key];
-        if (!grouped[item.cat]) grouped[item.cat] = [];
-        grouped[item.cat].push(item.name);
+        var groupKey = item.equip;
+        if (!grouped[groupKey]) grouped[groupKey] = [];
+        grouped[groupKey].push(item);
       });
 
-      // Sort each category
-      Object.keys(grouped).forEach(function(cat) {
-        grouped[cat].sort();
+      // Sort each group alphabetically
+      Object.keys(grouped).forEach(function(key) {
+        grouped[key].sort(function(a, b) { return a.name.localeCompare(b.name); });
       });
 
       return grouped;
@@ -2912,19 +3030,24 @@
       var query = input.value.toLowerCase().trim();
       var exercises = getExerciseList();
       var html = '';
-      var catOrder = ['Chest','Back','Shoulders','Legs','Arms','Core','Cardio','Custom'];
+      var equipOrder = ['barbell','dumbbell','machine','cable','bodyweight','cardio','custom'];
+      var equipNames = { barbell: 'Barbell', dumbbell: 'Dumbbell', machine: 'Machine', cable: 'Cable', bodyweight: 'Bodyweight', cardio: 'Cardio', custom: 'Custom' };
       var hasResults = false;
 
-      catOrder.forEach(function(cat) {
-        if (!exercises[cat]) return;
-        var matches = exercises[cat].filter(function(name) {
-          return !query || name.toLowerCase().indexOf(query) !== -1;
+      equipOrder.forEach(function(equip) {
+        if (!exercises[equip]) return;
+        var matches = exercises[equip].filter(function(item) {
+          return !query || item.name.toLowerCase().indexOf(query) !== -1 || item.muscle.toLowerCase().indexOf(query) !== -1;
         });
         if (matches.length > 0) {
           hasResults = true;
-          html += '<div class="workout-logger__autocomplete-cat">' + cat + '</div>';
-          matches.forEach(function(name) {
-            html += '<div class="workout-logger__autocomplete-item" onmousedown="selectExercise(' + exerciseId + ',\'' + name.replace(/'/g, "\\'") + '\')">' + name + '</div>';
+          html += '<div class="workout-logger__autocomplete-cat">' +
+            '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:' + (equipColors[equip] || '#888') + ';margin-right:4px"></span>' +
+            (equipNames[equip] || equip) + '</div>';
+          matches.forEach(function(item) {
+            var tag = equipLabels[equip] ? '<span style="font-size:0.6rem;color:' + equipColors[equip] + ';margin-left:6px;font-weight:700">' + equipLabels[equip] + '</span>' : '';
+            var muscle = '<span style="font-size:0.6rem;color:var(--text-muted);margin-left:4px">' + item.muscle + '</span>';
+            html += '<div class="workout-logger__autocomplete-item" onmousedown="selectExercise(' + exerciseId + ',\'' + item.name.replace(/'/g, "\\'") + '\')">' + item.name + tag + muscle + '</div>';
           });
         }
       });
