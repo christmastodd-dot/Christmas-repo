@@ -2446,14 +2446,20 @@
       return fetch(NPOINT_API, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contents: data })
+        body: JSON.stringify(data)
       }).then(function(res) {
-        if (!res.ok) throw new Error('Create failed: ' + res.status);
+        if (!res.ok) {
+          return res.text().then(function(t) { throw new Error('Create ' + res.status + ': ' + t.substring(0, 100)); });
+        }
         return res.json();
       }).then(function(doc) {
-        // npoint returns { id: "abc123", contents: {...}, ... }
-        if (!doc || !doc.id) throw new Error('No ID returned');
-        return { id: doc.id, data: data };
+        // npoint may return the data directly or wrapped
+        var id = doc.id || doc._id;
+        if (!id) {
+          // If npoint doesn't return an ID, fall back to generating a local room
+          throw new Error('No ID in response: ' + JSON.stringify(doc).substring(0, 100));
+        }
+        return { id: id, data: data };
       });
     }
 
