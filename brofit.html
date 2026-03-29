@@ -1635,6 +1635,43 @@
       border-color: var(--color-blue);
     }
 
+    .exercise-type-picker {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      padding: 6px 0;
+    }
+
+    .exercise-type-picker__label {
+      width: 100%;
+      font-size: 0.65rem;
+      color: var(--text-secondary);
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+
+    .exercise-type-picker__btn {
+      background: var(--bg-surface);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: var(--text-secondary);
+      font-family: var(--font-body);
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .exercise-type-picker__btn:active {
+      transform: scale(0.95);
+    }
+
+    .exercise-type-picker__btn--selected {
+      border-color: var(--color-blue);
+      color: var(--color-blue);
+      background: rgba(0, 191, 255, 0.1);
+    }
+
     .workout-logger__remove-exercise {
       background: none;
       border: none;
@@ -3747,8 +3784,52 @@
       exerciseDB[ex.name.toLowerCase()] = ex;
     });
 
+    // Custom exercise type overrides (set by the type picker)
+    var customExerciseTypes = {};
+
     function getExerciseInfo(name) {
-      return exerciseDB[name.toLowerCase()] || { name: name, equip: 'custom', input: 'weight', muscle: 'Custom' };
+      var dbEntry = exerciseDB[name.toLowerCase()];
+      if (dbEntry) return dbEntry;
+      var custom = customExerciseTypes[name.toLowerCase()];
+      if (custom) return custom;
+      return { name: name, equip: 'custom', input: 'weight', muscle: 'Custom' };
+    }
+
+    function isCustomExercise(name) {
+      return !exerciseDB[name.toLowerCase()];
+    }
+
+    function setCustomExerciseType(name, equip, inputType) {
+      customExerciseTypes[name.toLowerCase()] = { name: name, equip: equip, input: inputType, muscle: 'Custom' };
+    }
+
+    var exerciseTypeOptions = [
+      { equip: 'barbell', input: 'weight', label: 'Barbell' },
+      { equip: 'dumbbell', input: 'weight', label: 'Dumbbell' },
+      { equip: 'machine', input: 'weight', label: 'Machine' },
+      { equip: 'cable', input: 'weight', label: 'Cable' },
+      { equip: 'bodyweight', input: 'bw', label: 'Bodyweight' },
+      { equip: 'cardio', input: 'cardio', label: 'Cardio' },
+      { equip: 'custom', input: 'duration', label: 'Isometric / Duration' }
+    ];
+
+    function buildTypePicker(onSelect) {
+      var div = document.createElement('div');
+      div.className = 'exercise-type-picker';
+      div.innerHTML = '<div class="exercise-type-picker__label">What type of exercise is this?</div>';
+      exerciseTypeOptions.forEach(function(opt) {
+        var btn = document.createElement('button');
+        btn.className = 'exercise-type-picker__btn';
+        btn.textContent = opt.label;
+        btn.style.borderColor = equipColors[opt.equip] || 'rgba(255,255,255,0.1)';
+        btn.style.color = equipColors[opt.equip] || 'var(--text-secondary)';
+        btn.addEventListener('click', function() {
+          onSelect(opt.equip, opt.input);
+          div.remove();
+        });
+        div.appendChild(btn);
+      });
+      return div;
     }
 
     var equipLabels = {
@@ -3895,10 +3976,32 @@
       input.addEventListener('input', function() { showAutocomplete(id); });
       input.addEventListener('focus', function() { showAutocomplete(id); });
       input.addEventListener('blur', function() {
-        setTimeout(function() { hideAutocomplete(id); }, 200);
+        setTimeout(function() {
+          hideAutocomplete(id);
+          var name = input.value.trim();
+          if (name && isCustomExercise(name)) {
+            showWorkoutTypePicker(id, name);
+          }
+        }, 200);
       });
 
       input.focus();
+    }
+
+    function showWorkoutTypePicker(exerciseId, name) {
+      var exEl = document.getElementById('workout-ex-' + exerciseId);
+      // Don't show again if already picked
+      if (exEl.querySelector('.exercise-type-picker')) return;
+      // Don't show if already known
+      if (!isCustomExercise(name)) return;
+
+      var headerEl = exEl.querySelector('.workout-logger__exercise-header');
+      var picker = buildTypePicker(function(equip, inputType) {
+        setCustomExerciseType(name, equip, inputType);
+        // Trigger the same rebuild as selectExercise
+        selectExercise(exerciseId, name);
+      });
+      headerEl.after(picker);
     }
 
     function setBWMode(exerciseId, mode, btn) {
@@ -5185,10 +5288,15 @@
           if (ac) ac.classList.remove('workout-logger__autocomplete--open');
           var nameVal = document.getElementById('template-ex-name-' + id);
           if (nameVal && nameVal.value.trim()) {
+            var name = nameVal.value.trim();
             var area = document.getElementById('template-ex-sets-area-' + id);
             if (!area.hasChildNodes()) {
-              updateTemplateExType(id, nameVal.value.trim());
-              buildTemplateSetRows(id, nameVal.value.trim());
+              if (isCustomExercise(name)) {
+                showTemplateTypePicker(id, name);
+              } else {
+                updateTemplateExType(id, name);
+                buildTemplateSetRows(id, name);
+              }
             }
           }
         }, 200);
@@ -5349,9 +5457,30 @@
       document.getElementById('template-ex-name-' + exId).value = name;
       var ac = document.getElementById('template-ac-' + exId);
       if (ac) ac.classList.remove('workout-logger__autocomplete--open');
-      updateTemplateExType(exId, name);
-      templateSetCounters[exId] = 0;
-      buildTemplateSetRows(exId, name);
+      if (isCustomExercise(name)) {
+        showTemplateTypePicker(exId, name);
+      } else {
+        updateTemplateExType(exId, name);
+        templateSetCounters[exId] = 0;
+        buildTemplateSetRows(exId, name);
+      }
+    }
+
+    function showTemplateTypePicker(exId, name) {
+      var exEl = document.getElementById('template-ex-' + exId);
+      if (!exEl) return;
+      // Remove existing picker
+      var old = exEl.querySelector('.exercise-type-picker');
+      if (old) old.remove();
+
+      var area = document.getElementById('template-ex-sets-area-' + exId);
+      var picker = buildTypePicker(function(equip, inputType) {
+        setCustomExerciseType(name, equip, inputType);
+        updateTemplateExType(exId, name);
+        templateSetCounters[exId] = 0;
+        buildTemplateSetRows(exId, name);
+      });
+      area.parentNode.insertBefore(picker, area);
     }
 
     function saveTemplate() {
