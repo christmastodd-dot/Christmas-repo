@@ -3609,6 +3609,87 @@
       if (el) el.remove();
     }
 
+    // Format duration: raw digits → mm:ss or h:mm:ss
+    function formatDuration(val) {
+      // Strip any existing colons/spaces/letters
+      var raw = val.replace(/[^0-9:]/g, '');
+      if (!raw) return '';
+
+      // If already has colons, normalize
+      var parts = raw.split(':');
+      if (parts.length === 3) {
+        // h:mm:ss
+        var h = parts[0] || '0';
+        var m = String(parts[1] || '0').padStart(2, '0');
+        var s = String(parts[2] || '0').padStart(2, '0');
+        return h + ':' + m + ':' + s;
+      }
+      if (parts.length === 2) {
+        // mm:ss
+        var m2 = parts[0] || '0';
+        var s2 = String(parts[1] || '0').padStart(2, '0');
+        return m2 + ':' + s2;
+      }
+
+      // Raw digits only — interpret as mm:ss
+      var digits = raw.replace(/:/g, '');
+      if (digits.length <= 2) {
+        // Just seconds or minutes
+        return digits.length === 1 ? '0:0' + digits : '0:' + digits;
+      }
+      if (digits.length <= 4) {
+        var sec = digits.slice(-2);
+        var min = digits.slice(0, -2);
+        return min + ':' + sec;
+      }
+      // 5+ digits → h:mm:ss
+      var sec2 = digits.slice(-2);
+      var min2 = digits.slice(-4, -2);
+      var hr = digits.slice(0, -4);
+      return hr + ':' + min2 + ':' + sec2;
+    }
+
+    function parseDurationForEdit(val) {
+      // Strip non-numeric/colon chars for editing
+      return val.replace(/[^0-9:]/g, '');
+    }
+
+    function formatDistance(val) {
+      var num = val.replace(/[^0-9.]/g, '');
+      if (!num) return '';
+      return num + ' mi';
+    }
+
+    function parseDistanceForEdit(val) {
+      return val.replace(/[^0-9.]/g, '');
+    }
+
+    function attachFieldFormatters(div) {
+      var durInputs = div.querySelectorAll('[data-field="duration"]');
+      durInputs.forEach(function(inp) {
+        inp.addEventListener('blur', function() {
+          if (inp.value.trim()) {
+            inp.value = formatDuration(inp.value);
+          }
+        });
+        inp.addEventListener('focus', function() {
+          inp.value = parseDurationForEdit(inp.value);
+        });
+      });
+
+      var distInputs = div.querySelectorAll('[data-field="distance"]');
+      distInputs.forEach(function(inp) {
+        inp.addEventListener('blur', function() {
+          if (inp.value.trim()) {
+            inp.value = formatDistance(inp.value);
+          }
+        });
+        inp.addEventListener('focus', function() {
+          inp.value = parseDistanceForEdit(inp.value);
+        });
+      });
+    }
+
     var setCounters = {};
     function addWorkoutSet(exerciseId) {
       if (!setCounters[exerciseId]) setCounters[exerciseId] = 0;
@@ -3624,13 +3705,13 @@
       if (inputType === 'cardio') {
         div.innerHTML =
           '<span class="workout-logger__set-label">' + setNum + '</span>' +
-          '<input class="workout-logger__set-input" type="text" placeholder="mm:ss" data-field="duration" style="flex:1">' +
-          '<input class="workout-logger__set-input" type="number" placeholder="miles" data-field="distance" inputmode="decimal" step="0.01" style="flex:1">' +
+          '<input class="workout-logger__set-input" type="text" placeholder="mm:ss" data-field="duration" inputmode="numeric" style="flex:1">' +
+          '<input class="workout-logger__set-input" type="text" placeholder="miles" data-field="distance" inputmode="decimal" style="flex:1">' +
           removeBtn;
       } else if (inputType === 'duration') {
         div.innerHTML =
           '<span class="workout-logger__set-label">' + setNum + '</span>' +
-          '<input class="workout-logger__set-input" type="text" placeholder="mm:ss" data-field="duration" style="flex:1">' +
+          '<input class="workout-logger__set-input" type="text" placeholder="mm:ss" data-field="duration" inputmode="numeric" style="flex:1">' +
           removeBtn;
       } else if (inputType === 'bw') {
         var mode = 'bodyweight';
@@ -3654,6 +3735,9 @@
           removeBtn;
       }
       container.appendChild(div);
+
+      // Attach duration/distance formatters
+      attachFieldFormatters(div);
 
       // Hide the "+ Add Set" button until user enters data in this set
       var addSetBtn = document.getElementById('workout-ex-' + exerciseId).querySelector('.workout-logger__add-set');
@@ -3802,7 +3886,7 @@
               var durInput = row.querySelector('[data-field="duration"]');
               var distInput = row.querySelector('[data-field="distance"]');
               var dur = durInput ? durInput.value.trim() : '';
-              var dist = distInput ? parseFloat(distInput.value) || 0 : 0;
+              var dist = distInput ? parseFloat(parseDistanceForEdit(distInput.value)) || 0 : 0;
               if (dur || dist > 0) {
                 sets.push({ duration: dur, distance: dist });
               }
