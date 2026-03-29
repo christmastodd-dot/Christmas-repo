@@ -144,13 +144,13 @@ let prevTouchJump = false;
 canvas.addEventListener('touchstart', e => {
   e.preventDefault();
   if (state === 'title') {
-    currentLevel = START_LEVEL; lives = MAX_LIVES; startPlaying();
+    currentLevel = START_LEVEL; lives = START_LIVES; startPlaying();
   } else if (state === 'gameover') {
-    currentLevel = START_LEVEL; lives = MAX_LIVES; startPlaying();
+    currentLevel = START_LEVEL; lives = START_LIVES; startPlaying();
   } else if (state === 'levelcomplete') {
     currentLevel++; startPlaying();
   } else if (state === 'gamecomplete') {
-    currentLevel = START_LEVEL; lives = MAX_LIVES; startPlaying();
+    currentLevel = START_LEVEL; lives = START_LIVES; startPlaying();
   } else if (state === 'dead' && deadTimer <= 0) {
     startPlaying();
   }
@@ -227,6 +227,7 @@ const GRAVITY      = 0.55;
 const JUMP_FORCE   = -13;
 const MOVE_SPEED   = 4;
 const MAX_LIVES    = 10;
+const START_LIVES  = 3;
 const START_LEVEL  = 0;
 
 // ─────────────────────────────────────────────
@@ -1266,7 +1267,7 @@ let windForce = 0;        // current wind push strength
 
 function initGame() {
   currentLevel = START_LEVEL;
-  lives = MAX_LIVES;
+  lives = START_LIVES;
   resetLevel();
   state = 'title';
 }
@@ -1357,7 +1358,7 @@ window.addEventListener('keydown', e => {
   if (state === 'title') {
     if (['Space','Enter','ArrowUp','KeyW'].includes(e.code)) {
       currentLevel = START_LEVEL;
-      lives = MAX_LIVES;
+      lives = START_LIVES;
       startPlaying();
     }
     return;
@@ -1366,7 +1367,7 @@ window.addEventListener('keydown', e => {
   if (state === 'gameover') {
     if (['Space','Enter'].includes(e.code)) {
       currentLevel = START_LEVEL;
-      lives = MAX_LIVES;
+      lives = START_LIVES;
       startPlaying();
     }
     return;
@@ -1383,7 +1384,7 @@ window.addEventListener('keydown', e => {
   if (state === 'gamecomplete') {
     if (['Space','Enter'].includes(e.code)) {
       currentLevel = START_LEVEL;
-      lives = MAX_LIVES;
+      lives = START_LIVES;
       startPlaying();
     }
     return;
@@ -1411,7 +1412,7 @@ window.addEventListener('keyup', e => { keys[e.code] = false; });
 canvas.addEventListener('click', () => {
   if (state === 'title') {
     currentLevel = START_LEVEL;
-    lives = MAX_LIVES;
+    lives = START_LIVES;
     startPlaying();
   }
 });
