@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Choose Difficulty - Word Adventure{% endblock %}
+{% block content %}
+<h1>English Word Adventure</h1>
+<p class="subtitle">{{ grade }} Grade — Choose Difficulty</p>
+
+<div class="card">
+    <h2>Choose Your Difficulty</h2>
+    <form method="POST" action="/start">
+        <input type="hidden" name="grade" value="{{ grade }}">
+        {% if easy_count > 0 %}
+        <button type="submit" name="difficulty" value="easy" class="difficulty-btn">
+            <div class="label">Easy <span class="badge badge-green">{{ easy_count }} words</span></div>
+            <div class="desc">Common, short words</div>
+        </button>
+        {% endif %}
+        {% if med_count > 0 %}
+        <button type="submit" name="difficulty" value="medium" class="difficulty-btn">
+            <div class="label">Medium <span class="badge badge-amber">{{ med_count }} words</span></div>
+            <div class="desc">Longer words with tricky spelling</div>
+        </button>
+        {% endif %}
+        {% if hard_count > 0 %}
+        <button type="submit" name="difficulty" value="hard" class="difficulty-btn">
+            <div class="label">Hard <span class="badge badge-red">{{ hard_count }} words</span></div>
+            <div class="desc">Challenging vocabulary</div>
+        </button>
+        {% endif %}
+        <button type="submit" name="difficulty" value="all" class="difficulty-btn">
+            <div class="label">All Words <span class="badge badge-purple">{{ all_count }} words</span></div>
+            <div class="desc">The full word list</div>
+        </button>
+    </form>
+</div>
+
+<a href="/" class="btn btn-secondary">Back to Grade Selection</a>
+{% endblock %}

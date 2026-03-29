@@ -1,32 +1,481 @@
 #!/usr/bin/env python3
 """
 English Word Adventure
-Guess the English word in 5 questions or fewer!
-Learn about word origins, parts of speech, and letter patterns.
+Synonym Quiz — Pick the Right Synonym!
+Supports 1st Grade and 2nd Grade word lists.
 """
 
 import random
 
 
 # --- Word Database ---
-# Each word has 13 attributes that players can ask about.
-# Attributes:
-#   noun              - Is it a noun?
-#   verb              - Is it a verb?
-#   adjective         - Is it an adjective?
-#   one_syllable      - Does it have exactly one syllable?
-#   starts_with_vowel - Does it start with a vowel (a, e, i, o, u)?
-#   has_double_letters - Contains consecutive repeated letters (ee, ll, ss, ...)?
-#   has_silent_letters - Contains a silent letter (k in knight, b in lamb, ...)?
-#   latin_or_french_origin - Word originates from Latin or French?
-#   related_to_nature - Relates to nature, animals, weather, plants?
-#   related_to_emotions - Describes or relates to feelings/emotions?
-#   has_prefix        - Has a recognizable prefix (un-, re-, pre-, dis-, ...)?
-#   has_suffix        - Has a recognizable suffix (-tion, -ly, -ness, -ment, ...)?
-#   common_word       - High-frequency everyday word?
+# Two grade levels, each with synonym quiz data.
+# Each word has: name, definition, example, tip, difficulty,
+#   synonyms (correct answers), distractors (wrong answers),
+#   plus 13 learning attributes.
 
-WORDS = [
-    # --- Words 1-50 (M1b) ---
+# =====================================================================
+#  1ST GRADE WORDS (50 words) — simple, everyday vocabulary
+# =====================================================================
+
+WORDS_1ST_GRADE = [
+    {
+        "name": "big",
+        "definition": "large in size",
+        "example": "The dog is very big.",
+        "tip": "'Big' is one of the first adjectives kids learn — it has just 3 letters!",
+        "difficulty": "easy",
+        "synonyms": ["large", "huge", "giant"],
+        "distractors": ["small", "tiny", "short"],
+    },
+    {
+        "name": "small",
+        "definition": "little in size",
+        "example": "The mouse is small.",
+        "tip": "'Small' is the opposite of 'big' — words with opposite meanings are called antonyms.",
+        "difficulty": "easy",
+        "synonyms": ["little", "tiny", "mini"],
+        "distractors": ["big", "tall", "wide"],
+    },
+    {
+        "name": "fast",
+        "definition": "moving quickly",
+        "example": "The car goes fast.",
+        "tip": "'Fast' can be used as both an adjective ('a fast car') and an adverb ('run fast').",
+        "difficulty": "easy",
+        "synonyms": ["quick", "speedy", "rapid"],
+        "distractors": ["slow", "lazy", "still"],
+    },
+    {
+        "name": "sad",
+        "definition": "feeling unhappy",
+        "example": "She felt sad when her friend moved away.",
+        "tip": "'Sad' is a feeling word — it helps to name your feelings!",
+        "difficulty": "easy",
+        "synonyms": ["unhappy", "upset", "gloomy"],
+        "distractors": ["happy", "glad", "excited"],
+    },
+    {
+        "name": "glad",
+        "definition": "feeling happy or pleased",
+        "example": "I am glad you came to my party.",
+        "tip": "'Glad' is a short way to say 'happy' — great for simple sentences!",
+        "difficulty": "easy",
+        "synonyms": ["happy", "pleased", "cheerful"],
+        "distractors": ["sad", "mad", "bored"],
+    },
+    {
+        "name": "look",
+        "definition": "to use your eyes to see something",
+        "example": "Look at the beautiful rainbow!",
+        "tip": "'Look' means to see on purpose — 'see' can happen without trying.",
+        "difficulty": "easy",
+        "synonyms": ["see", "watch", "peek"],
+        "distractors": ["hear", "smell", "taste"],
+    },
+    {
+        "name": "jump",
+        "definition": "to push yourself up into the air",
+        "example": "The frog can jump very high.",
+        "tip": "'Jump' is an action word (verb) — it tells what someone does!",
+        "difficulty": "easy",
+        "synonyms": ["leap", "hop", "bounce"],
+        "distractors": ["sit", "crawl", "stop"],
+    },
+    {
+        "name": "talk",
+        "definition": "to say words out loud",
+        "example": "We like to talk to our friends.",
+        "tip": "'Talk' and 'speak' mean almost the same thing — they are synonyms!",
+        "difficulty": "easy",
+        "synonyms": ["speak", "chat", "say"],
+        "distractors": ["listen", "read", "sleep"],
+    },
+    {
+        "name": "eat",
+        "definition": "to put food in your mouth and swallow it",
+        "example": "I eat breakfast every morning.",
+        "tip": "'Eat' is an irregular verb: eat → ate → eaten.",
+        "difficulty": "easy",
+        "synonyms": ["munch", "chew", "nibble"],
+        "distractors": ["drink", "cook", "wash"],
+    },
+    {
+        "name": "nice",
+        "definition": "pleasant or kind",
+        "example": "She is a very nice person.",
+        "tip": "'Nice' can describe people, weather, food — it's a very flexible word!",
+        "difficulty": "easy",
+        "synonyms": ["kind", "friendly", "sweet"],
+        "distractors": ["mean", "rude", "grumpy"],
+    },
+    {
+        "name": "start",
+        "definition": "to begin doing something",
+        "example": "Let's start the game!",
+        "tip": "'Start' and 'begin' are synonyms — you can use either one!",
+        "difficulty": "easy",
+        "synonyms": ["begin", "go", "launch"],
+        "distractors": ["stop", "end", "finish"],
+    },
+    {
+        "name": "stop",
+        "definition": "to not move or do something anymore",
+        "example": "Please stop running in the hall.",
+        "tip": "'Stop' is the opposite of 'start' or 'go'.",
+        "difficulty": "easy",
+        "synonyms": ["halt", "end", "quit"],
+        "distractors": ["start", "go", "begin"],
+    },
+    {
+        "name": "cold",
+        "definition": "not warm; low temperature",
+        "example": "It is cold outside today.",
+        "tip": "'Cold' describes temperature — the opposite is 'hot'!",
+        "difficulty": "easy",
+        "synonyms": ["chilly", "cool", "freezing"],
+        "distractors": ["hot", "warm", "sunny"],
+    },
+    {
+        "name": "hot",
+        "definition": "having a high temperature",
+        "example": "The soup is very hot.",
+        "tip": "'Hot' can mean temperature or spicy food!",
+        "difficulty": "easy",
+        "synonyms": ["warm", "boiling", "burning"],
+        "distractors": ["cold", "cool", "frozen"],
+    },
+    {
+        "name": "pretty",
+        "definition": "nice to look at",
+        "example": "What a pretty flower!",
+        "tip": "'Pretty' can also mean 'somewhat' — 'pretty good' means 'fairly good'.",
+        "difficulty": "easy",
+        "synonyms": ["beautiful", "lovely", "cute"],
+        "distractors": ["ugly", "plain", "dull"],
+    },
+    {
+        "name": "scary",
+        "definition": "making you feel afraid",
+        "example": "The movie was too scary for me.",
+        "tip": "'Scary' comes from the word 'scare' plus the ending '-y'.",
+        "difficulty": "easy",
+        "synonyms": ["frightening", "spooky", "creepy"],
+        "distractors": ["funny", "calm", "boring"],
+    },
+    {
+        "name": "funny",
+        "definition": "making you laugh",
+        "example": "That joke was so funny!",
+        "tip": "'Funny' can mean 'ha-ha funny' or 'strange funny' — two meanings!",
+        "difficulty": "easy",
+        "synonyms": ["silly", "hilarious", "amusing"],
+        "distractors": ["serious", "sad", "boring"],
+    },
+    {
+        "name": "fix",
+        "definition": "to repair something that is broken",
+        "example": "Dad will fix my toy.",
+        "tip": "'Fix' and 'repair' mean the same thing — they are synonyms!",
+        "difficulty": "easy",
+        "synonyms": ["repair", "mend", "patch"],
+        "distractors": ["break", "smash", "ruin"],
+    },
+    {
+        "name": "hard",
+        "definition": "not easy; difficult",
+        "example": "The test was hard.",
+        "tip": "'Hard' has two meanings: 'difficult' and 'not soft' (a hard rock).",
+        "difficulty": "easy",
+        "synonyms": ["tough", "difficult", "tricky"],
+        "distractors": ["easy", "simple", "soft"],
+    },
+    {
+        "name": "easy",
+        "definition": "not hard; simple to do",
+        "example": "This puzzle is easy.",
+        "tip": "'Easy' is the opposite of 'hard' or 'difficult'.",
+        "difficulty": "easy",
+        "synonyms": ["simple", "basic", "effortless"],
+        "distractors": ["hard", "tough", "tricky"],
+    },
+    {
+        "name": "help",
+        "definition": "to do something useful for someone",
+        "example": "Can you help me carry this?",
+        "tip": "'Help' is both a noun and a verb: 'I need help' vs 'Help me please'.",
+        "difficulty": "easy",
+        "synonyms": ["assist", "aid", "support"],
+        "distractors": ["hurt", "ignore", "leave"],
+    },
+    {
+        "name": "pull",
+        "definition": "to move something toward you",
+        "example": "Pull the door to open it.",
+        "tip": "'Pull' is the opposite of 'push'!",
+        "difficulty": "easy",
+        "synonyms": ["tug", "drag", "yank"],
+        "distractors": ["push", "throw", "drop"],
+    },
+    {
+        "name": "push",
+        "definition": "to move something away from you",
+        "example": "Push the button to turn it on.",
+        "tip": "'Push' is the opposite of 'pull'!",
+        "difficulty": "easy",
+        "synonyms": ["shove", "press", "nudge"],
+        "distractors": ["pull", "grab", "hold"],
+    },
+    {
+        "name": "pick",
+        "definition": "to choose or select something",
+        "example": "Pick your favorite color.",
+        "tip": "'Pick' also means to gather things — 'pick flowers'!",
+        "difficulty": "easy",
+        "synonyms": ["choose", "select", "grab"],
+        "distractors": ["drop", "leave", "throw"],
+    },
+    {
+        "name": "mad",
+        "definition": "feeling angry",
+        "example": "He was mad that his toy broke.",
+        "tip": "'Mad' and 'angry' are synonyms — words that mean the same thing!",
+        "difficulty": "easy",
+        "synonyms": ["angry", "upset", "furious"],
+        "distractors": ["happy", "calm", "sleepy"],
+    },
+    {
+        "name": "shut",
+        "definition": "to close something",
+        "example": "Please shut the door.",
+        "tip": "'Shut' and 'close' mean the same thing!",
+        "difficulty": "easy",
+        "synonyms": ["close", "seal", "slam"],
+        "distractors": ["open", "unlock", "lift"],
+    },
+    {
+        "name": "loud",
+        "definition": "making a lot of noise",
+        "example": "The music is too loud.",
+        "tip": "'Loud' is the opposite of 'quiet'.",
+        "difficulty": "easy",
+        "synonyms": ["noisy", "booming", "roaring"],
+        "distractors": ["quiet", "silent", "soft"],
+    },
+    {
+        "name": "quiet",
+        "definition": "making very little noise",
+        "example": "The library is a quiet place.",
+        "tip": "The letters 'qu' always go together in English!",
+        "difficulty": "easy",
+        "synonyms": ["silent", "hushed", "still"],
+        "distractors": ["loud", "noisy", "wild"],
+    },
+    {
+        "name": "wet",
+        "definition": "covered with water or liquid",
+        "example": "My shoes got wet in the rain.",
+        "tip": "'Wet' is the opposite of 'dry'.",
+        "difficulty": "easy",
+        "synonyms": ["damp", "soaked", "moist"],
+        "distractors": ["dry", "dusty", "crispy"],
+    },
+    {
+        "name": "clean",
+        "definition": "free from dirt",
+        "example": "My room is nice and clean.",
+        "tip": "'Clean' can be an adjective ('a clean shirt') or a verb ('clean your room').",
+        "difficulty": "easy",
+        "synonyms": ["neat", "tidy", "spotless"],
+        "distractors": ["dirty", "messy", "dusty"],
+    },
+    {
+        "name": "fall",
+        "definition": "to drop down from a higher place",
+        "example": "Be careful not to fall!",
+        "tip": "'Fall' is also the name of a season — when leaves fall from trees!",
+        "difficulty": "easy",
+        "synonyms": ["drop", "tumble", "slip"],
+        "distractors": ["rise", "climb", "jump"],
+    },
+    {
+        "name": "gift",
+        "definition": "something you give to someone",
+        "example": "I got a birthday gift!",
+        "tip": "'Gift' and 'present' mean the same thing!",
+        "difficulty": "easy",
+        "synonyms": ["present", "surprise", "treat"],
+        "distractors": ["bill", "chore", "task"],
+    },
+    {
+        "name": "brave",
+        "definition": "not afraid; having courage",
+        "example": "The brave firefighter saved the cat.",
+        "tip": "'Brave' describes someone who faces scary things without giving up.",
+        "difficulty": "easy",
+        "synonyms": ["courageous", "bold", "fearless"],
+        "distractors": ["scared", "shy", "weak"],
+    },
+    {
+        "name": "sick",
+        "definition": "not feeling well; ill",
+        "example": "I stayed home because I was sick.",
+        "tip": "'Sick' and 'ill' are synonyms — they mean the same thing!",
+        "difficulty": "easy",
+        "synonyms": ["ill", "unwell", "poorly"],
+        "distractors": ["healthy", "strong", "fine"],
+    },
+    {
+        "name": "sleep",
+        "definition": "to rest with your eyes closed",
+        "example": "I sleep for eight hours every night.",
+        "tip": "'Sleep' is both a noun ('a good sleep') and a verb ('I sleep well').",
+        "difficulty": "easy",
+        "synonyms": ["rest", "nap", "snooze"],
+        "distractors": ["wake", "play", "run"],
+    },
+    {
+        "name": "yell",
+        "definition": "to say something very loudly",
+        "example": "Don't yell inside the house!",
+        "tip": "'Yell', 'shout', and 'scream' all mean to be very loud!",
+        "difficulty": "easy",
+        "synonyms": ["shout", "scream", "holler"],
+        "distractors": ["whisper", "hum", "mumble"],
+    },
+    {
+        "name": "new",
+        "definition": "recently made or bought; not old",
+        "example": "I got new shoes today!",
+        "tip": "'New' and 'knew' sound the same but mean different things — they're homophones!",
+        "difficulty": "easy",
+        "synonyms": ["fresh", "brand-new", "recent"],
+        "distractors": ["old", "broken", "used"],
+    },
+    {
+        "name": "old",
+        "definition": "having existed for a long time",
+        "example": "My grandma tells old stories.",
+        "tip": "'Old' is the opposite of 'new' or 'young'.",
+        "difficulty": "easy",
+        "synonyms": ["ancient", "aged", "worn"],
+        "distractors": ["new", "young", "fresh"],
+    },
+    {
+        "name": "like",
+        "definition": "to enjoy something",
+        "example": "I like playing with my friends.",
+        "tip": "'Like' can also mean 'similar to' — 'she looks like her mom'.",
+        "difficulty": "easy",
+        "synonyms": ["enjoy", "love", "prefer"],
+        "distractors": ["hate", "dislike", "avoid"],
+    },
+    {
+        "name": "rich",
+        "definition": "having a lot of money",
+        "example": "The rich king lived in a castle.",
+        "tip": "'Rich' can also describe food — 'a rich chocolate cake' means it's very flavorful!",
+        "difficulty": "easy",
+        "synonyms": ["wealthy", "loaded", "prosperous"],
+        "distractors": ["poor", "broke", "empty"],
+    },
+    {
+        "name": "cut",
+        "definition": "to divide something with a sharp tool",
+        "example": "Mom will cut the cake.",
+        "tip": "'Cut' stays the same in past tense — 'I cut it yesterday'!",
+        "difficulty": "easy",
+        "synonyms": ["slice", "chop", "trim"],
+        "distractors": ["glue", "tape", "tie"],
+    },
+    {
+        "name": "late",
+        "definition": "not on time; after the expected time",
+        "example": "We were late for school.",
+        "tip": "'Late' is the opposite of 'early'.",
+        "difficulty": "easy",
+        "synonyms": ["tardy", "delayed", "overdue"],
+        "distractors": ["early", "quick", "first"],
+    },
+    {
+        "name": "thin",
+        "definition": "not wide or thick",
+        "example": "The paper is very thin.",
+        "tip": "'Thin' is the opposite of 'thick' or 'fat'.",
+        "difficulty": "easy",
+        "synonyms": ["slim", "narrow", "skinny"],
+        "distractors": ["thick", "wide", "fat"],
+    },
+    {
+        "name": "same",
+        "definition": "exactly like another; not different",
+        "example": "We have the same backpack!",
+        "tip": "'Same' is the opposite of 'different'.",
+        "difficulty": "easy",
+        "synonyms": ["alike", "equal", "matching"],
+        "distractors": ["different", "other", "unique"],
+    },
+    {
+        "name": "rock",
+        "definition": "a hard piece of stone",
+        "example": "I found a cool rock by the river.",
+        "tip": "'Rock' can also mean to move back and forth — 'rock the baby'!",
+        "difficulty": "easy",
+        "synonyms": ["stone", "pebble", "boulder"],
+        "distractors": ["stick", "leaf", "sand"],
+    },
+    {
+        "name": "glad",
+        "definition": "feeling happy or pleased",
+        "example": "I am so glad you are here!",
+        "tip": "'Glad' and 'happy' mean the same thing!",
+        "difficulty": "easy",
+        "synonyms": ["happy", "joyful", "pleased"],
+        "distractors": ["sad", "angry", "bored"],
+    },
+    {
+        "name": "fast",
+        "definition": "moving with great speed",
+        "example": "The rabbit is very fast.",
+        "tip": "'Fast' and 'quick' are synonyms!",
+        "difficulty": "easy",
+        "synonyms": ["quick", "swift", "speedy"],
+        "distractors": ["slow", "lazy", "heavy"],
+    },
+    {
+        "name": "mix",
+        "definition": "to put things together",
+        "example": "Mix the paint to make a new color.",
+        "tip": "'Mix' and 'blend' mean to combine things together!",
+        "difficulty": "easy",
+        "synonyms": ["blend", "stir", "combine"],
+        "distractors": ["split", "sort", "separate"],
+    },
+    {
+        "name": "hide",
+        "definition": "to go where no one can see you",
+        "example": "Let's play hide and seek!",
+        "tip": "'Hide' is an irregular verb: hide → hid → hidden.",
+        "difficulty": "easy",
+        "synonyms": ["conceal", "cover", "tuck away"],
+        "distractors": ["show", "find", "reveal"],
+    },
+    {
+        "name": "grin",
+        "definition": "a big, wide smile",
+        "example": "She had a big grin on her face.",
+        "tip": "'Grin' means to smile really wide — bigger than a regular smile!",
+        "difficulty": "easy",
+        "synonyms": ["smile", "beam", "smirk"],
+        "distractors": ["frown", "cry", "pout"],
+    },
+]
+
+# =====================================================================
+#  2ND GRADE WORDS (100 words) — richer vocabulary with word origins
+# =====================================================================
+
+WORDS_2ND_GRADE = [
     {
         "name": "happy",
         "noun": False, "verb": False, "adjective": True,
@@ -1430,6 +1879,11 @@ WORDS = [
     },
 ]
 
+GRADES = {
+    "1st": WORDS_1ST_GRADE,
+    "2nd": WORDS_2ND_GRADE,
+}
+
 ROUNDS_PER_GAME = 10
 
 
@@ -1440,49 +1894,77 @@ def clear_screen():
     print("\n" + "=" * 60)
 
 
-def display_header(difficulty=None):
+def display_header(difficulty=None, grade=None):
     print("=" * 60)
     print("      *** ENGLISH WORD ADVENTURE ***")
     print("      Synonym Quiz — Pick the Right Synonym!")
     print("=" * 60)
-    if difficulty:
-        word_pool = get_word_pool(difficulty)
+    if grade and difficulty:
+        word_pool = get_word_pool(difficulty, grade)
         label = "all" if difficulty == "all" else difficulty
-        print(f"  Difficulty: {label.upper()} ({len(word_pool)} words)")
+        print(f"  {grade.upper()} GRADE | Difficulty: {label.upper()} ({len(word_pool)} words)")
     print("  For each word, pick the correct synonym from 4 choices.")
     print("=" * 60)
 
 
-def get_word_pool(difficulty):
+def get_word_list(grade):
+    """Get the word list for a grade level."""
+    return GRADES.get(grade, WORDS_2ND_GRADE)
+
+
+def get_word_pool(difficulty, grade="2nd"):
+    """Get words filtered by difficulty within a grade level."""
+    words = get_word_list(grade)
     if difficulty == "all":
-        return list(WORDS)
-    return [w for w in WORDS if w["difficulty"] == difficulty]
+        return list(words)
+    return [w for w in words if w["difficulty"] == difficulty]
 
 
-def choose_difficulty():
-    easy_count = len([w for w in WORDS if w["difficulty"] == "easy"])
-    med_count = len([w for w in WORDS if w["difficulty"] == "medium"])
-    hard_count = len([w for w in WORDS if w["difficulty"] == "hard"])
+def choose_grade():
+    print("\n  Choose your grade level:")
+    print(f"  [1] 1st Grade ({len(WORDS_1ST_GRADE)} words)")
+    print(f"  [2] 2nd Grade ({len(WORDS_2ND_GRADE)} words)")
+
+    while True:
+        try:
+            choice = int(input("  > ").strip())
+            if choice == 1:
+                return "1st"
+            elif choice == 2:
+                return "2nd"
+            else:
+                print("  Please enter 1 or 2.")
+        except ValueError:
+            print("  Please enter a valid number.")
+
+
+def choose_difficulty(grade="2nd"):
+    words = get_word_list(grade)
+    easy_count = len([w for w in words if w["difficulty"] == "easy"])
+    med_count = len([w for w in words if w["difficulty"] == "medium"])
+    hard_count = len([w for w in words if w["difficulty"] == "hard"])
 
     print("\n  Choose your difficulty level:")
     print(f"  [1] Easy   ({easy_count} words) — common, short words")
-    print(f"  [2] Medium ({med_count} words) — longer words with tricky spelling")
-    print(f"  [3] Hard   ({hard_count} words) — challenging vocabulary")
-    print(f"  [4] All    ({len(WORDS)} words) — the full word list")
+    if med_count > 0:
+        print(f"  [2] Medium ({med_count} words) — longer words with tricky spelling")
+    if hard_count > 0:
+        print(f"  [3] Hard   ({hard_count} words) — challenging vocabulary")
+    print(f"  [4] All    ({len(words)} words) — the full word list")
 
     while True:
         try:
             choice = int(input("  > ").strip())
             if choice == 1:
                 return "easy"
-            elif choice == 2:
+            elif choice == 2 and med_count > 0:
                 return "medium"
-            elif choice == 3:
+            elif choice == 3 and hard_count > 0:
                 return "hard"
             elif choice == 4:
                 return "all"
             else:
-                print("  Please enter 1, 2, 3, or 4.")
+                print("  Please enter a valid option.")
         except ValueError:
             print("  Please enter a valid number.")
 
@@ -1575,12 +2057,13 @@ def show_session_review(words_seen):
 
 def main():
     display_header()
-    difficulty = choose_difficulty()
-    word_pool = get_word_pool(difficulty)
+    grade = choose_grade()
+    difficulty = choose_difficulty(grade)
+    word_pool = get_word_pool(difficulty, grade)
     total_rounds = min(ROUNDS_PER_GAME, len(word_pool))
 
     clear_screen()
-    display_header(difficulty)
+    display_header(difficulty, grade)
 
     wins = 0
     streak = 0

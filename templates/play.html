@@ -9,6 +9,7 @@
 
 <div class="card">
     <div class="status">
+        <span class="badge badge-blue">{{ game.grade }} Grade</span>
         <span class="badge badge-purple">{{ game.difficulty|upper }}</span>
         {% if game.streak >= 2 %}
         <span class="badge badge-amber">Streak: {{ game.streak }}</span>

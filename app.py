@@ -7,7 +7,10 @@ import os
 import random
 from flask import Flask, render_template, session, redirect, url_for, request
 
-from english_word_game import WORDS, ROUNDS_PER_GAME, get_word_pool, build_choices
+from english_word_game import (
+    WORDS_1ST_GRADE, WORDS_2ND_GRADE, GRADES,
+    ROUNDS_PER_GAME, get_word_list, get_word_pool, build_choices,
+)
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "english-word-adventure-dev-key")
@@ -17,6 +20,7 @@ def get_game_state():
     """Get or initialize game state from session."""
     if "game" not in session:
         session["game"] = {
+            "grade": None,
             "difficulty": None,
             "wins": 0,
             "round_num": 0,
@@ -29,19 +33,30 @@ def get_game_state():
     return session["game"]
 
 
-def get_word_by_index(idx):
-    """Get a word dict from WORDS by index."""
-    return WORDS[idx]
+def get_word_by_index(grade, idx):
+    """Get a word dict by index within a grade's word list."""
+    return get_word_list(grade)[idx]
 
 
 @app.route("/")
 def home():
-    """Difficulty selection / start screen."""
-    easy_count = len(get_word_pool("easy"))
-    med_count = len(get_word_pool("medium"))
-    hard_count = len(get_word_pool("hard"))
-    all_count = len(WORDS)
+    """Grade selection screen."""
     return render_template("home.html",
+                           first_count=len(WORDS_1ST_GRADE),
+                           second_count=len(WORDS_2ND_GRADE))
+
+
+@app.route("/difficulty", methods=["POST"])
+def difficulty():
+    """Difficulty selection after grade is chosen."""
+    grade = request.form.get("grade", "2nd")
+    words = get_word_list(grade)
+    easy_count = len([w for w in words if w["difficulty"] == "easy"])
+    med_count = len([w for w in words if w["difficulty"] == "medium"])
+    hard_count = len([w for w in words if w["difficulty"] == "hard"])
+    all_count = len(words)
+    return render_template("difficulty.html",
+                           grade=grade,
                            easy_count=easy_count,
                            med_count=med_count,
                            hard_count=hard_count,
@@ -50,17 +65,18 @@ def home():
 
 @app.route("/start", methods=["POST"])
 def start():
-    """Start a new game session with chosen difficulty."""
+    """Start a new game session with chosen grade and difficulty."""
+    grade = request.form.get("grade", "2nd")
     difficulty = request.form.get("difficulty", "all")
     session.clear()
     game = get_game_state()
+    game["grade"] = grade
     game["difficulty"] = difficulty
 
-    word_pool = get_word_pool(difficulty)
-    total_rounds = min(ROUNDS_PER_GAME, len(word_pool))
+    words = get_word_list(grade)
+    pool_indices = [i for i, w in enumerate(words) if difficulty == "all" or w["difficulty"] == difficulty]
+    total_rounds = min(ROUNDS_PER_GAME, len(pool_indices))
     game["total_rounds"] = total_rounds
-    # Store indices into WORDS list instead of full word dicts (session cookie size limit)
-    pool_indices = [i for i, w in enumerate(WORDS) if difficulty == "all" or w["difficulty"] == difficulty]
     game["word_indices"] = random.sample(pool_indices, total_rounds)
 
     session.modified = True
@@ -71,14 +87,13 @@ def start():
 def play():
     """Show the current word and 4 synonym choices."""
     game = get_game_state()
-    if not game["difficulty"] or game["round_num"] >= game["total_rounds"]:
+    if not game["grade"] or game["round_num"] >= game["total_rounds"]:
         return redirect(url_for("home"))
 
     word_idx = game["word_indices"][game["round_num"]]
-    word = get_word_by_index(word_idx)
+    word = get_word_by_index(game["grade"], word_idx)
     choices, correct = build_choices(word)
 
-    # Store only lightweight data in session for validation
     session["current_round"] = {
         "word_idx": word_idx,
         "choices": choices,
@@ -103,7 +118,7 @@ def answer():
         return redirect(url_for("home"))
 
     pick = int(request.form.get("choice", -1))
-    word = get_word_by_index(current["word_idx"])
+    word = get_word_by_index(game["grade"], current["word_idx"])
     choices = current["choices"]
     correct_answer = current["correct"]
 
@@ -113,7 +128,6 @@ def answer():
     chosen = choices[pick]
     is_correct = chosen == correct_answer
 
-    # Update game state
     game["round_num"] += 1
     if is_correct:
         game["wins"] += 1
@@ -142,7 +156,6 @@ def answer():
             streak_msg = f"{game['streak']} in a row! Unstoppable!"
 
     is_last_round = game["round_num"] >= game["total_rounds"]
-
     session.modified = True
 
     return render_template("result.html",
