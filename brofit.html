@@ -2289,9 +2289,9 @@
       <button class="featured-challenge__btn" id="challenge-btn">I Did This (+50 XP)</button>
     </div>
 
-    <!-- Macrocycle / Training Program -->
-    <div class="section-title">The Program</div>
-    <div class="macrocycle" id="macrocycle">
+    <!-- Macrocycle / Training Program (hidden for now) -->
+    <div class="section-title" style="display:none">The Program</div>
+    <div class="macrocycle" id="macrocycle" style="display:none">
       <div class="macrocycle__week-label" id="macro-week-label"></div>
       <div class="macrocycle__progress" id="macro-progress"></div>
       <!-- Phases rendered by JS -->
@@ -3871,6 +3871,9 @@
       history.push(workout);
       saveWorkoutHistory(history);
 
+      // Offer to save as template
+      offerSaveAsTemplate(exercises);
+
       // Reset form and go back to chooser
       resetWorkoutForm();
       document.getElementById('workout-chooser').classList.remove('workout-chooser--hidden');
@@ -4400,6 +4403,27 @@
     function deleteTemplate(id) {
       var templates = loadTemplates();
       templates = templates.filter(function(t) { return t.id !== id; });
+      saveTemplates(templates);
+      renderTemplates();
+      schedulePush();
+    }
+
+    function offerSaveAsTemplate(exercises) {
+      var tmplName = prompt('Save this workout as a template?\nEnter a name, or cancel to skip:');
+      if (!tmplName || !tmplName.trim()) return;
+      tmplName = tmplName.trim();
+
+      var tmplExercises = exercises.map(function(ex) {
+        return { name: ex.name, sets: (ex.sets || []).length || 3 };
+      });
+
+      var templates = loadTemplates();
+      templates.push({
+        id: 'tmpl_' + Date.now(),
+        name: tmplName,
+        exercises: tmplExercises,
+        author: userId
+      });
       saveTemplates(templates);
       renderTemplates();
       schedulePush();
