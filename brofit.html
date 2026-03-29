@@ -1261,6 +1261,42 @@
       letter-spacing: 0.5px;
     }
 
+    .workout-logger__timer {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: var(--bg-surface);
+      border-radius: var(--radius-sm);
+      padding: 8px 12px;
+      margin-bottom: 12px;
+    }
+
+    .workout-logger__timer-clock {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--color-blue);
+      letter-spacing: 1px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .workout-logger__timer-label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .workout-logger__timer-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--color-red);
+      animation: pulse 1.5s ease infinite;
+    }
+
     /* ===== Workout Logger ===== */
     .workout-logger {
       margin-bottom: 16px;
@@ -2227,6 +2263,11 @@
             <span class="workout-logger__meta-label">Start Time</span>
             <input class="workout-logger__date-input" id="workout-time" type="time">
           </div>
+        </div>
+        <div class="workout-logger__timer" id="workout-timer">
+          <div class="workout-logger__timer-dot"></div>
+          <span class="workout-logger__timer-clock" id="workout-timer-clock">00:00</span>
+          <span class="workout-logger__timer-label">elapsed</span>
         </div>
         <div id="workout-exercises"></div>
         <div class="workout-logger__actions">
@@ -3806,9 +3847,22 @@
       var timeInput = document.getElementById('workout-time');
       var startTime = timeInput ? timeInput.value : '';
 
+      // Calculate workout duration
+      var durationSecs = workoutStartTime ? Math.floor((Date.now() - workoutStartTime) / 1000) : 0;
+      var durationStr = '';
+      if (durationSecs > 0) {
+        var dHrs = Math.floor(durationSecs / 3600);
+        var dMins = Math.floor((durationSecs % 3600) / 60);
+        var dSecs = durationSecs % 60;
+        durationStr = dHrs > 0
+          ? dHrs + ':' + String(dMins).padStart(2, '0') + ':' + String(dSecs).padStart(2, '0')
+          : String(dMins).padStart(2, '0') + ':' + String(dSecs).padStart(2, '0');
+      }
+
       var workout = {
         date: date,
         startTime: startTime,
+        duration: durationStr,
         exercises: exercises,
         ts: Date.now()
       };
@@ -3879,6 +3933,7 @@
           '<span><span class="workout-history__stat-val">' + totalSets + '</span> sets</span>';
         if (totalVol > 0) statsHtml += '<span><span class="workout-history__stat-val">' + totalVol.toLocaleString() + '</span> lbs vol</span>';
         if (totalDist > 0) statsHtml += '<span><span class="workout-history__stat-val">' + totalDist.toFixed(2) + '</span> mi</span>';
+        if (w.duration) statsHtml += '<span><span class="workout-history__stat-val">' + w.duration + '</span> time</span>';
 
         html += '<div class="workout-history__entry">' +
           '<div class="workout-history__date">' +
@@ -3929,11 +3984,15 @@
       }
     }
 
+    var workoutStartTime = null;
+    var workoutTimerInterval = null;
+
     function resetWorkoutForm() {
       document.getElementById('workout-exercises').innerHTML = '';
       workoutExerciseCounter = 0;
       setCounters = {};
       exerciseInputTypes = {};
+      stopWorkoutTimer();
     }
 
     function initWorkoutForm() {
@@ -3943,6 +4002,40 @@
       // Hide chooser, show logger
       document.getElementById('workout-chooser').classList.add('workout-chooser--hidden');
       document.getElementById('workout-logger').classList.remove('workout-chooser--hidden');
+      // Start timer
+      startWorkoutTimer();
+    }
+
+    function startWorkoutTimer() {
+      workoutStartTime = Date.now();
+      updateWorkoutTimer();
+      workoutTimerInterval = setInterval(updateWorkoutTimer, 1000);
+    }
+
+    function stopWorkoutTimer() {
+      if (workoutTimerInterval) {
+        clearInterval(workoutTimerInterval);
+        workoutTimerInterval = null;
+      }
+      workoutStartTime = null;
+      var clock = document.getElementById('workout-timer-clock');
+      if (clock) clock.textContent = '00:00';
+    }
+
+    function updateWorkoutTimer() {
+      if (!workoutStartTime) return;
+      var elapsed = Math.floor((Date.now() - workoutStartTime) / 1000);
+      var hrs = Math.floor(elapsed / 3600);
+      var mins = Math.floor((elapsed % 3600) / 60);
+      var secs = elapsed % 60;
+      var clock = document.getElementById('workout-timer-clock');
+      if (clock) {
+        if (hrs > 0) {
+          clock.textContent = hrs + ':' + String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+        } else {
+          clock.textContent = String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+        }
+      }
     }
 
     function startBlankWorkout() {
