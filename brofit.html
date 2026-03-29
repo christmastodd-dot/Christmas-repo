@@ -2420,10 +2420,10 @@
       addXP(50);
     }
 
-    // ===== JSONBlob Sync Layer =====
+    // ===== npoint.io Sync Layer =====
 
-    var BLOB_API = 'https://jsonblob.com/api/jsonblob';
-    var roomId = null;         // JSONBlob ID
+    var NPOINT_API = 'https://api.npoint.io';
+    var roomId = null;         // npoint document ID
     var sharedData = null;     // Full room data from server
     var syncInterval = null;
     var userId = null;         // This user's key in sharedData.members
@@ -2443,30 +2443,22 @@
       var data = { members: {} };
       data.members[userName] = buildMyData();
 
-      return fetch(BLOB_API, {
+      return fetch(NPOINT_API, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify(data)
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contents: data })
       }).then(function(res) {
-        // JSONBlob returns the blob URL in the Location header
-        var loc = res.headers.get('Location') || res.headers.get('location');
-        if (loc) {
-          var id = loc.split('/').pop();
-          return { id: id, data: data };
-        }
-        // Fallback: try X-jsonblob header
-        var xid = res.headers.get('X-jsonblob');
-        if (xid) return { id: xid, data: data };
-        return res.json().then(function(j) {
-          throw new Error('Could not get blob ID');
-        });
+        if (!res.ok) throw new Error('Create failed: ' + res.status);
+        return res.json();
+      }).then(function(doc) {
+        // npoint returns { id: "abc123", contents: {...}, ... }
+        if (!doc || !doc.id) throw new Error('No ID returned');
+        return { id: doc.id, data: data };
       });
     }
 
     function fetchRoom(id) {
-      return fetch(BLOB_API + '/' + id, {
-        headers: { 'Accept': 'application/json' }
-      }).then(function(res) {
+      return fetch(NPOINT_API + '/' + id).then(function(res) {
         if (!res.ok) throw new Error('Room not found');
         return res.json();
       });
@@ -2475,23 +2467,26 @@
     function pushToRoom() {
       if (!roomId || !userId) return Promise.resolve();
 
-      // Build my data
-      var myData = buildMyData();
+      // First pull latest to avoid overwriting other users' changes
+      return fetchRoom(roomId).then(function(latest) {
+        sharedData = latest;
+        if (!sharedData) sharedData = { members: {} };
+        if (!sharedData.members) sharedData.members = {};
 
-      // Merge into shared data
-      if (!sharedData) sharedData = { members: {} };
-      if (!sharedData.members) sharedData.members = {};
-      sharedData.members[userId] = myData;
+        // Merge my data in
+        sharedData.members[userId] = buildMyData();
 
-      setSyncStatus('syncing');
+        setSyncStatus('syncing');
 
-      return fetch(BLOB_API + '/' + roomId, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify(sharedData)
+        return fetch(NPOINT_API + '/' + roomId, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(sharedData)
+        });
       }).then(function(res) {
         if (!res.ok) throw new Error('Sync failed');
         setSyncStatus('online');
+        renderAllLeaderboards();
       }).catch(function(err) {
         console.error('Push failed:', err);
         setSyncStatus('offline');
