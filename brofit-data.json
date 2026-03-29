@@ -325,9 +325,456 @@
         "start": null,
         "current": null
       },
-      "workouts": [],
-      "templates": [],
-      "lastSync": "2026-03-29T22:03:31.452Z"
+      "workouts": [
+        {
+          "date": "2026-03-29",
+          "startTime": "12:04",
+          "duration": "20:37",
+          "exercises": [
+            {
+              "name": "Stationary Bike - increasing resistance every minute",
+              "sets": [
+                {
+                  "duration": "0:05",
+                  "distance": 0
+                }
+              ],
+              "inputType": "cardio"
+            },
+            {
+              "name": "TRX Squats",
+              "sets": [
+                {
+                  "reps": 10,
+                  "weight": 0
+                },
+                {
+                  "reps": 10,
+                  "weight": 0
+                }
+              ],
+              "inputType": "weight"
+            },
+            {
+              "name": "TRX Bodyweight Rows",
+              "sets": [
+                {
+                  "reps": 10,
+                  "weight": 0
+                },
+                {
+                  "reps": 10,
+                  "weight": 0
+                }
+              ],
+              "inputType": "weight"
+            },
+            {
+              "name": "TRX Standing March",
+              "sets": [
+                {
+                  "reps": 10,
+                  "weight": 0
+                },
+                {
+                  "reps": 10,
+                  "weight": 0
+                }
+              ],
+              "inputType": "weight"
+            },
+            {
+              "name": "TRX Snow Angels",
+              "sets": [
+                {
+                  "reps": 10,
+                  "weight": 0
+                },
+                {
+                  "reps": 10,
+                  "weight": 0
+                }
+              ],
+              "inputType": "weight"
+            },
+            {
+              "name": "TRX Isometric Squat Holds (30 seconds)",
+              "sets": [
+                {
+                  "reps": 1,
+                  "weight": 0
+                },
+                {
+                  "reps": 1,
+                  "weight": 0
+                }
+              ],
+              "inputType": "weight"
+            },
+            {
+              "name": "TRX Quick Pogos",
+              "sets": [
+                {
+                  "reps": 10,
+                  "weight": 0
+                },
+                {
+                  "reps": 10,
+                  "weight": 0
+                }
+              ],
+              "inputType": "weight"
+            },
+            {
+              "name": "TRX Speed Eccentric Squats",
+              "sets": [
+                {
+                  "reps": 5,
+                  "weight": 0
+                },
+                {
+                  "reps": 5,
+                  "weight": 0
+                }
+              ],
+              "inputType": "weight"
+            },
+            {
+              "name": "TRX Split Lunge Isometrics (30 seconds)",
+              "sets": [
+                {
+                  "reps": 1,
+                  "weight": 0
+                },
+                {
+                  "reps": 1,
+                  "weight": 0
+                },
+                {
+                  "reps": 1,
+                  "weight": 0
+                },
+                {
+                  "reps": 1,
+                  "weight": 0
+                }
+              ],
+              "inputType": "weight"
+            },
+            {
+              "name": "High Knees 20m",
+              "sets": [
+                {
+                  "reps": 1,
+                  "weight": 0
+                }
+              ],
+              "inputType": "weight"
+            },
+            {
+              "name": "Single Leg Deadlift 20m",
+              "sets": [
+                {
+                  "reps": 1,
+                  "weight": 0
+                }
+              ],
+              "inputType": "weight"
+            },
+            {
+              "name": "Lunge and Reach",
+              "sets": [
+                {
+                  "reps": 1,
+                  "weight": 0
+                }
+              ],
+              "inputType": "weight"
+            },
+            {
+              "name": "Side Lunge Switches 20m",
+              "sets": [
+                {
+                  "reps": 1,
+                  "weight": 0
+                }
+              ],
+              "inputType": "weight"
+            },
+            {
+              "name": "A Skips 20m",
+              "sets": [
+                {
+                  "reps": 1,
+                  "weight": 0
+                }
+              ],
+              "inputType": "weight"
+            },
+            {
+              "name": "Butt Kicks 20m",
+              "sets": [
+                {
+                  "reps": 1,
+                  "weight": 0
+                }
+              ],
+              "inputType": "weight"
+            },
+            {
+              "name": "Approach Jumps 20m",
+              "sets": [
+                {
+                  "reps": 1,
+                  "weight": 0
+                }
+              ],
+              "inputType": "weight"
+            },
+            {
+              "name": "Sprints 20m",
+              "sets": [
+                {
+                  "reps": 1,
+                  "weight": 0
+                }
+              ],
+              "inputType": "weight"
+            },
+            {
+              "name": "Med Ball Plant and Pops",
+              "sets": [
+                {
+                  "reps": 5,
+                  "weight": 12
+                },
+                {
+                  "reps": 5,
+                  "weight": 12
+                }
+              ],
+              "inputType": "weight"
+            },
+            {
+              "name": "Med Ball Scoop Toss and Chase",
+              "sets": [
+                {
+                  "reps": 5,
+                  "weight": 12
+                },
+                {
+                  "reps": 5,
+                  "weight": 12
+                }
+              ],
+              "inputType": "weight"
+            },
+            {
+              "name": "Med Ball Single Leg Bound and Tap",
+              "sets": [
+                {
+                  "reps": 10,
+                  "weight": 12
+                },
+                {
+                  "reps": 10,
+                  "weight": 12
+                }
+              ],
+              "inputType": "weight"
+            },
+            {
+              "name": "Med Ball Skater Lateral Bounds",
+              "sets": [
+                {
+                  "reps": 10,
+                  "weight": 12
+                },
+                {
+                  "reps": 10,
+                  "weight": 12
+                }
+              ],
+              "inputType": "weight"
+            },
+            {
+              "name": "KB Single Leg Deadlifts",
+              "sets": [
+                {
+                  "reps": 5,
+                  "weight": 25
+                },
+                {
+                  "reps": 5,
+                  "weight": 25
+                },
+                {
+                  "reps": 5,
+                  "weight": 25
+                },
+                {
+                  "reps": 5,
+                  "weight": 25
+                }
+              ],
+              "inputType": "weight"
+            },
+            {
+              "name": "Leg Extension with 10 second iso holds",
+              "sets": [
+                {
+                  "reps": 10,
+                  "weight": 75
+                },
+                {
+                  "reps": 10,
+                  "weight": 75
+                }
+              ],
+              "inputType": "weight"
+            },
+            {
+              "name": "Single Leg Hamstring Curls with 10 second iso holds",
+              "sets": [
+                {
+                  "reps": 10,
+                  "weight": 35
+                },
+                {
+                  "reps": 10,
+                  "weight": 35
+                }
+              ],
+              "inputType": "weight"
+            },
+            {
+              "name": "Single Leg Seated Calf Raise",
+              "sets": [
+                {
+                  "reps": 10,
+                  "weight": 0
+                },
+                {
+                  "reps": 10,
+                  "weight": 0
+                }
+              ],
+              "inputType": "weight"
+            }
+          ],
+          "ts": 1774823126746
+        }
+      ],
+      "templates": [
+        {
+          "id": "tmpl_1774823153449",
+          "name": "Lower Body Basketball League Prep",
+          "exercises": [
+            {
+              "name": "Stationary Bike - increasing resistance every minute",
+              "sets": 1
+            },
+            {
+              "name": "TRX Squats",
+              "sets": 2
+            },
+            {
+              "name": "TRX Bodyweight Rows",
+              "sets": 2
+            },
+            {
+              "name": "TRX Standing March",
+              "sets": 2
+            },
+            {
+              "name": "TRX Snow Angels",
+              "sets": 2
+            },
+            {
+              "name": "TRX Isometric Squat Holds (30 seconds)",
+              "sets": 2
+            },
+            {
+              "name": "TRX Quick Pogos",
+              "sets": 2
+            },
+            {
+              "name": "TRX Speed Eccentric Squats",
+              "sets": 2
+            },
+            {
+              "name": "TRX Split Lunge Isometrics (30 seconds)",
+              "sets": 4
+            },
+            {
+              "name": "High Knees 20m",
+              "sets": 1
+            },
+            {
+              "name": "Single Leg Deadlift 20m",
+              "sets": 1
+            },
+            {
+              "name": "Lunge and Reach",
+              "sets": 1
+            },
+            {
+              "name": "Side Lunge Switches 20m",
+              "sets": 1
+            },
+            {
+              "name": "A Skips 20m",
+              "sets": 1
+            },
+            {
+              "name": "Butt Kicks 20m",
+              "sets": 1
+            },
+            {
+              "name": "Approach Jumps 20m",
+              "sets": 1
+            },
+            {
+              "name": "Sprints 20m",
+              "sets": 1
+            },
+            {
+              "name": "Med Ball Plant and Pops",
+              "sets": 2
+            },
+            {
+              "name": "Med Ball Scoop Toss and Chase",
+              "sets": 2
+            },
+            {
+              "name": "Med Ball Single Leg Bound and Tap",
+              "sets": 2
+            },
+            {
+              "name": "Med Ball Skater Lateral Bounds",
+              "sets": 2
+            },
+            {
+              "name": "KB Single Leg Deadlifts",
+              "sets": 4
+            },
+            {
+              "name": "Leg Extension with 10 second iso holds",
+              "sets": 2
+            },
+            {
+              "name": "Single Leg Hamstring Curls with 10 second iso holds",
+              "sets": 2
+            },
+            {
+              "name": "Single Leg Seated Calf Raise",
+              "sets": 2
+            }
+          ],
+          "author": "Riyodiyo"
+        }
+      ],
+      "lastSync": "2026-03-29T22:25:55.599Z"
     }
   }
 }
