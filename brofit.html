@@ -642,12 +642,14 @@
 
     .pr-tracker__input-row {
       display: flex;
-      gap: 8px;
+      flex-wrap: wrap;
+      gap: 6px;
       margin-bottom: 10px;
     }
 
     .pr-tracker__input {
       flex: 1;
+      min-width: 0;
       background: var(--bg-surface);
       border: 1px solid var(--text-muted);
       border-radius: var(--radius-sm);
@@ -664,8 +666,12 @@
     }
 
     .pr-tracker__input--date {
-      max-width: 140px;
+      flex: 0 0 auto;
+      width: 100%;
       color-scheme: dark;
+      font-size: 0.8rem;
+      padding: 6px 10px;
+      color: var(--text-secondary);
     }
 
     .pr-tracker__add-btn {
@@ -909,12 +915,14 @@
 
     .weight-tracker__input-row {
       display: flex;
-      gap: 8px;
+      flex-wrap: wrap;
+      gap: 6px;
       margin-bottom: 12px;
     }
 
     .weight-tracker__input {
       flex: 1;
+      min-width: 0;
       background: var(--bg-surface);
       border: 1px solid var(--text-muted);
       border-radius: var(--radius-sm);
@@ -931,8 +939,12 @@
     }
 
     .weight-tracker__input--date {
-      max-width: 140px;
+      flex: 0 0 auto;
+      width: 100%;
       color-scheme: dark;
+      font-size: 0.8rem;
+      padding: 6px 10px;
+      color: var(--text-secondary);
     }
 
     .weight-tracker__log-btn {
