@@ -239,36 +239,6 @@
       "templates": [],
       "lastSync": "2026-03-29T10:11:22.151Z"
     },
-    "CT": {
-      "xp": 50,
-      "streak": 3,
-      "prs": {
-        "bench": {
-          "history": [],
-          "best": null
-        },
-        "squat": {
-          "history": [],
-          "best": null
-        },
-        "deadlift": {
-          "history": [],
-          "best": null
-        },
-        "mile": {
-          "history": [],
-          "best": null
-        }
-      },
-      "weight": {
-        "history": [],
-        "start": null,
-        "current": null
-      },
-      "workouts": [],
-      "templates": [],
-      "lastSync": "2026-03-29T22:00:31.421Z"
-    },
     "Riyodiyo": {
       "xp": 15,
       "streak": 1,
