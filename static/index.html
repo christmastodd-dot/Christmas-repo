@@ -145,19 +145,24 @@ const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 const W = 800, H = 600;
 
-// Constants
-const LEVEL_LENGTH = 7680;
-const SLOPE = 0.20;
+// Constants (shared)
 const PLAYER_SPEED = 160;
-const JUMP_VELOCITY = -637;  // sqrt(1.5) * 520 → exact 50% taller jump arc
+const JUMP_VELOCITY = -637;
 const GRAVITY = 1400;
 const GOAT_CHARGE_SPEED = 200;
 const GOAT_TRIGGER_DIST = 400;
 const INVINCIBILITY_TIME = 1.5;
-const NUM_GOATS = 7;         // 5 normal + 1 extra normal + 1 angry boss goat
+
+// Level configs
+const LEVELS = {
+  1: { length: 7680, slope: 0.20, numGoats: 7, camYFactor: 120 },
+  2: { length: 6000, slope: 0, numGoats: 0, camYFactor: 0 },
+};
 
 // State
-let state = 'start'; // start | playing | knockback | gameover | win
+let currentLevel = 1;
+let levelCfg = LEVELS[1];
+let state = 'start'; // start | playing | knockback | gameover | levelcomplete | win
 let playerWX, playerWY, playerVY, onGround, lives, facingRight;
 let invincibleTimer, tutorialTimer, playerMoving = false, walkTimer = 0;
 // Knockback: player flies off mountain then reappears
@@ -176,7 +181,7 @@ function seededRandom(seed) {
   };
 }
 
-function trailY(wx) { return -wx * SLOPE; }
+function trailY(wx) { return -wx * levelCfg.slope; }
 
 function worldToScreen(wx, wy, camWX, camWY) {
   return [wx - camWX + W * 0.35, wy - camWY + H * 0.65];
@@ -184,6 +189,7 @@ function worldToScreen(wx, wy, camWX, camWY) {
 
 // Init / Reset
 function resetLevel() {
+  levelCfg = LEVELS[currentLevel];
   playerWX = 0;
   playerWY = 0;
   playerVY = 0;
@@ -194,21 +200,26 @@ function resetLevel() {
   tutorialTimer = 4;
   walkTimer = 0;
   goats = [];
-  const spacing = LEVEL_LENGTH / (NUM_GOATS + 1);
-  for (let i = 0; i < NUM_GOATS; i++) {
-    const angry = (i === NUM_GOATS - 1); // last goat is the angry boss
-    goats.push({
-      homeWX: spacing * (i + 1),
-      wx: spacing * (i + 1),
-      wy: trailY(spacing * (i + 1)),
-      charging: false,
-      windupTimer: 0,  // angry goat pause before charging
-      active: true,
-      angry,
-      width: 44,
-      height: 36
-    });
+
+  if (currentLevel === 1) {
+    const spacing = levelCfg.length / (levelCfg.numGoats + 1);
+    for (let i = 0; i < levelCfg.numGoats; i++) {
+      const angry = (i === levelCfg.numGoats - 1);
+      goats.push({
+        homeWX: spacing * (i + 1),
+        wx: spacing * (i + 1),
+        wy: trailY(spacing * (i + 1)),
+        charging: false,
+        windupTimer: 0,
+        active: true,
+        angry,
+        width: 44,
+        height: 36
+      });
+    }
   }
+  // Level 2 setup will be added in milestone 2
+
   kbTimer = 0;
   confetti = [];
 }
@@ -424,7 +435,7 @@ function drawTrees(camWX, camWY, progress) {
     if (sx < -60 || sx > W + 60) continue;
 
     // Per-tree progress (how far along the level this tree sits)
-    const treeProgress = wx / LEVEL_LENGTH;
+    const treeProgress = wx / levelCfg.length;
     const treeSnow = Math.max(0, (treeProgress - 0.5) / 0.5);
 
     // Trunk
@@ -731,7 +742,7 @@ function drawSanta(sx, sy) {
 }
 
 function drawSummitFlag(camWX, camWY) {
-  const [sx, sy] = worldToScreen(LEVEL_LENGTH, trailY(LEVEL_LENGTH), camWX, camWY);
+  const [sx, sy] = worldToScreen(levelCfg.length, trailY(levelCfg.length), camWX, camWY);
   // Pole
   ctx.strokeStyle = 'rgb(120,90,60)'; ctx.lineWidth = 5;
   ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(sx, sy-85); ctx.stroke();
@@ -1424,6 +1435,39 @@ function drawStartScreen() {
   ctx.textAlign = 'left';
 }
 
+function drawLevelComplete() {
+  drawOverlay(0.4);
+  ctx.textAlign = 'center';
+
+  // Panel
+  ctx.fillStyle = 'rgba(20,40,60,0.7)';
+  ctx.beginPath(); ctx.roundRect(W/2 - 240, 130, 480, 280, 20); ctx.fill();
+  ctx.strokeStyle = 'rgba(100,200,100,0.4)'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.roundRect(W/2 - 240, 130, 480, 280, 20); ctx.stroke();
+
+  // Title
+  const bounce = Math.sin(performance.now() / 300) * 4;
+  ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.font = 'bold 48px Arial';
+  ctx.fillText('Level 1 Complete!', W/2 + 2, 200 + bounce + 2);
+  ctx.fillStyle = 'rgb(100,230,100)'; ctx.font = 'bold 48px Arial';
+  ctx.fillText('Level 1 Complete!', W/2, 200 + bounce);
+
+  // Teaser
+  ctx.fillStyle = '#fff'; ctx.font = '24px Arial';
+  ctx.fillText('The descent awaits...', W/2, 260);
+  ctx.fillStyle = 'rgba(200,220,255,0.8)'; ctx.font = '18px Arial';
+  ctx.fillText('Watch out for snow leopards!', W/2, 295);
+
+  // Continue button
+  const pulse = 0.75 + 0.25 * Math.sin(performance.now() / 400);
+  ctx.fillStyle = `rgba(80,180,255,${pulse})`;
+  ctx.beginPath(); ctx.roundRect(W/2 - 140, 330, 280, 55, 12); ctx.fill();
+  ctx.fillStyle = '#fff'; ctx.font = 'bold 24px Arial';
+  ctx.fillText(isTouchDevice ? 'Tap to Continue' : 'Press SPACE to Continue', W/2, 365);
+
+  ctx.textAlign = 'left';
+}
+
 function drawOverlay(alpha) {
   ctx.fillStyle = `rgba(0,0,0,${alpha})`;
   ctx.fillRect(0, 0, W, H);
@@ -1543,7 +1587,7 @@ function update(dt) {
   if (keys['ArrowLeft'] || keys['KeyA']) { playerWX -= PLAYER_SPEED * dt; facingRight = false; moving = true; }
   playerMoving = moving;
   if (moving) walkTimer += dt;
-  playerWX = Math.max(0, Math.min(playerWX, LEVEL_LENGTH));
+  playerWX = Math.max(0, Math.min(playerWX, levelCfg.length));
 
   const groundY = trailY(playerWX);
   if (onGround) {
@@ -1596,7 +1640,10 @@ function update(dt) {
     }
   }
 
-  if (playerWX >= LEVEL_LENGTH) { state = 'win'; initConfetti(); }
+  if (playerWX >= levelCfg.length) {
+    if (currentLevel === 1) { state = 'levelcomplete'; }
+    else { state = 'win'; initConfetti(); }
+  }
 }
 
 function updateKnockback(dt) {
@@ -1622,12 +1669,12 @@ function rectsOverlap(a, b) {
 function draw(dt) {
   if (state === 'start') { drawStartScreen(); return; }
 
-  const progress = playerWX / LEVEL_LENGTH;
+  const progress = playerWX / levelCfg.length;
   const camWX = playerWX;
   // Intentionally under-follow Y so the trail visibly rises on screen as
   // the player climbs — at the summit the player is ~190px from top vs
   // 390px at the start, giving a real sense of gained altitude.
-  const camWY = playerWY + progress * 120;
+  const camWY = playerWY + progress * levelCfg.camYFactor;
   // During knockback, gently pan camera toward flying player's X
   if (state === 'knockback') {
     // camera stays locked to playerWX (the stable ground position)
@@ -1639,9 +1686,15 @@ function draw(dt) {
   drawDistantMountains(camWX, camWY);
   drawMidMountains(camWX, camWY);
   drawTerrain(camWX, camWY, progress);
-  drawAlpineItems(camWX, camWY);
-  drawTrees(camWX, camWY, progress);
-  drawSummitFlag(camWX, camWY);
+  if (currentLevel === 1) {
+    drawAlpineItems(camWX, camWY);
+    drawTrees(camWX, camWY, progress);
+    drawSummitFlag(camWX, camWY);
+  } else {
+    // Level 2: snowy trees everywhere, end marker (to be expanded in milestone 2)
+    drawTrees(camWX, camWY, 1.0); // pass progress=1.0 to force full snow on all trees
+    drawSummitFlag(camWX, camWY);
+  }
 
   for (const g of goats) {
     if (!g.active) continue;
@@ -1683,6 +1736,7 @@ function draw(dt) {
   }
 
   if (state === 'gameover') drawGameOver();
+  if (state === 'levelcomplete') drawLevelComplete();
   if (state === 'win') drawWin(dt);
 }
 
@@ -1772,13 +1826,16 @@ function gameLoop(timestamp) {
 document.addEventListener('keydown', e => {
   keys[e.code] = true;
   if (state === 'start' && (e.code === 'Space' || e.code === 'Enter')) {
-    resetLevel();
+    currentLevel = 1; resetLevel();
     state = 'playing';
-    startMusic(); // requires user gesture — safe to init here
+    startMusic();
+  } else if (state === 'levelcomplete' && (e.code === 'Space' || e.code === 'Enter')) {
+    currentLevel = 2; resetLevel();
+    state = 'playing';
   } else if (state === 'playing' && (e.code === 'Space' || e.code === 'ArrowUp')) {
     if (onGround) { playerVY = JUMP_VELOCITY; onGround = false; }
   } else if ((state === 'gameover' || state === 'win') && (e.code === 'Space' || e.code === 'Enter')) {
-    stopMusic();
+    stopMusic(); currentLevel = 1;
     state = 'start';
   }
   if (['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code)) e.preventDefault();
@@ -1794,11 +1851,13 @@ document.querySelectorAll('.touch-btn').forEach(btn => {
     keys[key] = true;
     // Handle state transitions (same as keydown)
     if (state === 'start' && key === 'Space') {
-      resetLevel(); state = 'playing'; startMusic();
+      currentLevel = 1; resetLevel(); state = 'playing'; startMusic();
+    } else if (state === 'levelcomplete' && key === 'Space') {
+      currentLevel = 2; resetLevel(); state = 'playing';
     } else if (state === 'playing' && key === 'Space') {
       if (onGround) { playerVY = JUMP_VELOCITY; onGround = false; }
     } else if ((state === 'gameover' || state === 'win') && key === 'Space') {
-      stopMusic(); state = 'start';
+      stopMusic(); currentLevel = 1; state = 'start';
     }
   });
   btn.addEventListener('touchend', e => { e.preventDefault(); keys[key] = false; });
@@ -1808,8 +1867,9 @@ document.querySelectorAll('.touch-btn').forEach(btn => {
 // Tap canvas to start/restart on mobile
 canvas.addEventListener('touchstart', e => {
   e.preventDefault();
-  if (state === 'start') { resetLevel(); state = 'playing'; startMusic(); }
-  else if (state === 'gameover' || state === 'win') { stopMusic(); state = 'start'; }
+  if (state === 'start') { currentLevel = 1; resetLevel(); state = 'playing'; startMusic(); }
+  else if (state === 'levelcomplete') { currentLevel = 2; resetLevel(); state = 'playing'; }
+  else if (state === 'gameover' || state === 'win') { stopMusic(); currentLevel = 1; state = 'start'; }
 });
 
 // Also stop music on game over (called from update)
