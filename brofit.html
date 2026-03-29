@@ -1199,38 +1199,70 @@
       transform: scale(0.95);
     }
 
-    /* ===== Workout Logger Toggle ===== */
-    .workout-toggle {
-      background: transparent;
-      color: var(--color-blue);
-      font-family: var(--font-body);
-      font-size: 0.7rem;
+    /* ===== Workout Start Button ===== */
+    .workout-start-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      background: linear-gradient(135deg, var(--color-blue), #0088cc);
+      color: #fff;
+      font-family: var(--font-display);
+      font-size: 1rem;
       font-weight: 700;
-      padding: 3px 10px;
-      border: 1.5px solid var(--color-blue);
-      border-radius: 20px;
+      padding: 14px 20px;
+      border: none;
+      border-radius: var(--radius-md);
       cursor: pointer;
-      transition: all 0.2s;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 16px rgba(0, 191, 255, 0.3);
+      transition: transform 0.15s, box-shadow 0.15s;
       letter-spacing: 0.5px;
-      white-space: nowrap;
     }
 
-    .workout-toggle:active {
-      transform: scale(0.95);
+    .workout-start-btn:active {
+      transform: scale(0.97);
+      box-shadow: 0 2px 8px rgba(0, 191, 255, 0.2);
     }
 
-    .workout-toggle--open {
-      background: var(--color-blue);
-      color: var(--bg-primary);
+    .workout-start-btn--active {
+      background: var(--bg-card);
+      box-shadow: var(--shadow-card);
+    }
+
+    .workout-start-btn__icon {
+      font-size: 1.2rem;
     }
 
     .workout-panel {
       display: none;
-      margin-bottom: 8px;
+      margin-bottom: 16px;
     }
 
     .workout-panel--open {
       display: block;
+    }
+
+    .workout-logger__meta-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .workout-logger__meta-field {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .workout-logger__meta-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
     /* ===== Workout Logger ===== */
@@ -1715,7 +1747,6 @@
     <header class="header">
       <div class="header__logo">BROFIT</div>
       <div class="header__stats">
-        <button class="workout-toggle" id="workout-toggle" onclick="toggleWorkout()">Log</button>
         <button class="pr-log-toggle" id="pr-log-toggle" onclick="togglePRLog()">PR Log</button>
         <button class="weighin-toggle" id="weighin-toggle" onclick="toggleWeighIn()">Weigh-In</button>
         <div class="header__streak" id="header-streak"></div>
@@ -1754,24 +1785,6 @@
       </div>
     </div>
 
-    <!-- Workout Logger -->
-    <div class="workout-panel" id="workout-panel">
-      <div class="section-title">Log Workout</div>
-      <div class="workout-logger" id="workout-logger">
-        <div class="workout-logger__date-row">
-          <span class="workout-logger__date-label">Date:</span>
-          <input class="workout-logger__date-input" id="workout-date" type="date">
-        </div>
-        <div id="workout-exercises"></div>
-        <div class="workout-logger__actions">
-          <button class="workout-logger__add-exercise" id="workout-add-exercise" onclick="addWorkoutExercise()">+ Exercise</button>
-          <button class="workout-logger__save" id="workout-save" onclick="saveWorkout()">Save Workout</button>
-        </div>
-      </div>
-      <div class="section-title">Workout History</div>
-      <div id="workout-history"></div>
-    </div>
-
     <!-- Greeting -->
     <div class="greeting">
       <div class="greeting__time" id="greeting-time"></div>
@@ -1789,6 +1802,35 @@
       </div>
       <div class="profile__progress-label" id="progress-label">0 / 100 XP to next rank</div>
     </section>
+
+    <!-- Workout Launcher -->
+    <button class="workout-start-btn" id="workout-toggle" onclick="toggleWorkout()">
+      <span class="workout-start-btn__icon">🏋️</span>
+      <span class="workout-start-btn__text">Start a New Workout</span>
+    </button>
+
+    <!-- Workout Sheet -->
+    <div class="workout-panel" id="workout-panel">
+      <div class="workout-logger" id="workout-logger">
+        <div class="workout-logger__meta-row">
+          <div class="workout-logger__meta-field">
+            <span class="workout-logger__meta-label">Date</span>
+            <input class="workout-logger__date-input" id="workout-date" type="date">
+          </div>
+          <div class="workout-logger__meta-field">
+            <span class="workout-logger__meta-label">Start Time</span>
+            <input class="workout-logger__date-input" id="workout-time" type="time">
+          </div>
+        </div>
+        <div id="workout-exercises"></div>
+        <div class="workout-logger__actions">
+          <button class="workout-logger__add-exercise" id="workout-add-exercise" onclick="addWorkoutExercise()">+ Add Exercise</button>
+          <button class="workout-logger__save" id="workout-save" onclick="saveWorkout()">Save Workout</button>
+        </div>
+      </div>
+      <div class="section-title">Workout History</div>
+      <div id="workout-history"></div>
+    </div>
 
     <!-- Daily Challenge -->
     <div class="section-title">Daily Challenge</div>
@@ -3304,8 +3346,12 @@
 
       if (exercises.length === 0) return;
 
+      var timeInput = document.getElementById('workout-time');
+      var startTime = timeInput ? timeInput.value : '';
+
       var workout = {
         date: date,
+        startTime: startTime,
         exercises: exercises,
         ts: Date.now()
       };
@@ -3318,8 +3364,10 @@
       document.getElementById('workout-exercises').innerHTML = '';
       workoutExerciseCounter = 0;
       setCounters = {};
-      addWorkoutExercise();
-      dateInput.value = new Date().toISOString().split('T')[0];
+      exerciseInputTypes = {};
+      var now = new Date();
+      dateInput.value = now.toISOString().split('T')[0];
+      if (timeInput) timeInput.value = now.toTimeString().slice(0, 5);
 
       renderWorkoutHistory();
     }
@@ -3381,7 +3429,7 @@
 
         html += '<div class="workout-history__entry">' +
           '<div class="workout-history__date">' +
-            '<span>' + w.date + '</span>' +
+            '<span>' + w.date + (w.startTime ? ' at ' + w.startTime : '') + '</span>' +
             '<button class="workout-history__delete" onclick="deleteWorkout(' + origIdx + ')">Delete</button>' +
           '</div>' +
           exHtml +
@@ -3405,28 +3453,17 @@
     function toggleWorkout() {
       var panel = document.getElementById('workout-panel');
       var btn = document.getElementById('workout-toggle');
-
-      // Close other panels
-      var prLog = document.getElementById('pr-log');
-      if (prLog.classList.contains('pr-log--open')) {
-        prLog.classList.remove('pr-log--open');
-        document.getElementById('pr-log-toggle').classList.remove('pr-log-toggle--open');
-        document.getElementById('pr-log-toggle').textContent = 'PR Log';
-      }
-      var weighin = document.getElementById('weighin-panel');
-      if (weighin.classList.contains('weighin-panel--open')) {
-        weighin.classList.remove('weighin-panel--open');
-        document.getElementById('weighin-toggle').classList.remove('weighin-toggle--open');
-        document.getElementById('weighin-toggle').textContent = 'Weigh-In';
-      }
-
       var isOpen = panel.classList.toggle('workout-panel--open');
-      btn.classList.toggle('workout-toggle--open', isOpen);
-      btn.textContent = isOpen ? 'Close' : 'Log';
+      btn.classList.toggle('workout-start-btn--active', isOpen);
+
       if (isOpen) {
+        btn.querySelector('.workout-start-btn__text').textContent = 'Close Workout';
+
         // Init form if empty
         if (document.getElementById('workout-exercises').children.length === 0) {
-          document.getElementById('workout-date').value = new Date().toISOString().split('T')[0];
+          var now = new Date();
+          document.getElementById('workout-date').value = now.toISOString().split('T')[0];
+          document.getElementById('workout-time').value = now.toTimeString().slice(0, 5);
           addWorkoutExercise();
         }
         renderWorkoutHistory();
@@ -3434,30 +3471,10 @@
           var top = panel.getBoundingClientRect().top + window.scrollY - document.querySelector('.header').offsetHeight - 8;
           window.scrollTo({ top: top, behavior: 'smooth' });
         }, 10);
+      } else {
+        btn.querySelector('.workout-start-btn__text').textContent = 'Start a New Workout';
       }
     }
-
-    // Also close workout panel from other toggles
-    var _origToggleWeighIn = toggleWeighIn;
-    toggleWeighIn = function() {
-      var wp = document.getElementById('workout-panel');
-      if (wp.classList.contains('workout-panel--open')) {
-        wp.classList.remove('workout-panel--open');
-        document.getElementById('workout-toggle').classList.remove('workout-toggle--open');
-        document.getElementById('workout-toggle').textContent = 'Log';
-      }
-      _origToggleWeighIn();
-    };
-    var _origTogglePRLog = togglePRLog;
-    togglePRLog = function() {
-      var wp = document.getElementById('workout-panel');
-      if (wp.classList.contains('workout-panel--open')) {
-        wp.classList.remove('workout-panel--open');
-        document.getElementById('workout-toggle').classList.remove('workout-toggle--open');
-        document.getElementById('workout-toggle').textContent = 'Log';
-      }
-      _origTogglePRLog();
-    };
 
     // ===== Cloud Sync Layer =====
     // Uses GitHub repo as shared database
