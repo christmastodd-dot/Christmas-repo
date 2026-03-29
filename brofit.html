@@ -3762,10 +3762,10 @@
     var exerciseInputTypes = {};
 
     function getColumnHeaders(inputType) {
-      if (inputType === 'bw') return { col1: 'Reps', col2: '+/- lbs' };
+      if (inputType === 'bw') return { col1: '+/- lbs', col2: 'Reps' };
       if (inputType === 'cardio') return { col1: 'Duration', col2: 'Distance' };
       if (inputType === 'duration') return { col1: 'Duration', col2: '' };
-      return { col1: 'Reps', col2: 'Weight' };
+      return { col1: 'Weight', col2: 'Reps' };
     }
 
     function buildHeaderRow(inputType) {
@@ -3981,14 +3981,14 @@
         var wPlaceholder = mode === 'assisted' ? '- lbs' : mode === 'added' ? '+ lbs' : '';
         div.innerHTML =
           '<span class="workout-logger__set-label">' + setNum + '</span>' +
-          '<input class="workout-logger__set-input" type="number" placeholder="Reps" data-field="reps" inputmode="numeric">' +
           '<input class="workout-logger__set-input" type="number" placeholder="' + wPlaceholder + '" data-field="weight" inputmode="decimal"' + (wDisabled ? ' disabled style="opacity:0.3"' : '') + '>' +
+          '<input class="workout-logger__set-input" type="number" placeholder="Reps" data-field="reps" inputmode="numeric">' +
           removeBtn;
       } else {
         div.innerHTML =
           '<span class="workout-logger__set-label">' + setNum + '</span>' +
-          '<input class="workout-logger__set-input" type="number" placeholder="Reps" data-field="reps" inputmode="numeric">' +
           '<input class="workout-logger__set-input" type="number" placeholder="lbs" data-field="weight" inputmode="decimal">' +
+          '<input class="workout-logger__set-input" type="number" placeholder="Reps" data-field="reps" inputmode="numeric">' +
           removeBtn;
       }
       container.appendChild(div);
@@ -4269,7 +4269,7 @@
               return bwStr;
             } else {
               totalVol += (s.reps || 0) * (s.weight || 0);
-              return s.weight || s.weight === 0 ? s.reps + ' × ' + s.weight + ' lbs' : s.reps + ' reps';
+              return s.weight || s.weight === 0 ? s.weight + ' lbs × ' + s.reps + ' reps' : s.reps + ' reps';
             }
           }).join(' &nbsp;|&nbsp; ');
           exHtml += '<div class="workout-history__sets">' + setsStr + '</div>';
@@ -4369,7 +4369,7 @@
               return bwStr;
             } else {
               totalVol += (s.reps || 0) * (s.weight || 0);
-              return s.weight || s.weight === 0 ? s.reps + ' × ' + s.weight + ' lbs' : s.reps + ' reps';
+              return s.weight || s.weight === 0 ? s.weight + ' lbs × ' + s.reps + ' reps' : s.reps + ' reps';
             }
           }).join(' &nbsp;|&nbsp; ');
           exHtml += '<div class="workout-history__sets">' + setsStr + '</div>';
@@ -4416,9 +4416,9 @@
       } else if (iType === 'duration') {
         h += '<span>Duration</span>';
       } else if (iType === 'bw') {
-        h += '<span>Reps</span><span>+/- lbs</span><span style="flex:0.6">Mode</span>';
+        h += '<span>+/- lbs</span><span>Reps</span><span style="flex:0.6">Mode</span>';
       } else {
-        h += '<span>Reps</span><span>Weight</span>';
+        h += '<span>Weight</span><span>Reps</span>';
       }
       h += '<span class="hdr-del-spacer"></span></div>';
       return h;
@@ -4466,16 +4466,16 @@
           } else if (iType === 'duration') {
             html += '<input type="text" data-field="duration" value="' + (s.duration || '') + '" placeholder="Duration" inputmode="numeric">';
           } else if (iType === 'bw') {
-            html += '<input type="number" data-field="reps" value="' + (s.reps || '') + '" placeholder="Reps">';
             html += '<input type="number" data-field="weight" value="' + (s.weight || '') + '" placeholder="+/- lbs" step="any">';
+            html += '<input type="number" data-field="reps" value="' + (s.reps || '') + '" placeholder="Reps">';
             html += '<select data-field="bwMode" style="flex:0.6;background:var(--bg-surface);color:var(--text-primary);border:1px solid rgba(255,255,255,0.1);border-radius:4px;padding:6px;font-size:0.75rem">' +
               '<option value="bw"' + (!s.bwMode || s.bwMode === 'bw' ? ' selected' : '') + '>BW</option>' +
               '<option value="assisted"' + (s.bwMode === 'assisted' ? ' selected' : '') + '>Assisted</option>' +
               '<option value="added"' + (s.bwMode === 'added' ? ' selected' : '') + '>Added</option>' +
             '</select>';
           } else {
-            html += '<input type="number" data-field="reps" value="' + (s.reps || '') + '" placeholder="Reps">';
             html += '<input type="number" data-field="weight" value="' + (s.weight || '') + '" placeholder="Weight" step="any">';
+            html += '<input type="number" data-field="reps" value="' + (s.reps || '') + '" placeholder="Reps">';
           }
 
           html += '<button class="del-set-btn" onclick="editRemoveSet(this)" title="Remove set">✕</button>';
@@ -4532,13 +4532,13 @@
       } else if (inputType === 'duration') {
         html += '<input type="text" data-field="duration" value="" placeholder="Duration" inputmode="numeric">';
       } else if (inputType === 'bw') {
-        html += '<input type="number" data-field="reps" value="" placeholder="Reps">';
         html += '<input type="number" data-field="weight" value="" placeholder="+/- lbs" step="any">';
+        html += '<input type="number" data-field="reps" value="" placeholder="Reps">';
         html += '<select data-field="bwMode" style="flex:0.6;background:var(--bg-surface);color:var(--text-primary);border:1px solid rgba(255,255,255,0.1);border-radius:4px;padding:6px;font-size:0.75rem">' +
           '<option value="bw">BW</option><option value="assisted">Assisted</option><option value="added">Added</option></select>';
       } else {
-        html += '<input type="number" data-field="reps" value="" placeholder="Reps">';
         html += '<input type="number" data-field="weight" value="" placeholder="Weight" step="any">';
+        html += '<input type="number" data-field="reps" value="" placeholder="Reps">';
       }
 
       html += '<button class="del-set-btn" onclick="editRemoveSet(this)" title="Remove set">✕</button>';
