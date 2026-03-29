@@ -306,6 +306,36 @@
       "workouts": [],
       "templates": [],
       "lastSync": "2026-03-29T22:00:31.421Z"
+    },
+    "Riyodiyo": {
+      "xp": 10,
+      "streak": 1,
+      "prs": {
+        "bench": {
+          "history": [],
+          "best": null
+        },
+        "squat": {
+          "history": [],
+          "best": null
+        },
+        "deadlift": {
+          "history": [],
+          "best": null
+        },
+        "mile": {
+          "history": [],
+          "best": null
+        }
+      },
+      "weight": {
+        "history": [],
+        "start": null,
+        "current": null
+      },
+      "workouts": [],
+      "templates": [],
+      "lastSync": "2026-03-29T22:03:31.452Z"
     }
   }
 }
