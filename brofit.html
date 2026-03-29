@@ -5036,7 +5036,14 @@
       var html = '';
       templates.forEach(function(t) {
         var exList = (t.exercises || []).map(function(ex) {
-          return ex.name + (ex.sets ? ' (' + ex.sets + ' sets)' : '');
+          var info = getExerciseInfo(ex.name);
+          var typeLabel = '';
+          if (info.input === 'cardio') typeLabel = ' · Cardio';
+          else if (info.input === 'duration') typeLabel = ' · Duration';
+          else if (info.input === 'bw') typeLabel = ' · BW';
+          else typeLabel = ' · Weight';
+          var equipTag = equipLabels[info.equip] ? '<span style="font-size:0.55rem;color:' + equipColors[info.equip] + ';font-weight:700;margin-left:2px">' + equipLabels[info.equip] + '</span>' : '';
+          return ex.name + equipTag + ' (' + (ex.sets || 3) + ' sets' + typeLabel + ')';
         }).join(' · ');
         var author = t.author ? '<div class="templates__card-author">by ' + t.author + '</div>' : '';
         var actions = '';
@@ -5094,10 +5101,17 @@
       div.className = 'template-editor__ex-row';
       div.id = 'template-ex-' + id;
       div.innerHTML =
-        '<input class="template-editor__ex-input" id="template-ex-name-' + id + '" type="text" placeholder="Exercise name" autocomplete="off" value="' + (prefillName || '') + '">' +
+        '<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">' +
+          '<input class="template-editor__ex-input" id="template-ex-name-' + id + '" type="text" placeholder="Exercise name" autocomplete="off" value="' + (prefillName || '') + '">' +
+          '<span class="template-editor__ex-type" id="template-ex-type-' + id + '" style="font-size:0.6rem;color:var(--text-muted);padding-left:2px"></span>' +
+        '</div>' +
         '<input class="template-editor__ex-sets" id="template-ex-sets-' + id + '" type="number" placeholder="3" inputmode="numeric" value="' + (prefillSets || '') + '">' +
+        '<span class="template-editor__ex-sets-label" id="template-ex-sets-label-' + id + '" style="font-size:0.6rem;color:var(--text-muted);width:28px">sets</span>' +
         '<button class="template-editor__ex-remove" onclick="removeTemplateExercise(' + id + ')">&times;</button>';
       container.appendChild(div);
+
+      // Show type tag if prefilled
+      if (prefillName) updateTemplateExType(id, prefillName);
 
       // Autocomplete for template exercises
       var input = document.getElementById('template-ex-name-' + id);
@@ -5115,6 +5129,9 @@
         setTimeout(function() {
           var ac = document.getElementById('template-ac-' + id);
           if (ac) ac.classList.remove('workout-logger__autocomplete--open');
+          // Update type on blur in case they typed a name manually
+          var nameVal = document.getElementById('template-ex-name-' + id);
+          if (nameVal && nameVal.value.trim()) updateTemplateExType(id, nameVal.value.trim());
         }, 200);
       });
     }
@@ -5164,10 +5181,21 @@
       }
     }
 
+    function updateTemplateExType(exId, name) {
+      var info = getExerciseInfo(name);
+      var typeEl = document.getElementById('template-ex-type-' + exId);
+      if (!typeEl) return;
+      var inputLabels = { weight: 'Weight (lbs + reps)', bw: 'Bodyweight', cardio: 'Cardio (duration + distance)', duration: 'Duration only' };
+      var label = inputLabels[info.input] || 'Weight';
+      var equipTag = equipLabels[info.equip] ? '<span style="color:' + equipColors[info.equip] + ';font-weight:700">' + equipLabels[info.equip] + '</span> · ' : '';
+      typeEl.innerHTML = equipTag + label;
+    }
+
     function selectTemplateExercise(exId, name) {
       document.getElementById('template-ex-name-' + exId).value = name;
       var ac = document.getElementById('template-ac-' + exId);
       if (ac) ac.classList.remove('workout-logger__autocomplete--open');
+      updateTemplateExType(exId, name);
     }
 
     function saveTemplate() {
