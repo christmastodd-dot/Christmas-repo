@@ -5699,11 +5699,56 @@
 
       // Merge default exercises with any custom overrides
       var allExercises = defaultExerciseList.slice();
-      // Add custom exercises from customExerciseTypes that aren't in defaultExerciseList
+      var seen = {};
+      allExercises.forEach(function(e) { seen[e.name.toLowerCase()] = true; });
+
+      // Add custom exercises from customExerciseTypes
       Object.keys(customExerciseTypes).forEach(function(key) {
-        var exists = allExercises.some(function(e) { return e.name.toLowerCase() === key; });
-        if (!exists) allExercises.push(customExerciseTypes[key]);
+        if (!seen[key]) {
+          allExercises.push(customExerciseTypes[key]);
+          seen[key] = true;
+        }
       });
+
+      // Add exercises from local workout history
+      var history = loadWorkoutHistory();
+      history.forEach(function(w) {
+        (w.exercises || []).forEach(function(ex) {
+          var key = ex.name.toLowerCase();
+          if (!seen[key]) {
+            var info = getExerciseInfo(ex.name);
+            allExercises.push({ name: ex.name, equip: info.equip, input: ex.inputType || info.input, muscle: info.muscle });
+            seen[key] = true;
+          }
+        });
+      });
+
+      // Add exercises from all crew members' workouts and templates
+      if (sharedData && sharedData.members) {
+        Object.keys(sharedData.members).forEach(function(memberName) {
+          var member = sharedData.members[memberName];
+          (member.workouts || []).forEach(function(w) {
+            (w.exercises || []).forEach(function(ex) {
+              var key = ex.name.toLowerCase();
+              if (!seen[key]) {
+                var info = getExerciseInfo(ex.name);
+                allExercises.push({ name: ex.name, equip: info.equip, input: ex.inputType || info.input, muscle: info.muscle });
+                seen[key] = true;
+              }
+            });
+          });
+          (member.templates || []).forEach(function(t) {
+            (t.exercises || []).forEach(function(ex) {
+              var key = ex.name.toLowerCase();
+              if (!seen[key]) {
+                var info = getExerciseInfo(ex.name);
+                allExercises.push({ name: ex.name, equip: info.equip, input: info.input, muscle: info.muscle });
+                seen[key] = true;
+              }
+            });
+          });
+        });
+      }
 
       var filtered = allExercises.filter(function(ex) {
         return !search || ex.name.toLowerCase().indexOf(search) !== -1 || (ex.muscle && ex.muscle.toLowerCase().indexOf(search) !== -1);
