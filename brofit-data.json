@@ -278,7 +278,7 @@
         },
         {
           "id": "tmpl_1774831050879",
-          "name": "Hypertrophy 4 — Legs",
+          "name": "Hypertrophy 4 â Legs",
           "exercises": [
             {
               "name": "Squat",
@@ -950,6 +950,36 @@
       "workouts": [],
       "templates": [],
       "lastSync": "2026-03-30T00:32:19.804Z"
+    },
+    "CT": {
+      "xp": 50,
+      "streak": 3,
+      "prs": {
+        "bench": {
+          "history": [],
+          "best": null
+        },
+        "squat": {
+          "history": [],
+          "best": null
+        },
+        "deadlift": {
+          "history": [],
+          "best": null
+        },
+        "mile": {
+          "history": [],
+          "best": null
+        }
+      },
+      "weight": {
+        "history": [],
+        "start": null,
+        "current": null
+      },
+      "workouts": [],
+      "templates": [],
+      "lastSync": "2026-03-30T01:48:30.303Z"
     }
   }
 }
