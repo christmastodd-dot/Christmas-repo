@@ -2766,8 +2766,9 @@
     <div class="join-modal join-modal--hidden" id="join-modal">
       <div class="join-modal__box">
         <div class="join-modal__title">BROFIT</div>
-        <div class="join-modal__sub">Enter your name to get started</div>
+        <div class="join-modal__sub">Enter your name and login code to get started</div>
         <input class="join-modal__input" id="join-name" type="text" placeholder="Your name" maxlength="20" autofocus>
+        <input class="join-modal__input" id="join-code" type="text" placeholder="Login code" maxlength="20" style="margin-top:8px">
         <button class="join-modal__btn join-modal__btn--primary" id="join-btn" onclick="joinRoom()">Let's Go</button>
         <div class="join-modal__error join-modal--hidden" id="join-error"></div>
       </div>
@@ -6590,11 +6591,20 @@
       schedulePush();
     };
 
+    var LOGIN_CODE = 'E-Manual';
+
     function joinRoom() {
       var nameInput = document.getElementById('join-name');
+      var codeInput = document.getElementById('join-code');
       var name = nameInput.value.trim();
+      var code = codeInput.value.trim();
       if (!name) {
         document.getElementById('join-error').textContent = 'Enter a name first';
+        document.getElementById('join-error').classList.remove('join-modal--hidden');
+        return;
+      }
+      if (code !== LOGIN_CODE) {
+        document.getElementById('join-error').textContent = 'Invalid login code';
         document.getElementById('join-error').classList.remove('join-modal--hidden');
         return;
       }
