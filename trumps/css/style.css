@@ -51,11 +51,12 @@ body {
 }
 
 #game-header h1 {
-    font-size: 1.3rem;
-    color: var(--accent-gold);
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    font-weight: 700;
+    font-size: 1.4rem;
+    color: #7dcea0;
+    letter-spacing: 1px;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-style: italic;
+    font-weight: 400;
 }
 
 #game-status {
