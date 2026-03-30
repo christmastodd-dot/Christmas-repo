@@ -192,7 +192,7 @@ canvas.addEventListener('touchstart', e => {
     return;
   }
   if (state === 'gameover') {
-    currentLevel = START_LEVEL; lives = START_LIVES; startPlaying();
+    state = 'title';
   } else if (state === 'levelcomplete') {
     currentLevel++; startPlaying();
   } else if (state === 'gamecomplete') {
@@ -1542,9 +1542,7 @@ window.addEventListener('keydown', e => {
 
   if (state === 'gameover') {
     if (['Space','Enter'].includes(e.code)) {
-      currentLevel = START_LEVEL;
-      lives = START_LIVES;
-      startPlaying();
+      state = 'title';
     }
     return;
   }
