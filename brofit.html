@@ -3905,7 +3905,19 @@
       { name: 'Medicine Ball V-Up', equip: 'medicine_ball', input: 'weight', muscle: 'Core' },
       { name: 'Medicine Ball Squat Throw', equip: 'medicine_ball', input: 'weight', muscle: 'Legs' },
       { name: 'Medicine Ball Rotational Throw', equip: 'medicine_ball', input: 'weight', muscle: 'Core' },
-      { name: 'Medicine Ball Burpee', equip: 'medicine_ball', input: 'weight', muscle: 'Full Body' }
+      { name: 'Medicine Ball Burpee', equip: 'medicine_ball', input: 'weight', muscle: 'Full Body' },
+
+      // Plyometric
+      { name: 'Box Jumps', equip: 'plyometric', input: 'bw', muscle: 'Legs' },
+      { name: 'Jump Squats', equip: 'plyometric', input: 'bw', muscle: 'Legs' },
+      { name: 'Broad Jumps', equip: 'plyometric', input: 'bw', muscle: 'Legs' },
+      { name: 'Depth Jumps', equip: 'plyometric', input: 'bw', muscle: 'Legs' },
+      { name: 'Plyo Push-Ups', equip: 'plyometric', input: 'bw', muscle: 'Chest' },
+      { name: 'Tuck Jumps', equip: 'plyometric', input: 'bw', muscle: 'Legs' },
+      { name: 'Skater Jumps', equip: 'plyometric', input: 'bw', muscle: 'Legs' },
+      { name: 'Lunge Jumps', equip: 'plyometric', input: 'bw', muscle: 'Legs' },
+      { name: 'Lateral Bounds', equip: 'plyometric', input: 'bw', muscle: 'Legs' },
+      { name: 'Burpees', equip: 'plyometric', input: 'bw', muscle: 'Full Body' }
     ];
 
     // Build a lookup map by lowercase name
@@ -3943,7 +3955,8 @@
       { equip: 'custom', input: 'duration', label: 'Isometric / Duration' },
       { equip: 'warmup', input: 'duration', label: 'Warmup' },
       { equip: 'stretching', input: 'duration', label: 'Stretching' },
-      { equip: 'medicine_ball', input: 'weight', label: 'Medicine Ball' }
+      { equip: 'medicine_ball', input: 'weight', label: 'Medicine Ball' },
+      { equip: 'plyometric', input: 'bw', label: 'Plyometric' }
     ];
 
     function buildTypePicker(onSelect) {
@@ -3968,12 +3981,12 @@
     var equipLabels = {
       barbell: 'BB', dumbbell: 'DB', machine: 'M', cable: 'C',
       bodyweight: 'BW', cardio: '', custom: '',
-      warmup: 'WU', stretching: 'STR', medicine_ball: 'MB'
+      warmup: 'WU', stretching: 'STR', medicine_ball: 'MB', plyometric: 'PLY'
     };
     var equipColors = {
       barbell: '#ff6b35', dumbbell: '#7b2ff7', machine: '#00bfff',
       cable: '#00ff88', bodyweight: '#ffd700', cardio: '#ff3366', custom: '#888',
-      warmup: '#ff9f43', stretching: '#a29bfe', medicine_ball: '#e056fd'
+      warmup: '#ff9f43', stretching: '#a29bfe', medicine_ball: '#e056fd', plyometric: '#00cec9'
     };
 
     var workoutExerciseCounter = 0;
@@ -4343,8 +4356,8 @@
       var query = input.value.toLowerCase().trim();
       var exercises = getExerciseList();
       var html = '';
-      var equipOrder = ['barbell','dumbbell','machine','cable','bodyweight','cardio','medicine_ball','warmup','stretching','custom'];
-      var equipNames = { barbell: 'Barbell', dumbbell: 'Dumbbell', machine: 'Machine', cable: 'Cable', bodyweight: 'Bodyweight', cardio: 'Cardio', medicine_ball: 'Medicine Ball', warmup: 'Warmup', stretching: 'Stretching', custom: 'Custom' };
+      var equipOrder = ['barbell','dumbbell','machine','cable','bodyweight','cardio','medicine_ball','plyometric','warmup','stretching','custom'];
+      var equipNames = { barbell: 'Barbell', dumbbell: 'Dumbbell', machine: 'Machine', cable: 'Cable', bodyweight: 'Bodyweight', cardio: 'Cardio', medicine_ball: 'Medicine Ball', plyometric: 'Plyometric', warmup: 'Warmup', stretching: 'Stretching', custom: 'Custom' };
       var hasResults = false;
 
       equipOrder.forEach(function(equip) {
@@ -5460,8 +5473,8 @@
       var query = input.value.toLowerCase().trim();
       var exercises = getExerciseList();
       var html = '';
-      var equipOrder = ['barbell','dumbbell','machine','cable','bodyweight','cardio','medicine_ball','warmup','stretching','custom'];
-      var equipNames = { barbell: 'Barbell', dumbbell: 'Dumbbell', machine: 'Machine', cable: 'Cable', bodyweight: 'Bodyweight', cardio: 'Cardio', medicine_ball: 'Medicine Ball', warmup: 'Warmup', stretching: 'Stretching', custom: 'Custom' };
+      var equipOrder = ['barbell','dumbbell','machine','cable','bodyweight','cardio','medicine_ball','plyometric','warmup','stretching','custom'];
+      var equipNames = { barbell: 'Barbell', dumbbell: 'Dumbbell', machine: 'Machine', cable: 'Cable', bodyweight: 'Bodyweight', cardio: 'Cardio', medicine_ball: 'Medicine Ball', plyometric: 'Plyometric', warmup: 'Warmup', stretching: 'Stretching', custom: 'Custom' };
       var hasResults = false;
 
       equipOrder.forEach(function(equip) {
@@ -5810,6 +5823,7 @@
         { equip: 'bodyweight', input: 'bw', label: 'Bodyweight' },
         { equip: 'cardio', input: 'cardio', label: 'Cardio' },
         { equip: 'medicine_ball', input: 'weight', label: 'Medicine Ball' },
+        { equip: 'plyometric', input: 'bw', label: 'Plyometric' },
         { equip: 'warmup', input: 'duration', label: 'Warmup' },
         { equip: 'stretching', input: 'duration', label: 'Stretching' },
         { equip: 'custom', input: 'duration', label: 'Duration' },
