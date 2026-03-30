@@ -45,6 +45,134 @@ body {
   opacity: 1;
 }
 
+/* ===== Login Screen ===== */
+.login-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 28px 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 6px;
+  margin-top: 16px;
+}
+
+.form-label:first-child {
+  margin-top: 0;
+}
+
+.form-input {
+  display: block;
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 1rem;
+  border: 2px solid #d0d7d0;
+  border-radius: 8px;
+  background: #f5f7f5;
+  color: #1a1a1a;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-input:focus {
+  border-color: #1a472a;
+  background: #fff;
+}
+
+select.form-input {
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23555' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 36px;
+}
+
+.role-toggle {
+  display: flex;
+  gap: 0;
+  margin-top: 8px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid #d0d7d0;
+}
+
+.role-btn {
+  flex: 1;
+  padding: 12px 16px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  background: #f5f7f5;
+  color: #555;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.role-btn:first-child {
+  border-right: 1px solid #d0d7d0;
+}
+
+.role-btn:last-child {
+  border-left: 1px solid #d0d7d0;
+}
+
+.role-btn.role-active {
+  background: #1a472a;
+  color: #fff;
+}
+
+.role-btn:hover:not(.role-active) {
+  background: #e8ede8;
+}
+
+.primary-btn {
+  display: block;
+  width: 100%;
+  margin-top: 24px;
+  padding: 14px 16px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  background: #1a472a;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.primary-btn:hover {
+  background: #246b3e;
+}
+
+.secondary-btn {
+  display: block;
+  width: 100%;
+  margin-top: 20px;
+  padding: 12px 16px;
+  font-size: 1rem;
+  font-weight: 600;
+  background: transparent;
+  color: #1a472a;
+  border: 2px solid #1a472a;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.secondary-btn:hover {
+  background: #1a472a;
+  color: #fff;
+}
+
 /* ===== Position Selection ===== */
 .position-grid {
   display: grid;
@@ -96,6 +224,32 @@ body {
   font-size: 0.95rem;
   color: #555;
   font-weight: 600;
+}
+
+/* ===== Difficulty Badge ===== */
+.difficulty-badge {
+  display: inline-block;
+  padding: 4px 14px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-radius: 20px;
+  margin-bottom: 12px;
+  color: #fff;
+  background: #6c757d;
+}
+
+.difficulty-badge.tier-beginner {
+  background: #28a745;
+}
+
+.difficulty-badge.tier-intermediate {
+  background: #fd7e14;
+}
+
+.difficulty-badge.tier-advanced {
+  background: #dc3545;
 }
 
 .question-card {
@@ -223,6 +377,27 @@ body {
   margin-bottom: 24px;
 }
 
+/* ===== Tier Message ===== */
+.tier-message {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: #f5f7f5;
+  color: #555;
+}
+
+.tier-message.tier-up {
+  background: #d4edda;
+  color: #155724;
+}
+
+.tier-message.tier-down {
+  background: #f8d7da;
+  color: #721c24;
+}
+
 /* ===== Missed Questions Review ===== */
 .missed-list {
   text-align: left;
@@ -286,8 +461,163 @@ body {
   background: #246b3e;
 }
 
+/* ===== Coach Dashboard ===== */
+.dashboard-title {
+  text-align: center;
+  font-size: 1.5rem;
+  color: #1a472a;
+  margin-bottom: 24px;
+}
+
+.dashboard-section {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  margin-bottom: 20px;
+}
+
+.dashboard-section h3 {
+  font-size: 1.1rem;
+  color: #1a472a;
+  margin-bottom: 14px;
+}
+
+/* ===== Dashboard Table ===== */
+.table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.dashboard-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  min-width: 420px;
+}
+
+.dashboard-table th,
+.dashboard-table td {
+  padding: 10px 8px;
+  text-align: center;
+  border-bottom: 1px solid #e8ede8;
+}
+
+.dashboard-table th {
+  background: #1a472a;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.dashboard-table th:first-child,
+.dashboard-table td:first-child {
+  text-align: left;
+  padding-left: 12px;
+}
+
+.dashboard-table tbody tr:hover {
+  background: #f5f7f5;
+}
+
+.dashboard-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* ===== Team Averages ===== */
+.averages-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.avg-card {
+  background: #f5f7f5;
+  border-radius: 10px;
+  padding: 14px 12px;
+  text-align: center;
+}
+
+.avg-pos {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #1a472a;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.avg-value {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 8px;
+}
+
+.avg-bar-track {
+  width: 100%;
+  height: 6px;
+  background: #d0d7d0;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.avg-bar-fill {
+  height: 100%;
+  background: #1a472a;
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+
+/* ===== Most Missed Questions ===== */
+.most-missed-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.missed-entry {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  background: #fef8f8;
+  border: 1px solid #f0d0d0;
+  border-radius: 8px;
+}
+
+.miss-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 28px;
+  padding: 2px 8px;
+  background: #dc3545;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border-radius: 14px;
+  flex-shrink: 0;
+}
+
+.miss-text {
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: #333;
+}
+
+.no-data {
+  text-align: center;
+  color: #888;
+  font-size: 0.95rem;
+  padding: 12px 0;
+}
+
 /* ===== Responsive ===== */
-@media (max-width: 400px) {
+@media (max-width: 480px) {
   .app-title {
     font-size: 1.6rem;
   }
@@ -302,5 +632,31 @@ body {
 
   .question-card {
     padding: 18px;
+  }
+
+  .login-card {
+    padding: 20px 16px;
+  }
+
+  .averages-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .dashboard-section {
+    padding: 16px 14px;
+  }
+
+  .results-card {
+    padding: 24px 16px;
+  }
+}
+
+@media (max-width: 360px) {
+  .averages-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .container {
+    padding: 16px 12px;
   }
 }

@@ -10,9 +10,36 @@
   <div class="container">
     <h1 class="app-title">Football 101 Quiz</h1>
 
+    <!-- Login Screen -->
+    <div id="login-screen" class="screen active">
+      <p class="subtitle">Sign in to get started:</p>
+      <div class="login-card">
+        <label class="form-label" for="player-name">Name</label>
+        <input type="text" id="player-name" class="form-input" placeholder="Enter your name" autocomplete="off">
+
+        <label class="form-label" for="player-position">Position Group</label>
+        <select id="player-position" class="form-input">
+          <option value="QB">QB - Quarterback</option>
+          <option value="OL">OL - Offensive Line</option>
+          <option value="WR">WR - Wide Receiver</option>
+          <option value="DL">DL - Defensive Line</option>
+          <option value="LB">LB - Linebacker</option>
+          <option value="DB">DB - Defensive Back</option>
+        </select>
+
+        <label class="form-label">Role</label>
+        <div class="role-toggle">
+          <button id="role-player-btn" class="role-btn role-active" data-role="player">Player</button>
+          <button id="role-coach-btn" class="role-btn" data-role="coach">Coach</button>
+        </div>
+
+        <button id="login-btn" class="primary-btn">Continue</button>
+      </div>
+    </div>
+
     <!-- Position Selection Screen -->
-    <div id="position-screen" class="screen active">
-      <p class="subtitle">Choose a position group to get started:</p>
+    <div id="position-screen" class="screen">
+      <p class="subtitle" id="welcome-msg">Choose a position group to quiz:</p>
       <div class="position-grid">
         <button class="position-btn" data-position="QB">
           <span class="abbr">QB</span>
@@ -39,6 +66,7 @@
           <span class="full-name">Defensive Back</span>
         </button>
       </div>
+      <button id="logout-btn" class="secondary-btn">Log Out</button>
     </div>
 
     <!-- Quiz Screen -->
@@ -47,6 +75,7 @@
         <span id="question-number">Question 1 of 10</span>
         <span id="current-score">Score: 0</span>
       </div>
+      <div id="difficulty-badge" class="difficulty-badge">Beginner</div>
       <div class="question-card">
         <p id="question-text" class="question-text"></p>
         <div id="options-container" class="options-container"></div>
@@ -61,9 +90,47 @@
         <h2>Quiz Complete!</h2>
         <p id="score-display" class="score-display"></p>
         <p id="percentage-display" class="percentage-display"></p>
+        <p id="tier-message" class="tier-message"></p>
         <div id="missed-list" class="missed-list"></div>
         <button id="retry-btn" class="retry-btn">Try Another Position</button>
       </div>
+    </div>
+
+    <!-- Coach Dashboard -->
+    <div id="coach-screen" class="screen">
+      <h2 class="dashboard-title">Coach Dashboard</h2>
+
+      <div class="dashboard-section">
+        <h3>Player Scores</h3>
+        <div class="table-wrap">
+          <table id="players-table" class="dashboard-table">
+            <thead>
+              <tr>
+                <th>Player</th>
+                <th>QB</th>
+                <th>OL</th>
+                <th>WR</th>
+                <th>DL</th>
+                <th>LB</th>
+                <th>DB</th>
+              </tr>
+            </thead>
+            <tbody id="players-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="dashboard-section">
+        <h3>Team Averages by Position</h3>
+        <div id="team-averages" class="averages-grid"></div>
+      </div>
+
+      <div class="dashboard-section">
+        <h3>Top 5 Most Missed Questions</h3>
+        <div id="most-missed" class="most-missed-list"></div>
+      </div>
+
+      <button id="coach-back-btn" class="secondary-btn">Back</button>
     </div>
   </div>
 
