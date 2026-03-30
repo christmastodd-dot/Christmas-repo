@@ -1005,7 +1005,7 @@ body {
     animation: playCard 0.25s ease-out forwards;
 }
 
-/* === Responsive adjustments === */
+/* === Responsive — Tablet landscape === */
 @media (max-height: 700px) {
     :root {
         --card-w: 60px;
@@ -1015,10 +1015,7 @@ body {
     .card .suit-center { font-size: 1.4rem; }
     .card .rank-top, .card .rank-bottom { font-size: 0.7rem; }
 
-    #played-cards {
-        width: 200px;
-        height: 200px;
-    }
+    #played-cards { width: 200px; height: 200px; }
 
     .seat-south .hand .card { margin-left: -22px; }
     .seat-north .hand .card { margin-left: -34px; }
@@ -1026,23 +1023,177 @@ body {
     .seat-east .hand .card { margin-top: -54px; }
 }
 
+/* === Responsive — Small screens / phones (width) === */
 @media (max-width: 800px) {
     :root {
-        --card-w: 56px;
-        --card-h: 82px;
+        --card-w: 52px;
+        --card-h: 76px;
     }
 
-    .card .suit-center { font-size: 1.2rem; }
-    .card .rank-top, .card .rank-bottom { font-size: 0.65rem; }
-
-    #played-cards {
-        width: 180px;
-        height: 180px;
+    #game-header {
+        padding: 4px 12px;
+        gap: 8px;
     }
 
-    .seat-south .hand .card { margin-left: -24px; }
+    #game-header h1 { font-size: 1rem; letter-spacing: 2px; }
+    #game-status { font-size: 0.75rem; }
+
+    .card .suit-center { font-size: 1.1rem; }
+    .card .rank-top, .card .rank-bottom { font-size: 0.6rem; }
+    .card .rank-top { top: 2px; left: 3px; }
+    .card .rank-bottom { bottom: 2px; right: 3px; }
+
+    #table {
+        margin: 4px 6px;
+        border-radius: 14px;
+        border-width: 2px;
+        grid-template-rows: minmax(50px, auto) 1fr minmax(70px, auto);
+        grid-template-columns: minmax(50px, auto) 1fr minmax(50px, auto);
+    }
+
+    #played-cards { width: 160px; height: 160px; }
+
+    .seat { padding: 4px; }
+    .player-label { font-size: 0.6rem; letter-spacing: 1px; margin-bottom: 2px; }
+
+    .seat-south .hand .card { margin-left: -26px; }
     .seat-north .hand .card { margin-left: -36px; }
+    .seat-west .hand .card,
+    .seat-east .hand .card { margin-top: -48px; }
 
-    .panel { min-width: 280px; padding: 18px 20px; }
-    #kitty-panel { min-width: 300px; }
+    .panel {
+        min-width: 260px !important;
+        max-width: 92vw;
+        padding: 16px 16px;
+        border-radius: 10px;
+    }
+
+    .panel h2 { font-size: 1rem; margin-bottom: 10px; }
+
+    #kitty-panel, #kitty-reveal-panel { min-width: 280px !important; }
+    #help-panel { min-width: 280px !important; max-width: 92vw; }
+
+    #scoreboard {
+        gap: 16px;
+        padding: 6px 12px;
+    }
+
+    .team-name { font-size: 0.65rem; }
+    .score { font-size: 1rem; }
+
+    .btn { padding: 6px 14px; font-size: 0.8rem; }
+    .btn-suit { font-size: 1rem; padding: 8px 14px; }
+
+    .trump-info-bar { font-size: 0.7rem; padding: 2px 8px; }
+    .dealer-chip { width: 20px; height: 20px; font-size: 0.6rem; }
+
+    .bid-history { min-width: 180px; padding: 8px 12px; }
+    .bid-entry { font-size: 0.75rem; }
+
+    .lead-suit-badge { font-size: 1.8rem; }
+
+    .kitty-card-row { gap: 6px; }
+    .trump-suit-grid .btn-suit { padding: 10px 14px; font-size: 0.95rem; }
+    .trump-suit-grid .btn-suit .suit-icon { font-size: 1.4rem; }
 }
+
+/* === Responsive — Phone portrait (narrow + tall) === */
+@media (max-width: 500px) {
+    :root {
+        --card-w: 44px;
+        --card-h: 64px;
+    }
+
+    #game-header h1 { font-size: 0.85rem; }
+    #game-status { font-size: 0.65rem; max-width: 55vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .card .suit-center { font-size: 0.9rem; }
+    .card .rank-top, .card .rank-bottom { font-size: 0.5rem; }
+    .card { border-radius: 5px; }
+
+    #table {
+        grid-template-columns: minmax(36px, auto) 1fr minmax(36px, auto);
+        grid-template-rows: minmax(40px, auto) 1fr minmax(60px, auto);
+    }
+
+    #played-cards { width: 130px; height: 130px; }
+
+    .seat-south .hand .card { margin-left: -28px; }
+    .seat-north .hand .card { margin-left: -34px; }
+    .seat-west .hand .card,
+    .seat-east .hand .card { margin-top: -42px; }
+
+    .seat-west .hand .card { transform: rotate(90deg) scale(0.85); }
+    .seat-east .hand .card { transform: rotate(-90deg) scale(0.85); }
+
+    .played-card-wrapper .player-tag { font-size: 0.5rem; }
+
+    .panel {
+        min-width: 90vw !important;
+        padding: 12px 12px;
+    }
+
+    .btn { padding: 6px 10px; font-size: 0.75rem; margin: 2px; }
+    .btn-suit { padding: 6px 10px; font-size: 0.85rem; }
+    .trump-suit-grid { gap: 4px; }
+    .trump-suit-grid .btn-suit .suit-icon { font-size: 1.2rem; }
+
+    .help-body { font-size: 0.75rem; }
+    .help-section h3 { font-size: 0.8rem; }
+}
+
+/* === Responsive — Phone landscape (short + wide) === */
+@media (max-height: 500px) and (orientation: landscape) {
+    :root {
+        --card-w: 46px;
+        --card-h: 66px;
+    }
+
+    #game-header { padding: 2px 12px; }
+    #game-header h1 { font-size: 0.9rem; }
+    #game-status { font-size: 0.7rem; }
+
+    .card .suit-center { font-size: 1rem; }
+
+    #table {
+        margin: 2px 8px;
+        border-radius: 12px;
+        grid-template-rows: minmax(40px, auto) 1fr minmax(55px, auto);
+    }
+
+    #played-cards { width: 150px; height: 140px; }
+
+    .seat-south .hand .card { margin-left: -22px; }
+    .seat-north .hand .card { margin-left: -32px; }
+    .seat-west .hand .card,
+    .seat-east .hand .card { margin-top: -44px; }
+
+    .player-label { font-size: 0.55rem; }
+
+    .panel {
+        max-height: 85vh;
+        overflow-y: auto;
+    }
+
+    #scoreboard { padding: 3px 12px; gap: 20px; }
+    .team-name { font-size: 0.6rem; }
+    .score { font-size: 0.9rem; }
+}
+
+/* === Touch-friendly: larger tap targets on touch devices === */
+@media (pointer: coarse) {
+    .seat-south .hand .card {
+        min-height: 60px;
+    }
+
+    .seat-south .hand .card:hover {
+        transform: none; /* disable hover on touch — rely on tap */
+    }
+
+    .seat-south .hand .card:active {
+        transform: translateY(-12px) scale(1.05);
+    }
+
+    .btn { min-height: 38px; }
+}
+
