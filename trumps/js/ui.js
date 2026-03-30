@@ -70,4 +70,110 @@ const UI = {
     hidePanel(id) {
         document.getElementById(id).classList.add('hidden');
     },
+
+    // ─── Bid History ──────────────────────────────────────
+
+    /** Initialize the bid history log in the play area. */
+    showBidHistory() {
+        const area = document.getElementById('played-cards');
+        area.innerHTML = '';
+
+        const log = document.createElement('div');
+        log.id = 'bid-history';
+        log.className = 'bid-history';
+        log.innerHTML = '<div class="bid-history-title">Bidding</div>';
+        area.appendChild(log);
+    },
+
+    /** Add an entry to the bid history log. */
+    addBidEntry(playerLabel, bidText, isHighlight) {
+        const log = document.getElementById('bid-history');
+        if (!log) return;
+
+        const entry = document.createElement('div');
+        entry.className = `bid-entry${isHighlight ? ' bid-winner' : ''}`;
+        entry.innerHTML = `<span class="bid-player">${playerLabel}</span> <span class="bid-value">${bidText}</span>`;
+        log.appendChild(entry);
+
+        // Scroll to bottom if overflow
+        log.scrollTop = log.scrollHeight;
+    },
+
+    // ─── Dealer Chip ──────────────────────────────────────
+
+    /** Show dealer indicator on a player's seat. */
+    showDealerChip(playerIndex) {
+        // Remove any existing dealer chips
+        document.querySelectorAll('.dealer-chip').forEach(el => el.remove());
+
+        const position = POSITIONS[playerIndex];
+        const seat = document.getElementById(`seat-${position}`);
+        const chip = document.createElement('div');
+        chip.className = 'dealer-chip';
+        chip.textContent = 'D';
+        chip.title = 'Dealer';
+        seat.appendChild(chip);
+    },
+
+    // ─── Turn Indicator ───────────────────────────────────
+
+    /** Highlight whose turn it is. */
+    setActiveSeat(playerIndex) {
+        document.querySelectorAll('.seat').forEach(s => s.classList.remove('active-seat'));
+        if (playerIndex !== null && playerIndex !== undefined) {
+            const position = POSITIONS[playerIndex];
+            document.getElementById(`seat-${position}`).classList.add('active-seat');
+        }
+    },
+
+    // ─── Trump Info Display ───────────────────────────────
+
+    /** Show trump info bar during play. */
+    showTrumpInfo(suit, direction, trickNum) {
+        let bar = document.getElementById('trump-info-bar');
+        if (!bar) {
+            bar = document.createElement('div');
+            bar.id = 'trump-info-bar';
+            bar.className = 'trump-info-bar';
+            const header = document.getElementById('game-header');
+            header.appendChild(bar);
+        }
+        const color = SUIT_COLORS[suit];
+        bar.innerHTML = `Trump: <span class="${color}">${SUIT_SYMBOLS[suit]}</span> ${direction.toUpperCase()} | Trick ${trickNum}/12`;
+    },
+
+    /** Update trick number in trump info bar. */
+    updateTrickNum(trickNum) {
+        const bar = document.getElementById('trump-info-bar');
+        if (bar) {
+            const parts = bar.innerHTML.split('| Trick');
+            if (parts.length === 2) {
+                bar.innerHTML = parts[0] + `| Trick ${trickNum}/12`;
+            }
+        }
+    },
+
+    /** Hide trump info bar. */
+    hideTrumpInfo() {
+        const bar = document.getElementById('trump-info-bar');
+        if (bar) bar.remove();
+    },
+
+    // ─── Trick Score Overlay ──────────────────────────────
+
+    /** Show team trick counts near the play area. */
+    showTrickCounts(nsTricks, ewTricks) {
+        let el = document.getElementById('trick-counts');
+        if (!el) {
+            el = document.createElement('div');
+            el.id = 'trick-counts';
+            document.getElementById('play-area').appendChild(el);
+        }
+        el.textContent = `N/S Tricks: ${nsTricks} | E/W Tricks: ${ewTricks}`;
+    },
+
+    hideTrickCounts() {
+        const el = document.getElementById('trick-counts');
+        if (el) el.remove();
+    },
 };

@@ -14,15 +14,18 @@
 
         switch (phase) {
             case 'dealing':
+                UI.hideTrumpInfo();
+                UI.hideTrickCounts();
                 UI.clearPlayArea();
                 UI.renderAllHands(game.players);
                 UI.renderScores(game.scores);
+                UI.showDealerChip(game.dealer);
                 UI.setStatus(`Dealing... Dealer: ${game.players[game.dealer].label}`);
-                // Auto-advance to bidding after a short delay for deal animation
                 setTimeout(() => game.startBidding(), 800);
                 break;
 
             case 'bidding':
+                UI.showBidHistory();
                 UI.setStatus('Bidding phase — place your bids!');
                 processBiddingTurn();
                 break;
@@ -36,6 +39,12 @@
                 break;
 
             case 'kitty':
+                UI.clearPlayArea();
+                UI.addBidEntry(
+                    game.players[data.bidWinner].label,
+                    `WINS at ${data.bid.amount} ${data.bid.direction || ''}`,
+                    true
+                );
                 UI.setStatus(`${game.players[data.bidWinner].label} won the bid at ${data.bid.amount} ${data.bid.direction || ''}.`);
                 handleKittyPhase();
                 break;
@@ -45,7 +54,10 @@
                 break;
 
             case 'playing':
-                UI.setStatus(`Trump: ${SUIT_SYMBOLS[data.trumpSuit]} ${data.direction.toUpperCase()} — ${game.players[data.lead].label} leads.`);
+                UI.clearPlayArea();
+                UI.showTrumpInfo(data.trumpSuit, data.direction, game.trickNumber);
+                UI.showTrickCounts(0, 0);
+                UI.setStatus(`${game.players[data.lead].label} leads.`);
                 UI.renderAllHands(game.players);
                 processPlayTurn();
                 break;
@@ -57,7 +69,7 @@
     };
 
     game.onTurnChange = (playerIndex) => {
-        console.log(`Turn: ${game.players[playerIndex].label}`);
+        UI.setActiveSeat(playerIndex);
     };
 
     game.onTrickComplete = (winnerIndex, result) => {
@@ -74,39 +86,57 @@
         if (game.phase !== 'bidding') return;
 
         const bidder = game.players[game.bidderIndex];
-        UI.setStatus(`Bidding: ${bidder.label}'s turn. ${game.currentBid ? `Current bid: ${game.currentBid.amount} ${game.currentBid.direction || ''}` : 'No bids yet.'}`);
+        UI.setActiveSeat(game.bidderIndex);
+
+        const currentBidText = game.currentBid
+            ? `Current high bid: ${game.currentBid.amount} ${game.currentBid.direction} by ${game.players[game.currentBid.playerIndex].label}`
+            : 'No bids yet.';
+        UI.setStatus(`${bidder.label}'s turn to bid. ${currentBidText}`);
 
         if (bidder.isHuman) {
             showBidPanel();
         } else {
-            // AI bids after a short delay
             setTimeout(() => {
                 const aiBid = AI.decideBid(bidder, game.currentBid, game);
                 const result = game.placeBid(bidder.index, aiBid);
                 if (result.valid) {
-                    UI.setStatus(result.message);
-                    if (result.biddingComplete) {
-                        // Phase change callback will handle next step
+                    // Add to bid history
+                    if (aiBid) {
+                        UI.addBidEntry(bidder.label, `${aiBid.amount} ${aiBid.direction}`, false);
                     } else {
-                        setTimeout(() => processBiddingTurn(), 600);
+                        UI.addBidEntry(bidder.label, 'Pass', false);
+                    }
+                    UI.setStatus(result.message);
+                    if (!result.biddingComplete) {
+                        setTimeout(() => processBiddingTurn(), 700);
                     }
                 }
-            }, 500 + Math.random() * 500);
+            }, 600 + Math.random() * 600);
         }
     }
 
     function showBidPanel() {
-        const panel = document.getElementById('bid-panel');
         const controls = document.getElementById('bid-controls');
         controls.innerHTML = '';
 
         const minBid = game.currentBid ? game.currentBid.amount + 1 : 3;
 
-        // Direction buttons
+        // Current bid info
+        if (game.currentBid) {
+            const info = document.createElement('div');
+            info.className = 'bid-info';
+            info.innerHTML = `Current bid: <strong>${game.currentBid.amount} ${game.currentBid.direction}</strong> by ${game.players[game.currentBid.playerIndex].label}`;
+            controls.appendChild(info);
+        }
+
+        // Direction toggle
         const dirRow = document.createElement('div');
         dirRow.className = 'bid-info';
-        dirRow.innerHTML = '<strong>Direction:</strong>';
         let selectedDirection = 'high';
+
+        const dirLabel = document.createElement('span');
+        dirLabel.innerHTML = '<strong>Direction: </strong>';
+        dirRow.appendChild(dirLabel);
 
         const highBtn = document.createElement('button');
         highBtn.className = 'btn btn-secondary selected';
@@ -133,42 +163,55 @@
         // Bid amount buttons
         const amtRow = document.createElement('div');
         amtRow.className = 'bid-info';
-        amtRow.innerHTML = '<strong>Bid:</strong> ';
 
-        for (let n = minBid; n <= 7; n++) {
-            const btn = document.createElement('button');
-            btn.className = 'btn btn-primary';
-            btn.textContent = n;
-            btn.onclick = () => {
-                UI.hidePanel('bid-panel');
-                const result = game.placeBid(0, { amount: n, direction: selectedDirection });
-                if (result.valid) {
-                    UI.setStatus(result.message);
-                    if (!result.biddingComplete) {
-                        setTimeout(() => processBiddingTurn(), 600);
+        if (minBid <= 7) {
+            const amtLabel = document.createElement('span');
+            amtLabel.innerHTML = '<strong>Bid: </strong>';
+            amtRow.appendChild(amtLabel);
+
+            for (let n = minBid; n <= 7; n++) {
+                const btn = document.createElement('button');
+                btn.className = 'btn btn-primary';
+                btn.textContent = n;
+                btn.onclick = () => {
+                    UI.hidePanel('bid-panel');
+                    const bid = { amount: n, direction: selectedDirection };
+                    const result = game.placeBid(0, bid);
+                    if (result.valid) {
+                        UI.addBidEntry('You', `${n} ${selectedDirection}`, false);
+                        UI.setStatus(result.message);
+                        if (!result.biddingComplete) {
+                            setTimeout(() => processBiddingTurn(), 700);
+                        }
                     }
-                }
-            };
-            amtRow.appendChild(btn);
+                };
+                amtRow.appendChild(btn);
+            }
+        } else {
+            amtRow.innerHTML = '<em>Cannot outbid — pass or the bid stands.</em>';
         }
         controls.appendChild(amtRow);
 
         // Pass button
+        const passRow = document.createElement('div');
+        passRow.style.marginTop = '12px';
+
         const passBtn = document.createElement('button');
         passBtn.className = 'btn btn-secondary';
         passBtn.textContent = 'Pass';
-        passBtn.style.marginTop = '10px';
         passBtn.onclick = () => {
             UI.hidePanel('bid-panel');
             const result = game.placeBid(0, null);
             if (result.valid) {
+                UI.addBidEntry('You', 'Pass', false);
                 UI.setStatus(result.message);
                 if (!result.biddingComplete) {
-                    setTimeout(() => processBiddingTurn(), 600);
+                    setTimeout(() => processBiddingTurn(), 700);
                 }
             }
         };
-        controls.appendChild(passBtn);
+        passRow.appendChild(passBtn);
+        controls.appendChild(passRow);
 
         UI.showPanel('bid-panel');
     }
@@ -182,24 +225,23 @@
         if (winner.isHuman) {
             showKittyPanel(winner);
         } else {
-            // AI discards
+            UI.setStatus(`${winner.label} is looking at the kitty...`);
             setTimeout(() => {
                 const discards = AI.chooseDiscards(winner, 4);
                 game.discardFromKitty(discards);
-                // AI declares trump
                 if (game.phase === 'trumpSelect') {
-                    const suit = winner.strongestSuit();
-                    const dir = game.direction || 'high';
+                    const strength = AI._evaluateHandStrength(winner);
+                    const suit = strength.strongSuit;
+                    const dir = game.direction || strength.direction;
                     game.declareTrump(suit, dir);
                 }
-            }, 800);
+            }, 1000);
         }
     }
 
     function showKittyPanel(player) {
         UI.renderHand(player); // Re-render with 16 cards
 
-        const panel = document.getElementById('kitty-panel');
         const controls = document.getElementById('kitty-controls');
         controls.innerHTML = '';
 
@@ -223,8 +265,11 @@
                     cardEl.classList.add('selected');
                 }
                 confirmBtn.disabled = selected.size !== 4;
-                info.textContent = `Select ${4 - selected.size} more card(s) to discard.`;
-                if (selected.size === 4) info.textContent = 'Click Confirm to discard.';
+                if (selected.size < 4) {
+                    info.textContent = `Select ${4 - selected.size} more card(s) to discard.`;
+                } else {
+                    info.textContent = 'Click Confirm to discard these 4 cards.';
+                }
             };
         });
 
@@ -238,7 +283,6 @@
             if (result.valid) {
                 UI.hidePanel('kitty-panel');
                 UI.renderHand(player);
-                // If we still need trump selection, that phase callback handles it
             } else {
                 info.textContent = result.message;
             }
@@ -256,27 +300,30 @@
         if (winner.isHuman) {
             showTrumpPanel();
         } else {
-            // AI picks trump
             setTimeout(() => {
-                const suit = winner.strongestSuit();
-                const dir = game.direction || 'high';
+                const strength = AI._evaluateHandStrength(winner);
+                const suit = strength.strongSuit;
+                const dir = game.direction || strength.direction;
                 game.declareTrump(suit, dir);
             }, 600);
         }
     }
 
     function showTrumpPanel() {
-        const panel = document.getElementById('trump-panel');
         const controls = document.getElementById('trump-controls');
         controls.innerHTML = '';
 
-        // Direction selection (if not yet set)
+        let selectedDir = game.direction || 'high';
+
+        // Direction selection (if not yet set during bidding)
         if (!game.direction) {
             const dirRow = document.createElement('div');
             dirRow.className = 'bid-info';
-            dirRow.innerHTML = '<strong>Direction:</strong>';
 
-            let selectedDir = 'high';
+            const dirLabel = document.createElement('span');
+            dirLabel.innerHTML = '<strong>Direction: </strong>';
+            dirRow.appendChild(dirLabel);
+
             const highBtn = document.createElement('button');
             highBtn.className = 'btn btn-secondary selected';
             highBtn.textContent = 'High';
@@ -298,29 +345,27 @@
             dirRow.appendChild(highBtn);
             dirRow.appendChild(lowBtn);
             controls.appendChild(dirRow);
-
-            // Store reference for suit buttons
-            controls.dataset.getDir = '';
-            Object.defineProperty(controls, '_getDirection', {
-                value: () => selectedDir,
-                configurable: true,
-            });
         }
 
         // Suit buttons
         const suitRow = document.createElement('div');
         suitRow.className = 'bid-info';
-        suitRow.innerHTML = '<strong>Trump Suit:</strong>';
+        const suitLabel = document.createElement('div');
+        suitLabel.innerHTML = '<strong>Choose Trump Suit:</strong>';
+        suitLabel.style.marginBottom = '8px';
+        suitRow.appendChild(suitLabel);
 
         for (const suit of SUITS) {
             const btn = document.createElement('button');
-            btn.className = `btn btn-suit`;
-            btn.innerHTML = `${SUIT_SYMBOLS[suit]} ${suit}`;
+            btn.className = 'btn btn-suit';
+            const color = SUIT_COLORS[suit];
+            btn.innerHTML = `<span class="${color}">${SUIT_SYMBOLS[suit]}</span> ${suit.charAt(0).toUpperCase() + suit.slice(1)}`;
             btn.onclick = () => {
-                const dir = game.direction || (controls._getDirection ? controls._getDirection() : 'high');
-                const result = game.declareTrump(suit, dir);
+                const result = game.declareTrump(suit, selectedDir);
                 if (result.valid) {
                     UI.hidePanel('trump-panel');
+                } else {
+                    UI.setStatus(result.message);
                 }
             };
             suitRow.appendChild(btn);
@@ -337,11 +382,12 @@
 
         const currentIndex = game._currentTurnPlayer();
         const player = game.players[currentIndex];
+        UI.setActiveSeat(currentIndex);
+        UI.updateTrickNum(game.trickNumber);
 
         if (player.isHuman) {
             enableCardPlay();
         } else {
-            // AI plays after delay
             setTimeout(() => {
                 const card = AI.chooseCard(player, game.currentTrick, game);
                 if (card) {
@@ -361,7 +407,7 @@
     }
 
     function enableCardPlay() {
-        UI.setStatus(`Your turn — play a card. Trump: ${SUIT_SYMBOLS[game.trumpSuit]} ${game.direction.toUpperCase()}`);
+        UI.setStatus(`Your turn — play a card.`);
         const handEl = document.getElementById('hand-south');
         handEl.querySelectorAll('.card').forEach(cardEl => {
             cardEl.onclick = () => {
@@ -394,19 +440,17 @@
     }
 
     function handleTrickEnd() {
-        // Short delay to show the completed trick, then resolve
         setTimeout(() => {
             const result = game.resolveTrick();
             const tricks = game.teamTricks;
+            UI.showTrickCounts(tricks.ns, tricks.ew);
             UI.setStatus(`Trick ${result.trickNumber} won by ${result.winnerLabel}! (N/S: ${tricks.ns} | E/W: ${tricks.ew})`);
 
-            // Clear play area and continue after a pause
             setTimeout(() => {
                 UI.clearPlayArea();
                 if (game.phase === 'playing') {
                     processPlayTurn();
                 }
-                // If scoring, the phase change callback handles it
             }, 1200);
         }, 800);
     }
@@ -415,13 +459,16 @@
 
     function handleScoring(data) {
         UI.renderScores(game.scores);
+        UI.hideTrumpInfo();
+        UI.hideTrickCounts();
+        UI.setActiveSeat(null);
+
         const msg = data.made
             ? `${data.bidTeam.toUpperCase()} made their bid of ${data.bidAmount}! (${data.bidTeamTricks} tricks)`
             : `${data.bidTeam.toUpperCase()} went SET on ${data.bidAmount}! (Only ${data.bidTeamTricks} tricks, needed ${data.needed})`;
 
         UI.setStatus(`${msg} — Score: N/S ${data.scores.ns} | E/W ${data.scores.ew}`);
 
-        // Auto-start next hand after delay
         setTimeout(() => {
             game.nextHand();
         }, 3000);
