@@ -15,9 +15,9 @@
   const x = c.getContext('2d');
   const cx = s/2, cy = s/2 + 8;
 
-  // Background — green circle
+  // Background — green fills entire icon (no black corners)
   x.fillStyle = '#2d6e28';
-  x.beginPath(); x.arc(s/2, s/2, s/2, 0, Math.PI*2); x.fill();
+  x.fillRect(0, 0, s, s);
 
   // --- Goat head ---
   // Head shape — rectangular snout
@@ -138,7 +138,10 @@
     <button class="touch-btn" data-key="ArrowLeft">&#9664;</button>
     <button class="touch-btn" data-key="ArrowRight">&#9654;</button>
   </div>
-  <button class="touch-btn" data-key="Space">&#9650;</button>
+  <div class="touch-group">
+    <button class="touch-btn" id="drop-btn" data-key="ArrowDown" style="display:none;font-size:16px;">DROP</button>
+    <button class="touch-btn" data-key="Space">&#9650;</button>
+  </div>
 </div>
 <script>
 const canvas = document.getElementById('game');
@@ -172,6 +175,10 @@ let confetti = [];
 let hasFish = false;       // Level 2: player carries a fish
 let l2Obstacles = [];      // Level 2: ice rocks to jump over
 let snowParticles = [];    // Level 2: falling snow effect
+// Snow leopard state
+let leopard = null;        // { wx, wy, state: 'waiting'|'stalking'|'eating'|'sitting', eatTimer, fishWX }
+let droppedFishWX = -1;    // world X where fish was dropped (-1 = not dropped)
+let leopardAlertTimer = 0; // countdown for "Drop the fish!" prompt
 let keys = {};
 let lastTime = 0;
 
@@ -224,12 +231,26 @@ function resetLevel() {
   // Level 2 setup
   hasFish = (currentLevel === 2);
   l2Obstacles = [];
+  leopard = null;
+  droppedFishWX = -1;
+  leopardAlertTimer = 0;
   if (currentLevel === 2) {
     // Ice rocks/boulders to jump over in the first half
     const obsPositions = [600, 1200, 1900, 2600];
     for (const wx of obsPositions) {
       l2Obstacles.push({ wx, wy: trailY(wx), width: 36, height: 30, type: 'ice' });
     }
+    // Snow leopard at ~60% through the level
+    const leopWX = levelCfg.length * 0.6;
+    leopard = {
+      wx: leopWX + 300, // starts off-screen to the right, stalks in
+      homeWX: leopWX,
+      wy: trailY(leopWX),
+      state: 'waiting',  // waiting | stalking | eating | sitting
+      eatTimer: 0,
+      width: 70,
+      height: 40
+    };
     // Init falling snow
     snowParticles = [];
     for (let i = 0; i < 60; i++) {
@@ -861,6 +882,163 @@ function drawEndShelter(camWX, camWY) {
   c.fillStyle = 'rgb(60,40,20)'; c.font = 'bold 9px Arial'; c.textAlign = 'center';
   c.fillText('SAFE!', sx, sy - 53);
   c.textAlign = 'left';
+}
+
+function drawDroppedFish(camWX, camWY) {
+  if (droppedFishWX < 0) return;
+  const wy = trailY(droppedFishWX);
+  const [sx, sy] = worldToScreen(droppedFishWX, wy, camWX, camWY);
+  if (sx < -30 || sx > W + 30) return;
+  ctx.save();
+  ctx.translate(sx, sy - 4);
+  ctx.rotate(0.3); // fish lying on ground, slightly angled
+  drawFish(ctx, 0, 0);
+  ctx.restore();
+}
+
+function drawSnowLeopard(sx, sy, lpState, eatTimer) {
+  const c = ctx;
+  // Body — long, low, spotted grey-white
+  const eating = lpState === 'eating';
+  const sitting = lpState === 'sitting';
+
+  c.save();
+  if (sitting) {
+    // Sitting pose: body more upright
+    c.translate(sx, sy);
+    c.scale(1, 0.85);
+    c.translate(-sx, -sy);
+  }
+
+  // Tail — long and curvy, behind body
+  c.strokeStyle = 'rgb(180,180,175)';
+  c.lineWidth = 5;
+  c.lineCap = 'round';
+  const tailWag = Math.sin(performance.now() / 300) * 0.15;
+  c.beginPath();
+  c.moveTo(sx + 32, sy - 14);
+  c.bezierCurveTo(sx + 50, sy - 24 + tailWag * 20, sx + 60, sy - 40, sx + 55, sy - 50 + tailWag * 10);
+  c.stroke();
+  // Tail tip
+  c.lineWidth = 4;
+  c.strokeStyle = 'rgb(60,60,58)';
+  c.beginPath();
+  c.moveTo(sx + 55, sy - 50 + tailWag * 10);
+  c.lineTo(sx + 52, sy - 56 + tailWag * 10);
+  c.stroke();
+  c.lineCap = 'butt';
+
+  // Body
+  c.fillStyle = 'rgb(195,195,190)';
+  c.beginPath();
+  c.ellipse(sx, sy - 16, 34, 14, 0, 0, Math.PI*2);
+  c.fill();
+
+  // Spots
+  c.fillStyle = 'rgba(100,100,95,0.35)';
+  const spots = [[-18,-18],[- 8,-22],[6,-20],[16,-16],[24,-14],[-12,-10],[0,-12],[14,-10],[22,-8]];
+  for (const [dx, dy] of spots) {
+    c.beginPath(); c.ellipse(sx + dx, sy + dy, 3.5, 2.5, dx*0.05, 0, Math.PI*2); c.fill();
+  }
+
+  // Legs
+  c.fillStyle = 'rgb(180,180,175)';
+  if (sitting) {
+    // Front legs tucked
+    c.fillRect(sx - 22, sy - 6, 8, 10);
+    c.fillRect(sx - 12, sy - 6, 8, 10);
+    // Back legs folded under
+    c.fillRect(sx + 14, sy - 6, 10, 8);
+  } else {
+    // Walking/standing legs
+    for (const lx of [-22, -12, 14, 24]) {
+      c.fillRect(sx + lx, sy - 6, 8, 14);
+    }
+    // Paws
+    c.fillStyle = 'rgb(170,170,165)';
+    for (const lx of [-22, -12, 14, 24]) {
+      c.beginPath(); c.ellipse(sx + lx + 4, sy + 8, 5, 3, 0, 0, Math.PI*2); c.fill();
+    }
+  }
+
+  // Head
+  const headDip = eating ? 12 : 0; // head dips down when eating
+  const hx = sx - 30, hy = sy - 22 + headDip;
+  c.fillStyle = 'rgb(200,200,195)';
+  c.beginPath(); c.ellipse(hx, hy, 14, 12, 0, 0, Math.PI*2); c.fill();
+
+  // Ears
+  c.fillStyle = 'rgb(190,190,185)';
+  c.beginPath(); c.ellipse(hx - 8, hy - 12, 5, 7, -0.3, 0, Math.PI*2); c.fill();
+  c.beginPath(); c.ellipse(hx + 6, hy - 12, 5, 7, 0.3, 0, Math.PI*2); c.fill();
+  // Inner ears
+  c.fillStyle = 'rgb(210,180,175)';
+  c.beginPath(); c.ellipse(hx - 8, hy - 12, 3, 4, -0.3, 0, Math.PI*2); c.fill();
+  c.beginPath(); c.ellipse(hx + 6, hy - 12, 3, 4, 0.3, 0, Math.PI*2); c.fill();
+
+  // Snout
+  c.fillStyle = 'rgb(210,205,200)';
+  c.beginPath(); c.ellipse(hx - 10, hy + 2, 8, 6, 0, 0, Math.PI*2); c.fill();
+  // Nose
+  c.fillStyle = 'rgb(150,120,115)';
+  c.beginPath(); c.ellipse(hx - 16, hy + 1, 3, 2.5, 0, 0, Math.PI*2); c.fill();
+
+  // Eyes — piercing pale green
+  if (!eating) {
+    for (const ey of [-4, 4]) {
+      c.fillStyle = 'rgb(180,210,160)';
+      c.beginPath(); c.ellipse(hx - 6 + ey, hy - 4, 4, 4, 0, 0, Math.PI*2); c.fill();
+      c.fillStyle = 'rgb(30,30,25)';
+      c.beginPath(); c.ellipse(hx - 6 + ey, hy - 4, 2, 3, 0, 0, Math.PI*2); c.fill();
+      c.fillStyle = 'rgba(255,255,255,0.4)';
+      c.beginPath(); c.arc(hx - 7 + ey, hy - 6, 1.5, 0, Math.PI*2); c.fill();
+    }
+  } else {
+    // Eyes closed when eating
+    c.strokeStyle = 'rgb(80,80,75)'; c.lineWidth = 1.5;
+    c.beginPath(); c.arc(hx - 10, hy - 4, 3, 0.2, Math.PI - 0.2); c.stroke();
+    c.beginPath(); c.arc(hx - 2, hy - 4, 3, 0.2, Math.PI - 0.2); c.stroke();
+  }
+
+  // Whiskers
+  c.strokeStyle = 'rgba(255,255,255,0.5)'; c.lineWidth = 0.8;
+  for (const [dy, angle] of [[-1, -0.15], [1, 0.15], [0, 0]]) {
+    c.beginPath(); c.moveTo(hx - 14, hy + 2 + dy);
+    c.lineTo(hx - 28, hy + dy * 3 + angle * 20); c.stroke();
+  }
+
+  c.restore();
+
+  // Eating indicator — small timer bar
+  if (eating && eatTimer > 0) {
+    const barW = 50, barH = 6;
+    const fill = eatTimer / 4.0;
+    c.fillStyle = 'rgba(0,0,0,0.4)';
+    c.fillRect(sx - barW/2, sy - 42, barW, barH);
+    c.fillStyle = 'rgb(255,200,60)';
+    c.fillRect(sx - barW/2, sy - 42, barW * fill, barH);
+  }
+}
+
+function drawLeopardAlert() {
+  if (leopardAlertTimer <= 0 || !leopard || leopard.state !== 'stalking') return;
+  const alpha = Math.min(1, leopardAlertTimer);
+  ctx.globalAlpha = alpha;
+
+  // Warning panel
+  ctx.fillStyle = 'rgba(180,30,30,0.7)';
+  ctx.beginPath(); ctx.roundRect(W/2 - 180, 20, 360, 50, 10); ctx.fill();
+
+  // Flashing exclamation
+  const flash = Math.sin(performance.now() / 150) > 0;
+  ctx.fillStyle = flash ? '#fff' : '#ffcc00';
+  ctx.font = 'bold 24px Arial'; ctx.textAlign = 'center';
+  const msg = hasFish
+    ? (isTouchDevice ? 'Snow Leopard! Press DOWN to drop fish!' : 'Snow Leopard! Press DOWN to drop fish!')
+    : 'RUN LEFT! Then jump over it!';
+  ctx.fillText(msg, W/2, 52);
+  ctx.textAlign = 'left';
+  ctx.globalAlpha = 1;
 }
 
 function drawSummitFlag(camWX, camWY) {
@@ -1691,7 +1869,8 @@ function drawWin(dt) {
 
   // Subtitle
   ctx.fillStyle = '#fff'; ctx.font = 'bold 30px Arial';
-  ctx.fillText('You reached the summit!', W/2, 260);
+  const winMsg = currentLevel === 2 ? 'You escaped the snow leopard!' : 'You reached the summit!';
+  ctx.fillText(winMsg, W/2, 260);
 
   // Star rating (3 stars for fun)
   for (let i = 0; i < 3; i++) {
@@ -1754,6 +1933,12 @@ function update(dt) {
   if (invincibleTimer > 0) invincibleTimer -= dt;
   if (tutorialTimer > 0) tutorialTimer -= dt;
 
+  // Drop fish (Level 2) — press Down arrow or S
+  if (currentLevel === 2 && hasFish && (keys['ArrowDown'] || keys['KeyS'])) {
+    hasFish = false;
+    droppedFishWX = playerWX;
+  }
+
   // Goats
   for (const g of goats) {
     if (!g.active) continue;
@@ -1805,6 +1990,58 @@ function update(dt) {
           state = 'knockback';
           return;
         }
+      }
+    }
+  }
+
+  // ── Snow leopard logic (Level 2) ──────────────────────────────────────
+  if (currentLevel === 2 && leopard) {
+    const lp = leopard;
+    const distToPlayer = lp.wx - playerWX;
+
+    if (lp.state === 'waiting') {
+      // Trigger when player gets within 350px
+      if (distToPlayer > 0 && distToPlayer < 350 && hasFish) {
+        lp.state = 'stalking';
+        leopardAlertTimer = 3.0; // 3 seconds to drop the fish
+      }
+    }
+
+    if (lp.state === 'stalking') {
+      // Leopard creeps toward the player
+      lp.wx -= 120 * dt;
+      lp.wy = trailY(lp.wx);
+      leopardAlertTimer -= dt;
+
+      // If player dropped the fish, leopard goes to eat it
+      if (!hasFish && droppedFishWX > 0) {
+        lp.state = 'eating';
+        lp.eatTimer = 4.0;
+      }
+      // If leopard reaches the player without fish dropped → game over
+      if (lp.wx - playerWX < 30 && hasFish) {
+        onGameOver(); return;
+      }
+    }
+
+    if (lp.state === 'eating') {
+      // Move toward dropped fish
+      if (Math.abs(lp.wx - droppedFishWX) > 5) {
+        lp.wx += (droppedFishWX > lp.wx ? 1 : -1) * 150 * dt;
+      }
+      lp.wy = trailY(lp.wx);
+      lp.eatTimer -= dt;
+      if (lp.eatTimer <= 0) {
+        lp.state = 'sitting';
+        droppedFishWX = -1; // fish consumed
+      }
+    }
+
+    // Collision: touching leopard while not eating = death
+    if (lp.state === 'stalking' || lp.state === 'sitting') {
+      const lRect = { x: lp.wx - lp.width/2, y: lp.wy - lp.height, w: lp.width, h: lp.height };
+      if (onGround && rectsOverlap(pRect, lRect)) {
+        onGameOver(); return;
       }
     }
   }
@@ -1872,7 +2109,15 @@ function draw(dt) {
   } else {
     drawTrees(camWX, camWY, 1.0);
     drawL2Obstacles(camWX, camWY);
+    drawDroppedFish(camWX, camWY);
     drawEndShelter(camWX, camWY);
+    // Snow leopard
+    if (leopard && leopard.state !== 'waiting') {
+      const [lsx, lsy] = worldToScreen(leopard.wx, leopard.wy, camWX, camWY);
+      if (lsx > -80 && lsx < W + 80) {
+        drawSnowLeopard(Math.round(lsx), Math.round(lsy), leopard.state, leopard.eatTimer);
+      }
+    }
   }
 
   for (const g of goats) {
@@ -1897,7 +2142,10 @@ function draw(dt) {
   }
 
   // Falling snow (Level 2) — drawn over everything for atmosphere
-  if (currentLevel === 2) drawFallingSnow(dt);
+  if (currentLevel === 2) {
+    drawFallingSnow(dt);
+    drawLeopardAlert();
+  }
 
   drawHearts(lives);
   drawProgressBar(progress);
@@ -1910,9 +2158,16 @@ function draw(dt) {
     ctx.fillStyle = 'rgba(0,0,0,0.45)';
     ctx.beginPath(); ctx.roundRect(W/2 - 240, H - 75, 480, 45, 12); ctx.fill();
     ctx.fillStyle = '#fff'; ctx.font = 'bold 20px Arial'; ctx.textAlign = 'center';
-    const tutText = isTouchDevice
-      ? 'Use the buttons to move and jump over goats!'
-      : 'Arrow keys to move  ~  SPACE to jump over goats!';
+    let tutText;
+    if (currentLevel === 2) {
+      tutText = isTouchDevice
+        ? 'Jump over ice! Watch for the snow leopard!'
+        : 'Jump over ice  ~  DOWN to drop fish when leopard appears!';
+    } else {
+      tutText = isTouchDevice
+        ? 'Use the buttons to move and jump over goats!'
+        : 'Arrow keys to move  ~  SPACE to jump over goats!';
+    }
     ctx.fillText(tutText, W/2, H - 46);
     ctx.textAlign = 'left'; ctx.globalAlpha = 1;
   }
