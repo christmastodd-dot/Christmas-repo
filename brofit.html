@@ -6467,6 +6467,10 @@
     function pushToRoom() {
       if (!userId || !ghToken) return Promise.resolve();
 
+      // Preserve local feed and challenges before fetching latest
+      var localFeed = sharedData && sharedData.feed ? sharedData.feed.slice() : [];
+      var localChallenges = sharedData && sharedData.challenges ? sharedData.challenges.slice() : [];
+
       // Get latest file SHA first (needed for updates)
       return fetch(GH_API + '?ref=' + GH_BRANCH, {
         headers: { 'Authorization': 'token ' + ghToken, 'Accept': 'application/vnd.github.v3+json' }
@@ -6483,6 +6487,36 @@
       }).then(function(latest) {
         sharedData = latest || { members: {} };
         if (!sharedData.members) sharedData.members = {};
+
+        // Merge feed: use local as base, add server-only posts (from other users)
+        var localFeedIds = {};
+        localFeed.forEach(function(p) { localFeedIds[p.id] = true; });
+        (sharedData.feed || []).forEach(function(p) {
+          if (!localFeedIds[p.id]) localFeed.push(p);
+        });
+        // Sort by date descending and cap at 50
+        localFeed.sort(function(a, b) { return new Date(b.date) - new Date(a.date); });
+        sharedData.feed = localFeed.slice(0, 50);
+
+        // Merge challenges: use local as base, add server-only challenges
+        var localChallengeIds = {};
+        localChallenges.forEach(function(c) { localChallengeIds[c.id] = true; });
+        (sharedData.challenges || []).forEach(function(c) {
+          if (!localChallengeIds[c.id]) localChallenges.push(c);
+        });
+        // Merge completions from server into local
+        var serverChallengeMap = {};
+        (sharedData.challenges || []).forEach(function(c) { serverChallengeMap[c.id] = c; });
+        localChallenges.forEach(function(c) {
+          var server = serverChallengeMap[c.id];
+          if (server && server.completedBy) {
+            server.completedBy.forEach(function(name) {
+              if (c.completedBy && c.completedBy.indexOf(name) === -1) c.completedBy.push(name);
+            });
+          }
+        });
+        sharedData.challenges = localChallenges;
+
         // If user renamed, delete old name from server data
         if (previousUserId && previousUserId !== userId && sharedData.members[previousUserId]) {
           delete sharedData.members[previousUserId];
