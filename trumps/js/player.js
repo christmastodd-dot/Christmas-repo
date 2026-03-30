@@ -21,6 +21,8 @@ class Player {
         this.team = (index % 2 === 0) ? 'ns' : 'ew'; // 0,2 = N/S; 1,3 = E/W
         this.hand = [];
         this.tricksWon = 0;
+        this.lastBid = null;   // last bid made by this player, or null if passed
+        this.hasPassed = false; // whether this player has passed in current bidding
     }
 
     /** Receive dealt cards and sort the hand. */
@@ -51,9 +53,39 @@ class Player {
         return this.hand.filter(c => c.suit === suit);
     }
 
+    /** Count cards by suit — returns { spades: N, hearts: N, ... } */
+    suitCounts() {
+        const counts = {};
+        for (const suit of SUITS) {
+            counts[suit] = this.cardsOfSuit(suit).length;
+        }
+        return counts;
+    }
+
+    /** Get the strongest suit (most cards). */
+    strongestSuit() {
+        const counts = this.suitCounts();
+        let best = null;
+        let bestCount = 0;
+        for (const suit of SUITS) {
+            if (counts[suit] > bestCount) {
+                bestCount = counts[suit];
+                best = suit;
+            }
+        }
+        return best;
+    }
+
+    /** Check if player has any cards of the given suit. */
+    hasSuit(suit) {
+        return this.hand.some(c => c.suit === suit);
+    }
+
     /** Reset for a new hand. */
     reset() {
         this.hand = [];
         this.tricksWon = 0;
+        this.lastBid = null;
+        this.hasPassed = false;
     }
 }
