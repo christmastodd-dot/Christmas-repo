@@ -4430,6 +4430,21 @@
       localStorage.setItem('brofit_workouts', JSON.stringify(history));
     }
 
+    function getLastSetsForExercise(name) {
+      var key = name.toLowerCase();
+      var history = loadWorkoutHistory();
+      // Search newest workouts first
+      for (var i = history.length - 1; i >= 0; i--) {
+        var exs = history[i].exercises || [];
+        for (var j = 0; j < exs.length; j++) {
+          if (exs[j].name.toLowerCase() === key && exs[j].sets && exs[j].sets.length > 0) {
+            return exs[j].sets;
+          }
+        }
+      }
+      return null;
+    }
+
     // Track input type per exercise card
     var exerciseInputTypes = {};
 
@@ -4494,8 +4509,14 @@
       // Add first set (or single row for cardio/duration)
       addWorkoutSet(id);
 
+      // Pre-fill from history if we have a name
+      if (prefillName) {
+        prefillFromHistory(id, prefillName);
+      }
+
       // Setup autocomplete
       var input = document.getElementById('workout-ex-name-' + id);
+      if (prefillName) input.setAttribute('data-prefilled', prefillName);
       input.addEventListener('input', function() { showAutocomplete(id); });
       input.addEventListener('focus', function() { showAutocomplete(id); });
       input.addEventListener('blur', function() {
@@ -4504,6 +4525,11 @@
           var name = input.value.trim();
           if (name && isCustomExercise(name)) {
             showWorkoutTypePicker(id, name);
+          }
+          // Prefill from history if name changed
+          if (name && name !== input.getAttribute('data-prefilled')) {
+            input.setAttribute('data-prefilled', name);
+            prefillFromHistory(id, name);
           }
         }, 200);
       });
@@ -4769,6 +4795,7 @@
     function selectExercise(exerciseId, name) {
       var input = document.getElementById('workout-ex-name-' + exerciseId);
       input.value = name;
+      input.setAttribute('data-prefilled', name);
       hideAutocomplete(exerciseId);
 
       // Check if input type changed — if so, rebuild the card
@@ -4808,6 +4835,39 @@
         setsContainer.innerHTML = '';
         addWorkoutSet(exerciseId);
       }
+
+      // Pre-fill from last workout
+      prefillFromHistory(exerciseId, name);
+    }
+
+    function prefillFromHistory(exerciseId, name) {
+      var lastSets = getLastSetsForExercise(name);
+      if (!lastSets || lastSets.length === 0) return;
+
+      var setsContainer = document.getElementById('workout-sets-' + exerciseId);
+      // Clear the default empty set
+      setsContainer.innerHTML = '';
+      setCounters[exerciseId] = 0;
+
+      lastSets.forEach(function(s) {
+        addWorkoutSet(exerciseId);
+        var setNum = setCounters[exerciseId];
+        var row = document.getElementById('workout-set-' + exerciseId + '-' + setNum);
+        if (!row) return;
+
+        var weightInput = row.querySelector('[data-field="weight"]');
+        var repsInput = row.querySelector('[data-field="reps"]');
+        var durationInput = row.querySelector('[data-field="duration"]');
+        var distanceInput = row.querySelector('[data-field="distance"]');
+
+        if (weightInput && (s.weight || s.weight === 0)) weightInput.value = s.weight;
+        if (repsInput && s.reps) repsInput.value = s.reps;
+        if (durationInput && s.duration) durationInput.value = s.duration;
+        if (distanceInput && s.distance) distanceInput.value = s.distance;
+      });
+
+      // Make sure add-set button is visible since we have data
+      revealAddSetBtn(exerciseId);
     }
 
     function saveWorkout() {
