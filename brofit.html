@@ -521,6 +521,49 @@
       color: var(--color-red);
     }
 
+    .feed-card__reactions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .feed-card__reaction {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      background: var(--bg-surface);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px;
+      padding: 3px 8px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.15s;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .feed-card__reaction:active {
+      transform: scale(0.92);
+    }
+
+    .feed-card__reaction--active {
+      border-color: var(--color-gold);
+      background: rgba(255, 215, 0, 0.1);
+    }
+
+    .feed-card__reaction-count {
+      font-size: 0.65rem;
+      color: var(--text-secondary);
+      font-weight: 700;
+      min-width: 8px;
+      text-align: center;
+    }
+
+    .feed-card__reaction--active .feed-card__reaction-count {
+      color: var(--color-gold);
+    }
+
     .crew-feed__empty {
       text-align: center;
       color: var(--text-muted);
@@ -4194,6 +4237,8 @@
       pushToRoom();
     }
 
+    var FEED_REACTIONS = ['🔥', '💪', '👏', '❤️', '💯'];
+
     function renderCrewFeed() {
       var container = document.getElementById('feed-list');
       if (!container) return;
@@ -4217,6 +4262,20 @@
         var canDelete = post.author === userId || isAdmin;
         var deleteBtn = canDelete ? '<button class="feed-card__delete" onclick="deleteFeedPost(\'' + post.id + '\')">Delete</button>' : '';
 
+        // Build reactions
+        var reactions = post.reactions || {};
+        var reactionsHtml = '<div class="feed-card__reactions">';
+        FEED_REACTIONS.forEach(function(emoji) {
+          var users = reactions[emoji] || [];
+          var count = users.length;
+          var isActive = userId && users.indexOf(userId) !== -1;
+          var activeClass = isActive ? ' feed-card__reaction--active' : '';
+          var countHtml = count > 0 ? '<span class="feed-card__reaction-count">' + count + '</span>' : '';
+          reactionsHtml += '<button class="feed-card__reaction' + activeClass + '" onclick="toggleFeedReaction(\'' + post.id + '\',\'' + emoji + '\')">' +
+            emoji + countHtml + '</button>';
+        });
+        reactionsHtml += '</div>';
+
         html += '<div class="feed-card">';
         if (post.image) {
           html += '<img class="feed-card__image" src="' + post.image + '" alt="Post by ' + escapeHtml(post.author) + '">';
@@ -4225,6 +4284,7 @@
         if (post.caption) {
           html += '<div class="feed-card__caption">' + escapeHtml(post.caption) + '</div>';
         }
+        html += reactionsHtml;
         html += '<div class="feed-card__meta">' +
           '<span><span class="feed-card__author">' + escapeHtml(post.author) + '</span> · ' + dateStr + '</span>' +
           deleteBtn +
@@ -4233,6 +4293,27 @@
       });
 
       container.innerHTML = html;
+    }
+
+    function toggleFeedReaction(postId, emoji) {
+      if (!userId) return;
+      var feed = getCrewFeed();
+      var post = feed.find(function(p) { return p.id === postId; });
+      if (!post) return;
+
+      if (!post.reactions) post.reactions = {};
+      if (!post.reactions[emoji]) post.reactions[emoji] = [];
+
+      var idx = post.reactions[emoji].indexOf(userId);
+      if (idx !== -1) {
+        post.reactions[emoji].splice(idx, 1);
+        if (post.reactions[emoji].length === 0) delete post.reactions[emoji];
+      } else {
+        post.reactions[emoji].push(userId);
+      }
+
+      renderCrewFeed();
+      pushToRoom();
     }
 
     function escapeHtml(str) {
