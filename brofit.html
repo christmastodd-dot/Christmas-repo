@@ -2656,6 +2656,67 @@
       margin-bottom: 20px;
     }
 
+    .join-modal__mode-btns {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .join-modal__mode-btn {
+      background: var(--bg-surface);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      font-weight: 700;
+      padding: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .join-modal__mode-btn:active {
+      transform: scale(0.97);
+    }
+
+    .join-modal__mode-btn--active {
+      border-color: var(--color-gold);
+      color: var(--color-gold);
+      background: rgba(255, 215, 0, 0.08);
+    }
+
+    .join-modal__mode-desc {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      font-weight: 400;
+      margin-top: 4px;
+    }
+
+    .join-modal__step {
+      display: none;
+    }
+
+    .join-modal__step--active {
+      display: block;
+    }
+
+    .join-modal__back {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+      cursor: pointer;
+      margin-top: 8px;
+      text-decoration: underline;
+    }
+
+    .join-modal__crew-name {
+      color: var(--color-gold);
+      font-weight: 700;
+    }
+
     .join-modal__input {
       width: 100%;
       background: var(--bg-surface);
@@ -2766,11 +2827,54 @@
     <div class="join-modal join-modal--hidden" id="join-modal">
       <div class="join-modal__box">
         <div class="join-modal__title">BROFIT</div>
-        <div class="join-modal__sub">Enter your name and login code to get started</div>
-        <input class="join-modal__input" id="join-name" type="text" placeholder="Your name" maxlength="20" autofocus>
-        <input class="join-modal__input" id="join-code" type="text" placeholder="Login code" maxlength="20" style="margin-top:8px">
-        <button class="join-modal__btn join-modal__btn--primary" id="join-btn" onclick="joinRoom()">Let's Go</button>
-        <div class="join-modal__error join-modal--hidden" id="join-error"></div>
+
+        <!-- Step 1: Name -->
+        <div class="join-modal__step join-modal__step--active" id="join-step-1">
+          <div class="join-modal__sub">What should we call you?</div>
+          <input class="join-modal__input" id="join-name" type="text" placeholder="Your name" maxlength="20" autofocus>
+          <button class="join-modal__btn join-modal__btn--primary" onclick="joinStep2()">Next</button>
+          <div class="join-modal__error join-modal--hidden" id="join-error-1"></div>
+        </div>
+
+        <!-- Step 2: Choose mode -->
+        <div class="join-modal__step" id="join-step-2">
+          <div class="join-modal__sub">How do you want to use BroFit?</div>
+          <div class="join-modal__mode-btns">
+            <button class="join-modal__mode-btn" onclick="joinSelectMode('join')">
+              Join a Crew
+              <div class="join-modal__mode-desc">Enter a crew code to sync with your team</div>
+            </button>
+            <button class="join-modal__mode-btn" onclick="joinSelectMode('start')">
+              Start a Crew
+              <div class="join-modal__mode-desc">Create a new crew and invite others</div>
+            </button>
+            <button class="join-modal__mode-btn" onclick="joinSelectMode('solo')">
+              Go Solo
+              <div class="join-modal__mode-desc">Track your fitness on your own</div>
+            </button>
+          </div>
+          <button class="join-modal__back" onclick="joinBack(1)">Back</button>
+        </div>
+
+        <!-- Step 3a: Join Crew -->
+        <div class="join-modal__step" id="join-step-join">
+          <div class="join-modal__sub">Enter your crew code</div>
+          <input class="join-modal__input" id="join-crew-code" type="text" placeholder="Crew code" maxlength="30">
+          <button class="join-modal__btn join-modal__btn--primary" onclick="joinWithCode()">Join Crew</button>
+          <div class="join-modal__error join-modal--hidden" id="join-error-join"></div>
+          <button class="join-modal__back" onclick="joinBack(2)">Back</button>
+        </div>
+
+        <!-- Step 3b: Start Crew -->
+        <div class="join-modal__step" id="join-step-start">
+          <div class="join-modal__sub">Name your crew</div>
+          <input class="join-modal__input" id="join-crew-name" type="text" placeholder="Crew name" maxlength="30">
+          <input class="join-modal__input" id="join-crew-new-code" type="text" placeholder="Set a crew code (others use this to join)" maxlength="30" style="margin-top:8px">
+          <button class="join-modal__btn join-modal__btn--primary" onclick="startNewCrew()">Create Crew</button>
+          <div class="join-modal__error join-modal--hidden" id="join-error-start"></div>
+          <button class="join-modal__back" onclick="joinBack(2)">Back</button>
+        </div>
+
       </div>
     </div>
 
@@ -6443,11 +6547,65 @@
     var GH_OWNER = 'christmastodd-dot';
     var GH_REPO = 'Christmas-repo';
     var GH_BRANCH = 'claude/fitness-motivation-app-nAT3r';
-    var GH_FILE = 'brofit-data.json';
-    var GH_RAW = 'https://raw.githubusercontent.com/' + GH_OWNER + '/' + GH_REPO + '/' + GH_BRANCH + '/' + GH_FILE;
-    var GH_API = 'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + GH_FILE;
     var ghToken = [77,66,90,117,31,83,109,95,79,24,115,120,24,121,90,27,68,31,30,127,66,124,100,102,120,26,114,30,67,70,109,97,115,101,26,75,29,97,66,27].map(function(c){return String.fromCharCode(c^42)}).join('');
     var ghFileSha = null;
+
+    // Crew registry: maps crew codes to data files and crew names
+    var CREW_REGISTRY = {
+      'E-Manual': { name: 'Kapiolani', file: 'brofit-data.json' }
+    };
+
+    // Active crew info
+    var activeCrew = null; // { name, code, file } or null for solo
+    var soloMode = false;
+
+    function getCrewDataFile() {
+      if (activeCrew) return activeCrew.file;
+      return 'brofit-data.json';
+    }
+
+    function buildGHUrls() {
+      var file = getCrewDataFile();
+      return {
+        raw: 'https://raw.githubusercontent.com/' + GH_OWNER + '/' + GH_REPO + '/' + GH_BRANCH + '/' + file,
+        api: 'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + file
+      };
+    }
+
+    // Save/load crew info to localStorage
+    function saveCrewInfo() {
+      if (soloMode) {
+        localStorage.setItem('brofit_crew_mode', 'solo');
+        localStorage.removeItem('brofit_crew_code');
+        localStorage.removeItem('brofit_crew_name');
+        localStorage.removeItem('brofit_crew_file');
+      } else if (activeCrew) {
+        localStorage.setItem('brofit_crew_mode', 'crew');
+        localStorage.setItem('brofit_crew_code', activeCrew.code);
+        localStorage.setItem('brofit_crew_name', activeCrew.name);
+        localStorage.setItem('brofit_crew_file', activeCrew.file);
+      }
+    }
+
+    function loadCrewInfo() {
+      var mode = localStorage.getItem('brofit_crew_mode');
+      if (mode === 'solo') {
+        soloMode = true;
+        activeCrew = null;
+      } else if (mode === 'crew') {
+        soloMode = false;
+        activeCrew = {
+          code: localStorage.getItem('brofit_crew_code') || '',
+          name: localStorage.getItem('brofit_crew_name') || '',
+          file: localStorage.getItem('brofit_crew_file') || 'brofit-data.json'
+        };
+      } else if (appState.name) {
+        // Existing user with no crew mode set — grandfather into Kapiolani
+        soloMode = false;
+        activeCrew = { name: 'Kapiolani', code: 'E-Manual', file: 'brofit-data.json' };
+        saveCrewInfo();
+      }
+    }
 
     var roomId = 'github';
     var sharedData = null;
@@ -6456,8 +6614,9 @@
     var previousUserId = null;
 
     function fetchRoom() {
-      // Read from raw GitHub (no auth, cache-bust)
-      return fetch(GH_RAW + '?t=' + Date.now()).then(function(res) {
+      if (soloMode) return Promise.resolve({ members: {} });
+      var urls = buildGHUrls();
+      return fetch(urls.raw + '?t=' + Date.now()).then(function(res) {
         if (res.status === 404) return { members: {} };
         if (!res.ok) throw new Error('Fetch ' + res.status);
         return res.json();
@@ -6465,14 +6624,16 @@
     }
 
     function pushToRoom() {
-      if (!userId || !ghToken) return Promise.resolve();
+      if (!userId || !ghToken || soloMode) return Promise.resolve();
+
+      var urls = buildGHUrls();
 
       // Preserve local feed and challenges before fetching latest
       var localFeed = sharedData && sharedData.feed ? sharedData.feed.slice() : [];
       var localChallenges = sharedData && sharedData.challenges ? sharedData.challenges.slice() : [];
 
       // Get latest file SHA first (needed for updates)
-      return fetch(GH_API + '?ref=' + GH_BRANCH, {
+      return fetch(urls.api + '?ref=' + GH_BRANCH, {
         headers: { 'Authorization': 'token ' + ghToken, 'Accept': 'application/vnd.github.v3+json' }
       }).then(function(res) {
         if (res.status === 404) {
@@ -6533,7 +6694,7 @@
         };
         if (ghFileSha) body.sha = ghFileSha;
 
-        return fetch(GH_API, {
+        return fetch(urls.api, {
           method: 'PUT',
           headers: { 'Authorization': 'token ' + ghToken, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
           body: JSON.stringify(body)
@@ -6624,7 +6785,8 @@
       if (status === 'online') {
         dot.classList.add('');
         var count = sharedData && sharedData.members ? Object.keys(sharedData.members).length : 0;
-        label.textContent = count + ' member' + (count !== 1 ? 's' : '') + ' synced';
+        var crewLabel = activeCrew ? activeCrew.name + ' · ' : '';
+        label.textContent = crewLabel + count + ' member' + (count !== 1 ? 's' : '') + ' synced';
       } else if (status === 'syncing') {
         dot.classList.add('sync-bar__dot--syncing');
         label.textContent = 'Syncing...';
@@ -6685,53 +6847,170 @@
       schedulePush();
     };
 
-    var LOGIN_CODE = 'E-Manual';
+    // ===== Join Flow =====
 
-    function joinRoom() {
-      var nameInput = document.getElementById('join-name');
-      var codeInput = document.getElementById('join-code');
-      var name = nameInput.value.trim();
-      var code = codeInput.value.trim();
+    function showJoinStep(stepId) {
+      document.querySelectorAll('.join-modal__step').forEach(function(el) {
+        el.classList.remove('join-modal__step--active');
+      });
+      document.getElementById('join-step-' + stepId).classList.add('join-modal__step--active');
+    }
+
+    function joinStep2() {
+      var name = document.getElementById('join-name').value.trim();
       if (!name) {
-        document.getElementById('join-error').textContent = 'Enter a name first';
-        document.getElementById('join-error').classList.remove('join-modal--hidden');
+        var err = document.getElementById('join-error-1');
+        err.textContent = 'Enter a name first';
+        err.classList.remove('join-modal--hidden');
         return;
       }
-      if (code !== LOGIN_CODE) {
-        document.getElementById('join-error').textContent = 'Invalid login code';
-        document.getElementById('join-error').classList.remove('join-modal--hidden');
+      showJoinStep('2');
+    }
+
+    function joinBack(step) {
+      showJoinStep(step);
+    }
+
+    function joinSelectMode(mode) {
+      if (mode === 'join') {
+        showJoinStep('join');
+      } else if (mode === 'start') {
+        showJoinStep('start');
+      } else if (mode === 'solo') {
+        // Go solo — no crew, local only
+        var name = document.getElementById('join-name').value.trim();
+        userId = name;
+        appState.name = name;
+        soloMode = true;
+        activeCrew = null;
+        saveState(appState);
+        saveCrewInfo();
+        showExerciseManagerIfAdmin();
+        sharedData = { members: {} };
+        finishJoin();
+      }
+    }
+
+    function joinWithCode() {
+      var code = document.getElementById('join-crew-code').value.trim();
+      var err = document.getElementById('join-error-join');
+
+      if (!code) {
+        err.textContent = 'Enter a crew code';
+        err.classList.remove('join-modal--hidden');
         return;
       }
 
+      var crew = CREW_REGISTRY[code];
+      if (!crew) {
+        err.textContent = 'Unknown crew code';
+        err.classList.remove('join-modal--hidden');
+        return;
+      }
+
+      var name = document.getElementById('join-name').value.trim();
       userId = name;
       appState.name = name;
+      soloMode = false;
+      activeCrew = { name: crew.name, code: code, file: crew.file };
       saveState(appState);
+      saveCrewInfo();
       showExerciseManagerIfAdmin();
 
-      // Fetch existing shared data, then finish join
       fetchRoom().then(function(data) {
         sharedData = data;
         finishJoin();
-      }).catch(function(err) {
-        // Even if fetch fails, proceed with empty data
+      }).catch(function() {
         sharedData = { members: {} };
         finishJoin();
       });
+    }
+
+    function startNewCrew() {
+      var crewName = document.getElementById('join-crew-name').value.trim();
+      var crewCode = document.getElementById('join-crew-new-code').value.trim();
+      var err = document.getElementById('join-error-start');
+
+      if (!crewName) {
+        err.textContent = 'Enter a crew name';
+        err.classList.remove('join-modal--hidden');
+        return;
+      }
+      if (!crewCode) {
+        err.textContent = 'Set a crew code so others can join';
+        err.classList.remove('join-modal--hidden');
+        return;
+      }
+      if (CREW_REGISTRY[crewCode]) {
+        err.textContent = 'That code is already taken — choose another';
+        err.classList.remove('join-modal--hidden');
+        return;
+      }
+
+      // Create new crew — use a sanitized filename
+      var safeFileName = 'brofit-crew-' + crewName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '') + '.json';
+      CREW_REGISTRY[crewCode] = { name: crewName, file: safeFileName };
+
+      var name = document.getElementById('join-name').value.trim();
+      userId = name;
+      appState.name = name;
+      soloMode = false;
+      activeCrew = { name: crewName, code: crewCode, file: safeFileName };
+      saveState(appState);
+      saveCrewInfo();
+      showExerciseManagerIfAdmin();
+
+      sharedData = { members: {} };
+      finishJoin();
     }
 
     function finishJoin() {
       // Hide modal
       document.getElementById('join-modal').classList.add('join-modal--hidden');
 
-      // Push initial data
+      // Update crew display
+      updateCrewDisplay();
+
+      // Push initial data (no-op for solo)
       pushToRoom();
 
-      // Start polling
-      syncInterval = setInterval(pullFromRoom, 30000);
+      // Start polling (no-op for solo)
+      if (!soloMode) {
+        syncInterval = setInterval(pullFromRoom, 30000);
+      }
 
       // Render everything
       refreshUI();
       renderAllLeaderboards();
+    }
+
+    function updateCrewDisplay() {
+      var crewTitle = document.querySelector('.section-title');
+      // Update "The Crew" section title
+      var sectionTitles = document.querySelectorAll('.section-title');
+      sectionTitles.forEach(function(el) {
+        if (el.textContent === 'The Crew') {
+          if (activeCrew) {
+            el.textContent = activeCrew.name;
+          } else if (soloMode) {
+            el.textContent = 'Solo Mode';
+          }
+        }
+        if (el.textContent === 'Crew Challenges' && soloMode) {
+          el.textContent = 'Challenges';
+        }
+        if (el.textContent === 'Crew Feed' && soloMode) {
+          el.textContent = 'Feed';
+        }
+      });
+
+      // Update sync bar
+      if (soloMode) {
+        var syncLabel = document.getElementById('sync-label');
+        if (syncLabel) syncLabel.textContent = 'Solo mode — local only';
+        var syncDot = document.getElementById('sync-dot');
+        if (syncDot) syncDot.className = 'sync-bar__dot';
+      }
     }
 
     function promptEditName() {
@@ -6805,6 +7084,9 @@
       document.getElementById('footer-tagline').textContent = taglines[taglineIndex];
       setInterval(rotateTagline, 5000);
 
+      // Load crew info for returning users
+      loadCrewInfo();
+
       // Check if user needs to join
       var savedName = appState.name;
 
@@ -6812,15 +7094,22 @@
         // Auto-connect with saved name
         userId = savedName;
         showExerciseManagerIfAdmin();
-        fetchRoom().then(function(data) {
-          sharedData = data;
-          pushToRoom();
-          syncInterval = setInterval(pullFromRoom, 30000);
-          renderAllLeaderboards();
-        }).catch(function() {
+        updateCrewDisplay();
+
+        if (soloMode) {
           sharedData = { members: {} };
-          setSyncStatus('offline');
-        });
+          renderAllLeaderboards();
+        } else {
+          fetchRoom().then(function(data) {
+            sharedData = data;
+            pushToRoom();
+            syncInterval = setInterval(pullFromRoom, 30000);
+            renderAllLeaderboards();
+          }).catch(function() {
+            sharedData = { members: {} };
+            setSyncStatus('offline');
+          });
+        }
       } else {
         // Show join modal
         document.getElementById('join-modal').classList.remove('join-modal--hidden');
