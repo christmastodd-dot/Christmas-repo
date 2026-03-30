@@ -2298,6 +2298,36 @@ def build_antonym_choices(word):
     return choices, correct
 
 
+VOWELS = set("aeiou")
+CONSONANTS = set("bcdfghjklmnpqrstvwxyz")
+
+
+def build_missing_letter_choices(word):
+    """Build a missing-letter puzzle: blank one letter, offer 4 letter choices.
+
+    Returns (blanked_word, choices, correct_letter, blank_index).
+    """
+    name = word["name"].lower()
+    # Pick a random letter index (skip spaces/hyphens)
+    letter_indices = [i for i, ch in enumerate(name) if ch.isalpha()]
+    blank_idx = random.choice(letter_indices)
+    correct = name[blank_idx]
+
+    # Build blanked display: e.g. "h _ p p y"
+    blanked = name[:blank_idx] + "_" + name[blank_idx + 1:]
+
+    # Pick 3 wrong letters from the same group (vowel or consonant)
+    if correct in VOWELS:
+        pool = VOWELS - {correct}
+    else:
+        pool = CONSONANTS - {correct}
+    wrong = random.sample(sorted(pool), 3)
+
+    choices = [correct] + wrong
+    random.shuffle(choices)
+    return blanked, choices, correct, blank_idx
+
+
 def play_round(word, round_num, total_rounds):
     """Play one round: show word + definition, pick synonym from 4 choices."""
     choices, correct = build_choices(word)
