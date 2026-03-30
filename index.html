@@ -1244,7 +1244,111 @@ const LEVELS = [
       { x: 11800, y: 260, w: 280, h: 60 },
     ],
   },
-].reverse(); // TESTING — reverse level order to play 7→1. Remove .reverse() for release.
+  { // Level 8 — Celestial Bridge (rainbow ladder + all mechanics)
+    name: 'Celestial Bridge',
+    bgType: 'celestial',
+    worldWidth: 13500,
+    finalCloud: { x: 12800, y: 260, w: 280 },
+    potX: 12990,
+    potY: 210,
+    wind: { gustInterval: [4, 6], gustDuration: 2, gustForce: 1.6 },
+    unicorns: [
+      { cloudIndex: 12, offsetX: 180, offsetY: -135 },
+      { cloudIndex: 40, offsetX: 185, offsetY: -130 },
+    ],
+    extraLives: [
+      { cloudIndex: 8, offsetX: 170, offsetY: -125 },
+    ],
+    crows: [
+      { cloudIndex: 3,  speed: 1.7 },
+      { cloudIndex: 7,  speed: 1.9 },
+      { cloudIndex: 11, speed: 1.8 },
+      { cloudIndex: 16, speed: 2.0 },
+      { cloudIndex: 21, speed: 1.9 },
+      { cloudIndex: 30, speed: 2.1 },
+      { cloudIndex: 35, speed: 1.8 },
+      { cloudIndex: 39, speed: 2.0 },
+      { cloudIndex: 43, speed: 2.2 },
+      { cloudIndex: 47, speed: 1.9 },
+    ],
+    clouds: [
+      // --- Section 1 (0-1800) ---
+      { x: 0,    y: 340, w: 180, h: 55 },
+      { x: 260,  y: 310, w: 120, h: 50, moveType:'h', moveRange:50, moveSpeed:1.6 },
+      { x: 480,  y: 280, w: 100, h: 45, icy: true },
+      { x: 690,  y: 300, w: 110, h: 50, disappearing: true },
+      { x: 900,  y: 270, w: 90,  h: 40, moveType:'v', moveRange:35, moveSpeed:1.5 },
+      { x: 1100, y: 290, w: 120, h: 50, bouncy: true },
+      { x: 1300, y: 180, w: 100, h: 45, icy: true },
+      { x: 1520, y: 260, w: 110, h: 45, moveType:'h', moveRange:55, moveSpeed:1.8 },
+      { x: 1740, y: 300, w: 130, h: 50 },
+      // --- Section 2 (1900-3600) ---
+      { x: 1950, y: 270, w: 90,  h: 40, disappearing: true },
+      { x: 2160, y: 290, w: 110, h: 45, moveType:'h', moveRange:60, moveSpeed:2.0 },
+      { x: 2380, y: 260, w: 100, h: 45, icy: true },
+      { x: 2600, y: 310, w: 160, h: 55 },
+      { x: 2840, y: 270, w: 80,  h: 40, moveType:'v', moveRange:40, moveSpeed:1.7 },
+      { x: 3050, y: 290, w: 100, h: 45, disappearing: true },
+      { x: 3260, y: 260, w: 110, h: 45, bouncy: true },
+      { x: 3460, y: 170, w: 90,  h: 40, icy: true, moveType:'h', moveRange:50, moveSpeed:1.9 },
+      // ========================================
+      // THE GAP — cloud before the gap
+      // ========================================
+      { x: 3680, y: 300, w: 150, h: 55 },
+      // --- Rainbow Ladder (stepping stones going UP) ---
+      { x: 3900, y: 280, w: 50, h: 15, ladder: true },
+      { x: 3940, y: 240, w: 50, h: 15, ladder: true },
+      { x: 3980, y: 200, w: 50, h: 15, ladder: true },
+      { x: 4020, y: 160, w: 50, h: 15, ladder: true },
+      { x: 4060, y: 120, w: 50, h: 15, ladder: true },
+      // --- Top platform (double jump off this to cross) ---
+      { x: 4100, y: 80, w: 100, h: 30, ladder: true },
+      // ========================================
+      // Cloud after the gap (must double jump from top platform)
+      // ========================================
+      { x: 4350, y: 280, w: 150, h: 55 },
+      // --- Section 3 (4500-6300) ---
+      { x: 4560, y: 260, w: 90,  h: 40, moveType:'h', moveRange:55, moveSpeed:1.8 },
+      { x: 4770, y: 290, w: 100, h: 45, icy: true, disappearing: true },
+      { x: 4980, y: 270, w: 80,  h: 40, moveType:'v', moveRange:35, moveSpeed:2.0 },
+      { x: 5190, y: 310, w: 150, h: 50 },
+      { x: 5420, y: 260, w: 90,  h: 40, bouncy: true },
+      { x: 5630, y: 180, w: 100, h: 45, moveType:'h', moveRange:60, moveSpeed:1.9 },
+      { x: 5850, y: 290, w: 110, h: 45, disappearing: true },
+      { x: 6070, y: 270, w: 80,  h: 40, icy: true },
+      // --- Section 4 (6200-8000) ---
+      { x: 6280, y: 300, w: 130, h: 50 },
+      { x: 6500, y: 260, w: 90,  h: 40, moveType:'h', moveRange:65, moveSpeed:2.1 },
+      { x: 6720, y: 290, w: 100, h: 45, disappearing: true },
+      { x: 6940, y: 270, w: 80,  h: 40, icy: true, moveType:'v', moveRange:30, moveSpeed:1.6 },
+      { x: 7150, y: 310, w: 150, h: 50 },
+      { x: 7380, y: 260, w: 90,  h: 40, bouncy: true },
+      { x: 7590, y: 180, w: 100, h: 45, icy: true },
+      { x: 7810, y: 290, w: 110, h: 45, moveType:'h', moveRange:55, moveSpeed:2.0 },
+      // --- Section 5 (8000-10000) ---
+      { x: 8030, y: 270, w: 80,  h: 40, disappearing: true },
+      { x: 8240, y: 300, w: 120, h: 50 },
+      { x: 8460, y: 260, w: 90,  h: 40, moveType:'v', moveRange:40, moveSpeed:1.8 },
+      { x: 8680, y: 290, w: 100, h: 45, icy: true, moveType:'h', moveRange:60, moveSpeed:2.0 },
+      { x: 8900, y: 270, w: 80,  h: 40, disappearing: true },
+      { x: 9110, y: 310, w: 150, h: 50 },
+      { x: 9340, y: 260, w: 90,  h: 40, bouncy: true },
+      { x: 9560, y: 170, w: 100, h: 45, icy: true },
+      // --- Section 6: Final approach (10000-12800) ---
+      { x: 9780, y: 290, w: 110, h: 45, moveType:'h', moveRange:55, moveSpeed:1.9 },
+      { x: 10000, y: 270, w: 80, h: 40, disappearing: true },
+      { x: 10220, y: 300, w: 120, h: 50, icy: true },
+      { x: 10440, y: 260, w: 90, h: 40, moveType:'v', moveRange:35, moveSpeed:2.0 },
+      { x: 10660, y: 290, w: 100, h: 45 },
+      { x: 10880, y: 270, w: 80, h: 40, moveType:'h', moveRange:65, moveSpeed:2.1 },
+      { x: 11100, y: 310, w: 140, h: 50 },
+      { x: 11340, y: 260, w: 90, h: 40, icy: true, disappearing: true },
+      { x: 11560, y: 280, w: 130, h: 50 },
+      // --- Final platform ---
+      { x: 12800, y: 260, w: 280, h: 60 },
+    ],
+  },
+].reverse(); // TESTING — reverse level order to play 8→1. Remove .reverse() for release.
 
 // ─────────────────────────────────────────────
 //  GAME STATE
@@ -1765,7 +1869,13 @@ function drawBackground() {
   const bg = levelData.bgType;
   const sky = ctx.createLinearGradient(0, 0, 0, H);
 
-  if (bg === 'golden') {
+  if (bg === 'celestial') {
+    sky.addColorStop(0,   '#050510');
+    sky.addColorStop(0.3, '#0a0a30');
+    sky.addColorStop(0.5, '#100a40');
+    sky.addColorStop(0.7, '#200a50');
+    sky.addColorStop(1,   '#0a0520');
+  } else if (bg === 'golden') {
     sky.addColorStop(0,   '#1a0a00');
     sky.addColorStop(0.2, '#4a1a00');
     sky.addColorStop(0.5, '#cc6600');
@@ -1827,7 +1937,21 @@ function drawBackground() {
   }
 
   // stars for night sky levels
-  if (bg === 'starry' || bg === 'aurora' || bg === 'frozen' || bg === 'golden') {
+  // nebula for celestial level
+  if (bg === 'celestial') {
+    ctx.save();
+    const nt = Date.now() / 3000;
+    const nebColors = ['rgba(100,0,200,0.08)', 'rgba(0,100,200,0.06)', 'rgba(200,0,100,0.07)'];
+    for (let i = 0; i < nebColors.length; i++) {
+      ctx.fillStyle = nebColors[i];
+      const nx = W * (0.3 + i * 0.25) + Math.sin(nt + i * 2) * 40;
+      const ny = H * (0.2 + i * 0.15) + Math.cos(nt * 0.7 + i) * 30;
+      ctx.beginPath(); ctx.ellipse(nx, ny, 150, 80, i * 0.5, 0, Math.PI*2); ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  if (bg === 'starry' || bg === 'aurora' || bg === 'frozen' || bg === 'golden' || bg === 'celestial') {
     ctx.fillStyle = '#fff';
     // seeded star positions
     const starSeed = 12345;
@@ -1879,7 +2003,7 @@ function drawBackground() {
   }
 
   // hills (parallax)
-  const hillColor = bg === 'golden' ? '#3a1a00' : bg === 'frozen' ? '#0e1830' : bg === 'aurora' ? '#0a0a14' : bg === 'starry' ? '#0e0e1e' : bg === 'storm' ? '#1a1a28' : bg === 'sunset' ? '#4a2c0a' : '#6dbf5b';
+  const hillColor = bg === 'celestial' ? '#050510' : bg === 'golden' ? '#3a1a00' : bg === 'frozen' ? '#0e1830' : bg === 'aurora' ? '#0a0a14' : bg === 'starry' ? '#0e0e1e' : bg === 'storm' ? '#1a1a28' : bg === 'sunset' ? '#4a2c0a' : '#6dbf5b';
   ctx.fillStyle = hillColor;
   const hillOff = -(camX * 0.3) % W;
   for (let hx = hillOff - W; hx < W * 2; hx += W) {
@@ -1891,12 +2015,12 @@ function drawBackground() {
     ctx.ellipse(hx + W*0.9,  H + 10, 180, 100, 0, 0, Math.PI*2); ctx.fill();
   }
 
-  const groundColor = bg === 'golden' ? '#2a1200' : bg === 'frozen' ? '#0a1225' : bg === 'aurora' ? '#080810' : bg === 'starry' ? '#0a0a16' : bg === 'storm' ? '#151520' : bg === 'sunset' ? '#3e2409' : '#5aad48';
+  const groundColor = bg === 'celestial' ? '#030308' : bg === 'golden' ? '#2a1200' : bg === 'frozen' ? '#0a1225' : bg === 'aurora' ? '#080810' : bg === 'starry' ? '#0a0a16' : bg === 'storm' ? '#151520' : bg === 'sunset' ? '#3e2409' : '#5aad48';
   ctx.fillStyle = groundColor;
   ctx.fillRect(0, H - 30, W, 30);
 
   // distant clouds (cosmetic, parallax) — 50% smaller, bob up and down
-  const cloudColor = bg === 'golden' ? 'rgba(255,180,50,0.3)' : bg === 'frozen' ? 'rgba(100,140,200,0.4)' : bg === 'aurora' ? 'rgba(80,40,120,0.35)' : bg === 'starry' ? 'rgba(50,50,90,0.4)' : bg === 'storm' ? 'rgba(60,50,80,0.5)' : bg === 'sunset' ? 'rgba(255,180,100,0.4)' : 'rgba(255,255,255,0.5)';
+  const cloudColor = bg === 'celestial' ? 'rgba(60,20,100,0.3)' : bg === 'golden' ? 'rgba(255,180,50,0.3)' : bg === 'frozen' ? 'rgba(100,140,200,0.4)' : bg === 'aurora' ? 'rgba(80,40,120,0.35)' : bg === 'starry' ? 'rgba(50,50,90,0.4)' : bg === 'storm' ? 'rgba(60,50,80,0.5)' : bg === 'sunset' ? 'rgba(255,180,100,0.4)' : 'rgba(255,255,255,0.5)';
   ctx.fillStyle = cloudColor;
   const bgCloudOff = -(camX * 0.15) % W;
   const t = Date.now() / 1000;
@@ -2113,10 +2237,43 @@ function draw() {
   drawRainbow(camX);
 
   for (const c of levelData.clouds) {
-    if (c.disappearing && c.disState === 'gone') continue; // fully vanished
+    if (c.disappearing && c.disState === 'gone') continue;
     ctx.save();
     if (c.disappearing) {
       ctx.globalAlpha = c.disAlpha * (c.disState === 'solid' ? 0.8 : 1);
+    }
+    // ladder platforms — rainbow colored rectangles
+    if (c.ladder) {
+      const lsx = c.x - camX;
+      const lt = Date.now() / 300;
+      const colors = ['#f8a0a0','#f8c89a','#f8e8a0','#a0dca0','#a0c8f0','#c8a0e0'];
+      const ci = Math.floor((c.originY || c.y) / 40) % colors.length;
+      // glow
+      ctx.globalAlpha = (ctx.globalAlpha || 1) * (0.6 + Math.sin(lt + ci) * 0.15);
+      ctx.fillStyle = colors[ci];
+      ctx.shadowColor = colors[ci];
+      ctx.shadowBlur = 12;
+      // rounded rect
+      const r = 6;
+      ctx.beginPath();
+      ctx.moveTo(lsx + r, c.y);
+      ctx.lineTo(lsx + c.w - r, c.y);
+      ctx.quadraticCurveTo(lsx + c.w, c.y, lsx + c.w, c.y + r);
+      ctx.lineTo(lsx + c.w, c.y + c.h - r);
+      ctx.quadraticCurveTo(lsx + c.w, c.y + c.h, lsx + c.w - r, c.y + c.h);
+      ctx.lineTo(lsx + r, c.y + c.h);
+      ctx.quadraticCurveTo(lsx, c.y + c.h, lsx, c.y + c.h - r);
+      ctx.lineTo(lsx, c.y + r);
+      ctx.quadraticCurveTo(lsx, c.y, lsx + r, c.y);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      // sparkle
+      ctx.fillStyle = '#fff';
+      ctx.globalAlpha = 0.5 + Math.sin(lt * 2 + ci * 1.5) * 0.3;
+      ctx.fillRect(lsx + c.w/2 - 1, c.y + c.h/2 - 3, 2, 6);
+      ctx.fillRect(lsx + c.w/2 - 3, c.y + c.h/2 - 1, 6, 2);
+      ctx.restore();
+      continue;
     }
     drawCloud(c.x, c.y, c.w, c.h, camX, c.originX || c.x);
     // bouncy cloud indicator — green tint + spring lines
