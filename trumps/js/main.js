@@ -717,20 +717,39 @@
 
     let drinkCount = 0;
     const drinkBtn = document.getElementById('drink-btn');
-    drinkBtn.onclick = () => {
+
+    // Add a counter badge next to the bottle
+    const drinkCounter = document.createElement('span');
+    drinkCounter.className = 'drink-count';
+    drinkCounter.textContent = '';
+    drinkBtn.appendChild(drinkCounter);
+
+    function updateDrunkLevel() {
         const container = document.getElementById('game-container');
-        if (container.classList.contains('drunk')) {
-            // Sober up
+        if (drinkCount === 0) {
             container.classList.remove('drunk');
             drinkBtn.classList.remove('active');
             drinkBtn.title = 'Drink Green Bottles';
-            drinkCount = 0;
+            drinkCounter.textContent = '';
         } else {
             container.classList.add('drunk');
+            container.style.setProperty('--drunk', drinkCount);
             drinkBtn.classList.add('active');
-            drinkBtn.title = 'Sober Up';
-            drinkCount++;
+            drinkBtn.title = drinkCount >= 10 ? 'Max bottles! Double-click to sober up' : `${drinkCount}/10 bottles — click for more`;
+            drinkCounter.textContent = drinkCount;
         }
+    }
+
+    drinkBtn.onclick = () => {
+        if (drinkCount < 10) {
+            drinkCount++;
+            updateDrunkLevel();
+        }
+    };
+
+    drinkBtn.ondblclick = () => {
+        drinkCount = 0;
+        updateDrunkLevel();
     };
 
     // ─── Start the game ───────────────────────────────────

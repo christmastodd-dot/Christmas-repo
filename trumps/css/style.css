@@ -916,6 +916,9 @@ body {
     background: linear-gradient(135deg, #2d6a3f, #1a4d2e);
     border: 1px solid #3a8a52;
     font-size: 1rem !important;
+    width: auto !important;
+    padding: 2px 6px !important;
+    border-radius: 6px !important;
     transition: all 0.3s ease;
 }
 
@@ -929,20 +932,37 @@ body {
     box-shadow: 0 0 12px rgba(78, 203, 113, 0.6);
 }
 
+.drink-count {
+    font-size: 0.6rem;
+    color: var(--text-light);
+    margin-left: 4px;
+    font-weight: 700;
+    min-width: 1em;
+}
+
+/* Drunk effect — scales via --drunk CSS variable (0-10) set in JS */
 #game-container.drunk {
-    animation: drunkSway 4s ease-in-out infinite;
+    --blur: calc(var(--drunk) * 0.3px);
+    --blur-panel: calc(var(--drunk) * 0.35px);
+    --sway-deg: calc(var(--drunk) * 0.12deg);
+    --sway-px: calc(var(--drunk) * 0.6px);
+    --sway-speed: max(1.5s, calc(5s - var(--drunk) * 0.3s));
+    animation: drunkSway var(--sway-speed) ease-in-out infinite;
 }
 
 #game-container.drunk #table {
-    filter: blur(1.2px);
+    filter: blur(var(--blur));
+    transition: filter 0.5s ease;
 }
 
 #game-container.drunk .panel {
-    filter: blur(1.5px);
+    filter: blur(var(--blur-panel));
+    transition: filter 0.5s ease;
 }
 
 #game-container.drunk #scoreboard {
-    filter: blur(1px);
+    filter: blur(var(--blur));
+    transition: filter 0.5s ease;
 }
 
 #game-container.drunk #game-header {
@@ -950,11 +970,11 @@ body {
 }
 
 @keyframes drunkSway {
-    0%   { transform: rotate(0deg)    translate(0, 0); }
-    25%  { transform: rotate(0.4deg)  translate(2px, 1px); }
-    50%  { transform: rotate(-0.3deg) translate(-1px, 2px); }
-    75%  { transform: rotate(0.2deg)  translate(1px, -1px); }
-    100% { transform: rotate(0deg)    translate(0, 0); }
+    0%   { transform: rotate(0deg)                translate(0, 0); }
+    25%  { transform: rotate(var(--sway-deg))      translate(var(--sway-px), calc(var(--sway-px) * 0.5)); }
+    50%  { transform: rotate(calc(var(--sway-deg) * -0.75)) translate(calc(var(--sway-px) * -0.5), var(--sway-px)); }
+    75%  { transform: rotate(calc(var(--sway-deg) * 0.5))  translate(calc(var(--sway-px) * 0.5), calc(var(--sway-px) * -0.5)); }
+    100% { transform: rotate(0deg)                translate(0, 0); }
 }
 
 /* === Hand Result Panel === */
