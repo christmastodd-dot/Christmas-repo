@@ -281,42 +281,82 @@
         }
     }
 
-    /** Step 1: Show the 4 kitty cards face-up before picking them up. */
+    /** Step 1: Show the 4 kitty cards face-up — player selects which to take. */
     function showKittyReveal(player) {
         const cardsEl = document.getElementById('kitty-reveal-cards');
         cardsEl.innerHTML = '';
 
-        // Render kitty cards face-up
+        const selectedKitty = new Set();
+
+        // Render kitty cards face-up and selectable
         game.kitty.forEach(card => {
             const el = card.toElement();
+            el.classList.add('kitty-selectable', 'kitty-selected');
+            selectedKitty.add(card.id); // All selected by default
+
+            el.onclick = () => {
+                if (selectedKitty.has(card.id)) {
+                    selectedKitty.delete(card.id);
+                    el.classList.remove('kitty-selected');
+                } else {
+                    selectedKitty.add(card.id);
+                    el.classList.add('kitty-selected');
+                }
+                updateKittyInfo();
+            };
             cardsEl.appendChild(el);
         });
 
         const infoEl = document.getElementById('kitty-reveal-info');
-        infoEl.textContent = 'These 4 cards will be added to your hand.';
+
+        function updateKittyInfo() {
+            const count = selectedKitty.size;
+            if (count === 4) {
+                infoEl.textContent = 'Taking all 4 cards — you will discard 4.';
+            } else if (count === 0) {
+                infoEl.textContent = 'Taking no cards — nothing to discard.';
+            } else {
+                infoEl.textContent = `Taking ${count} card${count !== 1 ? 's' : ''} — you will discard ${count}.`;
+            }
+        }
+        updateKittyInfo();
 
         const btn = document.getElementById('kitty-reveal-btn');
+        btn.textContent = 'Confirm Selection';
         btn.onclick = () => {
             UI.hidePanel('kitty-reveal-panel');
-            // Pick up kitty and proceed to discard step
-            game.pickUpKitty();
-            showDiscardPanel(player);
+            const selectedCards = game.kitty.filter(c => selectedKitty.has(c.id));
+            kittyCardIds = selectedCards.map(c => c.id);
+            game.pickUpSelectedKitty(selectedCards);
+
+            if (selectedCards.length === 0) {
+                // Nothing taken — skip discard, go to trump
+                player.sortHand();
+                if (game.direction && game.trumpSuit) {
+                    game._startPlaying();
+                } else {
+                    game.phase = 'trumpSelect';
+                    game._emit('onPhaseChange', 'trumpSelect', { bidWinner: game.bidWinner });
+                }
+            } else {
+                showDiscardPanel(player, selectedCards.length);
+            }
         };
 
         UI.showPanel('kitty-reveal-panel');
     }
 
-    /** Step 2: Player discards 4 cards from their 16-card hand. */
-    function showDiscardPanel(player) {
-        // Re-render hand with 16 cards, highlighting the kitty cards
-        renderHandWithKittyHighlight(player);
+    /** Step 2: Player discards N cards (equal to number taken from kitty). */
+    function showDiscardPanel(player, numToDiscard) {
+        // Re-render hand with kitty cards highlighted, fanned out for discard
+        renderHandForDiscard(player);
 
         const controls = document.getElementById('kitty-controls');
         controls.innerHTML = '';
 
         const counter = document.createElement('div');
         counter.className = 'discard-counter';
-        counter.textContent = 'Select 4 cards to discard (0/4)';
+        counter.textContent = `Select ${numToDiscard} card${numToDiscard !== 1 ? 's' : ''} to discard (0/${numToDiscard})`;
         controls.appendChild(counter);
 
         const selected = new Set();
@@ -330,14 +370,15 @@
                 if (selected.has(cardId)) {
                     selected.delete(cardId);
                     cardEl.classList.remove('discard-marked');
-                } else if (selected.size < 4) {
+                } else if (selected.size < numToDiscard) {
                     selected.add(cardId);
                     cardEl.classList.add('discard-marked');
                 }
-                confirmBtn.disabled = selected.size !== 4;
-                counter.textContent = `Select 4 cards to discard (${selected.size}/4)`;
-                if (selected.size === 4) {
+                confirmBtn.disabled = selected.size !== numToDiscard;
+                if (selected.size === numToDiscard) {
                     counter.textContent = 'Ready! Click Confirm to discard.';
+                } else {
+                    counter.textContent = `Select ${numToDiscard} card${numToDiscard !== 1 ? 's' : ''} to discard (${selected.size}/${numToDiscard})`;
                 }
             };
         });
@@ -352,6 +393,8 @@
             if (result.valid) {
                 UI.hidePanel('kitty-panel');
                 kittyCardIds = [];
+                // Remove discard mode class
+                document.getElementById('hand-south').classList.remove('discard-mode');
                 UI.renderHand(player);
             } else {
                 counter.textContent = result.message;
@@ -362,10 +405,11 @@
         UI.showPanel('kitty-panel');
     }
 
-    /** Render hand with kitty cards highlighted with a gold outline. */
-    function renderHandWithKittyHighlight(player) {
+    /** Render hand fanned out for discard mode, with kitty cards highlighted. */
+    function renderHandForDiscard(player) {
         const container = document.getElementById('hand-south');
         container.innerHTML = '';
+        container.classList.add('discard-mode');
 
         player.hand.forEach((card, i) => {
             const el = card.toElement();

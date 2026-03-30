@@ -282,7 +282,7 @@ class Game {
 
     // ─── Phase: Kitty ─────────────────────────────────────
 
-    /** Bid winner picks up the kitty. */
+    /** Bid winner picks up the kitty (all 4 cards). */
     pickUpKitty() {
         const winner = this.players[this.bidWinner];
         console.assert(this.kitty.length === 4, `Kitty has ${this.kitty.length} cards before pickup (expected 4)`);
@@ -293,15 +293,37 @@ class Game {
     }
 
     /**
-     * Bid winner discards 4 cards.
-     * discards: Card[] (must be exactly 4, from winner's hand)
+     * Bid winner picks up selected kitty cards (0-4).
+     * selectedCards: Card[] from the kitty to add to hand.
+     * Returns remaining kitty cards not taken.
+     */
+    pickUpSelectedKitty(selectedCards) {
+        const winner = this.players[this.bidWinner];
+        const taken = [];
+        const remaining = [];
+        for (const kCard of this.kitty) {
+            if (selectedCards.find(c => c.id === kCard.id)) {
+                taken.push(kCard);
+            } else {
+                remaining.push(kCard);
+            }
+        }
+        winner.addCards(taken);
+        this.kitty = remaining;
+        return { taken: taken.length, remaining };
+    }
+
+    /**
+     * Bid winner discards cards to get back to 12.
+     * discards: Card[] (must bring hand to exactly 12)
      */
     discardFromKitty(discards) {
-        if (discards.length !== 4) {
-            return { valid: false, message: 'Must discard exactly 4 cards.' };
+        const winner = this.players[this.bidWinner];
+        const expectedDiscards = winner.hand.length - 12;
+        if (discards.length !== expectedDiscards) {
+            return { valid: false, message: `Must discard exactly ${expectedDiscards} card${expectedDiscards !== 1 ? 's' : ''}.` };
         }
 
-        const winner = this.players[this.bidWinner];
         for (const card of discards) {
             const idx = winner.hand.findIndex(c => c.id === card.id);
             if (idx === -1) {

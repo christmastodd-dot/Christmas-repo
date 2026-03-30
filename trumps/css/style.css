@@ -822,27 +822,61 @@ body {
     }
 }
 
+/* === Discard mode — wider fan === */
+.seat-south .hand.discard-mode .card {
+    margin-left: -10px;
+}
+
+.seat-south .hand.discard-mode .card:first-child {
+    margin-left: 0;
+}
+
 /* === Discard mode cards === */
 .card.discard-candidate {
     cursor: pointer;
-    transition: transform 0.2s, opacity 0.2s, outline 0.2s;
+    transition: transform 0.25s ease, opacity 0.25s ease, outline 0.2s ease;
 }
 
 .card.discard-marked {
     outline: 3px solid #c0392b;
-    opacity: 0.55;
-    transform: translateY(8px) scale(0.95);
+    opacity: 0.7;
 }
 
 .seat-south .hand .card.discard-marked {
-    transform: translateY(8px) scale(0.95);
+    transform: translateY(-30px) scale(0.92);
+    z-index: 90;
+    box-shadow: 0 12px 24px rgba(192, 57, 43, 0.4);
 }
 
 .seat-south .hand .card.discard-marked:hover {
-    transform: translateY(8px) scale(0.95);
+    transform: translateY(-30px) scale(0.95);
+    z-index: 100;
 }
 
-/* === Kitty new cards highlight === */
+/* === Kitty card selection (reveal panel) === */
+.card.kitty-selectable {
+    cursor: pointer;
+    transition: transform 0.2s ease, outline 0.2s ease, opacity 0.2s ease;
+    opacity: 0.45;
+    outline: 3px solid transparent;
+}
+
+.card.kitty-selectable.kitty-selected {
+    opacity: 1;
+    outline: 3px solid var(--accent-gold);
+    box-shadow: 0 0 12px rgba(212, 168, 67, 0.5);
+    transform: translateY(-8px);
+}
+
+.card.kitty-selectable:hover {
+    transform: translateY(-6px) scale(1.05);
+}
+
+.card.kitty-selectable.kitty-selected:hover {
+    transform: translateY(-10px) scale(1.05);
+}
+
+/* === Kitty new cards highlight (in hand after pickup) === */
 .card.kitty-new {
     outline: 2px solid var(--accent-gold);
     box-shadow: 0 0 12px rgba(212, 168, 67, 0.5);
@@ -1304,6 +1338,10 @@ body {
     .kitty-card-row { gap: 6px; }
     .trump-suit-grid .btn-suit { padding: 10px 14px; font-size: 0.95rem; }
     .trump-suit-grid .btn-suit .suit-icon { font-size: 1.4rem; }
+
+    .seat-south .hand.discard-mode .card { margin-left: -14px; }
+    .seat-south .hand .card.discard-marked { transform: translateY(-22px) scale(0.92); }
+    .seat-south .hand .card.discard-marked:hover { transform: translateY(-22px) scale(0.95); }
 }
 
 /* === Responsive — Phone portrait (narrow + tall) === */
@@ -1354,6 +1392,10 @@ body {
     .bid-winner-title { font-size: 0.85rem; }
     .bid-winner-value { font-size: 2rem; }
     .bid-winner-direction { font-size: 0.8rem; padding: 3px 12px; }
+
+    .seat-south .hand.discard-mode .card { margin-left: -18px; }
+    .seat-south .hand .card.discard-marked { transform: translateY(-18px) scale(0.9); }
+    .seat-south .hand .card.discard-marked:hover { transform: translateY(-18px) scale(0.93); }
 }
 
 /* === Responsive — Phone landscape (short + wide) === */
