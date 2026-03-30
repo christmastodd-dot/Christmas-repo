@@ -646,6 +646,71 @@ body {
     color: #f0d060;
 }
 
+/* === Winning Bid Announcement Overlay === */
+.bid-winner-overlay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 24px 32px;
+    background: radial-gradient(ellipse at center, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.6) 70%, transparent 100%);
+    border-radius: 16px;
+    text-align: center;
+    opacity: 0;
+    transform: scale(0.7);
+    transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    translate: -50% -50%;
+    z-index: 10;
+    min-width: 200px;
+}
+
+.bid-winner-overlay.show {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.bid-winner-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+}
+
+.bid-winner-value {
+    font-size: 2.8rem;
+    font-weight: 800;
+    color: var(--accent-gold);
+    text-shadow: 0 0 20px rgba(212, 168, 67, 0.5), 0 2px 8px rgba(0,0,0,0.6);
+    line-height: 1.1;
+    text-transform: capitalize;
+}
+
+.bid-winner-direction {
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    padding: 4px 16px;
+    border-radius: 20px;
+    margin-top: 4px;
+}
+
+.bid-winner-direction.high {
+    color: #ff6b6b;
+    background: rgba(255, 107, 107, 0.15);
+    border: 1px solid rgba(255, 107, 107, 0.3);
+}
+
+.bid-winner-direction.low {
+    color: #4ecb71;
+    background: rgba(78, 203, 113, 0.15);
+    border: 1px solid rgba(78, 203, 113, 0.3);
+}
+
 /* === Dealer Chip === */
 .dealer-chip {
     position: absolute;
@@ -1189,6 +1254,11 @@ body {
 
     .help-body { font-size: 0.75rem; }
     .help-section h3 { font-size: 0.8rem; }
+
+    .bid-winner-overlay { padding: 16px 20px; min-width: 140px; }
+    .bid-winner-title { font-size: 0.85rem; }
+    .bid-winner-value { font-size: 2rem; }
+    .bid-winner-direction { font-size: 0.8rem; padding: 3px 12px; }
 }
 
 /* === Responsive — Phone landscape (short + wide) === */

@@ -39,16 +39,18 @@
                 }, 1500);
                 break;
 
-            case 'kitty':
+            case 'kitty': {
+                const winnerLabel = game.players[data.bidWinner].label;
+                const bidDir = data.bid.direction || '';
                 UI.clearPlayArea();
-                UI.addBidEntry(
-                    game.players[data.bidWinner].label,
-                    `WINS at ${data.bid.amount} ${data.bid.direction || ''}`,
-                    true
-                );
-                UI.setStatus(`${game.players[data.bidWinner].label} won the bid at ${data.bid.amount} ${data.bid.direction || ''}.`);
-                handleKittyPhase();
+                UI.showBidWinner(winnerLabel, data.bid.amount, bidDir);
+                UI.setStatus(`${winnerLabel} won the bid at ${data.bid.amount} ${bidDir}.`);
+                // Show announcement for 2 seconds, then proceed to kitty
+                setTimeout(() => {
+                    handleKittyPhase();
+                }, 2000);
                 break;
+            }
 
             case 'trumpSelect':
                 handleTrumpSelection();

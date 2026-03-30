@@ -310,4 +310,40 @@ const UI = {
         const el = document.getElementById('trick-counts');
         if (el) el.remove();
     },
+
+    // ─── Winning Bid Announcement ─────────────────────────
+
+    /**
+     * Show a large winning bid announcement overlay in the play area.
+     * Returns a function to remove it.
+     */
+    showBidWinner(playerLabel, amount, direction) {
+        const area = document.getElementById('played-cards');
+        area.innerHTML = '';
+
+        const overlay = document.createElement('div');
+        overlay.className = 'bid-winner-overlay';
+
+        const title = document.createElement('div');
+        title.className = 'bid-winner-title';
+        title.textContent = playerLabel === 'You (South)' ? 'You Won the Bid!' : `${playerLabel} Wins!`;
+
+        const bidValue = document.createElement('div');
+        bidValue.className = 'bid-winner-value';
+        bidValue.textContent = `${amount} ${direction}`;
+
+        const badge = document.createElement('div');
+        badge.className = `bid-winner-direction ${direction}`;
+        badge.textContent = direction === 'low' ? '▼ LOW' : '▲ HIGH';
+
+        overlay.appendChild(title);
+        overlay.appendChild(bidValue);
+        overlay.appendChild(badge);
+        area.appendChild(overlay);
+
+        // Trigger entrance animation
+        requestAnimationFrame(() => overlay.classList.add('show'));
+
+        return () => overlay.remove();
+    },
 };
