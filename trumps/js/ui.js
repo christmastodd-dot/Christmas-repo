@@ -258,17 +258,52 @@ const UI = {
         if (bar) bar.remove();
     },
 
-    // ─── Trick Score Overlay ──────────────────────────────
+    // ─── Trick Score & Packs-to-Make Tracker ───────────────
 
-    /** Show team trick counts near the play area. */
-    showTrickCounts(nsTricks, ewTricks) {
+    /**
+     * Show trick counts and packs-to-make tracker near the play area.
+     * game: Game instance (to read bid info)
+     */
+    showTrickCounts(nsTricks, ewTricks, game) {
         let el = document.getElementById('trick-counts');
         if (!el) {
             el = document.createElement('div');
             el.id = 'trick-counts';
             document.getElementById('play-area').appendChild(el);
         }
-        el.textContent = `N/S Tricks: ${nsTricks} | E/W Tricks: ${ewTricks}`;
+
+        // Basic trick counts
+        let html = `<span class="tc-team">N/S: ${nsTricks}</span> <span class="tc-sep">|</span> <span class="tc-team">E/W: ${ewTricks}</span>`;
+
+        // Packs-to-make tracker (only during play with a bid)
+        if (game && game.currentBid && game.bidWinner !== null) {
+            const needed = 6 + game.currentBid.amount;
+            const bidTeam = game.bidTeam;
+            const defTeam = game.defendTeam;
+            const bidTricks = bidTeam === 'ns' ? nsTricks : ewTricks;
+            const defTricks = defTeam === 'ns' ? nsTricks : ewTricks;
+            const bidTeamLabel = bidTeam === 'ns' ? 'N/S' : 'E/W';
+            const defTeamLabel = defTeam === 'ns' ? 'N/S' : 'E/W';
+
+            const bidStillNeeds = Math.max(0, needed - bidTricks);
+            const defToSet = Math.max(0, (13 - needed + 1) - defTricks); // tricks defense needs to guarantee a set
+
+            html += `<br><span class="tc-tracker">`;
+            if (bidStillNeeds === 0) {
+                html += `<span class="tc-made">${bidTeamLabel} MADE IT!</span>`;
+            } else {
+                html += `${bidTeamLabel} needs <strong>${bidStillNeeds}</strong> more`;
+            }
+            html += ` <span class="tc-sep">|</span> `;
+            if (defToSet === 0) {
+                html += `<span class="tc-set">${defTeamLabel} SET!</span>`;
+            } else {
+                html += `${defTeamLabel} needs <strong>${defToSet}</strong> to set`;
+            }
+            html += `</span>`;
+        }
+
+        el.innerHTML = html;
     },
 
     hideTrickCounts() {

@@ -57,7 +57,7 @@
             case 'playing':
                 UI.clearPlayArea();
                 UI.showTrumpInfo(data.trumpSuit, data.direction, game.trickNumber);
-                UI.showTrickCounts(0, 0);
+                UI.showTrickCounts(0, 0, game);
                 UI.showScoreboardBid(`Bid: ${game.currentBid.amount} ${data.direction} ${SUIT_SYMBOLS[data.trumpSuit]}`);
                 UI.setStatus(`${game.players[data.lead].label} leads.`);
                 UI.renderAllHands(game.players);
@@ -535,7 +535,7 @@
             // Highlight the winning card
             UI.highlightTrickWinner(result.winnerIndex);
             UI.hideLeadSuit();
-            UI.showTrickCounts(tricks.ns, tricks.ew);
+            UI.showTrickCounts(tricks.ns, tricks.ew, game);
             UI.setStatus(`Trick ${result.trickNumber} won by ${result.winnerLabel}! (N/S: ${tricks.ns} | E/W: ${tricks.ew})`);
 
             // Pause to show winner highlight, then clear and continue

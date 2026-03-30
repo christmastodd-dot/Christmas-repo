@@ -550,17 +550,40 @@ body {
     margin: 4px;
 }
 
-/* === Trick count display === */
+/* === Trick count & packs-to-make tracker === */
 #trick-counts {
-    display: flex;
-    gap: 20px;
-    justify-content: center;
+    text-align: center;
     margin-top: 6px;
     font-size: 0.8rem;
     color: var(--text-light);
-    opacity: 0.75;
+    opacity: 0.85;
     font-weight: 600;
     text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    line-height: 1.5;
+}
+
+.tc-team {
+    margin: 0 4px;
+}
+
+.tc-sep {
+    opacity: 0.4;
+    margin: 0 4px;
+}
+
+.tc-tracker {
+    font-size: 0.7rem;
+    opacity: 0.75;
+}
+
+.tc-made {
+    color: #4ecb71;
+    font-weight: 800;
+}
+
+.tc-set {
+    color: #e74c3c;
+    font-weight: 800;
 }
 
 /* === Bid History Log === */
