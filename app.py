@@ -10,7 +10,7 @@ from flask import Flask, render_template, session, redirect, url_for, request
 from english_word_game import (
     WORDS_1ST_GRADE, WORDS_2ND_GRADE, GRADES,
     ROUNDS_PER_GAME, get_word_list, get_word_pool,
-    build_choices, build_antonym_choices,
+    build_choices, build_antonym_choices, build_missing_letter_choices,
 )
 
 app = Flask(__name__)
@@ -104,7 +104,11 @@ def play():
 
     word_idx = game["word_indices"][game["round_num"]]
     word = get_word_by_index(game["grade"], word_idx)
-    if game.get("mode") == "antonym":
+
+    blanked = None
+    if game.get("mode") == "missing_letter":
+        blanked, choices, correct, blank_idx = build_missing_letter_choices(word)
+    elif game.get("mode") == "antonym":
         choices, correct = build_antonym_choices(word)
     else:
         choices, correct = build_choices(word)
@@ -120,6 +124,7 @@ def play():
                            game=game,
                            word=word,
                            choices=choices,
+                           blanked=blanked,
                            round_num=game["round_num"] + 1,
                            total_rounds=game["total_rounds"])
 
