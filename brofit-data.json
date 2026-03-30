@@ -827,10 +827,17 @@
       },
       "workouts": [],
       "templates": [],
-      "lastSync": "2026-03-30T20:07:42.192Z"
+      "lastSync": "2026-03-30T20:28:08.277Z"
     }
   },
   "feed": [
+    {
+      "id": "feed_1774902486928",
+      "author": "Vinncent",
+      "date": "2026-03-30T20:28:06.928Z",
+      "image": null,
+      "caption": "Saw Daniel, Manny and Ceddy at the gym this morning."
+    },
     {
       "id": "feed_1774890764214",
       "author": "Coach",
