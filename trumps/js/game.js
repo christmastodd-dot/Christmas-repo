@@ -464,6 +464,13 @@ class Game {
         this.currentTrick = [];
         this.leadPlayerIndex = winnerIndex;
 
+        // Check if defending team has clinched (bidding team can't make it)
+        if (this.trickNumber <= 12 && this._isDefenseCliched()) {
+            this.phase = 'scoring';
+            this._emit('onPhaseChange', 'scoring', this._scoreHand(true));
+            return result;
+        }
+
         // Check if hand is over (12 tricks played)
         if (this.trickNumber > 12) {
             this.phase = 'scoring';
@@ -522,14 +529,24 @@ class Game {
 
     // ─── Phase: Scoring ───────────────────────────────────
 
+    /** Check if the defending team has mathematically clinched (bidding team can't make it). */
+    _isDefenseCliched() {
+        if (!this.currentBid || this.bidWinner === null) return false;
+        const tricks = this.teamTricks;
+        const needed = 6 + this.currentBid.amount;
+        const bidTeamTricks = tricks[this.bidTeam];
+        const remainingPacks = 13 - this.trickNumber; // packs left to play
+        return bidTeamTricks + remainingPacks < needed;
+    }
+
     /** Score the completed hand. */
-    _scoreHand() {
+    _scoreHand(earlyVictory = false) {
         const tricks = this.teamTricks;
         const bidAmount = this.currentBid.amount;
         const bidTeam = this.bidTeam;
         const defTeam = this.defendTeam;
 
-        // Bidding team needs (6 + bidAmount) tricks to make their bid
+        // Bidding team needs (6 + bidAmount) packs to make their bid
         const needed = 6 + bidAmount;
         const bidTeamTricks = tricks[bidTeam];
         const made = bidTeamTricks >= needed;
@@ -559,6 +576,9 @@ class Game {
             this.winner = winner;
         }
 
+        // Reverse bolos: defense clinches early and bidding team has 0 packs
+        const reverseBolos = earlyVictory && !made && bidTeamTricks === 0;
+
         const result = {
             bidTeam,
             defTeam,
@@ -567,6 +587,8 @@ class Game {
             bidTeamTricks,
             defTeamTricks: tricks[defTeam],
             made,
+            earlyVictory,
+            reverseBolos,
             scores: { ...this.scores },
             gameOver,
             winner,

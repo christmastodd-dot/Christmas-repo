@@ -238,16 +238,16 @@ const UI = {
             header.appendChild(bar);
         }
         const color = SUIT_COLORS[suit];
-        bar.innerHTML = `Trump: <span class="${color}">${SUIT_SYMBOLS[suit]}</span> ${direction.toUpperCase()} | Trick ${trickNum}/12`;
+        bar.innerHTML = `Trump: <span class="${color}">${SUIT_SYMBOLS[suit]}</span> ${direction.toUpperCase()} | Pack ${trickNum}/12`;
     },
 
-    /** Update trick number in trump info bar. */
+    /** Update pack number in trump info bar. */
     updateTrickNum(trickNum) {
         const bar = document.getElementById('trump-info-bar');
         if (bar) {
-            const parts = bar.innerHTML.split('| Trick');
+            const parts = bar.innerHTML.split('| Pack');
             if (parts.length === 2) {
-                bar.innerHTML = parts[0] + `| Trick ${trickNum}/12`;
+                bar.innerHTML = parts[0] + `| Pack ${trickNum}/12`;
             }
         }
     },
@@ -258,10 +258,10 @@ const UI = {
         if (bar) bar.remove();
     },
 
-    // ─── Trick Score & Packs-to-Make Tracker ───────────────
+    // ─── Pack Score & Packs-to-Make Tracker ───────────────
 
     /**
-     * Show trick counts and packs-to-make tracker near the play area.
+     * Show pack counts and packs-to-make tracker near the play area.
      * game: Game instance (to read bid info)
      */
     showTrickCounts(nsTricks, ewTricks, game) {

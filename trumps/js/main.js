@@ -77,7 +77,7 @@
     };
 
     game.onTrickComplete = (winnerIndex, result) => {
-        console.log(`Trick ${result.trickNumber} won by ${result.winnerLabel}`);
+        console.log(`Pack ${result.trickNumber} won by ${result.winnerLabel}`);
     };
 
     game.onHandComplete = (result) => {
@@ -571,7 +571,7 @@
             UI.highlightTrickWinner(result.winnerIndex);
             UI.hideLeadSuit();
             UI.showTrickCounts(tricks.ns, tricks.ew, game);
-            UI.setStatus(`Trick ${result.trickNumber} won by ${result.winnerLabel}! (N/S: ${tricks.ns} | E/W: ${tricks.ew})`);
+            UI.setStatus(`Pack ${result.trickNumber} won by ${result.winnerLabel}! (N/S: ${tricks.ns} | E/W: ${tricks.ew})`);
 
             // Pause to show winner highlight, then clear and continue
             setTimeout(() => {
@@ -605,16 +605,28 @@
         const defTeamLabel = data.defTeam === 'ns' ? 'N/S (You)' : 'E/W';
 
         if (data.made) {
+            let celebration = '';
+            if (data.bidTeamTricks === 12) {
+                celebration = '<div class="result-bolos">BOLOS!</div>';
+            } else if (data.bidTeamTricks === 11) {
+                celebration = '<div class="result-bolos side-bolos">SIDE BOLOS!</div>';
+            }
             titleEl.textContent = 'Bid Made!';
             bodyEl.innerHTML = `
+                ${celebration}
                 <div class="result-made">${bidTeamLabel} made ${data.bidAmount}!</div>
-                <div class="result-detail">${data.bidTeamTricks} tricks taken (needed ${data.needed})</div>
+                <div class="result-detail">${data.bidTeamTricks} packs taken (needed ${data.needed})</div>
             `;
         } else {
+            let celebration = '';
+            if (data.reverseBolos) {
+                celebration = '<div class="result-bolos reverse-bolos">REVERSE BOLOS!</div>';
+            }
             titleEl.textContent = 'Set!';
             bodyEl.innerHTML = `
+                ${celebration}
                 <div class="result-set">${bidTeamLabel} went set on ${data.bidAmount}!</div>
-                <div class="result-detail">Only ${data.bidTeamTricks} tricks (needed ${data.needed}) — ${defTeamLabel} gets the win</div>
+                <div class="result-detail">${data.earlyVictory ? 'Clinched early!' : `Only ${data.bidTeamTricks} packs`} (needed ${data.needed}) — ${defTeamLabel} gets the win</div>
             `;
         }
 
