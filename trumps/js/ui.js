@@ -44,11 +44,14 @@ const UI = {
         document.getElementById('played-cards').innerHTML = '';
     },
 
-    /** Show a card played to the center. */
-    showPlayedCard(player, card) {
+    /** Show a card played to the center, positioned by seat. */
+    showPlayedCard(player, card, isLead) {
         const area = document.getElementById('played-cards');
         const wrapper = document.createElement('div');
         wrapper.className = 'played-card-wrapper';
+        wrapper.dataset.position = player.position;
+        wrapper.dataset.playerIndex = player.index;
+        if (isLead) wrapper.dataset.isLead = 'true';
 
         const cardEl = card.toElement();
         cardEl.classList.add('playing');
@@ -60,6 +63,74 @@ const UI = {
         wrapper.appendChild(cardEl);
         wrapper.appendChild(tag);
         area.appendChild(wrapper);
+    },
+
+    /** Highlight the trick winner's card. */
+    highlightTrickWinner(winnerIndex) {
+        const area = document.getElementById('played-cards');
+        const wrappers = area.querySelectorAll('.played-card-wrapper');
+        wrappers.forEach(w => {
+            if (parseInt(w.dataset.playerIndex) === winnerIndex) {
+                w.classList.add('trick-winner');
+            }
+        });
+    },
+
+    /** Show lead suit watermark in center of play area. */
+    showLeadSuit(suit) {
+        this.hideLeadSuit();
+        const badge = document.createElement('div');
+        badge.id = 'lead-suit-badge';
+        badge.className = `lead-suit-badge ${SUIT_COLORS[suit]}`;
+        badge.textContent = SUIT_SYMBOLS[suit];
+        document.getElementById('played-cards').appendChild(badge);
+    },
+
+    hideLeadSuit() {
+        const badge = document.getElementById('lead-suit-badge');
+        if (badge) badge.remove();
+    },
+
+    /** Mark legal/illegal cards in the human player's hand. */
+    markLegalPlays(player, game) {
+        const handEl = document.getElementById('hand-south');
+        const cards = handEl.querySelectorAll('.card');
+
+        // Determine legal cards
+        let legalIds;
+        if (game.currentTrick.length === 0) {
+            // Leading — all cards are legal
+            legalIds = new Set(player.hand.map(c => c.id));
+        } else {
+            const leadSuit = game.currentTrick[0].card.suit;
+            const suitCards = player.cardsOfSuit(leadSuit);
+            if (suitCards.length > 0) {
+                legalIds = new Set(suitCards.map(c => c.id));
+            } else {
+                // Can't follow suit — all cards legal
+                legalIds = new Set(player.hand.map(c => c.id));
+            }
+        }
+
+        cards.forEach(cardEl => {
+            const cardId = cardEl.dataset.cardId;
+            if (legalIds.has(cardId)) {
+                cardEl.classList.add('legal-play');
+                cardEl.classList.remove('illegal-play');
+            } else {
+                cardEl.classList.add('illegal-play');
+                cardEl.classList.remove('legal-play');
+            }
+        });
+    },
+
+    /** Clear legal/illegal markings. */
+    clearLegalPlays() {
+        const handEl = document.getElementById('hand-south');
+        if (!handEl) return;
+        handEl.querySelectorAll('.card').forEach(cardEl => {
+            cardEl.classList.remove('legal-play', 'illegal-play');
+        });
     },
 
     /** Show/hide a panel by id. */

@@ -118,16 +118,50 @@ body {
     grid-row: 2;
     grid-column: 2;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    position: relative;
 }
 
 #played-cards {
+    position: relative;
+    width: 220px;
+    height: 220px;
+}
+
+/* Compass-positioned played cards */
+.played-card-wrapper {
+    position: absolute;
     display: flex;
-    gap: 10px;
-    min-height: 120px;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
+    gap: 2px;
+    transition: transform 0.3s ease;
+}
+
+.played-card-wrapper[data-position="south"] {
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.played-card-wrapper[data-position="north"] {
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.played-card-wrapper[data-position="west"] {
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.played-card-wrapper[data-position="east"] {
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
 /* === Hands === */
@@ -267,18 +301,60 @@ body {
     transform: translateY(-12px);
 }
 
-/* Played card in center */
-.played-card-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-}
-
+/* Played card labels */
 .played-card-wrapper .player-tag {
     font-size: 0.6rem;
     color: var(--text-light);
     opacity: 0.7;
+}
+
+/* Lead card indicator */
+.played-card-wrapper[data-is-lead="true"] .card {
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+}
+
+/* Trick winner highlight */
+.played-card-wrapper.trick-winner .card {
+    outline: 3px solid var(--accent-gold);
+    box-shadow: 0 0 16px rgba(212, 168, 67, 0.6);
+}
+
+@keyframes trickWinPulse {
+    0%, 100% { box-shadow: 0 0 10px rgba(212, 168, 67, 0.4); }
+    50% { box-shadow: 0 0 20px rgba(212, 168, 67, 0.8); }
+}
+
+.played-card-wrapper.trick-winner .card {
+    animation: trickWinPulse 0.6s ease 2;
+}
+
+/* Legal card highlight */
+.card.legal-play {
+    cursor: pointer;
+}
+
+.card.illegal-play {
+    opacity: 0.45;
+    cursor: not-allowed;
+    filter: grayscale(40%);
+}
+
+.card.legal-play:hover {
+    transform: translateY(-15px);
+    box-shadow: 0 4px 12px rgba(212, 168, 67, 0.4);
+    z-index: 100;
+}
+
+/* Lead suit badge in play area */
+.lead-suit-badge {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 2rem;
+    opacity: 0.15;
+    pointer-events: none;
+    z-index: 0;
 }
 
 /* === Panels === */

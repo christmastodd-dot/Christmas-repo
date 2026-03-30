@@ -438,15 +438,21 @@
         UI.setActiveSeat(currentIndex);
         UI.updateTrickNum(game.trickNumber);
 
+        // Show lead suit watermark if a card has been led
+        if (game.currentTrick.length > 0) {
+            UI.showLeadSuit(game.currentTrick[0].card.suit);
+        }
+
         if (player.isHuman) {
             enableCardPlay();
         } else {
             setTimeout(() => {
                 const card = AI.chooseCard(player, game.currentTrick, game);
                 if (card) {
+                    const isLead = game.currentTrick.length === 0;
                     const result = game.playCard(player.index, card);
                     if (result.valid) {
-                        UI.showPlayedCard(player, card);
+                        UI.showPlayedCard(player, card, isLead);
                         UI.renderHand(player);
                         if (result.trickComplete) {
                             handleTrickEnd();
@@ -460,18 +466,43 @@
     }
 
     function enableCardPlay() {
-        UI.setStatus(`Your turn — play a card.`);
+        const human = game.players[0];
+
+        // Show lead suit info in status
+        if (game.currentTrick.length > 0) {
+            const leadSuit = game.currentTrick[0].card.suit;
+            const hasSuit = human.hasSuit(leadSuit);
+            if (hasSuit) {
+                UI.setStatus(`Your turn — must follow ${leadSuit} ${SUIT_SYMBOLS[leadSuit]}`);
+            } else {
+                UI.setStatus(`Your turn — no ${leadSuit}, play any card.`);
+            }
+        } else {
+            UI.setStatus('Your turn — lead any card.');
+        }
+
+        // Mark legal/illegal cards
+        UI.markLegalPlays(human, game);
+
         const handEl = document.getElementById('hand-south');
         handEl.querySelectorAll('.card').forEach(cardEl => {
             cardEl.onclick = () => {
+                // Block clicks on illegal cards
+                if (cardEl.classList.contains('illegal-play')) {
+                    UI.setStatus(`Must follow suit (${game.currentTrick[0].card.suit} ${SUIT_SYMBOLS[game.currentTrick[0].card.suit]})`);
+                    return;
+                }
+
                 const cardId = cardEl.dataset.cardId;
-                const card = game.players[0].hand.find(c => c.id === cardId);
+                const card = human.hand.find(c => c.id === cardId);
                 if (!card) return;
 
+                const isLead = game.currentTrick.length === 0;
                 const result = game.playCard(0, card);
                 if (result.valid) {
-                    UI.showPlayedCard(game.players[0], card);
-                    UI.renderHand(game.players[0]);
+                    UI.clearLegalPlays();
+                    UI.showPlayedCard(human, card, isLead);
+                    UI.renderHand(human);
                     disableCardPlay();
                     if (result.trickComplete) {
                         handleTrickEnd();
@@ -486,6 +517,7 @@
     }
 
     function disableCardPlay() {
+        UI.clearLegalPlays();
         const handEl = document.getElementById('hand-south');
         handEl.querySelectorAll('.card').forEach(cardEl => {
             cardEl.onclick = null;
@@ -493,19 +525,25 @@
     }
 
     function handleTrickEnd() {
+        // Short pause to show all 4 cards
         setTimeout(() => {
             const result = game.resolveTrick();
             const tricks = game.teamTricks;
+
+            // Highlight the winning card
+            UI.highlightTrickWinner(result.winnerIndex);
+            UI.hideLeadSuit();
             UI.showTrickCounts(tricks.ns, tricks.ew);
             UI.setStatus(`Trick ${result.trickNumber} won by ${result.winnerLabel}! (N/S: ${tricks.ns} | E/W: ${tricks.ew})`);
 
+            // Pause to show winner highlight, then clear and continue
             setTimeout(() => {
                 UI.clearPlayArea();
                 if (game.phase === 'playing') {
                     processPlayTurn();
                 }
-            }, 1200);
-        }, 800);
+            }, 1400);
+        }, 600);
     }
 
     // ─── Scoring ──────────────────────────────────────────
