@@ -532,6 +532,103 @@ body {
     cursor: not-allowed;
 }
 
+/* === Kitty Reveal === */
+.kitty-card-row {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin: 16px 0;
+}
+
+.kitty-card-row .card {
+    animation: kittyReveal 0.4s ease-out forwards;
+}
+
+.kitty-card-row .card:nth-child(2) { animation-delay: 0.1s; }
+.kitty-card-row .card:nth-child(3) { animation-delay: 0.2s; }
+.kitty-card-row .card:nth-child(4) { animation-delay: 0.3s; }
+
+@keyframes kittyReveal {
+    from {
+        opacity: 0;
+        transform: rotateY(90deg) scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: rotateY(0) scale(1);
+    }
+}
+
+/* === Discard mode cards === */
+.card.discard-candidate {
+    cursor: pointer;
+    transition: transform 0.2s, opacity 0.2s, outline 0.2s;
+}
+
+.card.discard-marked {
+    outline: 3px solid #c0392b;
+    opacity: 0.6;
+    transform: translateY(8px);
+}
+
+.seat-south .hand .card.discard-marked {
+    transform: translateY(8px);
+}
+
+.seat-south .hand .card.discard-marked:hover {
+    transform: translateY(8px);
+}
+
+/* === Kitty new cards highlight === */
+.card.kitty-new {
+    outline: 2px solid var(--accent-gold);
+    box-shadow: 0 0 10px rgba(212, 168, 67, 0.5);
+}
+
+/* === Discard counter badge === */
+.discard-counter {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--accent-gold);
+    margin: 8px 0;
+}
+
+/* === Panel wider for kitty === */
+#kitty-panel {
+    min-width: 400px;
+}
+
+#kitty-reveal-panel {
+    min-width: 360px;
+}
+
+/* === Trump panel suit buttons grid === */
+.trump-suit-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin: 12px 0;
+}
+
+.trump-suit-grid .btn-suit {
+    padding: 14px 20px;
+    font-size: 1.1rem;
+    text-align: center;
+}
+
+.trump-suit-grid .btn-suit .suit-icon {
+    font-size: 1.8rem;
+    display: block;
+    margin-bottom: 4px;
+}
+
+/* === Trump info in panel === */
+#trump-info {
+    margin-bottom: 12px;
+    font-size: 0.85rem;
+    opacity: 0.8;
+}
+
 /* === Animations === */
 @keyframes dealCard {
     from {

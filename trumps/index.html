@@ -51,9 +51,17 @@
             <div id="bid-controls"></div>
         </div>
 
-        <!-- Kitty panel -->
+        <!-- Kitty reveal panel (shows kitty cards face-up) -->
+        <div id="kitty-reveal-panel" class="panel hidden">
+            <h2>The Kitty</h2>
+            <div id="kitty-reveal-cards" class="kitty-card-row"></div>
+            <div id="kitty-reveal-info" class="bid-info"></div>
+            <button id="kitty-reveal-btn" class="btn btn-primary">Pick Up Kitty</button>
+        </div>
+
+        <!-- Kitty discard panel -->
         <div id="kitty-panel" class="panel hidden">
-            <h2>Kitty</h2>
+            <h2>Discard 4 Cards</h2>
             <div id="kitty-cards"></div>
             <div id="kitty-controls"></div>
         </div>
@@ -61,6 +69,7 @@
         <!-- Trump declaration panel -->
         <div id="trump-panel" class="panel hidden">
             <h2>Declare Trump</h2>
+            <div id="trump-info" class="bid-info"></div>
             <div id="trump-controls"></div>
         </div>
 

@@ -218,14 +218,19 @@
 
     // ─── Kitty Phase ──────────────────────────────────────
 
+    // Track kitty card IDs so we can highlight them after merging
+    let kittyCardIds = [];
+
     function handleKittyPhase() {
-        game.pickUpKitty();
         const winner = game.players[game.bidWinner];
 
         if (winner.isHuman) {
-            showKittyPanel(winner);
+            // Step 1: Show kitty cards face-up in a reveal panel
+            kittyCardIds = game.kitty.map(c => c.id);
+            showKittyReveal(winner);
         } else {
             UI.setStatus(`${winner.label} is looking at the kitty...`);
+            game.pickUpKitty();
             setTimeout(() => {
                 const discards = AI.chooseDiscards(winner, 4);
                 game.discardFromKitty(discards);
@@ -239,36 +244,63 @@
         }
     }
 
-    function showKittyPanel(player) {
-        UI.renderHand(player); // Re-render with 16 cards
+    /** Step 1: Show the 4 kitty cards face-up before picking them up. */
+    function showKittyReveal(player) {
+        const cardsEl = document.getElementById('kitty-reveal-cards');
+        cardsEl.innerHTML = '';
+
+        // Render kitty cards face-up
+        game.kitty.forEach(card => {
+            const el = card.toElement();
+            cardsEl.appendChild(el);
+        });
+
+        const infoEl = document.getElementById('kitty-reveal-info');
+        infoEl.textContent = 'These 4 cards will be added to your hand.';
+
+        const btn = document.getElementById('kitty-reveal-btn');
+        btn.onclick = () => {
+            UI.hidePanel('kitty-reveal-panel');
+            // Pick up kitty and proceed to discard step
+            game.pickUpKitty();
+            showDiscardPanel(player);
+        };
+
+        UI.showPanel('kitty-reveal-panel');
+    }
+
+    /** Step 2: Player discards 4 cards from their 16-card hand. */
+    function showDiscardPanel(player) {
+        // Re-render hand with 16 cards, highlighting the kitty cards
+        renderHandWithKittyHighlight(player);
 
         const controls = document.getElementById('kitty-controls');
         controls.innerHTML = '';
 
-        const info = document.createElement('div');
-        info.className = 'bid-info';
-        info.textContent = 'Select 4 cards from your hand to discard, then click Confirm.';
-        controls.appendChild(info);
+        const counter = document.createElement('div');
+        counter.className = 'discard-counter';
+        counter.textContent = 'Select 4 cards to discard (0/4)';
+        controls.appendChild(counter);
 
         const selected = new Set();
 
-        // Make player's cards selectable
+        // Make cards selectable for discard
         const handEl = document.getElementById('hand-south');
         handEl.querySelectorAll('.card').forEach(cardEl => {
+            cardEl.classList.add('discard-candidate');
             cardEl.onclick = () => {
                 const cardId = cardEl.dataset.cardId;
                 if (selected.has(cardId)) {
                     selected.delete(cardId);
-                    cardEl.classList.remove('selected');
+                    cardEl.classList.remove('discard-marked');
                 } else if (selected.size < 4) {
                     selected.add(cardId);
-                    cardEl.classList.add('selected');
+                    cardEl.classList.add('discard-marked');
                 }
                 confirmBtn.disabled = selected.size !== 4;
-                if (selected.size < 4) {
-                    info.textContent = `Select ${4 - selected.size} more card(s) to discard.`;
-                } else {
-                    info.textContent = 'Click Confirm to discard these 4 cards.';
+                counter.textContent = `Select 4 cards to discard (${selected.size}/4)`;
+                if (selected.size === 4) {
+                    counter.textContent = 'Ready! Click Confirm to discard.';
                 }
             };
         });
@@ -282,14 +314,31 @@
             const result = game.discardFromKitty(discards);
             if (result.valid) {
                 UI.hidePanel('kitty-panel');
+                kittyCardIds = [];
                 UI.renderHand(player);
             } else {
-                info.textContent = result.message;
+                counter.textContent = result.message;
             }
         };
         controls.appendChild(confirmBtn);
 
         UI.showPanel('kitty-panel');
+    }
+
+    /** Render hand with kitty cards highlighted with a gold outline. */
+    function renderHandWithKittyHighlight(player) {
+        const container = document.getElementById('hand-south');
+        container.innerHTML = '';
+
+        player.hand.forEach((card, i) => {
+            const el = card.toElement();
+            el.style.animationDelay = `${i * 0.03}s`;
+            el.classList.add('dealing');
+            if (kittyCardIds.includes(card.id)) {
+                el.classList.add('kitty-new');
+            }
+            container.appendChild(el);
+        });
     }
 
     // ─── Trump Selection ──────────────────────────────────
@@ -312,6 +361,14 @@
     function showTrumpPanel() {
         const controls = document.getElementById('trump-controls');
         controls.innerHTML = '';
+
+        // Show bid context
+        const infoEl = document.getElementById('trump-info');
+        if (game.direction) {
+            infoEl.textContent = `Your bid: ${game.currentBid.amount} ${game.direction}. Choose your trump suit.`;
+        } else {
+            infoEl.textContent = `Your bid: ${game.currentBid.amount}. Choose direction and trump suit.`;
+        }
 
         let selectedDir = game.direction || 'high';
 
@@ -347,19 +404,15 @@
             controls.appendChild(dirRow);
         }
 
-        // Suit buttons
-        const suitRow = document.createElement('div');
-        suitRow.className = 'bid-info';
-        const suitLabel = document.createElement('div');
-        suitLabel.innerHTML = '<strong>Choose Trump Suit:</strong>';
-        suitLabel.style.marginBottom = '8px';
-        suitRow.appendChild(suitLabel);
+        // Suit buttons in a 2x2 grid
+        const suitGrid = document.createElement('div');
+        suitGrid.className = 'trump-suit-grid';
 
         for (const suit of SUITS) {
             const btn = document.createElement('button');
             btn.className = 'btn btn-suit';
             const color = SUIT_COLORS[suit];
-            btn.innerHTML = `<span class="${color}">${SUIT_SYMBOLS[suit]}</span> ${suit.charAt(0).toUpperCase() + suit.slice(1)}`;
+            btn.innerHTML = `<span class="suit-icon ${color}">${SUIT_SYMBOLS[suit]}</span>${suit.charAt(0).toUpperCase() + suit.slice(1)}`;
             btn.onclick = () => {
                 const result = game.declareTrump(suit, selectedDir);
                 if (result.valid) {
@@ -368,9 +421,9 @@
                     UI.setStatus(result.message);
                 }
             };
-            suitRow.appendChild(btn);
+            suitGrid.appendChild(btn);
         }
-        controls.appendChild(suitRow);
+        controls.appendChild(suitGrid);
 
         UI.showPanel('trump-panel');
     }
