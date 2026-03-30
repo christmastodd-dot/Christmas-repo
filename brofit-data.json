@@ -1,8 +1,8 @@
 {
   "members": {
     "Coach": {
-      "xp": 50,
-      "streak": 2,
+      "xp": 60,
+      "streak": 3,
       "prs": {
         "bench": {
           "history": [
@@ -11,19 +11,23 @@
               "date": "2026-03-20"
             }
           ],
-          "best": 245
+          "best": 245,
+          "best2026": 245
         },
         "squat": {
           "history": [],
-          "best": null
+          "best": null,
+          "best2026": null
         },
         "deadlift": {
           "history": [],
-          "best": null
+          "best": null,
+          "best2026": null
         },
         "mile": {
           "history": [],
-          "best": null
+          "best": null,
+          "best2026": null
         }
       },
       "weight": {
@@ -275,109 +279,9 @@
             }
           ],
           "author": "Coach"
-        },
-        {
-          "id": "tmpl_1774831050879",
-          "name": "Hypertrophy 4 — Legs",
-          "exercises": [
-            {
-              "name": "Squat",
-              "setData": [
-                {
-                  "reps": 12
-                },
-                {
-                  "reps": 10
-                },
-                {
-                  "reps": 8
-                },
-                {
-                  "reps": 8
-                }
-              ]
-            },
-            {
-              "name": "Leg Press",
-              "setData": [
-                {
-                  "reps": 12
-                },
-                {
-                  "reps": 12
-                },
-                {
-                  "reps": 10
-                },
-                {
-                  "reps": 10
-                }
-              ]
-            },
-            {
-              "name": "RDL",
-              "setData": [
-                {
-                  "reps": 12
-                },
-                {
-                  "reps": 10
-                },
-                {
-                  "reps": 10
-                }
-              ]
-            },
-            {
-              "name": "Leg Extension",
-              "setData": [
-                {
-                  "reps": 12
-                },
-                {
-                  "reps": 12
-                },
-                {
-                  "reps": 10
-                }
-              ]
-            },
-            {
-              "name": "Leg Curl",
-              "setData": [
-                {
-                  "reps": 12
-                },
-                {
-                  "reps": 12
-                },
-                {
-                  "reps": 10
-                }
-              ]
-            },
-            {
-              "name": "Calf Raise Machine",
-              "setData": [
-                {
-                  "reps": 15
-                },
-                {
-                  "reps": 15
-                },
-                {
-                  "reps": 15
-                },
-                {
-                  "reps": 15
-                }
-              ]
-            }
-          ],
-          "author": "Coach"
         }
       ],
-      "lastSync": "2026-03-30T08:27:18.465Z"
+      "lastSync": "2026-03-30T16:53:01.454Z"
     },
     "Manny Fresh": {
       "xp": 10,
