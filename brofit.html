@@ -2134,9 +2134,10 @@
       font-weight: 600;
       color: var(--text-primary);
       min-width: 0;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      background: var(--bg-surface);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 4px;
+      padding: 4px 6px;
     }
 
     .exercise-manager__tag {
@@ -5849,10 +5850,11 @@
           return '<option value="' + opt.equip + '|' + opt.input + '"' + sel + '>' + opt.label + '</option>';
         }).join('');
 
+        var escapedName = ex.name.replace(/'/g, "\\'").replace(/"/g, '&quot;');
         html += '<div class="exercise-manager__item">' +
-          '<span class="exercise-manager__name">' + ex.name + '</span>' +
+          '<input class="exercise-manager__name" value="' + escapedName + '" data-orig-name="' + escapedName + '" onchange="renameExercise(this)" />' +
           '<span class="exercise-manager__tag" style="color:' + color + ';border:1px solid ' + color + '">' + tag + '</span>' +
-          '<select class="exercise-manager__select" onchange="reclassifyExercise(\'' + ex.name.replace(/'/g, "\\'") + '\', this.value)">' +
+          '<select class="exercise-manager__select" onchange="reclassifyExercise(this.closest(\'.exercise-manager__item\').querySelector(\'.exercise-manager__name\').value.trim(), this.value)">' +
           optionsHtml +
           '</select>' +
         '</div>';
@@ -5884,6 +5886,81 @@
       localStorage.setItem('brofit_exercise_overrides', JSON.stringify(overrides));
 
       renderExerciseManager();
+    }
+
+    function renameExercise(input) {
+      var oldName = input.getAttribute('data-orig-name');
+      var newName = input.value.trim();
+      if (!newName || newName === oldName) {
+        input.value = oldName;
+        return;
+      }
+
+      var oldKey = oldName.toLowerCase();
+      var newKey = newName.toLowerCase();
+
+      // Update exerciseDB
+      if (exerciseDB[oldKey]) {
+        var entry = exerciseDB[oldKey];
+        entry.name = newName;
+        if (oldKey !== newKey) {
+          exerciseDB[newKey] = entry;
+          delete exerciseDB[oldKey];
+        }
+      }
+
+      // Update customExerciseTypes
+      if (customExerciseTypes[oldKey]) {
+        var cEntry = customExerciseTypes[oldKey];
+        cEntry.name = newName;
+        if (oldKey !== newKey) {
+          customExerciseTypes[newKey] = cEntry;
+          delete customExerciseTypes[oldKey];
+        }
+      }
+
+      // Update exercise overrides in localStorage
+      var overrides = JSON.parse(localStorage.getItem('brofit_exercise_overrides') || '{}');
+      if (overrides[oldKey]) {
+        overrides[newKey] = overrides[oldKey];
+        if (oldKey !== newKey) delete overrides[oldKey];
+        localStorage.setItem('brofit_exercise_overrides', JSON.stringify(overrides));
+      }
+
+      // Rename in workout history
+      var history = loadWorkoutHistory();
+      var historyChanged = false;
+      history.forEach(function(w) {
+        (w.exercises || []).forEach(function(ex) {
+          if (ex.name.toLowerCase() === oldKey) {
+            ex.name = newName;
+            historyChanged = true;
+          }
+        });
+      });
+      if (historyChanged) saveWorkoutHistory(history);
+
+      // Rename in local templates
+      var templates = JSON.parse(localStorage.getItem('brofit_templates') || '[]');
+      var tChanged = false;
+      templates.forEach(function(t) {
+        (t.exercises || []).forEach(function(ex) {
+          if (ex.name.toLowerCase() === oldKey) {
+            ex.name = newName;
+            tChanged = true;
+          }
+        });
+      });
+      if (tChanged) localStorage.setItem('brofit_templates', JSON.stringify(templates));
+
+      // Rename in defaultExerciseList
+      defaultExerciseList.forEach(function(ex) {
+        if (ex.name.toLowerCase() === oldKey) ex.name = newName;
+      });
+
+      renderExerciseManager();
+      renderTemplates();
+      renderWorkoutHistory();
     }
 
     // Load exercise overrides on startup
