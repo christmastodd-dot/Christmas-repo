@@ -1406,6 +1406,12 @@
       font-weight: 700;
       color: var(--text-primary);
       margin-bottom: 2px;
+      background: var(--bg-surface);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 4px;
+      padding: 6px 8px;
+      width: 100%;
+      box-sizing: border-box;
     }
 
     .workout-edit-hdr {
@@ -4772,7 +4778,7 @@
         var iType = ex.inputType || getExerciseInfo(ex.name).input;
         html += '<div class="workout-edit-exercise" data-ex-idx="' + exIdx + '">';
         html += '<button class="workout-edit-del-exercise" onclick="editRemoveExercise(this)" title="Remove exercise">✕</button>';
-        html += '<div class="workout-edit-exercise-name">' + ex.name + '</div>';
+        html += '<input class="workout-edit-exercise-name" type="text" value="' + ex.name.replace(/"/g, '&quot;') + '" placeholder="Exercise name">';
         html += buildEditHeader(iType);
 
         (ex.sets || []).forEach(function(s, sIdx) {
@@ -4915,7 +4921,8 @@
         });
 
         if (sets.length > 0) {
-          exercises.push({ name: origEx.name, sets: sets, inputType: origEx.inputType || getExerciseInfo(origEx.name).input });
+          var editedName = exEl.querySelector('.workout-edit-exercise-name').value.trim() || origEx.name;
+          exercises.push({ name: editedName, sets: sets, inputType: origEx.inputType || getExerciseInfo(editedName).input });
         }
       });
 
