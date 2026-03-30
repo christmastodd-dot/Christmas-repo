@@ -26,6 +26,23 @@ const UI = {
             }
             container.appendChild(el);
         });
+
+        // Update card count badge
+        this.updateCardCount(player);
+    },
+
+    /** Show/update a card count badge on a player's seat. */
+    updateCardCount(player) {
+        const seat = document.getElementById(`seat-${player.position}`);
+        let badge = seat.querySelector('.card-count');
+        if (!badge) {
+            badge = document.createElement('span');
+            badge.className = 'card-count';
+            seat.appendChild(badge);
+        }
+        badge.textContent = player.hand.length;
+        // Highlight if not 12 during play (kitty phase has 16)
+        badge.classList.toggle('card-count-warn', player.hand.length !== 12 && player.hand.length !== 16 && player.hand.length !== 0);
     },
 
     /** Render all four hands. */

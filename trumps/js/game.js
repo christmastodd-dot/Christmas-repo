@@ -108,6 +108,14 @@ class Game {
         this.kitty = kitty;
         this.players.forEach((p, i) => p.receiveCards(hands[i]));
 
+        // Validate deal: 12 cards each, 4 in kitty, 52 total
+        const total = this.players.reduce((s, p) => s + p.hand.length, 0) + this.kitty.length;
+        console.assert(total === 52, `Deal error: ${total} cards (expected 52)`);
+        this.players.forEach(p => {
+            console.assert(p.hand.length === 12, `${p.label} has ${p.hand.length} cards (expected 12)`);
+        });
+        console.assert(this.kitty.length === 4, `Kitty has ${this.kitty.length} cards (expected 4)`);
+
         this.phase = 'dealing';
         this._emit('onPhaseChange', 'dealing', { dealer: this.dealer });
     }
@@ -256,9 +264,11 @@ class Game {
     /** Bid winner picks up the kitty. */
     pickUpKitty() {
         const winner = this.players[this.bidWinner];
+        console.assert(this.kitty.length === 4, `Kitty has ${this.kitty.length} cards before pickup (expected 4)`);
+        console.assert(winner.hand.length === 12, `${winner.label} has ${winner.hand.length} cards before pickup (expected 12)`);
         winner.addCards(this.kitty);
         this.kitty = [];
-        // Winner now has 16 cards, must discard 4
+        console.assert(winner.hand.length === 16, `${winner.label} has ${winner.hand.length} cards after pickup (expected 16)`);
     }
 
     /**
@@ -280,6 +290,9 @@ class Game {
         }
 
         winner.sortHand();
+
+        // Validate: winner should have exactly 12 cards after discard
+        console.assert(winner.hand.length === 12, `${winner.label} has ${winner.hand.length} cards after discard (expected 12)`);
 
         // Move to trump selection (or straight to play if direction was already set)
         if (this.direction && this.trumpSuit) {
@@ -322,6 +335,13 @@ class Game {
 
     /** Begin trick-taking play. */
     _startPlaying() {
+        // Validate: all players must have exactly 12 cards
+        this.players.forEach(p => {
+            console.assert(p.hand.length === 12, `${p.label} has ${p.hand.length} cards at play start (expected 12)`);
+        });
+        const totalCards = this.players.reduce((s, p) => s + p.hand.length, 0);
+        console.assert(totalCards === 48, `Total cards in play: ${totalCards} (expected 48)`);
+
         this.phase = 'playing';
         this.trickNumber = 1;
         this.currentTrick = [];
