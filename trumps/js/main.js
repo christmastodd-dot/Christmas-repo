@@ -121,78 +121,102 @@
         const controls = document.getElementById('bid-controls');
         controls.innerHTML = '';
 
-        const minBid = game.currentBid ? game.currentBid.amount + 1 : 3;
-
         // Current bid info
         if (game.currentBid) {
             const info = document.createElement('div');
             info.className = 'bid-info';
             info.innerHTML = `Current bid: <strong>${game.currentBid.amount} ${game.currentBid.direction}</strong> by ${game.players[game.currentBid.playerIndex].label}`;
             controls.appendChild(info);
+
+            // Explain low superiority
+            const hint = document.createElement('div');
+            hint.className = 'bid-info bid-hint';
+            hint.innerHTML = '<em>Low outranks High at the same number</em>';
+            controls.appendChild(hint);
         }
 
         // Direction toggle
         const dirRow = document.createElement('div');
         dirRow.className = 'bid-info';
-        let selectedDirection = 'high';
+        let selectedDirection = 'low'; // Default to low since it's superior
 
         const dirLabel = document.createElement('span');
         dirLabel.innerHTML = '<strong>Direction: </strong>';
         dirRow.appendChild(dirLabel);
 
         const highBtn = document.createElement('button');
-        highBtn.className = 'btn btn-secondary selected';
+        highBtn.className = 'btn btn-secondary';
         highBtn.textContent = 'High';
+
+        const lowBtn = document.createElement('button');
+        lowBtn.className = 'btn btn-secondary selected';
+        lowBtn.textContent = 'Low';
+
+        // Helper: compute min bid for a given direction
+        function getMinBid(direction) {
+            if (!game.currentBid) return 3;
+            // Low can match a High bid at the same number
+            if (direction === 'low' && game.currentBid.direction === 'high') {
+                return game.currentBid.amount;
+            }
+            return game.currentBid.amount + 1;
+        }
+
+        function rebuildAmountButtons() {
+            amtRow.innerHTML = '';
+            const minBid = getMinBid(selectedDirection);
+
+            if (minBid <= 7) {
+                const amtLabel = document.createElement('span');
+                amtLabel.innerHTML = '<strong>Bid: </strong>';
+                amtRow.appendChild(amtLabel);
+
+                for (let n = minBid; n <= 7; n++) {
+                    const btn = document.createElement('button');
+                    btn.className = 'btn btn-primary';
+                    btn.textContent = n;
+                    btn.onclick = () => {
+                        UI.hidePanel('bid-panel');
+                        const bid = { amount: n, direction: selectedDirection };
+                        const result = game.placeBid(0, bid);
+                        if (result.valid) {
+                            UI.addBidEntry('You', `${n} ${selectedDirection}`, false);
+                            UI.setStatus(result.message);
+                            if (!result.biddingComplete) {
+                                setTimeout(() => processBiddingTurn(), 700);
+                            }
+                        }
+                    };
+                    amtRow.appendChild(btn);
+                }
+            } else {
+                amtRow.innerHTML = '<em>Cannot outbid — pass or the bid stands.</em>';
+            }
+        }
+
         highBtn.onclick = () => {
             selectedDirection = 'high';
             highBtn.classList.add('selected');
             lowBtn.classList.remove('selected');
+            rebuildAmountButtons();
         };
 
-        const lowBtn = document.createElement('button');
-        lowBtn.className = 'btn btn-secondary';
-        lowBtn.textContent = 'Low';
         lowBtn.onclick = () => {
             selectedDirection = 'low';
             lowBtn.classList.add('selected');
             highBtn.classList.remove('selected');
+            rebuildAmountButtons();
         };
 
         dirRow.appendChild(highBtn);
         dirRow.appendChild(lowBtn);
         controls.appendChild(dirRow);
 
-        // Bid amount buttons
+        // Bid amount buttons (rebuilt dynamically when direction changes)
         const amtRow = document.createElement('div');
         amtRow.className = 'bid-info';
-
-        if (minBid <= 7) {
-            const amtLabel = document.createElement('span');
-            amtLabel.innerHTML = '<strong>Bid: </strong>';
-            amtRow.appendChild(amtLabel);
-
-            for (let n = minBid; n <= 7; n++) {
-                const btn = document.createElement('button');
-                btn.className = 'btn btn-primary';
-                btn.textContent = n;
-                btn.onclick = () => {
-                    UI.hidePanel('bid-panel');
-                    const bid = { amount: n, direction: selectedDirection };
-                    const result = game.placeBid(0, bid);
-                    if (result.valid) {
-                        UI.addBidEntry('You', `${n} ${selectedDirection}`, false);
-                        UI.setStatus(result.message);
-                        if (!result.biddingComplete) {
-                            setTimeout(() => processBiddingTurn(), 700);
-                        }
-                    }
-                };
-                amtRow.appendChild(btn);
-            }
-        } else {
-            amtRow.innerHTML = '<em>Cannot outbid — pass or the bid stands.</em>';
-        }
         controls.appendChild(amtRow);
+        rebuildAmountButtons();
 
         // Pass button
         const passRow = document.createElement('div');

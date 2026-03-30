@@ -200,8 +200,16 @@ class Game {
         }
 
         if (this.currentBid) {
-            if (bid.amount <= this.currentBid.amount) {
-                return { valid: false, message: `Must bid higher than ${this.currentBid.amount}.` };
+            // Low outranks High at the same number
+            const sameAmountLowBeatsHigh = bid.amount === this.currentBid.amount
+                && bid.direction === 'low'
+                && this.currentBid.direction === 'high';
+
+            if (bid.amount < this.currentBid.amount) {
+                return { valid: false, message: `Must bid at least ${this.currentBid.amount}.` };
+            }
+            if (bid.amount === this.currentBid.amount && !sameAmountLowBeatsHigh) {
+                return { valid: false, message: `Must bid higher than ${this.currentBid.amount} ${this.currentBid.direction}, or bid ${this.currentBid.amount} Low.` };
             }
         }
 

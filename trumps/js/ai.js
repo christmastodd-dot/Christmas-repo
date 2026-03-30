@@ -15,7 +15,17 @@ const AI = {
      */
     decideBid(player, currentBid, game) {
         const eval_ = this._evaluateHand(player);
-        const minBid = currentBid ? currentBid.amount + 1 : 3;
+
+        // Calculate minimum bid considering low superiority
+        let minBid;
+        if (!currentBid) {
+            minBid = 3;
+        } else if (eval_.direction === 'low' && currentBid.direction === 'high') {
+            // Low can match a High bid at the same number
+            minBid = currentBid.amount;
+        } else {
+            minBid = currentBid.amount + 1;
+        }
 
         // Not strong enough
         if (eval_.maxBid < minBid) return null;

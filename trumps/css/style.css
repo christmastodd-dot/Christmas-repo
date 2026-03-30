@@ -543,6 +543,12 @@ body {
     margin: 8px 0;
 }
 
+.bid-hint {
+    color: var(--accent-gold);
+    font-size: 0.8rem;
+    margin: 4px 0;
+}
+
 .bid-option {
     display: inline-flex;
     flex-direction: column;
