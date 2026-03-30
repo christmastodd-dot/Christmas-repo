@@ -16,6 +16,7 @@
             case 'dealing':
                 UI.hideTrumpInfo();
                 UI.hideTrickCounts();
+                UI.clearScoreboardBid();
                 UI.clearPlayArea();
                 UI.renderAllHands(game.players);
                 UI.renderScores(game.scores);
@@ -57,6 +58,7 @@
                 UI.clearPlayArea();
                 UI.showTrumpInfo(data.trumpSuit, data.direction, game.trickNumber);
                 UI.showTrickCounts(0, 0);
+                UI.showScoreboardBid(`Bid: ${game.currentBid.amount} ${data.direction} ${SUIT_SYMBOLS[data.trumpSuit]}`);
                 UI.setStatus(`${game.players[data.lead].label} leads.`);
                 UI.renderAllHands(game.players);
                 processPlayTurn();

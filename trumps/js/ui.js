@@ -133,6 +133,17 @@ const UI = {
         });
     },
 
+    /** Show current bid info in scoreboard. */
+    showScoreboardBid(text) {
+        const el = document.getElementById('scoreboard-bid');
+        if (el) el.textContent = text;
+    },
+
+    clearScoreboardBid() {
+        const el = document.getElementById('scoreboard-bid');
+        if (el) el.textContent = '';
+    },
+
     /** Show/hide a panel by id. */
     showPanel(id) {
         document.getElementById(id).classList.remove('hidden');
