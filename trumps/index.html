@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trumps - Hawaii Style Bid Whist</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="game-container">
+        <header id="game-header">
+            <h1>Trumps</h1>
+            <span id="game-status">Welcome to Trumps!</span>
+        </header>
+
+        <!-- Game table -->
+        <div id="table">
+            <!-- North (AI partner) -->
+            <div id="seat-north" class="seat seat-north">
+                <div class="player-label">North (Partner)</div>
+                <div class="hand" id="hand-north"></div>
+            </div>
+
+            <!-- West (AI opponent) -->
+            <div id="seat-west" class="seat seat-west">
+                <div class="player-label">West</div>
+                <div class="hand" id="hand-west"></div>
+            </div>
+
+            <!-- East (AI opponent) -->
+            <div id="seat-east" class="seat seat-east">
+                <div class="player-label">East</div>
+                <div class="hand" id="hand-east"></div>
+            </div>
+
+            <!-- Center play area -->
+            <div id="play-area">
+                <div id="played-cards"></div>
+            </div>
+
+            <!-- South (Human player) -->
+            <div id="seat-south" class="seat seat-south">
+                <div class="player-label">You (South)</div>
+                <div class="hand" id="hand-south"></div>
+            </div>
+        </div>
+
+        <!-- Bidding panel -->
+        <div id="bid-panel" class="panel hidden">
+            <h2>Bidding</h2>
+            <div id="bid-controls"></div>
+        </div>
+
+        <!-- Kitty panel -->
+        <div id="kitty-panel" class="panel hidden">
+            <h2>Kitty</h2>
+            <div id="kitty-cards"></div>
+            <div id="kitty-controls"></div>
+        </div>
+
+        <!-- Trump declaration panel -->
+        <div id="trump-panel" class="panel hidden">
+            <h2>Declare Trump</h2>
+            <div id="trump-controls"></div>
+        </div>
+
+        <!-- Scoreboard -->
+        <div id="scoreboard">
+            <div class="team-score">
+                <span class="team-name">N/S (You)</span>
+                <span class="score" id="score-ns">0</span>
+            </div>
+            <div class="team-score">
+                <span class="team-name">E/W</span>
+                <span class="score" id="score-ew">0</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/card.js"></script>
+    <script src="js/deck.js"></script>
+    <script src="js/player.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/ai.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

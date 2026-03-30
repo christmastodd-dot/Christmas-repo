@@ -1,0 +1,446 @@
+/* === Base Reset & Theme === */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --table-green: #1a6b3c;
+    --table-felt: #1e7a45;
+    --card-white: #fff;
+    --card-shadow: rgba(0, 0, 0, 0.3);
+    --accent-gold: #d4a843;
+    --text-light: #f0e6d3;
+    --panel-bg: rgba(0, 0, 0, 0.85);
+    --suit-red: #c0392b;
+    --suit-black: #1a1a1a;
+}
+
+body {
+    background: #0d0d0d;
+    color: var(--text-light);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+}
+
+/* === Game Container === */
+#game-container {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* === Header === */
+#game-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 8px 24px;
+    background: rgba(0, 0, 0, 0.6);
+    width: 100%;
+    z-index: 10;
+}
+
+#game-header h1 {
+    font-size: 1.4rem;
+    color: var(--accent-gold);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+#game-status {
+    font-size: 0.95rem;
+    color: var(--text-light);
+    opacity: 0.85;
+}
+
+/* === Table === */
+#table {
+    flex: 1;
+    width: 100%;
+    max-width: 1100px;
+    position: relative;
+    background: radial-gradient(ellipse at center, var(--table-felt) 0%, var(--table-green) 60%, #0f4d28 100%);
+    border-radius: 20px;
+    margin: 10px 20px;
+    box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.4), 0 4px 20px rgba(0, 0, 0, 0.6);
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    grid-template-columns: auto 1fr auto;
+    overflow: hidden;
+}
+
+/* === Seats === */
+.seat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+}
+
+.player-label {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--accent-gold);
+    margin-bottom: 4px;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+.seat-north {
+    grid-row: 1;
+    grid-column: 2;
+}
+
+.seat-south {
+    grid-row: 3;
+    grid-column: 2;
+}
+
+.seat-west {
+    grid-row: 2;
+    grid-column: 1;
+}
+
+.seat-east {
+    grid-row: 2;
+    grid-column: 3;
+}
+
+/* === Play Area === */
+#play-area {
+    grid-row: 2;
+    grid-column: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#played-cards {
+    display: flex;
+    gap: 10px;
+    min-height: 120px;
+    align-items: center;
+    justify-content: center;
+}
+
+/* === Hands === */
+.hand {
+    display: flex;
+    justify-content: center;
+    flex-wrap: nowrap;
+}
+
+/* South hand — fan with overlap */
+.seat-south .hand {
+    gap: 0;
+    padding: 0 20px;
+}
+
+.seat-south .hand .card {
+    margin-left: -20px;
+    transition: transform 0.2s, margin-top 0.2s;
+    cursor: pointer;
+}
+
+.seat-south .hand .card:first-child {
+    margin-left: 0;
+}
+
+.seat-south .hand .card:hover {
+    transform: translateY(-15px);
+    z-index: 100;
+}
+
+/* AI hands — stacked face-down */
+.seat-north .hand,
+.seat-west .hand,
+.seat-east .hand {
+    gap: 0;
+}
+
+.seat-west .hand,
+.seat-east .hand {
+    flex-direction: column;
+}
+
+.seat-west .hand .card,
+.seat-east .hand .card {
+    margin-top: -55px;
+}
+
+.seat-west .hand .card:first-child,
+.seat-east .hand .card:first-child {
+    margin-top: 0;
+}
+
+.seat-north .hand .card {
+    margin-left: -25px;
+}
+
+.seat-north .hand .card:first-child {
+    margin-left: 0;
+}
+
+/* === Cards === */
+.card {
+    width: 70px;
+    height: 100px;
+    border-radius: 8px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    user-select: none;
+    flex-shrink: 0;
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.card-face {
+    background: var(--card-white);
+    border: 1px solid #ccc;
+    box-shadow: 1px 2px 6px var(--card-shadow);
+}
+
+.card-back {
+    background: linear-gradient(135deg, #1a3a6b, #2a5aa0);
+    border: 2px solid #0e2a50;
+    box-shadow: 1px 2px 6px var(--card-shadow);
+}
+
+.card-back::after {
+    content: '';
+    position: absolute;
+    inset: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+    background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 4px,
+        rgba(255, 255, 255, 0.05) 4px,
+        rgba(255, 255, 255, 0.05) 8px
+    );
+}
+
+.card .rank-top,
+.card .rank-bottom {
+    position: absolute;
+    font-size: 0.75rem;
+    line-height: 1;
+}
+
+.card .rank-top {
+    top: 4px;
+    left: 5px;
+}
+
+.card .rank-bottom {
+    bottom: 4px;
+    right: 5px;
+    transform: rotate(180deg);
+}
+
+.card .suit-center {
+    font-size: 1.6rem;
+}
+
+.card.red {
+    color: var(--suit-red);
+}
+
+.card.black {
+    color: var(--suit-black);
+}
+
+/* Card selected state */
+.card.selected {
+    outline: 3px solid var(--accent-gold);
+    transform: translateY(-12px);
+}
+
+/* Played card in center */
+.played-card-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.played-card-wrapper .player-tag {
+    font-size: 0.6rem;
+    color: var(--text-light);
+    opacity: 0.7;
+}
+
+/* === Panels === */
+.panel {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--panel-bg);
+    border: 1px solid var(--accent-gold);
+    border-radius: 12px;
+    padding: 24px 32px;
+    z-index: 50;
+    text-align: center;
+    min-width: 320px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7);
+}
+
+.panel h2 {
+    color: var(--accent-gold);
+    margin-bottom: 16px;
+    font-size: 1.3rem;
+    letter-spacing: 1px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* === Buttons === */
+.btn {
+    padding: 8px 18px;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    margin: 4px;
+}
+
+.btn:active {
+    transform: scale(0.96);
+}
+
+.btn-primary {
+    background: var(--accent-gold);
+    color: #1a1a1a;
+}
+
+.btn-primary:hover {
+    background: #e0b84e;
+}
+
+.btn-secondary {
+    background: #555;
+    color: var(--text-light);
+}
+
+.btn-secondary:hover {
+    background: #666;
+}
+
+.btn-suit {
+    font-size: 1.3rem;
+    padding: 10px 20px;
+    background: #2a2a2a;
+    color: var(--text-light);
+    border: 2px solid #444;
+}
+
+.btn-suit:hover {
+    border-color: var(--accent-gold);
+    background: #3a3a3a;
+}
+
+.btn-suit.selected {
+    border-color: var(--accent-gold);
+    background: #4a3a20;
+}
+
+/* === Scoreboard === */
+#scoreboard {
+    display: flex;
+    gap: 30px;
+    padding: 8px 24px;
+    background: rgba(0, 0, 0, 0.6);
+    width: 100%;
+    justify-content: center;
+}
+
+.team-score {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.team-name {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--accent-gold);
+}
+
+.score {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--text-light);
+}
+
+/* === Bid display === */
+.bid-info {
+    font-size: 0.9rem;
+    color: var(--text-light);
+    margin: 8px 0;
+}
+
+.bid-option {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 4px;
+}
+
+/* === Trick count display === */
+#trick-counts {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-top: 4px;
+    font-size: 0.75rem;
+    color: var(--text-light);
+    opacity: 0.7;
+}
+
+/* === Animations === */
+@keyframes dealCard {
+    from {
+        opacity: 0;
+        transform: translate(0, -50px) scale(0.5);
+    }
+    to {
+        opacity: 1;
+        transform: translate(0, 0) scale(1);
+    }
+}
+
+.card.dealing {
+    animation: dealCard 0.3s ease-out forwards;
+}
+
+@keyframes playCard {
+    from {
+        opacity: 0.5;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.card.playing {
+    animation: playCard 0.25s ease-out forwards;
+}
