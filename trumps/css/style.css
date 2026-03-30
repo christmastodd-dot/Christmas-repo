@@ -911,6 +911,52 @@ body {
     justify-content: center;
 }
 
+/* === Green Bottles (Drunk Mode) === */
+.btn-green-bottle {
+    background: linear-gradient(135deg, #2d6a3f, #1a4d2e);
+    border: 1px solid #3a8a52;
+    font-size: 1rem !important;
+    transition: all 0.3s ease;
+}
+
+.btn-green-bottle:hover {
+    background: linear-gradient(135deg, #3a8a52, #2d6a3f);
+    box-shadow: 0 0 8px rgba(58, 138, 82, 0.5);
+}
+
+.btn-green-bottle.active {
+    background: linear-gradient(135deg, #4ecb71, #2d6a3f);
+    box-shadow: 0 0 12px rgba(78, 203, 113, 0.6);
+}
+
+#game-container.drunk {
+    animation: drunkSway 4s ease-in-out infinite;
+}
+
+#game-container.drunk #table {
+    filter: blur(1.2px);
+}
+
+#game-container.drunk .panel {
+    filter: blur(1.5px);
+}
+
+#game-container.drunk #scoreboard {
+    filter: blur(1px);
+}
+
+#game-container.drunk #game-header {
+    filter: none;
+}
+
+@keyframes drunkSway {
+    0%   { transform: rotate(0deg)    translate(0, 0); }
+    25%  { transform: rotate(0.4deg)  translate(2px, 1px); }
+    50%  { transform: rotate(-0.3deg) translate(-1px, 2px); }
+    75%  { transform: rotate(0.2deg)  translate(1px, -1px); }
+    100% { transform: rotate(0deg)    translate(0, 0); }
+}
+
 /* === Hand Result Panel === */
 #hand-result-panel {
     min-width: 360px;

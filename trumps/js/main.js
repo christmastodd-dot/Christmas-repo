@@ -713,6 +713,26 @@
         UI.hidePanel('help-panel');
     };
 
+    // ─── Green Bottles (Drunk Mode) ──────────────────────
+
+    let drinkCount = 0;
+    const drinkBtn = document.getElementById('drink-btn');
+    drinkBtn.onclick = () => {
+        const container = document.getElementById('game-container');
+        if (container.classList.contains('drunk')) {
+            // Sober up
+            container.classList.remove('drunk');
+            drinkBtn.classList.remove('active');
+            drinkBtn.title = 'Drink Green Bottles';
+            drinkCount = 0;
+        } else {
+            container.classList.add('drunk');
+            drinkBtn.classList.add('active');
+            drinkBtn.title = 'Sober Up';
+            drinkCount++;
+        }
+    };
+
     // ─── Start the game ───────────────────────────────────
 
     game.startHand();
