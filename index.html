@@ -166,6 +166,14 @@ function canvasTapCoords(e) {
   return { x: (touch.clientX - rect.left) * scaleX, y: (touch.clientY - rect.top) * scaleY };
 }
 
+// title screen "Level Select" button hitbox
+const LSEL_BTN = { x: W/2 - 120, y: 350, w: 240, h: 40 };
+
+function isTapInLevelSelectBtn(tx, ty) {
+  return tx >= LSEL_BTN.x && tx <= LSEL_BTN.x + LSEL_BTN.w &&
+         ty >= LSEL_BTN.y && ty <= LSEL_BTN.y + LSEL_BTN.h;
+}
+
 canvas.addEventListener('touchstart', e => {
   e.preventDefault();
   if (state === 'levelselect') {
@@ -175,8 +183,15 @@ canvas.addEventListener('touchstart', e => {
     return;
   }
   if (state === 'title') {
-    currentLevel = START_LEVEL; lives = START_LIVES; startPlaying();
-  } else if (state === 'gameover') {
+    const { x, y } = canvasTapCoords(e);
+    if (isTapInLevelSelectBtn(x, y)) {
+      levelSelectIdx = 0; state = 'levelselect';
+    } else {
+      currentLevel = START_LEVEL; lives = START_LIVES; startPlaying();
+    }
+    return;
+  }
+  if (state === 'gameover') {
     currentLevel = START_LEVEL; lives = START_LIVES; startPlaying();
   } else if (state === 'levelcomplete') {
     currentLevel++; startPlaying();
@@ -1578,9 +1593,13 @@ canvas.addEventListener('click', (e) => {
     return;
   }
   if (state === 'title') {
-    currentLevel = START_LEVEL;
-    lives = START_LIVES;
-    startPlaying();
+    const { x, y } = canvasTapCoords(e);
+    if (isTapInLevelSelectBtn(x, y)) {
+      levelSelectIdx = 0; state = 'levelselect';
+    } else {
+      currentLevel = START_LEVEL; lives = START_LIVES; startPlaying();
+    }
+    return;
   }
 });
 
@@ -2192,16 +2211,20 @@ function drawTitleScreen() {
     ctx.fillText('Press SPACE or Click to Start!', W/2, 325);
   }
 
+  // level select button
+  ctx.fillStyle = 'rgba(160,200,240,0.15)';
+  ctx.strokeStyle = 'rgba(160,200,240,0.5)';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.roundRect(LSEL_BTN.x, LSEL_BTN.y, LSEL_BTN.w, LSEL_BTN.h, 10);
+  ctx.fill(); ctx.stroke();
   ctx.fillStyle = '#a0c8f0';
   ctx.font = 'bold 16px monospace';
-  ctx.strokeStyle = '#333';
-  ctx.lineWidth = 2;
-  ctx.strokeText('Press L for Level Select', W/2, 365);
-  ctx.fillText('Press L for Level Select', W/2, 365);
+  ctx.fillText('Level Select  [L]', W/2, LSEL_BTN.y + 26);
 
   ctx.fillStyle = '#ccc';
   ctx.font = '14px monospace';
-  ctx.fillText('Arrow Keys / WASD to move  |  Space / Up to jump  |  Double-jump!', W/2, 400);
+  ctx.fillText('Arrow Keys / WASD to move  |  Space / Up to jump  |  Double-jump!', W/2, 420);
   ctx.textAlign = 'left';
 }
 
