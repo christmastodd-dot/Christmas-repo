@@ -220,26 +220,35 @@
         controls.appendChild(amtRow);
         rebuildAmountButtons();
 
-        // Pass button
-        const passRow = document.createElement('div');
-        passRow.style.marginTop = '12px';
+        // Pass button (hidden if first bidder must bid)
+        const isFirstBidderFirstTurn = game.bidderIndex === game.firstBidder && !game.biddersActed.has(game.bidderIndex);
 
-        const passBtn = document.createElement('button');
-        passBtn.className = 'btn btn-secondary';
-        passBtn.textContent = 'Pass';
-        passBtn.onclick = () => {
-            UI.hidePanel('bid-panel');
-            const result = game.placeBid(0, null);
-            if (result.valid) {
-                UI.addBidEntry('You', 'Pass', false);
-                UI.setStatus(result.message);
-                if (!result.biddingComplete) {
-                    setTimeout(() => processBiddingTurn(), 700);
+        if (!isFirstBidderFirstTurn) {
+            const passRow = document.createElement('div');
+            passRow.style.marginTop = '12px';
+
+            const passBtn = document.createElement('button');
+            passBtn.className = 'btn btn-secondary';
+            passBtn.textContent = 'Pass';
+            passBtn.onclick = () => {
+                UI.hidePanel('bid-panel');
+                const result = game.placeBid(0, null);
+                if (result.valid) {
+                    UI.addBidEntry('You', 'Pass', false);
+                    UI.setStatus(result.message);
+                    if (!result.biddingComplete) {
+                        setTimeout(() => processBiddingTurn(), 700);
+                    }
                 }
-            }
-        };
-        passRow.appendChild(passBtn);
-        controls.appendChild(passRow);
+            };
+            passRow.appendChild(passBtn);
+            controls.appendChild(passRow);
+        } else {
+            const mustBidRow = document.createElement('div');
+            mustBidRow.className = 'bid-info bid-hint';
+            mustBidRow.innerHTML = '<em>First bidder must bid — you cannot pass.</em>';
+            controls.appendChild(mustBidRow);
+        }
 
         UI.showPanel('bid-panel');
     }

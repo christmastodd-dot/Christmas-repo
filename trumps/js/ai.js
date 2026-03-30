@@ -15,6 +15,7 @@ const AI = {
      */
     decideBid(player, currentBid, game) {
         const eval_ = this._evaluateHand(player);
+        const isFirstBidderFirstTurn = player.index === game.firstBidder && !game.biddersActed.has(player.index);
 
         // Calculate minimum bid considering low superiority
         let minBid;
@@ -25,6 +26,12 @@ const AI = {
             minBid = currentBid.amount;
         } else {
             minBid = currentBid.amount + 1;
+        }
+
+        // First bidder must bid — always open with at least 3
+        if (isFirstBidderFirstTurn) {
+            const amount = Math.max(minBid, Math.min(eval_.maxBid, minBid));
+            return { amount, direction: eval_.direction };
         }
 
         // Not strong enough

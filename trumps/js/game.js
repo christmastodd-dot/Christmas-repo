@@ -37,6 +37,7 @@ class Game {
         this.bidderIndex = null;      // whose turn to bid
         this.passCount = 0;           // how many consecutive passes
         this.biddingOrder = [];       // ordered list of player indices for bidding
+        this.biddersActed = new Set(); // players who have had at least one turn
 
         // Callbacks — set by the controller (main.js) to drive UI
         this.onPhaseChange = null;    // (phase, data) => {}
@@ -102,6 +103,7 @@ class Game {
         this.trickNumber = 0;
         this.passCount = 0;
         this.bidderIndex = null;
+        this.biddersActed = new Set();
 
         // Deal
         const { hands, kitty } = this.deck.deal();
@@ -128,6 +130,7 @@ class Game {
         this.passCount = 0;
         this.currentBid = null;
         this.bidWinner = null;
+        this.biddersActed = new Set();
 
         // Build bidding order: start left of dealer, go clockwise
         this.biddingOrder = [];
@@ -153,9 +156,15 @@ class Game {
         }
 
         if (bid === null) {
+            // First bidder must bid on their first turn
+            if (playerIndex === this.firstBidder && !this.biddersActed.has(playerIndex)) {
+                return { valid: false, message: 'First bidder must bid — cannot pass.' };
+            }
+
             // Pass
             this.passCount++;
             this.players[playerIndex].lastBid = null;
+            this.biddersActed.add(playerIndex);
 
             // Check if bidding is over
             if (this._isBiddingComplete()) {
@@ -178,6 +187,7 @@ class Game {
             direction: bid.direction,
         };
         this.players[playerIndex].lastBid = bid;
+        this.biddersActed.add(playerIndex);
         this.passCount = 0;
 
         // Check if max bid (7) — bidding ends immediately
@@ -228,10 +238,13 @@ class Game {
         this._emit('onTurnChange', this.bidderIndex);
     }
 
-    /** Check if bidding is complete (3 passes after a bid, or all 4 pass). */
+    /** Check if bidding is complete (all 4 must act; then 2 passes after a bid, or all 4 pass). */
     _isBiddingComplete() {
+        // All four players must have at least one turn before bidding can close
+        if (this.biddersActed.size < 4) return false;
+
         if (this.currentBid === null && this.passCount >= 4) {
-            return true; // Everyone passed — redeal
+            return true; // Everyone passed — redeal (shouldn't happen since first bidder must bid)
         }
         if (this.currentBid !== null && this.passCount >= 2) {
             return true; // 2 other players passed after the last bid (since we skip the high bidder)
