@@ -564,6 +564,54 @@
       color: var(--color-gold);
     }
 
+    .feed-card__workout-summary {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    .feed-card__workout-toggle {
+      background: none;
+      border: none;
+      color: var(--color-gold);
+      font-size: 0.75rem;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 4px 0;
+      margin-top: 4px;
+    }
+
+    .feed-card__workout-toggle:active {
+      opacity: 0.7;
+    }
+
+    .feed-card__workout-detail {
+      display: none;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .feed-card__workout-detail--open {
+      display: block;
+    }
+
+    .feed-card__workout-ex {
+      margin-bottom: 6px;
+    }
+
+    .feed-card__workout-ex-name {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .feed-card__workout-ex-sets {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      margin-left: 8px;
+    }
+
     .crew-feed__empty {
       text-align: center;
       color: var(--text-muted);
@@ -4284,6 +4332,16 @@
         if (post.caption) {
           html += '<div class="feed-card__caption">' + escapeHtml(post.caption) + '</div>';
         }
+        // Workout summary + expandable detail
+        if (post.type === 'workout') {
+          if (post.workoutSummary) {
+            html += '<div class="feed-card__workout-summary">' + escapeHtml(post.workoutSummary) + '</div>';
+          }
+          if (post.workoutData && post.workoutData.length > 0) {
+            html += '<button class="feed-card__workout-toggle" data-toggle-workout="' + post.id + '" onclick="toggleWorkoutDetail(\'' + post.id + '\')">View workout</button>';
+            html += '<div class="feed-card__workout-detail" id="feed-workout-' + post.id + '">' + buildWorkoutDetailHtml(post.workoutData) + '</div>';
+          }
+        }
         html += reactionsHtml;
         html += '<div class="feed-card__meta">' +
           '<span><span class="feed-card__author">' + escapeHtml(post.author) + '</span> · ' + dateStr + '</span>' +
@@ -4314,6 +4372,81 @@
 
       renderCrewFeed();
       pushToRoom();
+    }
+
+    function postWorkoutToFeed(workout) {
+      if (!userId || !sharedData) return;
+      if (!sharedData.feed) sharedData.feed = [];
+
+      // Build a compact summary
+      var exCount = (workout.exercises || []).length;
+      var totalSets = 0;
+      var totalVol = 0;
+      (workout.exercises || []).forEach(function(ex) {
+        (ex.sets || []).forEach(function(s) {
+          totalSets++;
+          totalVol += (s.reps || 0) * (s.weight || 0);
+        });
+      });
+
+      var summaryParts = [exCount + ' exercise' + (exCount !== 1 ? 's' : ''), totalSets + ' sets'];
+      if (totalVol > 0) summaryParts.push(totalVol.toLocaleString() + ' lbs vol');
+      if (workout.duration) summaryParts.push(workout.duration + ' min');
+
+      sharedData.feed.unshift({
+        id: 'feed_w_' + Date.now(),
+        author: userId,
+        date: new Date().toISOString(),
+        type: 'workout',
+        caption: 'Completed a workout!',
+        workoutSummary: summaryParts.join(' · '),
+        workoutData: workout.exercises,
+        reactions: {}
+      });
+
+      if (sharedData.feed.length > 50) sharedData.feed = sharedData.feed.slice(0, 50);
+    }
+
+    function toggleWorkoutDetail(postId) {
+      var detail = document.getElementById('feed-workout-' + postId);
+      if (detail) detail.classList.toggle('feed-card__workout-detail--open');
+      var btn = document.querySelector('[data-toggle-workout="' + postId + '"]');
+      if (btn) {
+        var isOpen = detail && detail.classList.contains('feed-card__workout-detail--open');
+        btn.textContent = isOpen ? 'Hide workout' : 'View workout';
+      }
+    }
+
+    function buildWorkoutDetailHtml(exercises) {
+      if (!exercises || exercises.length === 0) return '';
+      var html = '';
+      exercises.forEach(function(ex) {
+        var info = getExerciseInfo(ex.name);
+        var iType = ex.inputType || info.input;
+        var equipTag = equipLabels[info.equip] ? ' <span style="font-size:0.6rem;color:' + equipColors[info.equip] + ';font-weight:700">' + equipLabels[info.equip] + '</span>' : '';
+        html += '<div class="feed-card__workout-ex">';
+        html += '<div class="feed-card__workout-ex-name">' + escapeHtml(ex.name) + equipTag + '</div>';
+        var setsStr = (ex.sets || []).map(function(s) {
+          if (iType === 'cardio') {
+            var cp = [];
+            if (s.duration) cp.push(s.duration);
+            if (s.distance) cp.push(s.distance + ' mi');
+            return cp.join(', ') || '—';
+          } else if (iType === 'duration') {
+            return s.duration || '—';
+          } else if (iType === 'bw') {
+            var bwStr = s.reps + ' reps';
+            if (s.bwMode === 'assisted' && s.weight) bwStr += ' (-' + s.weight + ')';
+            else if (s.bwMode === 'added' && s.weight) bwStr += ' (+' + s.weight + ')';
+            return bwStr;
+          } else {
+            return s.weight || s.weight === 0 ? s.weight + ' × ' + s.reps : s.reps + ' reps';
+          }
+        }).join(' | ');
+        html += '<div class="feed-card__workout-ex-sets">' + setsStr + '</div>';
+        html += '</div>';
+      });
+      return html;
     }
 
     function escapeHtml(str) {
@@ -5151,6 +5284,10 @@
       var history = loadWorkoutHistory();
       history.push(workout);
       saveWorkoutHistory(history);
+
+      // Post to crew feed
+      postWorkoutToFeed(workout);
+      renderCrewFeed();
 
       // Offer to save as template
       offerSaveAsTemplate(exercises);
