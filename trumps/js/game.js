@@ -16,7 +16,10 @@ class Game {
             new Player(3), // East — AI
         ];
         this.scores = { ns: 0, ew: 0 };
+        this.winTarget = 3;  // First to 3 hand wins
         this.handsPlayed = 0;
+        this.gameOver = false;
+        this.winner = null; // 'ns' or 'ew'
 
         // Hand state
         this.kitty = [];
@@ -499,6 +502,22 @@ class Game {
 
         this.handsPlayed++;
 
+        // Check for game over
+        let gameOver = false;
+        let winner = null;
+        if (this.scores.ns >= this.winTarget) {
+            gameOver = true;
+            winner = 'ns';
+        } else if (this.scores.ew >= this.winTarget) {
+            gameOver = true;
+            winner = 'ew';
+        }
+
+        if (gameOver) {
+            this.gameOver = true;
+            this.winner = winner;
+        }
+
         const result = {
             bidTeam,
             defTeam,
@@ -508,6 +527,8 @@ class Game {
             defTeamTricks: tricks[defTeam],
             made,
             scores: { ...this.scores },
+            gameOver,
+            winner,
         };
 
         this._emit('onHandComplete', result);
@@ -519,6 +540,16 @@ class Game {
     /** Set up for the next hand (advance dealer, reset). */
     nextHand() {
         this.advanceDealer();
+        this.startHand();
+    }
+
+    /** Reset everything for a brand new game. */
+    newGame() {
+        this.scores = { ns: 0, ew: 0 };
+        this.handsPlayed = 0;
+        this.gameOver = false;
+        this.winner = null;
+        this.dealer = 0;
         this.startHand();
     }
 

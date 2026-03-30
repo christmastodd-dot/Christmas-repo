@@ -554,18 +554,117 @@
         UI.renderScores(game.scores);
         UI.hideTrumpInfo();
         UI.hideTrickCounts();
+        UI.clearScoreboardBid();
         UI.setActiveSeat(null);
 
-        const msg = data.made
-            ? `${data.bidTeam.toUpperCase()} made their bid of ${data.bidAmount}! (${data.bidTeamTricks} tricks)`
-            : `${data.bidTeam.toUpperCase()} went SET on ${data.bidAmount}! (Only ${data.bidTeamTricks} tricks, needed ${data.needed})`;
-
-        UI.setStatus(`${msg} — Score: N/S ${data.scores.ns} | E/W ${data.scores.ew}`);
-
-        setTimeout(() => {
-            game.nextHand();
-        }, 3000);
+        // Show hand result overlay
+        showHandResult(data);
     }
+
+    function showHandResult(data) {
+        const titleEl = document.getElementById('hand-result-title');
+        const bodyEl = document.getElementById('hand-result-body');
+        const btn = document.getElementById('hand-result-btn');
+
+        const bidTeamLabel = data.bidTeam === 'ns' ? 'N/S (You)' : 'E/W';
+        const defTeamLabel = data.defTeam === 'ns' ? 'N/S (You)' : 'E/W';
+
+        if (data.made) {
+            titleEl.textContent = 'Bid Made!';
+            bodyEl.innerHTML = `
+                <div class="result-made">${bidTeamLabel} made ${data.bidAmount}!</div>
+                <div class="result-detail">${data.bidTeamTricks} tricks taken (needed ${data.needed})</div>
+            `;
+        } else {
+            titleEl.textContent = 'Set!';
+            bodyEl.innerHTML = `
+                <div class="result-set">${bidTeamLabel} went set on ${data.bidAmount}!</div>
+                <div class="result-detail">Only ${data.bidTeamTricks} tricks (needed ${data.needed}) — ${defTeamLabel} gets the win</div>
+            `;
+        }
+
+        const nsWinning = data.scores.ns >= data.scores.ew;
+        const ewWinning = data.scores.ew >= data.scores.ns;
+        bodyEl.innerHTML += `
+            <div class="result-scores">
+                <div class="team">
+                    <span class="team-label">N/S (You)</span>
+                    <span class="team-val ${nsWinning ? 'winning' : ''}">${data.scores.ns}</span>
+                </div>
+                <div class="team">
+                    <span class="team-label">E/W</span>
+                    <span class="team-val ${ewWinning && !nsWinning ? 'winning' : ''}">${data.scores.ew}</span>
+                </div>
+            </div>
+            <div class="result-detail">First to ${game.winTarget} wins the game</div>
+        `;
+
+        if (data.gameOver) {
+            btn.textContent = 'See Results';
+            btn.onclick = () => {
+                UI.hidePanel('hand-result-panel');
+                showGameOver(data);
+            };
+        } else {
+            btn.textContent = 'Next Hand';
+            btn.onclick = () => {
+                UI.hidePanel('hand-result-panel');
+                game.nextHand();
+            };
+        }
+
+        UI.setStatus(data.made
+            ? `${bidTeamLabel} made their bid!`
+            : `${bidTeamLabel} went SET!`);
+
+        UI.showPanel('hand-result-panel');
+    }
+
+    // ─── Game Over ────────────────────────────────────────
+
+    function showGameOver(data) {
+        const titleEl = document.getElementById('game-over-title');
+        const bodyEl = document.getElementById('game-over-body');
+        const btn = document.getElementById('game-over-btn');
+
+        const youWon = data.winner === 'ns';
+
+        titleEl.textContent = youWon ? 'You Win!' : 'Game Over';
+
+        bodyEl.innerHTML = `
+            <div class="${youWon ? 'game-over-win' : 'game-over-lose'}">
+                ${youWon ? 'Congratulations! Your team wins!' : 'E/W takes the game.'}
+            </div>
+            <div class="final-score">
+                <div class="fs-team">
+                    <div class="fs-label">N/S (You)</div>
+                    <div class="fs-val" style="color: ${youWon ? '#4ecb71' : 'var(--text-light)'}">${data.scores.ns}</div>
+                </div>
+                <div class="fs-team">
+                    <div class="fs-label">E/W</div>
+                    <div class="fs-val" style="color: ${!youWon ? '#4ecb71' : 'var(--text-light)'}">${data.scores.ew}</div>
+                </div>
+            </div>
+            <div class="result-detail">Hands played: ${game.handsPlayed}</div>
+        `;
+
+        btn.onclick = () => {
+            UI.hidePanel('game-over-panel');
+            game.newGame();
+        };
+
+        UI.showPanel('game-over-panel');
+    }
+
+    // ─── Help ─────────────────────────────────────────────
+
+    document.getElementById('help-btn').onclick = () => {
+        UI.showPanel('help-panel');
+    };
+
+    document.getElementById('help-close-btn').onclick = () => {
+        UI.hidePanel('help-panel');
+    };
 
     // ─── Start the game ───────────────────────────────────
 

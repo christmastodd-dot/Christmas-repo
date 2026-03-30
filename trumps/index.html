@@ -11,6 +11,9 @@
         <header id="game-header">
             <h1>Trumps</h1>
             <span id="game-status">Welcome to Trumps!</span>
+            <div id="header-buttons">
+                <button class="btn btn-small btn-secondary" id="help-btn" title="Rules">?</button>
+            </div>
         </header>
 
         <!-- Game table -->
@@ -51,7 +54,7 @@
             <div id="bid-controls"></div>
         </div>
 
-        <!-- Kitty reveal panel (shows kitty cards face-up) -->
+        <!-- Kitty reveal panel -->
         <div id="kitty-reveal-panel" class="panel hidden">
             <h2>The Kitty</h2>
             <div id="kitty-reveal-cards" class="kitty-card-row"></div>
@@ -71,6 +74,52 @@
             <h2>Declare Trump</h2>
             <div id="trump-info" class="bid-info"></div>
             <div id="trump-controls"></div>
+        </div>
+
+        <!-- Hand result overlay -->
+        <div id="hand-result-panel" class="panel hidden">
+            <h2 id="hand-result-title"></h2>
+            <div id="hand-result-body"></div>
+            <button id="hand-result-btn" class="btn btn-primary">Next Hand</button>
+        </div>
+
+        <!-- Game over overlay -->
+        <div id="game-over-panel" class="panel hidden">
+            <h2 id="game-over-title"></h2>
+            <div id="game-over-body"></div>
+            <button id="game-over-btn" class="btn btn-primary">New Game</button>
+        </div>
+
+        <!-- Help / Rules overlay -->
+        <div id="help-panel" class="panel hidden">
+            <h2>How to Play Trumps</h2>
+            <div id="help-body" class="help-body">
+                <div class="help-section">
+                    <h3>Overview</h3>
+                    <p>Trumps is a 4-player trick-taking card game played in partnerships (N/S vs E/W). You are South, partnered with North. First team to <strong>3 wins</strong> takes the game.</p>
+                </div>
+                <div class="help-section">
+                    <h3>The Deal</h3>
+                    <p>52 cards, no jokers. Each player gets 12 cards. 4 cards go to the <strong>kitty</strong>.</p>
+                </div>
+                <div class="help-section">
+                    <h3>Bidding</h3>
+                    <p>Starting left of the dealer, players bid 3-7 (tricks above 6 your team will win). Choose <strong>High</strong> (ace is best) or <strong>Low</strong> (ace is best low). Each bid must be higher than the last. Pass if you can't or won't bid.</p>
+                </div>
+                <div class="help-section">
+                    <h3>Kitty & Trump</h3>
+                    <p>The bid winner picks up the 4 kitty cards, discards 4, then declares the <strong>trump suit</strong>. If you were first bidder and won, you can choose direction and trump after seeing the kitty.</p>
+                </div>
+                <div class="help-section">
+                    <h3>Playing Tricks</h3>
+                    <p>Bid winner leads first. You <strong>must follow suit</strong> if you can. If you can't, play any card (including trump). Highest card in the led suit wins, unless trumped. In <strong>Low</strong>, the lowest card wins.</p>
+                </div>
+                <div class="help-section">
+                    <h3>Scoring</h3>
+                    <p>If the bidding team takes enough tricks (6 + bid), they win the hand. Otherwise, the defending team wins. First to <strong>3 hand wins</strong> takes the game.</p>
+                </div>
+            </div>
+            <button class="btn btn-primary" id="help-close-btn">Got It</button>
         </div>
 
         <!-- Scoreboard -->
