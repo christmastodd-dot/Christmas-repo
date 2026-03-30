@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Football 101 Quiz</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1 class="app-title">Football 101 Quiz</h1>
+
+    <!-- Position Selection Screen -->
+    <div id="position-screen" class="screen active">
+      <p class="subtitle">Choose a position group to get started:</p>
+      <div class="position-grid">
+        <button class="position-btn" data-position="QB">
+          <span class="abbr">QB</span>
+          <span class="full-name">Quarterback</span>
+        </button>
+        <button class="position-btn" data-position="OL">
+          <span class="abbr">OL</span>
+          <span class="full-name">Offensive Line</span>
+        </button>
+        <button class="position-btn" data-position="WR">
+          <span class="abbr">WR</span>
+          <span class="full-name">Wide Receiver</span>
+        </button>
+        <button class="position-btn" data-position="DL">
+          <span class="abbr">DL</span>
+          <span class="full-name">Defensive Line</span>
+        </button>
+        <button class="position-btn" data-position="LB">
+          <span class="abbr">LB</span>
+          <span class="full-name">Linebacker</span>
+        </button>
+        <button class="position-btn" data-position="DB">
+          <span class="abbr">DB</span>
+          <span class="full-name">Defensive Back</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Quiz Screen -->
+    <div id="quiz-screen" class="screen">
+      <div class="quiz-header">
+        <span id="question-number">Question 1 of 10</span>
+        <span id="current-score">Score: 0</span>
+      </div>
+      <div class="question-card">
+        <p id="question-text" class="question-text"></p>
+        <div id="options-container" class="options-container"></div>
+        <p id="explanation-text" class="explanation-text"></p>
+        <button id="next-btn" class="next-btn">Next</button>
+      </div>
+    </div>
+
+    <!-- Results Screen -->
+    <div id="results-screen" class="screen">
+      <div class="results-card">
+        <h2>Quiz Complete!</h2>
+        <p id="score-display" class="score-display"></p>
+        <p id="percentage-display" class="percentage-display"></p>
+        <div id="missed-list" class="missed-list"></div>
+        <button id="retry-btn" class="retry-btn">Try Another Position</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

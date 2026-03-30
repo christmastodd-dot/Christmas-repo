@@ -1,0 +1,842 @@
+[
+  {
+    "id": 1,
+    "position": "QB",
+    "difficulty": "beginner",
+    "question": "Before the snap, you notice the strong safety has crept up to the line of scrimmage on the tight end's side. What is this most likely indicating?",
+    "options": [
+      "A) A cover-2 zone behind it",
+      "B) A possible blitz or run support from the strong safety",
+      "C) The safety is just disguising cover-3",
+      "D) The defense is switching to a prevent scheme"
+    ],
+    "correctIndex": 1,
+    "explanation": "When a strong safety creeps toward the line of scrimmage pre-snap, it usually signals he is about to blitz or fill a gap in run support. As a QB, recognizing this pre-snap lets you adjust protection or identify a hot route to exploit the vacated area in the secondary."
+  },
+  {
+    "id": 2,
+    "position": "QB",
+    "difficulty": "beginner",
+    "question": "Your coach tells you to use a 'hard count' on third and short. What is the primary purpose of a hard count?",
+    "options": [
+      "A) To signal the running back to motion across the formation",
+      "B) To draw the defense offside by varying your snap cadence aggressively",
+      "C) To let the receivers know which route to run",
+      "D) To tell the offensive line to pull left"
+    ],
+    "correctIndex": 1,
+    "explanation": "A hard count is when the quarterback uses an emphatic, aggressive voice inflection on the cadence to trick defenders into jumping offside before the ball is snapped. It is especially effective in short-yardage situations because a free five yards from an offsides penalty can convert the down without running a play."
+  },
+  {
+    "id": 3,
+    "position": "QB",
+    "difficulty": "beginner",
+    "question": "On a three-step drop, your first read is the slant route. The defender is sitting right in the passing lane. What should you do next?",
+    "options": [
+      "A) Throw it anyway because the slant is your first read",
+      "B) Move to your second read in your progression",
+      "C) Immediately scramble out of the pocket",
+      "D) Call a timeout"
+    ],
+    "correctIndex": 1,
+    "explanation": "Progression reads mean you move through a predetermined sequence of receivers. If your first read is covered, you quickly shift your eyes to the second receiver in the progression rather than forcing a dangerous throw. Scrambling should only happen after you have exhausted your reads or the pocket collapses."
+  },
+  {
+    "id": 4,
+    "position": "QB",
+    "difficulty": "beginner",
+    "question": "On a play-action pass, what must the quarterback do to sell the fake effectively?",
+    "options": [
+      "A) Drop back immediately without looking at the running back",
+      "B) Carry out a convincing ball fake to the running back, including proper footwork and eye deception",
+      "C) Roll out to the right as fast as possible",
+      "D) Yell the running back's name to confuse the defense"
+    ],
+    "correctIndex": 1,
+    "explanation": "Play-action only works if the defense believes it is a run play. The quarterback must mesh the ball with the running back, use proper body lean and eyes to look at the line of scrimmage, and then pull the ball out to throw. If the fake is lazy, linebackers and safeties will not bite and your receivers will be well-covered downfield."
+  },
+  {
+    "id": 5,
+    "position": "QB",
+    "difficulty": "beginner",
+    "question": "You come to the line and see the defense has loaded the box with eight defenders against your called run play. What is an audible?",
+    "options": [
+      "A) A pre-planned adjustment where the QB changes the play at the line of scrimmage using a verbal code",
+      "B) A signal that tells the center to snap the ball silently",
+      "C) A call that only the wide receivers can hear",
+      "D) A rule that requires you to run the play as called no matter what"
+    ],
+    "correctIndex": 0,
+    "explanation": "An audible is a verbal command the quarterback uses at the line of scrimmage to change the play based on what the defense is showing. If eight defenders are in the box against a run, checking to a pass play can exploit the lighter coverage on the outside."
+  },
+  {
+    "id": 6,
+    "position": "QB",
+    "difficulty": "beginner",
+    "question": "You feel pressure coming from your blind side (left side for a right-handed QB). What is the best pocket awareness technique?",
+    "options": [
+      "A) Spin toward the pressure and try to run backward",
+      "B) Step up into the pocket to avoid the edge rusher while keeping your eyes downfield",
+      "C) Duck down and cover the ball with both hands",
+      "D) Throw the ball to the sideline as hard as you can"
+    ],
+    "correctIndex": 1,
+    "explanation": "Stepping up in the pocket is the fundamental move when edge pressure collapses from the outside. By climbing the pocket, you buy time while staying in a position to deliver an accurate throw."
+  },
+  {
+    "id": 7,
+    "position": "QB",
+    "difficulty": "beginner",
+    "question": "On an inside zone handoff, where should the quarterback place the ball when handing off to the running back?",
+    "options": [
+      "A) Toss it underhand to the running back's chest",
+      "B) Extend the ball firmly into the running back's stomach-to-chest pocket with the far hand while the near hand rides the hip",
+      "C) Hold it out with one hand for the back to grab",
+      "D) Place it on the running back's hip pad"
+    ],
+    "correctIndex": 1,
+    "explanation": "Proper handoff mechanics require the QB to seat the ball firmly into the running back's midsection using the hand farthest from the back, while the near hand rides along the back's hip to maintain the mesh point. A clean exchange prevents fumbles."
+  },
+  {
+    "id": 8,
+    "position": "QB",
+    "difficulty": "beginner",
+    "question": "You see two deep safeties split evenly across the field before the snap. What coverage is this most likely?",
+    "options": [
+      "A) Cover-0 with no deep help",
+      "B) Cover-2, with each safety responsible for half the deep field",
+      "C) Cover-3 with three deep defenders",
+      "D) Man-to-man with a single high safety"
+    ],
+    "correctIndex": 1,
+    "explanation": "Two high safeties splitting the field is the classic pre-snap indicator of Cover-2. Each safety is responsible for one deep half, which means the middle of the field between them can be vulnerable to vertical routes that split the safeties."
+  },
+  {
+    "id": 9,
+    "position": "QB",
+    "difficulty": "beginner",
+    "question": "On an RPO (Run-Pass Option), what determines whether the quarterback hands the ball off or throws a quick pass?",
+    "options": [
+      "A) The quarterback always decides before the snap",
+      "B) The QB reads a specific unblocked defender after the snap \u2014 if that defender crashes toward the run, the QB pulls and throws; if he stays wide, the QB hands off",
+      "C) The running back tells the QB what to do",
+      "D) The offensive coordinator radios in the decision during the play"
+    ],
+    "correctIndex": 1,
+    "explanation": "In an RPO, the quarterback reads a designated defender after the snap. If that defender commits to stopping the run, the QB keeps the ball and throws a quick pass. If the defender stays in coverage, the QB hands off because there is a numbers advantage in the run game."
+  },
+  {
+    "id": 10,
+    "position": "QB",
+    "difficulty": "beginner",
+    "question": "Before the snap, the quarterback points at a linebacker and yells 'Mike!' What is the main purpose of this communication?",
+    "options": [
+      "A) He is telling the receivers to run a different route",
+      "B) He is identifying the middle linebacker so the offensive line knows the center point for their pass protection assignments",
+      "C) He is calling an audible to a screen pass",
+      "D) He is warning the defense that he sees their alignment"
+    ],
+    "correctIndex": 1,
+    "explanation": "Identifying the 'Mike' sets the protection scheme for the entire offensive line. Every blocker's assignment is based on who the QB declares as the Mike, because protections are built outward from that point."
+  },
+  {
+    "id": 11,
+    "position": "OL",
+    "difficulty": "beginner",
+    "question": "In zone blocking, what is the main difference compared to gap (man) blocking?",
+    "options": [
+      "A) In zone blocking, each lineman blocks a specific assigned defender",
+      "B) In zone blocking, linemen step laterally and block whoever enters their zone; in gap blocking, each lineman is assigned a specific defender",
+      "C) Zone blocking is only used in pass protection",
+      "D) Gap blocking does not allow any double teams"
+    ],
+    "correctIndex": 1,
+    "explanation": "Zone blocking requires offensive linemen to step in unison in a specific direction and block any defender who shows up in their area. Gap blocking assigns each lineman a specific defender regardless of movement. Zone schemes create natural cutback lanes."
+  },
+  {
+    "id": 12,
+    "position": "OL",
+    "difficulty": "beginner",
+    "question": "In pass protection, what is the most important first step for an offensive tackle facing a speed rusher off the edge?",
+    "options": [
+      "A) Fire off the ball and attack the defender aggressively",
+      "B) Take a quick kick-step at a 45-degree angle to gain depth and width",
+      "C) Stand straight up and wait for the rusher to come to you",
+      "D) Immediately pull to the opposite side"
+    ],
+    "correctIndex": 1,
+    "explanation": "The kick-step allows the tackle to get into position quickly while maintaining balance. By gaining depth at an angle, you mirror the rusher's path and keep your body as a barrier between him and the quarterback."
+  },
+  {
+    "id": 13,
+    "position": "OL",
+    "difficulty": "beginner",
+    "question": "What is a 'combo block' or 'double team to linebacker' in the run game?",
+    "options": [
+      "A) Two linemen block the same defender for the entire play",
+      "B) Two adjacent linemen initially double-team a down lineman, then one climbs off to block a linebacker at the second level",
+      "C) The center and quarterback block the same defender",
+      "D) A wide receiver comes in to help the tackle block"
+    ],
+    "correctIndex": 1,
+    "explanation": "A combo block starts as a double team on a defensive lineman to generate movement at the point of attack. As the play develops, one blocker reads the linebacker's movement and releases to the second level to pick him up."
+  },
+  {
+    "id": 14,
+    "position": "OL",
+    "difficulty": "beginner",
+    "question": "When a guard is asked to 'pull' on a power run play, what does this mean?",
+    "options": [
+      "A) The guard drops back into pass protection",
+      "B) The guard steps laterally out of his position and runs behind the other linemen to lead-block at the point of attack",
+      "C) The guard pulls the center to his side",
+      "D) The guard stands up and acts as an eligible receiver"
+    ],
+    "correctIndex": 1,
+    "explanation": "Pulling means the guard vacates his normal position and moves laterally to become a lead blocker at the designed hole. On a power play, the pulling guard kicks out the end man on the line of scrimmage or leads through the hole to block a linebacker."
+  },
+  {
+    "id": 15,
+    "position": "OL",
+    "difficulty": "beginner",
+    "question": "You are the right guard. The nickel cornerback is creeping toward the B-gap on your side while a linebacker walks up over the center. What should you be thinking?",
+    "options": [
+      "A) Ignore it \u2014 defensive backs never blitz",
+      "B) This looks like a blitz from the B-gap; communicate with the tackle and be ready to pick up the extra rusher",
+      "C) Switch positions with the center",
+      "D) Motion to the quarterback that you want a different play"
+    ],
+    "correctIndex": 1,
+    "explanation": "Recognizing blitz indicators is a key responsibility for offensive linemen. When a defensive back creeps toward a gap and a linebacker shows pressure, it often signals a designed blitz. Communicating ensures no rusher comes through unblocked."
+  },
+  {
+    "id": 16,
+    "position": "OL",
+    "difficulty": "beginner",
+    "question": "What is the proper three-point stance for an offensive lineman?",
+    "options": [
+      "A) Both hands on the ground, feet together, head down",
+      "B) One hand down with fingers bridged, feet shoulder-width apart and staggered, back flat, eyes up",
+      "C) Standing upright with hands on knees",
+      "D) Both hands on the ground, legs fully extended behind you"
+    ],
+    "correctIndex": 1,
+    "explanation": "A correct three-point stance has one hand on the ground with weight balanced so you can move in any direction. Your feet should be staggered about shoulder-width apart, your back flat to generate power, and your eyes up to read the defense."
+  },
+  {
+    "id": 17,
+    "position": "OL",
+    "difficulty": "beginner",
+    "question": "The center calls out 'Ringo!' and points to the right side. What is this type of communication and why does it matter?",
+    "options": [
+      "A) A route adjustment for the wide receivers",
+      "B) A line call that sets the blocking scheme direction, telling linemen which way protection slides",
+      "C) The center telling the defense where the play is going",
+      "D) A signal for the quarterback to change the snap count"
+    ],
+    "correctIndex": 1,
+    "explanation": "Line calls made by the center are critical for getting all five offensive linemen on the same page. A directional call tells the line which way to slide in protection or sets the combination blocks in the run game."
+  },
+  {
+    "id": 18,
+    "position": "OL",
+    "difficulty": "beginner",
+    "question": "How does your technique change between run blocking and pass blocking?",
+    "options": [
+      "A) There is no difference",
+      "B) In run blocking you fire off aggressively to create movement; in pass blocking you sit back in a patient, reactive stance to absorb the rush",
+      "C) In run blocking you stand up tall; in pass blocking you get as low as possible",
+      "D) In pass blocking you always pull to the outside"
+    ],
+    "correctIndex": 1,
+    "explanation": "Run blocking is aggressive and attack-oriented \u2014 you want to drive defenders off the ball. Pass blocking is more defensive and patient \u2014 you set an anchor, keep proper hand placement, and mirror the rusher's moves to protect the quarterback."
+  },
+  {
+    "id": 19,
+    "position": "OL",
+    "difficulty": "beginner",
+    "question": "An offensive lineman false starts. What is the penalty and what causes it most often?",
+    "options": [
+      "A) 10-yard penalty; illegal formation",
+      "B) 5-yard penalty; a lineman moving or flinching before the ball is snapped",
+      "C) 15-yard penalty; holding a defender",
+      "D) Loss of down; being offsides"
+    ],
+    "correctIndex": 1,
+    "explanation": "A false start is a 5-yard penalty that occurs when an offensive lineman moves abruptly before the snap. It is most commonly caused by flinching in reaction to a defender's movement or anticipating the snap count incorrectly."
+  },
+  {
+    "id": 20,
+    "position": "OL",
+    "difficulty": "beginner",
+    "question": "Why is it critical for all five offensive linemen to work as a single unit?",
+    "options": [
+      "A) The rulebook requires them to move at the same time",
+      "B) Defenses exploit gaps in communication \u2014 one missed assignment creates an unblocked defender that can wreck the play",
+      "C) The offensive line is not allowed to block different defenders",
+      "D) The quarterback gets a penalty if the line does not move together"
+    ],
+    "correctIndex": 1,
+    "explanation": "Defenses use stunts, twists, and blitzes specifically designed to confuse individual linemen. When all five communicate and execute together, they can handle almost any look. One missed assignment can result in a sack or tackle for loss."
+  },
+  {
+    "id": 21,
+    "position": "WR",
+    "difficulty": "beginner",
+    "question": "In the standard route tree, what is a 'slant' route?",
+    "options": [
+      "A) A sharp diagonal route cutting inside at about 45 degrees",
+      "B) A deep route straight down the sideline",
+      "C) A route that curves back toward the quarterback",
+      "D) A flat route running parallel to the line of scrimmage"
+    ],
+    "correctIndex": 0,
+    "explanation": "A slant is a quick, inside-breaking route where the receiver takes a few steps upfield and then cuts sharply inside at roughly a 45-degree angle. It attacks the space between linebackers and is effective against off-coverage."
+  },
+  {
+    "id": 22,
+    "position": "WR",
+    "difficulty": "beginner",
+    "question": "What is the primary responsibility of a wide receiver on a designed run play?",
+    "options": [
+      "A) Run a deep route to draw attention",
+      "B) Block the nearest defensive back or force defender",
+      "C) Motion into the backfield to become a ball carrier",
+      "D) Drop back and protect the quarterback"
+    ],
+    "correctIndex": 1,
+    "explanation": "On run plays, receivers are expected to stalk block or crack block the nearest defender in their area, usually a cornerback or safety. Effective WR blocking can turn a short gain into a big play by sealing the edge."
+  },
+  {
+    "id": 23,
+    "position": "WR",
+    "difficulty": "beginner",
+    "question": "What does 'YAC' stand for, and why is it important?",
+    "options": [
+      "A) Yards After Catch \u2014 extra yardage gained after securing the reception",
+      "B) Yardage Accumulated on Crossers \u2014 total yards on crossing routes",
+      "C) Yield And Cut \u2014 a technique for changing direction",
+      "D) Your Assignment Check \u2014 a pre-snap read system"
+    ],
+    "correctIndex": 0,
+    "explanation": "YAC stands for Yards After Catch and measures how many yards a receiver gains after initially catching the ball. High-YAC receivers add value because they turn short completions into much bigger gains."
+  },
+  {
+    "id": 24,
+    "position": "WR",
+    "difficulty": "beginner",
+    "question": "In receiver alignment terminology, what does the 'X' receiver typically refer to?",
+    "options": [
+      "A) The receiver lined up in the slot on the strong side",
+      "B) The split end aligned on the line of scrimmage, usually away from the tight end",
+      "C) The receiver who goes in motion before the snap",
+      "D) The backup receiver who comes in on third downs"
+    ],
+    "correctIndex": 1,
+    "explanation": "The X receiver, also called the split end, lines up on the line of scrimmage on the weak side. Because the X is on the line, he cannot legally go in motion before the snap. The X is typically a team's best route runner because he often faces press coverage."
+  },
+  {
+    "id": 25,
+    "position": "WR",
+    "difficulty": "beginner",
+    "question": "When a cornerback is in press coverage with inside leverage, which release technique is most effective?",
+    "options": [
+      "A) An inside release pushing directly into the defender's leverage",
+      "B) An outside release to attack the defender's open hip",
+      "C) A stationary release where the receiver waits for the defender to move first",
+      "D) A drop-step release retreating five yards before running the route"
+    ],
+    "correctIndex": 1,
+    "explanation": "When a corner has inside leverage, the receiver should use an outside release to attack the defender's outside hip where he is most vulnerable. This forces the corner to open and redirect, creating separation."
+  },
+  {
+    "id": 26,
+    "position": "WR",
+    "difficulty": "beginner",
+    "question": "What is an 'option route' in a passing concept?",
+    "options": [
+      "A) A route where the receiver reads the defender's coverage and chooses his break accordingly",
+      "B) A route that is only run when the play clock is under ten seconds",
+      "C) A designed trick play where the receiver throws the ball",
+      "D) A route that is always a go route regardless of coverage"
+    ],
+    "correctIndex": 0,
+    "explanation": "An option route allows the receiver to read the coverage and choose his break point based on what the defender gives him. This requires the receiver and quarterback to read the same defender and be on the same page."
+  },
+  {
+    "id": 27,
+    "position": "WR",
+    "difficulty": "beginner",
+    "question": "What is the correct hand position for catching a ball thrown above the waist?",
+    "options": [
+      "A) Pinkies together, fingers pointing down",
+      "B) Thumbs together, fingers pointing up, forming a diamond window",
+      "C) One hand on top of the ball and one underneath",
+      "D) Arms fully extended with fists closed until the last second"
+    ],
+    "correctIndex": 1,
+    "explanation": "For passes above the waist, receivers should put their thumbs together with fingers pointing upward, creating a diamond-shaped window. This gives the largest catching surface and allows the receiver to secure the ball cleanly."
+  },
+  {
+    "id": 28,
+    "position": "WR",
+    "difficulty": "beginner",
+    "question": "What is a 'post' route in the route tree?",
+    "options": [
+      "A) A route that breaks sharply toward the sideline at 10 yards",
+      "B) A deep route that angles toward the goalpost (middle of the field) after the break",
+      "C) A five-yard hitch where the receiver turns back to the quarterback",
+      "D) A shallow drag route across the formation"
+    ],
+    "correctIndex": 1,
+    "explanation": "A post route is a deep route where the receiver stems vertically and then breaks at an angle toward the goalpost or the middle of the field. It is especially effective against Cover 1 and Cover 3 looks."
+  },
+  {
+    "id": 29,
+    "position": "WR",
+    "difficulty": "beginner",
+    "question": "Why might a coach put a receiver in pre-snap motion?",
+    "options": [
+      "A) Only to confuse the referees about the formation",
+      "B) To identify man vs. zone coverage and create alignment advantages",
+      "C) To give the receiver a rest before the play starts",
+      "D) Because the rules require at least one player to move before every snap"
+    ],
+    "correctIndex": 1,
+    "explanation": "Pre-snap motion helps the offense diagnose coverage. If a defender follows the motion receiver, it usually indicates man coverage; if the defense stays put, it is likely zone. Motion can also create favorable leverage at the snap."
+  },
+  {
+    "id": 30,
+    "position": "WR",
+    "difficulty": "beginner",
+    "question": "When running a 'curl' (or 'hitch') route, what should the receiver do at the top of the route?",
+    "options": [
+      "A) Keep running straight upfield without stopping",
+      "B) Break sharply to the outside toward the sideline",
+      "C) Throttle down, sink the hips, and turn back toward the quarterback",
+      "D) Fall to the ground to draw a pass interference flag"
+    ],
+    "correctIndex": 2,
+    "explanation": "On a curl route, the receiver drives upfield then quickly decelerates by sinking his hips and turns back toward the quarterback. The key is to sell the vertical stem so the defender opens his hips, then come back to the ball aggressively."
+  },
+  {
+    "id": 31,
+    "position": "DL",
+    "difficulty": "beginner",
+    "question": "In defensive line terminology, what does a '3-technique' refer to?",
+    "options": [
+      "A) A defensive lineman aligned on the outside shoulder of the guard",
+      "B) A lineman who always rushes from a standing position",
+      "C) A three-step pass rush move",
+      "D) A defensive end aligned on the tight end"
+    ],
+    "correctIndex": 0,
+    "explanation": "Technique numbers describe where a defensive lineman aligns relative to the offensive linemen. A 3-technique aligns on the outside shoulder of the guard, positioning him in the B-gap. This is a key alignment in both 4-3 and 3-4 defenses."
+  },
+  {
+    "id": 32,
+    "position": "DL",
+    "difficulty": "beginner",
+    "question": "What are the 'A-gap' and 'B-gap' on the offensive line?",
+    "options": [
+      "A) A-gap is between center and guard; B-gap is between guard and tackle",
+      "B) A-gap is between the tackles; B-gap is outside the tight end",
+      "C) A-gap and B-gap are both behind the quarterback",
+      "D) They refer to the first and second levels of the defense"
+    ],
+    "correctIndex": 0,
+    "explanation": "Gaps are the spaces between offensive linemen labeled with letters. The A-gap is between the center and guard, while the B-gap is between the guard and tackle. Understanding which gap you own is essential for maintaining run defense integrity."
+  },
+  {
+    "id": 33,
+    "position": "DL",
+    "difficulty": "beginner",
+    "question": "What does 'high hat' by an offensive lineman typically indicate to a defensive lineman?",
+    "options": [
+      "A) A run play because the lineman is firing off low",
+      "B) A pass play because the lineman is setting up tall in pass protection",
+      "C) A screen play where the lineman lets the rusher through",
+      "D) A trick play involving a direct snap to a lineman"
+    ],
+    "correctIndex": 1,
+    "explanation": "When a defensive lineman reads 'high hat,' it means the offensive lineman is popping up tall at the snap, which usually signals pass protection. A 'low hat' typically indicates a run play. This is one of the most important first-step reads for a DL."
+  },
+  {
+    "id": 34,
+    "position": "DL",
+    "difficulty": "beginner",
+    "question": "What is a 'rip' move in pass rushing?",
+    "options": [
+      "A) Grabbing the offensive lineman's jersey and pulling him aside",
+      "B) Driving the inside arm upward and through the blocker's outside arm to get underneath and past him",
+      "C) Spinning 360 degrees away from the blocker",
+      "D) Jumping over the offensive lineman at the snap"
+    ],
+    "correctIndex": 1,
+    "explanation": "The rip move is a pass rush technique where the defender drives his inside arm violently upward and through the armpit area of the blocker while turning his body to get skinny and slide past. It is effective for getting underneath a taller blocker's punch."
+  },
+  {
+    "id": 35,
+    "position": "DL",
+    "difficulty": "beginner",
+    "question": "What is the primary goal of a 'two-gap' defensive lineman?",
+    "options": [
+      "A) To rush the passer on every down",
+      "B) To control the blocker across from him and be responsible for the gaps on both sides of that blocker",
+      "C) To always slant to the same gap before the snap",
+      "D) To drop back into pass coverage on every play"
+    ],
+    "correctIndex": 1,
+    "explanation": "In a two-gap scheme, the defensive lineman must engage and control the offensive lineman in front of him, then read the play and react to whichever of the two gaps the ball carrier attacks. This requires strength, leverage, and discipline."
+  },
+  {
+    "id": 36,
+    "position": "DL",
+    "difficulty": "beginner",
+    "question": "What is a 'stunt' or 'twist' on the defensive line?",
+    "options": [
+      "A) Two or more defensive linemen exchange gap assignments by looping around each other after the snap",
+      "B) A defensive lineman jumping offside to draw a false start",
+      "C) The entire defensive line dropping into coverage",
+      "D) A lineman lining up in the wrong gap to confuse his own teammates"
+    ],
+    "correctIndex": 0,
+    "explanation": "A stunt or twist is a coordinated movement where defensive linemen exchange rush lanes after the snap. One may crash inside while the other loops around behind him to the outside. Stunts create confusion in OL blocking assignments."
+  },
+  {
+    "id": 37,
+    "position": "DL",
+    "difficulty": "beginner",
+    "question": "What does 'contain' responsibility mean for a defensive end?",
+    "options": [
+      "A) Staying inside the B-gap at all times",
+      "B) Keeping the ball carrier from getting outside by maintaining leverage on the edge",
+      "C) Rushing straight upfield to sack the quarterback every play",
+      "D) Filling the A-gap on all run plays"
+    ],
+    "correctIndex": 1,
+    "explanation": "Contain means the defensive end must maintain outside leverage and not allow the ball carrier or quarterback to get past him to the outside. Even if it means giving up a sack opportunity, the contain player must keep everything funneled back inside."
+  },
+  {
+    "id": 38,
+    "position": "DL",
+    "difficulty": "beginner",
+    "question": "Why is a proper three-point stance important for a defensive lineman's get-off?",
+    "options": [
+      "A) It is only used for pass rushing and not needed on run plays",
+      "B) It allows the lineman to fire off the ball with power and explosion while staying low and balanced",
+      "C) It is a penalty if a defensive lineman does not use a three-point stance",
+      "D) It is purely for show and has no impact on performance"
+    ],
+    "correctIndex": 1,
+    "explanation": "A proper three-point stance with feet staggered, weight slightly forward, and hips loaded allows a defensive lineman to explode off the ball at the snap with power and speed while maintaining balance."
+  },
+  {
+    "id": 39,
+    "position": "DL",
+    "difficulty": "beginner",
+    "question": "What is the purpose of 'hand usage' or 'hand fighting' for a defensive lineman?",
+    "options": [
+      "A) To hold the offensive lineman's jersey without getting caught",
+      "B) To control the blocker, create separation, and disengage to make a play on the ball carrier or QB",
+      "C) To signal plays to the linebackers behind them",
+      "D) To catch passes tipped at the line of scrimmage only"
+    ],
+    "correctIndex": 1,
+    "explanation": "Hand usage is the foundation of defensive line play. By striking with violent hands, locking out on the breastplate, and controlling the blocker's pads, a DL can dictate the engagement and shed the block when it is time to make a tackle."
+  },
+  {
+    "id": 40,
+    "position": "DL",
+    "difficulty": "beginner",
+    "question": "What is a 'pursuit angle' and why is it important for a defensive lineman?",
+    "options": [
+      "A) The angle a defender sprints to where the ball carrier will be, not where he currently is",
+      "B) The angle of the defensive lineman's stance before the snap",
+      "C) The angle of a pass rush move relative to the quarterback",
+      "D) The direction the defensive line shifts before the play"
+    ],
+    "correctIndex": 0,
+    "explanation": "A pursuit angle is the path a defender takes to intercept the ball carrier at a point downfield, rather than chasing directly behind him. Taking the correct angle prevents big plays and allows you to make a tackle even if the runner has a head start."
+  },
+  {
+    "id": 41,
+    "position": "LB",
+    "difficulty": "beginner",
+    "question": "As a linebacker, what is your primary responsibility in a 'run fit' assignment?",
+    "options": [
+      "A) Cover the deepest receiver on the field",
+      "B) Fill your assigned gap to stop the running back",
+      "C) Rush the quarterback on every play",
+      "D) Drop to the end zone on every snap"
+    ],
+    "correctIndex": 1,
+    "explanation": "Run fit means each defender is responsible for a specific gap. As a linebacker, your job is to fill your assigned gap quickly and decisively to prevent the running back from finding a lane. If every defender fills their gap, there is nowhere for the ball carrier to go."
+  },
+  {
+    "id": 42,
+    "position": "LB",
+    "difficulty": "beginner",
+    "question": "In zone coverage, what should a linebacker primarily focus on?",
+    "options": [
+      "A) Following one specific receiver everywhere he goes",
+      "B) Rushing the quarterback every time",
+      "C) Dropping to an area of the field and reading the quarterback's eyes",
+      "D) Lining up on the line of scrimmage and jamming receivers"
+    ],
+    "correctIndex": 2,
+    "explanation": "In zone coverage, linebackers are responsible for an area of the field rather than a specific player. You drop to your zone landmark, then read the quarterback's eyes to break on the throw."
+  },
+  {
+    "id": 43,
+    "position": "LB",
+    "difficulty": "beginner",
+    "question": "When a linebacker is called to blitz, what is his primary job?",
+    "options": [
+      "A) Drop into deep coverage behind the safeties",
+      "B) Attack a predetermined gap or lane to pressure the quarterback",
+      "C) Spy the running back in the flat",
+      "D) Cover the tight end on a crossing route"
+    ],
+    "correctIndex": 1,
+    "explanation": "A blitzing linebacker attacks a specific gap or rushing lane to disrupt the quarterback or the play in the backfield. You must commit fully and get to your landmark quickly because the defense is giving up a coverage player to create extra pressure."
+  },
+  {
+    "id": 44,
+    "position": "LB",
+    "difficulty": "beginner",
+    "question": "What are the most important 'keys' (pre-snap reads) for an inside linebacker to watch at the snap?",
+    "options": [
+      "A) The wide receivers' splits",
+      "B) The offensive guards and near back",
+      "C) The free safety's alignment",
+      "D) The sideline for the coach's signals"
+    ],
+    "correctIndex": 1,
+    "explanation": "Inside linebackers read the offensive guards and the nearest running back to diagnose the play. The guards' first step tells you run or pass and which direction \u2014 if they pull, the play is likely going to that side. The back's path confirms your read."
+  },
+  {
+    "id": 45,
+    "position": "LB",
+    "difficulty": "beginner",
+    "question": "What is a proper pursuit angle when chasing a ball carrier running toward the sideline?",
+    "options": [
+      "A) Run directly at where the ball carrier is right now",
+      "B) Run straight backward toward your own end zone",
+      "C) Take an angle that intersects where the ball carrier will be, not where he is",
+      "D) Stay in your gap and wait for the ball carrier to come to you"
+    ],
+    "correctIndex": 2,
+    "explanation": "A correct pursuit angle means running to a spot where you will intersect the ball carrier's path, not chasing directly behind him. If you run to where he is now, he will be gone by the time you get there. Aim for where he is going."
+  },
+  {
+    "id": 46,
+    "position": "LB",
+    "difficulty": "beginner",
+    "question": "What is the proper tackling technique taught at all levels of football?",
+    "options": [
+      "A) Lead with the crown of your helmet into the ball carrier's chest",
+      "B) Dive at the ball carrier's ankles from five yards away",
+      "C) Run your feet on contact, drive your hips, wrap your arms, and bring the runner to the ground",
+      "D) Grab the jersey and pull the runner down from behind"
+    ],
+    "correctIndex": 2,
+    "explanation": "Proper tackling requires running your feet through contact, driving your hips into the ball carrier, wrapping both arms, and finishing the tackle to the ground. Strike with your shoulder pads, keep your head to the side, and maintain a wide base."
+  },
+  {
+    "id": 47,
+    "position": "LB",
+    "difficulty": "beginner",
+    "question": "What does it mean for a linebacker to be in a 'stacked' alignment?",
+    "options": [
+      "A) Lining up directly on the line of scrimmage in a three-point stance",
+      "B) Lining up directly behind a defensive lineman, about 3-4 yards off the ball",
+      "C) Standing on the sideline as a substitute",
+      "D) Lining up in the secondary next to the cornerback"
+    ],
+    "correctIndex": 1,
+    "explanation": "A stacked alignment means the linebacker positions himself directly behind a defensive lineman, typically 3 to 4 yards off the line. This hides the linebacker from the offensive linemen, making it harder for them to get a clean block on him."
+  },
+  {
+    "id": 48,
+    "position": "LB",
+    "difficulty": "beginner",
+    "question": "What is a 'scrape' technique for a linebacker?",
+    "options": [
+      "A) Dropping straight back into deep coverage",
+      "B) Blitzing through the A-gap every play",
+      "C) Working laterally behind the defensive line to fill a gap vacated by a blitzing or slanting lineman",
+      "D) Lining up as a wide receiver on trick plays"
+    ],
+    "correctIndex": 2,
+    "explanation": "Scraping means the linebacker works laterally along the line of scrimmage behind the defensive linemen to fill a gap left open by a slanting or blitzing D-lineman. It is a coordinated exchange that keeps the defense sound against the run."
+  },
+  {
+    "id": 49,
+    "position": "LB",
+    "difficulty": "beginner",
+    "question": "Why is the middle linebacker often called the 'quarterback of the defense'?",
+    "options": [
+      "A) Because he throws the ball on trick plays",
+      "B) Because he relays the defensive call, aligns teammates, and makes adjustments before the snap",
+      "C) Because he always scores the most points on the team",
+      "D) Because he only plays during two-minute drills"
+    ],
+    "correctIndex": 1,
+    "explanation": "The middle linebacker is responsible for getting the defensive call from the sideline, communicating it to all 11 defenders, and making pre-snap adjustments based on the offensive formation. Without clear communication from the mike, defenders may line up wrong."
+  },
+  {
+    "id": 50,
+    "position": "LB",
+    "difficulty": "beginner",
+    "question": "When a linebacker drops into a hook/curl zone in Cover 3, where should he settle?",
+    "options": [
+      "A) At the line of scrimmage between the offensive tackles",
+      "B) About 10-12 yards deep over the area between the hash and the numbers",
+      "C) In the deep middle of the field at 30 yards",
+      "D) On the line of scrimmage outside the tight end"
+    ],
+    "correctIndex": 1,
+    "explanation": "In Cover 3, a linebacker dropping to the hook/curl zone should get to a depth of about 10 to 12 yards and settle between the hash marks and the numbers. From there, he reads the quarterback's eyes and breaks on any throw into his zone."
+  },
+  {
+    "id": 51,
+    "position": "DB",
+    "difficulty": "beginner",
+    "question": "In Cover 2, how many safeties are responsible for deep halves of the field?",
+    "options": [
+      "A) None, the cornerbacks have deep responsibility",
+      "B) One safety covers the entire deep field",
+      "C) Two safeties each cover one deep half of the field",
+      "D) Three defenders split the deep field into thirds"
+    ],
+    "correctIndex": 2,
+    "explanation": "Cover 2 gets its name because two safeties split the deep part of the field in half. The cornerbacks play underneath, jamming receivers and covering the flats."
+  },
+  {
+    "id": 52,
+    "position": "DB",
+    "difficulty": "beginner",
+    "question": "What is the main purpose of a defensive back's backpedal?",
+    "options": [
+      "A) To run away from the play as fast as possible",
+      "B) To maintain a cushion on the receiver while keeping your eyes in the backfield to read the play",
+      "C) To get a running start toward the line of scrimmage",
+      "D) To signal the other defenders which coverage you are in"
+    ],
+    "correctIndex": 1,
+    "explanation": "The backpedal allows a defensive back to move backward while keeping his eyes on the quarterback and the receivers in front of him. It maintains a cushion so no receiver can get behind you for a deep pass."
+  },
+  {
+    "id": 53,
+    "position": "DB",
+    "difficulty": "beginner",
+    "question": "In Cover 3, what are the zone landmarks for the cornerback?",
+    "options": [
+      "A) The cornerback covers the flat area within 5 yards of the line",
+      "B) The cornerback covers the deep one-third of the field on his side",
+      "C) The cornerback blitzes off the edge every play",
+      "D) The cornerback covers the middle of the field hash to hash"
+    ],
+    "correctIndex": 1,
+    "explanation": "In Cover 3, each cornerback is responsible for the deep one-third of the field on his side, while the free safety takes the deep middle third. The corner must not get beaten deep \u2014 everything should happen in front of him."
+  },
+  {
+    "id": 54,
+    "position": "DB",
+    "difficulty": "beginner",
+    "question": "In man coverage, what is the defensive back's primary responsibility?",
+    "options": [
+      "A) Watch the quarterback's eyes and break on the ball",
+      "B) Stay in a specific area of the field regardless of where receivers go",
+      "C) Follow your assigned receiver wherever he goes and deny him the ball",
+      "D) Always line up ten yards off the receiver"
+    ],
+    "correctIndex": 2,
+    "explanation": "In man coverage, you are assigned a specific receiver and your job is to stay with him wherever he runs his route. Unlike zone, you are not responsible for an area \u2014 your eyes stay on your man, and you go where he goes."
+  },
+  {
+    "id": 55,
+    "position": "DB",
+    "difficulty": "beginner",
+    "question": "What is the difference between press coverage and off coverage for a cornerback?",
+    "options": [
+      "A) Press means lining up 15 yards off; off means lining up at the line",
+      "B) Press means lining up at the line of scrimmage to jam the receiver; off means lining up 5-7 yards back",
+      "C) There is no difference; they are the same technique",
+      "D) Press means playing zone; off means playing man"
+    ],
+    "correctIndex": 1,
+    "explanation": "In press coverage, the cornerback lines up at the line of scrimmage and uses his hands to jam and disrupt the receiver's release. In off coverage, the corner lines up 5 to 7 yards back, giving a cushion to read the route before committing."
+  },
+  {
+    "id": 56,
+    "position": "DB",
+    "difficulty": "beginner",
+    "question": "Why should a defensive back read the quarterback's eyes in zone coverage?",
+    "options": [
+      "A) To know when to start backpedaling",
+      "B) Because the QB's eyes tell you where he intends to throw, allowing you to break on the ball",
+      "C) To determine whether to blitz or drop into coverage",
+      "D) It does not matter where the QB looks in zone coverage"
+    ],
+    "correctIndex": 1,
+    "explanation": "In zone coverage, reading the quarterback's eyes is critical because the QB will often look directly at his target before throwing. By watching his eyes, you can anticipate the throw and break on the ball for interceptions and pass breakups."
+  },
+  {
+    "id": 57,
+    "position": "DB",
+    "difficulty": "beginner",
+    "question": "What is the correct technique for a defensive back tackling in the open field?",
+    "options": [
+      "A) Dive at the ball carrier's feet from as far away as possible",
+      "B) Stand straight up and try to arm-tackle the runner",
+      "C) Break down, shorten your steps, keep a wide base, and drive through the ball carrier with your shoulder while wrapping",
+      "D) Turn your back and try to trip the runner"
+    ],
+    "correctIndex": 2,
+    "explanation": "Open-field tackling requires breaking down by shortening your steps and widening your base so you can adjust to the ball carrier's cuts. Drive through contact with your near shoulder, wrap both arms, and run your feet to finish."
+  },
+  {
+    "id": 58,
+    "position": "DB",
+    "difficulty": "beginner",
+    "question": "What does 'high-pointing the ball' mean for a defensive back going for an interception?",
+    "options": [
+      "A) Tipping the ball up in the air for a teammate to catch",
+      "B) Catching the ball at the highest point you can reach, above the receiver if possible",
+      "C) Letting the ball bounce off the ground before picking it up",
+      "D) Throwing the ball back to the quarterback"
+    ],
+    "correctIndex": 1,
+    "explanation": "High-pointing the ball means jumping and catching the ball at the highest point of your reach, attacking it in the air rather than waiting for it to come down. This takes the ball away from the receiver who may also be making a play on it."
+  },
+  {
+    "id": 59,
+    "position": "DB",
+    "difficulty": "beginner",
+    "question": "In a two-high safety look, what call might the strong safety make to alert the defense to a trips formation?",
+    "options": [
+      "A) No call is needed; the defense never adjusts to formations",
+      "B) A 'trips' call to alert that three receivers are aligned to one side so the defense can adjust coverage",
+      "C) A call to blitz all eleven defenders",
+      "D) A call telling the offense which play to run"
+    ],
+    "correctIndex": 1,
+    "explanation": "When three receivers align to one side, the safety must communicate this so the defense can adjust coverage responsibilities. Pre-snap communication is essential because failing to adjust can leave receivers running wide open."
+  },
+  {
+    "id": 60,
+    "position": "DB",
+    "difficulty": "beginner",
+    "question": "How can a cornerback recognize a receiver is running a curl route?",
+    "options": [
+      "A) The receiver immediately blocks at the line of scrimmage",
+      "B) The receiver sprints vertically for 10-12 yards, then suddenly decelerates and turns back toward the QB",
+      "C) The receiver runs a flat route toward the sideline at the line of scrimmage",
+      "D) The receiver goes in motion before the snap and never runs a route"
+    ],
+    "correctIndex": 1,
+    "explanation": "A curl route is identified by the receiver pushing hard up the field for about 10 to 12 yards and then quickly stopping and turning back to face the quarterback. When you see the receiver chop his feet and decelerate, he is likely sitting down on a curl."
+  }
+]

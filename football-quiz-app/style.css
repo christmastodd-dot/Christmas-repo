@@ -1,0 +1,306 @@
+/* ===== Base Reset & Typography ===== */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: #f0f2f0;
+  color: #1a1a1a;
+  min-height: 100vh;
+}
+
+/* ===== Layout ===== */
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+.app-title {
+  text-align: center;
+  font-size: 2rem;
+  color: #1a472a;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  text-align: center;
+  font-size: 1.1rem;
+  color: #555;
+  margin-bottom: 24px;
+}
+
+/* ===== Screen transitions ===== */
+.screen {
+  display: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.screen.active {
+  display: block;
+  opacity: 1;
+}
+
+/* ===== Position Selection ===== */
+.position-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.position-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 24px 16px;
+  background: #1a472a;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.position-btn:hover {
+  background: #246b3e;
+}
+
+.position-btn:active {
+  transform: scale(0.97);
+}
+
+.position-btn .abbr {
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.position-btn .full-name {
+  font-size: 0.85rem;
+  opacity: 0.85;
+}
+
+/* ===== Quiz Screen ===== */
+.quiz-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  font-size: 0.95rem;
+  color: #555;
+  font-weight: 600;
+}
+
+.question-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.question-text {
+  font-size: 1.15rem;
+  line-height: 1.5;
+  margin-bottom: 20px;
+  color: #1a1a1a;
+}
+
+.options-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.option-btn {
+  width: 100%;
+  text-align: left;
+  padding: 16px;
+  font-size: 1rem;
+  line-height: 1.4;
+  background: #f5f7f5;
+  color: #1a1a1a;
+  border: 2px solid #d0d7d0;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.option-btn:hover:not(:disabled) {
+  background: #e8ede8;
+  border-color: #1a472a;
+}
+
+.option-btn:disabled {
+  cursor: default;
+}
+
+.option-btn.correct {
+  background: #d4edda;
+  border-color: #28a745;
+  color: #155724;
+  font-weight: 600;
+}
+
+.option-btn.incorrect {
+  background: #f8d7da;
+  border-color: #dc3545;
+  color: #721c24;
+}
+
+/* ===== Explanation ===== */
+.explanation-text {
+  display: none;
+  margin-top: 16px;
+  padding: 14px;
+  background: #eef6f0;
+  border-left: 4px solid #1a472a;
+  border-radius: 0 8px 8px 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #333;
+}
+
+.explanation-text.visible {
+  display: block;
+}
+
+/* ===== Next Button ===== */
+.next-btn {
+  display: none;
+  width: 100%;
+  margin-top: 20px;
+  padding: 16px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  background: #1a472a;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.next-btn.visible {
+  display: block;
+}
+
+.next-btn:hover {
+  background: #246b3e;
+}
+
+/* ===== Results Screen ===== */
+.results-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 32px 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  text-align: center;
+}
+
+.results-card h2 {
+  font-size: 1.6rem;
+  color: #1a472a;
+  margin-bottom: 16px;
+}
+
+.score-display {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #1a472a;
+}
+
+.percentage-display {
+  font-size: 1.2rem;
+  color: #555;
+  margin-bottom: 24px;
+}
+
+/* ===== Missed Questions Review ===== */
+.missed-list {
+  text-align: left;
+  margin-bottom: 24px;
+}
+
+.missed-list h3 {
+  font-size: 1.1rem;
+  color: #721c24;
+  margin-bottom: 12px;
+}
+
+.missed-item {
+  background: #fef8f8;
+  border: 1px solid #f0d0d0;
+  border-radius: 8px;
+  padding: 14px;
+  margin-bottom: 12px;
+}
+
+.missed-item .missed-question {
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #1a1a1a;
+}
+
+.missed-item .missed-your-answer {
+  color: #dc3545;
+  font-size: 0.9rem;
+  margin-bottom: 2px;
+}
+
+.missed-item .missed-correct {
+  color: #28a745;
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 6px;
+}
+
+.missed-item .missed-explanation {
+  font-size: 0.9rem;
+  color: #555;
+  line-height: 1.4;
+}
+
+/* ===== Retry Button ===== */
+.retry-btn {
+  width: 100%;
+  padding: 16px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  background: #1a472a;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.retry-btn:hover {
+  background: #246b3e;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 400px) {
+  .app-title {
+    font-size: 1.6rem;
+  }
+
+  .position-btn {
+    padding: 20px 12px;
+  }
+
+  .position-btn .abbr {
+    font-size: 1.5rem;
+  }
+
+  .question-card {
+    padding: 18px;
+  }
+}
