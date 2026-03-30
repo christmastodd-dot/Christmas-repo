@@ -375,6 +375,159 @@
       padding: 20px;
     }
 
+    /* Crew Feed */
+    .crew-feed {
+      margin-bottom: 32px;
+    }
+
+    .crew-feed__upload {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .crew-feed__upload-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .crew-feed__file-btn {
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      border: 1px dashed rgba(255,255,255,0.2);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      font-size: 0.8rem;
+      font-family: var(--font-body);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .crew-feed__file-btn--has-image {
+      border-color: var(--color-gold);
+      color: var(--color-gold);
+    }
+
+    .crew-feed__caption {
+      flex: 1;
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      font-size: 0.85rem;
+      font-family: var(--font-body);
+    }
+
+    .crew-feed__caption::placeholder {
+      color: var(--text-muted);
+    }
+
+    .crew-feed__post-btn {
+      background: var(--color-gold);
+      color: var(--bg-primary);
+      font-family: var(--font-display);
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 10px 16px;
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .crew-feed__post-btn:active {
+      transform: scale(0.95);
+    }
+
+    .crew-feed__preview {
+      position: relative;
+      margin-bottom: 8px;
+      max-width: 200px;
+    }
+
+    .crew-feed__preview img {
+      width: 100%;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .crew-feed__preview-remove {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      background: rgba(0,0,0,0.7);
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 22px;
+      height: 22px;
+      font-size: 0.7rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .feed-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: var(--radius-md);
+      margin-bottom: 12px;
+      overflow: hidden;
+      box-shadow: var(--shadow-card);
+    }
+
+    .feed-card__image {
+      width: 100%;
+      display: block;
+    }
+
+    .feed-card__body {
+      padding: 12px 14px;
+    }
+
+    .feed-card__caption {
+      font-size: 0.85rem;
+      line-height: 1.4;
+      margin-bottom: 6px;
+    }
+
+    .feed-card__meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+    }
+
+    .feed-card__author {
+      font-weight: 700;
+      color: var(--color-gold);
+    }
+
+    .feed-card__delete {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.65rem;
+      cursor: pointer;
+      padding: 2px 6px;
+    }
+
+    .feed-card__delete:hover {
+      color: var(--color-red);
+    }
+
+    .crew-feed__empty {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      padding: 20px;
+    }
+
     /* ===== Leaderboard ===== */
 
     /* ===== Macrocycle / Training Program ===== */
@@ -2723,6 +2876,21 @@
       <div id="crew-challenges-list"></div>
     </div>
 
+    <!-- Crew Feed -->
+    <div class="section-title">Crew Feed</div>
+    <div class="crew-feed">
+      <div class="crew-feed__upload">
+        <div class="crew-feed__upload-row">
+          <button class="crew-feed__file-btn" id="feed-file-btn" onclick="document.getElementById('feed-file-input').click()">+ Photo</button>
+          <input class="crew-feed__caption" id="feed-caption" type="text" placeholder="Say something..." maxlength="200">
+          <button class="crew-feed__post-btn" onclick="postToFeed()">Post</button>
+        </div>
+        <div id="feed-preview"></div>
+        <input type="file" id="feed-file-input" accept="image/*" style="display:none" onchange="handleFeedImage(this)">
+      </div>
+      <div id="feed-list"></div>
+    </div>
+
     <!-- Macrocycle / Training Program (hidden for now) -->
     <div class="section-title" style="display:none">The Program</div>
     <div class="macrocycle" id="macrocycle" style="display:none">
@@ -3758,6 +3926,128 @@
           html += '<button class="crew-challenge-btn" onclick="completeCrewChallenge(\'' + ch.id + '\')">I Did This (+50 XP)</button>';
         }
         html += '</div>';
+      });
+
+      container.innerHTML = html;
+    }
+
+    // ===== Crew Feed =====
+
+    var feedPendingImage = null;
+
+    function handleFeedImage(input) {
+      var file = input.files && input.files[0];
+      if (!file) return;
+
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        // Resize image to keep data size manageable
+        var img = new Image();
+        img.onload = function() {
+          var maxW = 600, maxH = 600;
+          var w = img.width, h = img.height;
+          if (w > maxW || h > maxH) {
+            var ratio = Math.min(maxW / w, maxH / h);
+            w = Math.round(w * ratio);
+            h = Math.round(h * ratio);
+          }
+          var canvas = document.createElement('canvas');
+          canvas.width = w;
+          canvas.height = h;
+          var ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          feedPendingImage = canvas.toDataURL('image/jpeg', 0.7);
+
+          // Show preview
+          var preview = document.getElementById('feed-preview');
+          preview.innerHTML = '<div class="crew-feed__preview"><img src="' + feedPendingImage + '">' +
+            '<button class="crew-feed__preview-remove" onclick="removeFeedPreview()">✕</button></div>';
+          document.getElementById('feed-file-btn').classList.add('crew-feed__file-btn--has-image');
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function removeFeedPreview() {
+      feedPendingImage = null;
+      document.getElementById('feed-preview').innerHTML = '';
+      document.getElementById('feed-file-input').value = '';
+      document.getElementById('feed-file-btn').classList.remove('crew-feed__file-btn--has-image');
+    }
+
+    function getCrewFeed() {
+      return (sharedData && sharedData.feed) ? sharedData.feed : [];
+    }
+
+    function postToFeed() {
+      var caption = document.getElementById('feed-caption').value.trim();
+      if (!feedPendingImage && !caption) return;
+      if (!userId) return;
+
+      if (!sharedData) sharedData = { members: {} };
+      if (!sharedData.feed) sharedData.feed = [];
+
+      sharedData.feed.unshift({
+        id: 'feed_' + Date.now(),
+        author: userId,
+        date: new Date().toISOString(),
+        image: feedPendingImage || null,
+        caption: caption
+      });
+
+      // Keep feed manageable — cap at 50 posts
+      if (sharedData.feed.length > 50) sharedData.feed = sharedData.feed.slice(0, 50);
+
+      document.getElementById('feed-caption').value = '';
+      removeFeedPreview();
+      renderCrewFeed();
+      pushToRoom();
+    }
+
+    function deleteFeedPost(postId) {
+      if (!sharedData || !sharedData.feed) return;
+      sharedData.feed = sharedData.feed.filter(function(p) { return p.id !== postId; });
+      renderCrewFeed();
+      pushToRoom();
+    }
+
+    function renderCrewFeed() {
+      var container = document.getElementById('feed-list');
+      if (!container) return;
+      var feed = getCrewFeed();
+
+      if (feed.length === 0) {
+        container.innerHTML = '<div class="crew-feed__empty">No posts yet — share something with the crew!</div>';
+        return;
+      }
+
+      var html = '';
+      feed.forEach(function(post) {
+        var dateStr = '';
+        if (post.date) {
+          var d = new Date(post.date);
+          dateStr = (d.getMonth() + 1) + '/' + d.getDate() + '/' + d.getFullYear() + ' ' +
+            d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+        }
+
+        var isAdmin = userId === 'Coach';
+        var canDelete = post.author === userId || isAdmin;
+        var deleteBtn = canDelete ? '<button class="feed-card__delete" onclick="deleteFeedPost(\'' + post.id + '\')">Delete</button>' : '';
+
+        html += '<div class="feed-card">';
+        if (post.image) {
+          html += '<img class="feed-card__image" src="' + post.image + '" alt="Post by ' + escapeHtml(post.author) + '">';
+        }
+        html += '<div class="feed-card__body">';
+        if (post.caption) {
+          html += '<div class="feed-card__caption">' + escapeHtml(post.caption) + '</div>';
+        }
+        html += '<div class="feed-card__meta">' +
+          '<span><span class="feed-card__author">' + escapeHtml(post.author) + '</span> · ' + dateStr + '</span>' +
+          deleteBtn +
+        '</div>';
+        html += '</div></div>';
       });
 
       container.innerHTML = html;
@@ -6138,6 +6428,7 @@
       renderWeightLossLeaderboard(activeWeightLBTab);
       renderTemplates();
       renderCrewChallenges();
+      renderCrewFeed();
     }
 
     // Get all crew members from shared data (excluding current user)
@@ -6299,8 +6590,9 @@
       // Refresh all UI from state
       refreshUI();
 
-      // Render crew challenges
+      // Render crew challenges & feed
       renderCrewChallenges();
+      renderCrewFeed();
 
       // Render PR tracker & leaderboard
       renderPRTracker();
