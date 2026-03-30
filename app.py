@@ -157,14 +157,21 @@ def answer():
     else:
         game["streak"] = 0
 
-    game["words_seen"].append({
+    seen_entry = {
         "name": word["name"],
         "correct": is_correct,
         "definition": word["definition"],
         "tip": word["tip"],
         "difficulty": word["difficulty"],
-        "synonyms": word["synonyms"],
-    })
+        "mode": game.get("mode", "synonym"),
+    }
+    if game.get("mode") == "missing_letter":
+        seen_entry["correct_letter"] = correct_answer
+    elif game.get("mode") == "antonym":
+        seen_entry["antonyms"] = word["antonyms"]
+    else:
+        seen_entry["synonyms"] = word["synonyms"]
+    game["words_seen"].append(seen_entry)
 
     streak_msg = None
     if is_correct:

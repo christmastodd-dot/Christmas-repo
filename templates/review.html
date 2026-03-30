@@ -15,39 +15,35 @@
     </p>
 </div>
 
-{% if correct_words %}
+{% macro review_card(words, title, title_color, name_color, badge_class) %}
+{% if words %}
 <div class="card">
-    <h2 style="color: #059669;">Correct</h2>
-    {% for w in correct_words %}
+    <h2 style="color: {{ title_color }};">{{ title }}</h2>
+    {% for w in words %}
     <div class="review-word">
-        <div class="word-name" style="color: #059669;">{{ w.name }} <span class="badge badge-green">{{ w.difficulty }}</span></div>
+        <div class="word-name" style="color: {{ name_color }};">{{ w.name }} <span class="badge {{ badge_class }}">{{ w.difficulty }}</span></div>
         <div class="word-def">{{ w.definition }}</div>
         <div style="margin-top: 4px;">
+            {% if w.mode == "missing_letter" %}
+            <span class="text-muted" style="font-size: 12px;">Spelling:</span>
+            <span class="word-chip" style="font-size: 11px; letter-spacing: 2px;">{{ w.name }}</span>
+            {% elif w.mode == "antonym" %}
+            <span class="text-muted" style="font-size: 12px;">Antonyms:</span>
+            {% for a in w.antonyms %}<span class="word-chip" style="font-size: 11px;">{{ a }}</span> {% endfor %}
+            {% else %}
             <span class="text-muted" style="font-size: 12px;">Synonyms:</span>
             {% for s in w.synonyms %}<span class="word-chip" style="font-size: 11px;">{{ s }}</span> {% endfor %}
+            {% endif %}
         </div>
         <div class="word-tip">{{ w.tip }}</div>
     </div>
     {% endfor %}
 </div>
 {% endif %}
+{% endmacro %}
 
-{% if missed_words %}
-<div class="card">
-    <h2 style="color: #D97706;">Words to Review</h2>
-    {% for w in missed_words %}
-    <div class="review-word">
-        <div class="word-name" style="color: #D97706;">{{ w.name }} <span class="badge badge-amber">{{ w.difficulty }}</span></div>
-        <div class="word-def">{{ w.definition }}</div>
-        <div style="margin-top: 4px;">
-            <span class="text-muted" style="font-size: 12px;">Synonyms:</span>
-            {% for s in w.synonyms %}<span class="word-chip" style="font-size: 11px;">{{ s }}</span> {% endfor %}
-        </div>
-        <div class="word-tip">{{ w.tip }}</div>
-    </div>
-    {% endfor %}
-</div>
-{% endif %}
+{{ review_card(correct_words, "Correct", "#059669", "#059669", "badge-green") }}
+{{ review_card(missed_words, "Words to Review", "#D97706", "#D97706", "badge-amber") }}
 
 <a href="/" class="btn btn-primary">Play Again</a>
 <p class="text-center text-muted mt-16">Keep learning new words every day!</p>
