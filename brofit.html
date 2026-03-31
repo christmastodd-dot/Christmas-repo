@@ -612,6 +612,105 @@
       margin-left: 8px;
     }
 
+    .feed-card__comments {
+      margin-top: 8px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding-top: 6px;
+    }
+
+    .feed-card__comment {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 6px;
+      align-items: flex-start;
+    }
+
+    .feed-card__comment-author {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--color-gold);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .feed-card__comment-text {
+      font-size: 0.7rem;
+      color: var(--text-primary);
+      line-height: 1.3;
+      flex: 1;
+      min-width: 0;
+      word-wrap: break-word;
+    }
+
+    .feed-card__comment-time {
+      font-size: 0.6rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .feed-card__comment-delete {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.6rem;
+      cursor: pointer;
+      padding: 0 2px;
+      flex-shrink: 0;
+    }
+
+    .feed-card__comment-delete:hover {
+      color: var(--color-red);
+    }
+
+    .feed-card__comment-input-row {
+      display: flex;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .feed-card__comment-input {
+      flex: 1;
+      background: var(--bg-surface);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-size: 0.75rem;
+      padding: 6px 8px;
+      min-width: 0;
+    }
+
+    .feed-card__comment-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .feed-card__comment-send {
+      background: var(--color-gold);
+      color: var(--bg-primary);
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 6px 10px;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .feed-card__comment-send:active {
+      transform: scale(0.95);
+    }
+
+    .feed-card__comments-toggle {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.7rem;
+      cursor: pointer;
+      padding: 2px 0;
+    }
+
     .crew-feed__empty {
       text-align: center;
       color: var(--text-muted);
@@ -4347,6 +4446,35 @@
           '<span><span class="feed-card__author">' + escapeHtml(post.author) + '</span> · ' + dateStr + '</span>' +
           deleteBtn +
         '</div>';
+
+        // Comments section
+        var comments = post.comments || [];
+        html += '<div class="feed-card__comments">';
+        if (comments.length > 3) {
+          html += '<button class="feed-card__comments-toggle" onclick="toggleAllComments(\'' + post.id + '\')" id="feed-comments-toggle-' + post.id + '">View all ' + comments.length + ' comments</button>';
+        }
+        comments.forEach(function(c, ci) {
+          var hiddenClass = (comments.length > 3 && ci < comments.length - 3) ? ' style="display:none"' : '';
+          var cTime = '';
+          if (c.date) {
+            var cd = new Date(c.date);
+            cTime = (cd.getMonth() + 1) + '/' + cd.getDate() + ' ' + cd.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+          }
+          var canDeleteComment = c.author === userId || userIsAdmin;
+          var delCommentBtn = canDeleteComment ? '<button class="feed-card__comment-delete" onclick="deleteFeedComment(\'' + post.id + '\',' + ci + ')">x</button>' : '';
+          html += '<div class="feed-card__comment" data-comment-collapsible="' + post.id + '"' + hiddenClass + '>' +
+            '<span class="feed-card__comment-author">' + escapeHtml(c.author) + '</span>' +
+            '<span class="feed-card__comment-text">' + escapeHtml(c.text) + '</span>' +
+            '<span class="feed-card__comment-time">' + cTime + '</span>' +
+            delCommentBtn +
+          '</div>';
+        });
+        html += '<div class="feed-card__comment-input-row">' +
+          '<input class="feed-card__comment-input" id="feed-comment-input-' + post.id + '" type="text" placeholder="Add a comment..." maxlength="200" onkeydown="if(event.key===\'Enter\')addFeedComment(\'' + post.id + '\')">' +
+          '<button class="feed-card__comment-send" onclick="addFeedComment(\'' + post.id + '\')">Post</button>' +
+        '</div>';
+        html += '</div>';
+
         html += '</div></div>';
       });
 
@@ -4372,6 +4500,54 @@
 
       renderCrewFeed();
       pushToRoom();
+    }
+
+    function addFeedComment(postId) {
+      if (!userId) return;
+      var input = document.getElementById('feed-comment-input-' + postId);
+      if (!input) return;
+      var text = input.value.trim();
+      if (!text) return;
+
+      var feed = getCrewFeed();
+      var post = feed.find(function(p) { return p.id === postId; });
+      if (!post) return;
+
+      if (!post.comments) post.comments = [];
+      post.comments.push({
+        author: userId,
+        text: text,
+        date: new Date().toISOString()
+      });
+
+      input.value = '';
+      renderCrewFeed();
+      pushToRoom();
+    }
+
+    function deleteFeedComment(postId, commentIdx) {
+      var feed = getCrewFeed();
+      var post = feed.find(function(p) { return p.id === postId; });
+      if (!post || !post.comments) return;
+
+      post.comments.splice(commentIdx, 1);
+      renderCrewFeed();
+      pushToRoom();
+    }
+
+    function toggleAllComments(postId) {
+      var comments = document.querySelectorAll('[data-comment-collapsible="' + postId + '"]');
+      var toggleBtn = document.getElementById('feed-comments-toggle-' + postId);
+      var anyHidden = false;
+      comments.forEach(function(c) {
+        if (c.style.display === 'none') anyHidden = true;
+      });
+      comments.forEach(function(c) {
+        c.style.display = anyHidden ? '' : (c.style.display === 'none' ? '' : 'none');
+      });
+      if (toggleBtn) {
+        toggleBtn.textContent = anyHidden ? 'Hide older comments' : 'View all comments';
+      }
     }
 
     function postWorkoutToFeed(workout) {
