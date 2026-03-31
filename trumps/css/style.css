@@ -338,8 +338,74 @@ body {
     transform: rotate(180deg);
 }
 
+/* === Card center — ace single pip === */
 .card .suit-center {
     font-size: 1.8rem;
+}
+
+.card .suit-ace {
+    font-size: 2.4rem;
+}
+
+/* === Pip layout for numbered cards === */
+.pip-area {
+    position: absolute;
+    inset: 16px 8px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: repeat(5, 1fr);
+    font-size: 0.85rem;
+    line-height: 1;
+}
+
+.pip {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Top row */
+.pip-tl  { grid-column: 1; grid-row: 1; }
+.pip-tr  { grid-column: 2; grid-row: 1; }
+.pip-tc  { grid-column: 1 / -1; grid-row: 1; }
+
+/* Top-middle */
+.pip-tmc { grid-column: 1 / -1; grid-row: 2; }
+.pip-tml { grid-column: 1; grid-row: 2; }
+.pip-tmr { grid-column: 2; grid-row: 2; }
+
+/* Middle row */
+.pip-ml  { grid-column: 1; grid-row: 3; }
+.pip-mr  { grid-column: 2; grid-row: 3; }
+.pip-mc  { grid-column: 1 / -1; grid-row: 3; }
+
+/* Bottom-middle */
+.pip-bmc { grid-column: 1 / -1; grid-row: 4; }
+.pip-bml { grid-column: 1; grid-row: 4; }
+.pip-bmr { grid-column: 2; grid-row: 4; }
+
+/* Bottom row */
+.pip-bl  { grid-column: 1; grid-row: 5; }
+.pip-br  { grid-column: 2; grid-row: 5; }
+.pip-bc  { grid-column: 1 / -1; grid-row: 5; }
+
+/* === Face card art === */
+.face-art {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+}
+
+.face-portrait {
+    font-size: 2rem;
+    line-height: 1;
+}
+
+.face-suit {
+    font-size: 0.9rem;
+    opacity: 0.7;
 }
 
 .card.red {
@@ -548,6 +614,28 @@ body {
     color: var(--accent-gold);
     font-size: 0.8rem;
     margin: 4px 0;
+}
+
+.bid-preview {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--accent-gold);
+    text-align: center;
+    min-height: 2rem;
+    text-transform: capitalize;
+}
+
+.bid-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 12px;
+}
+
+.bid-confirm-btn {
+    font-size: 1rem !important;
+    padding: 8px 28px !important;
+    font-weight: 700;
 }
 
 .bid-option {
@@ -831,26 +919,33 @@ body {
     margin-left: 0;
 }
 
+/* === Discard tray (above hand) === */
+.discard-tray {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    padding: 4px 0;
+    min-height: 10px;
+}
+
+.discard-tray-card {
+    cursor: pointer;
+    outline: 3px solid #c0392b;
+    opacity: 0.8;
+    transform: scale(0.85);
+    box-shadow: 0 4px 12px rgba(192, 57, 43, 0.4);
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.discard-tray-card:hover {
+    opacity: 1;
+    transform: scale(0.9);
+}
+
 /* === Discard mode cards === */
 .card.discard-candidate {
     cursor: pointer;
-    transition: transform 0.25s ease, opacity 0.25s ease, outline 0.2s ease;
-}
-
-.card.discard-marked {
-    outline: 3px solid #c0392b;
-    opacity: 0.7;
-}
-
-.seat-south .hand .card.discard-marked {
-    transform: translateY(-30px) scale(0.92);
-    z-index: 90;
-    box-shadow: 0 12px 24px rgba(192, 57, 43, 0.4);
-}
-
-.seat-south .hand .card.discard-marked:hover {
-    transform: translateY(-30px) scale(0.95);
-    z-index: 100;
+    transition: transform 0.2s ease, opacity 0.2s ease, outline 0.2s ease;
 }
 
 /* === Kitty card selection (reveal panel) === */
@@ -947,30 +1042,40 @@ body {
 
 /* === Green Bottles (Drunk Mode) === */
 .btn-green-bottle {
-    background: linear-gradient(135deg, #2d6a3f, #1a4d2e);
-    border: 1px solid #3a8a52;
+    background: #111;
+    border: 1px solid #333;
     font-size: 1rem !important;
     width: auto !important;
-    padding: 2px 6px !important;
+    height: auto !important;
+    padding: 3px 8px !important;
     border-radius: 6px !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
     transition: all 0.3s ease;
 }
 
+.btn-green-bottle svg {
+    display: block;
+}
+
 .btn-green-bottle:hover {
-    background: linear-gradient(135deg, #3a8a52, #2d6a3f);
-    box-shadow: 0 0 8px rgba(58, 138, 82, 0.5);
+    background: #1a1a1a;
+    border-color: #3a8a52;
+    box-shadow: 0 0 8px rgba(58, 138, 82, 0.4);
 }
 
 .btn-green-bottle.active {
-    background: linear-gradient(135deg, #4ecb71, #2d6a3f);
-    box-shadow: 0 0 12px rgba(78, 203, 113, 0.6);
+    background: #111;
+    border-color: #4ecb71;
+    box-shadow: 0 0 12px rgba(78, 203, 113, 0.5);
 }
 
 .drink-count {
-    font-size: 0.6rem;
-    color: var(--text-light);
-    margin-left: 4px;
-    font-weight: 700;
+    font-size: 0.65rem;
+    color: #4ecb71;
+    font-weight: 800;
     min-width: 1em;
 }
 
@@ -1256,7 +1361,11 @@ body {
     }
 
     .card .suit-center { font-size: 1.4rem; }
+    .card .suit-ace { font-size: 1.8rem; }
     .card .rank-top, .card .rank-bottom { font-size: 0.7rem; }
+    .pip-area { font-size: 0.65rem; inset: 14px 5px; }
+    .face-portrait { font-size: 1.5rem; }
+    .face-suit { font-size: 0.7rem; }
 
     #played-cards { width: 200px; height: 200px; }
 
@@ -1282,9 +1391,13 @@ body {
     #game-status { font-size: 0.75rem; }
 
     .card .suit-center { font-size: 1.1rem; }
+    .card .suit-ace { font-size: 1.4rem; }
     .card .rank-top, .card .rank-bottom { font-size: 0.6rem; }
     .card .rank-top { top: 2px; left: 3px; }
     .card .rank-bottom { bottom: 2px; right: 3px; }
+    .pip-area { font-size: 0.5rem; inset: 12px 3px; }
+    .face-portrait { font-size: 1.2rem; }
+    .face-suit { font-size: 0.55rem; }
 
     #table {
         margin: 4px 6px;
@@ -1340,8 +1453,7 @@ body {
     .trump-suit-grid .btn-suit .suit-icon { font-size: 1.4rem; }
 
     .seat-south .hand.discard-mode .card { margin-left: -14px; }
-    .seat-south .hand .card.discard-marked { transform: translateY(-22px) scale(0.92); }
-    .seat-south .hand .card.discard-marked:hover { transform: translateY(-22px) scale(0.95); }
+    .discard-tray-card { transform: scale(0.75); }
 }
 
 /* === Responsive — Phone portrait (narrow + tall) === */
@@ -1355,8 +1467,12 @@ body {
     #game-status { font-size: 0.65rem; max-width: 55vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
     .card .suit-center { font-size: 0.9rem; }
+    .card .suit-ace { font-size: 1.1rem; }
     .card .rank-top, .card .rank-bottom { font-size: 0.5rem; }
     .card { border-radius: 5px; }
+    .pip-area { font-size: 0.4rem; inset: 10px 2px; }
+    .face-portrait { font-size: 1rem; }
+    .face-suit { font-size: 0.45rem; }
 
     #table {
         grid-template-columns: minmax(36px, auto) 1fr minmax(36px, auto);
@@ -1394,8 +1510,7 @@ body {
     .bid-winner-direction { font-size: 0.8rem; padding: 3px 12px; }
 
     .seat-south .hand.discard-mode .card { margin-left: -18px; }
-    .seat-south .hand .card.discard-marked { transform: translateY(-18px) scale(0.9); }
-    .seat-south .hand .card.discard-marked:hover { transform: translateY(-18px) scale(0.93); }
+    .discard-tray-card { transform: scale(0.7); }
 }
 
 /* === Responsive — Phone landscape (short + wide) === */
@@ -1410,6 +1525,10 @@ body {
     #game-status { font-size: 0.7rem; }
 
     .card .suit-center { font-size: 1rem; }
+    .card .suit-ace { font-size: 1.3rem; }
+    .pip-area { font-size: 0.55rem; inset: 12px 4px; }
+    .face-portrait { font-size: 1.3rem; }
+    .face-suit { font-size: 0.6rem; }
 
     #table {
         margin: 2px 8px;

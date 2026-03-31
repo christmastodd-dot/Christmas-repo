@@ -123,6 +123,9 @@
         const controls = document.getElementById('bid-controls');
         controls.innerHTML = '';
 
+        let selectedAmount = null;
+        let selectedDirection = 'low'; // Default to low since it's superior
+
         // Current bid info
         if (game.currentBid) {
             const info = document.createElement('div');
@@ -140,7 +143,6 @@
         // Direction toggle
         const dirRow = document.createElement('div');
         dirRow.className = 'bid-info';
-        let selectedDirection = 'low'; // Default to low since it's superior
 
         const dirLabel = document.createElement('span');
         dirLabel.innerHTML = '<strong>Direction: </strong>';
@@ -157,16 +159,35 @@
         // Helper: compute min bid for a given direction
         function getMinBid(direction) {
             if (!game.currentBid) return 3;
-            // Low can match a High bid at the same number
             if (direction === 'low' && game.currentBid.direction === 'high') {
                 return game.currentBid.amount;
             }
             return game.currentBid.amount + 1;
         }
 
+        // Preview label showing current selection
+        const previewRow = document.createElement('div');
+        previewRow.className = 'bid-preview';
+        previewRow.textContent = '';
+
+        function updatePreview() {
+            if (selectedAmount !== null) {
+                previewRow.textContent = `${selectedAmount} ${selectedDirection}`;
+                bidConfirmBtn.disabled = false;
+            } else {
+                previewRow.textContent = '';
+                bidConfirmBtn.disabled = true;
+            }
+        }
+
         function rebuildAmountButtons() {
             amtRow.innerHTML = '';
             const minBid = getMinBid(selectedDirection);
+
+            // If selected amount is no longer valid for new direction, clear it
+            if (selectedAmount !== null && selectedAmount < minBid) {
+                selectedAmount = null;
+            }
 
             if (minBid <= 7) {
                 const amtLabel = document.createElement('span');
@@ -175,25 +196,22 @@
 
                 for (let n = minBid; n <= 7; n++) {
                     const btn = document.createElement('button');
-                    btn.className = 'btn btn-primary';
+                    btn.className = 'btn btn-secondary' + (n === selectedAmount ? ' selected' : '');
                     btn.textContent = n;
                     btn.onclick = () => {
-                        UI.hidePanel('bid-panel');
-                        const bid = { amount: n, direction: selectedDirection };
-                        const result = game.placeBid(0, bid);
-                        if (result.valid) {
-                            UI.addBidEntry('You', `${n} ${selectedDirection}`, false);
-                            UI.setStatus(result.message);
-                            if (!result.biddingComplete) {
-                                setTimeout(() => processBiddingTurn(), 700);
-                            }
-                        }
+                        selectedAmount = n;
+                        // Highlight only this one
+                        amtRow.querySelectorAll('.btn').forEach(b => b.classList.remove('selected'));
+                        btn.classList.add('selected');
+                        updatePreview();
                     };
                     amtRow.appendChild(btn);
                 }
             } else {
                 amtRow.innerHTML = '<em>Cannot outbid — pass or the bid stands.</em>';
             }
+
+            updatePreview();
         }
 
         highBtn.onclick = () => {
@@ -220,13 +238,36 @@
         controls.appendChild(amtRow);
         rebuildAmountButtons();
 
+        // Preview
+        controls.appendChild(previewRow);
+
+        // Confirm Bid button
+        const actionRow = document.createElement('div');
+        actionRow.className = 'bid-actions';
+
+        const bidConfirmBtn = document.createElement('button');
+        bidConfirmBtn.className = 'btn btn-primary bid-confirm-btn';
+        bidConfirmBtn.textContent = 'Bid';
+        bidConfirmBtn.disabled = true;
+        bidConfirmBtn.onclick = () => {
+            if (selectedAmount === null) return;
+            UI.hidePanel('bid-panel');
+            const bid = { amount: selectedAmount, direction: selectedDirection };
+            const result = game.placeBid(0, bid);
+            if (result.valid) {
+                UI.addBidEntry('You', `${selectedAmount} ${selectedDirection}`, false);
+                UI.setStatus(result.message);
+                if (!result.biddingComplete) {
+                    setTimeout(() => processBiddingTurn(), 700);
+                }
+            }
+        };
+        actionRow.appendChild(bidConfirmBtn);
+
         // Pass button (hidden if first bidder must bid)
         const isFirstBidderFirstTurn = game.bidderIndex === game.firstBidder && !game.biddersActed.has(game.bidderIndex);
 
         if (!isFirstBidderFirstTurn) {
-            const passRow = document.createElement('div');
-            passRow.style.marginTop = '12px';
-
             const passBtn = document.createElement('button');
             passBtn.className = 'btn btn-secondary';
             passBtn.textContent = 'Pass';
@@ -241,8 +282,7 @@
                     }
                 }
             };
-            passRow.appendChild(passBtn);
-            controls.appendChild(passRow);
+            actionRow.appendChild(passBtn);
         } else {
             const mustBidRow = document.createElement('div');
             mustBidRow.className = 'bid-info bid-hint';
@@ -250,6 +290,7 @@
             controls.appendChild(mustBidRow);
         }
 
+        controls.appendChild(actionRow);
         UI.showPanel('bid-panel');
     }
 
@@ -348,9 +389,6 @@
 
     /** Step 2: Player discards N cards (equal to number taken from kitty). */
     function showDiscardPanel(player, numToDiscard) {
-        // Re-render hand with kitty cards highlighted, fanned out for discard
-        renderHandForDiscard(player);
-
         const controls = document.getElementById('kitty-controls');
         controls.innerHTML = '';
 
@@ -358,30 +396,6 @@
         counter.className = 'discard-counter';
         counter.textContent = `Select ${numToDiscard} card${numToDiscard !== 1 ? 's' : ''} to discard (0/${numToDiscard})`;
         controls.appendChild(counter);
-
-        const selected = new Set();
-
-        // Make cards selectable for discard
-        const handEl = document.getElementById('hand-south');
-        handEl.querySelectorAll('.card').forEach(cardEl => {
-            cardEl.classList.add('discard-candidate');
-            cardEl.onclick = () => {
-                const cardId = cardEl.dataset.cardId;
-                if (selected.has(cardId)) {
-                    selected.delete(cardId);
-                    cardEl.classList.remove('discard-marked');
-                } else if (selected.size < numToDiscard) {
-                    selected.add(cardId);
-                    cardEl.classList.add('discard-marked');
-                }
-                confirmBtn.disabled = selected.size !== numToDiscard;
-                if (selected.size === numToDiscard) {
-                    counter.textContent = 'Ready! Click Confirm to discard.';
-                } else {
-                    counter.textContent = `Select ${numToDiscard} card${numToDiscard !== 1 ? 's' : ''} to discard (${selected.size}/${numToDiscard})`;
-                }
-            };
-        });
 
         const confirmBtn = document.createElement('button');
         confirmBtn.className = 'btn btn-primary';
@@ -393,7 +407,7 @@
             if (result.valid) {
                 UI.hidePanel('kitty-panel');
                 kittyCardIds = [];
-                // Remove discard mode class
+                discardTray.remove();
                 document.getElementById('hand-south').classList.remove('discard-mode');
                 UI.renderHand(player);
             } else {
@@ -402,24 +416,65 @@
         };
         controls.appendChild(confirmBtn);
 
+        const selected = new Set();
+
+        // Create discard tray above the hand
+        const seatSouth = document.querySelector('.seat-south');
+        let discardTray = seatSouth.querySelector('.discard-tray');
+        if (discardTray) discardTray.remove();
+        discardTray = document.createElement('div');
+        discardTray.className = 'discard-tray';
+        seatSouth.insertBefore(discardTray, seatSouth.querySelector('.hand'));
+
+        // Render the hand
+        renderHandForDiscard(player, selected, numToDiscard, discardTray, confirmBtn, counter);
+
         UI.showPanel('kitty-panel');
     }
 
-    /** Render hand fanned out for discard mode, with kitty cards highlighted. */
-    function renderHandForDiscard(player) {
+    /** Rebuild the hand and discard tray to reflect current selection. */
+    function renderHandForDiscard(player, selected, numToDiscard, discardTray, confirmBtn, counter) {
         const container = document.getElementById('hand-south');
         container.innerHTML = '';
         container.classList.add('discard-mode');
+        discardTray.innerHTML = '';
 
-        player.hand.forEach((card, i) => {
+        // Render discard tray cards
+        if (selected.size > 0) {
+            player.hand.filter(c => selected.has(c.id)).forEach(card => {
+                const el = card.toElement();
+                el.classList.add('discard-tray-card');
+                el.onclick = () => {
+                    selected.delete(card.id);
+                    renderHandForDiscard(player, selected, numToDiscard, discardTray, confirmBtn, counter);
+                };
+                discardTray.appendChild(el);
+            });
+        }
+
+        // Render remaining hand cards
+        player.hand.filter(c => !selected.has(c.id)).forEach((card, i) => {
             const el = card.toElement();
-            el.style.animationDelay = `${i * 0.03}s`;
-            el.classList.add('dealing');
+            el.style.animationDelay = `${i * 0.02}s`;
+            el.classList.add('dealing', 'discard-candidate');
             if (kittyCardIds.includes(card.id)) {
                 el.classList.add('kitty-new');
             }
+            el.onclick = () => {
+                if (selected.size < numToDiscard) {
+                    selected.add(card.id);
+                    renderHandForDiscard(player, selected, numToDiscard, discardTray, confirmBtn, counter);
+                }
+            };
             container.appendChild(el);
         });
+
+        confirmBtn.disabled = selected.size !== numToDiscard;
+        if (selected.size === numToDiscard) {
+            counter.textContent = 'Ready! Click Confirm to discard.';
+        } else {
+            counter.textContent = `Select ${numToDiscard} card${numToDiscard !== 1 ? 's' : ''} to discard (${selected.size}/${numToDiscard})`;
+        }
     }
 
     // ─── Trump Selection ──────────────────────────────────

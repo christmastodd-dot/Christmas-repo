@@ -78,12 +78,67 @@ class Card {
         el.className = `card card-face ${this.color}`;
         el.dataset.cardId = this.id;
 
+        const center = this._buildCenter();
+
         el.innerHTML = `
             <span class="rank-top">${this.displayRank}<br>${this.symbol}</span>
-            <span class="suit-center">${this.symbol}</span>
+            ${center}
             <span class="rank-bottom">${this.displayRank}<br>${this.symbol}</span>
         `;
         return el;
+    }
+
+    /**
+     * Build the center content of the card — pips for numbered, art for face cards.
+     */
+    _buildCenter() {
+        if (this.rank >= 11 && this.rank <= 13) {
+            return this._faceCardCenter();
+        }
+        if (this.rank === 14) {
+            // Ace — single large pip
+            return `<span class="suit-center suit-ace">${this.symbol}</span>`;
+        }
+        return this._pipLayout();
+    }
+
+    /**
+     * Generate pip layout for numbered cards (2-10).
+     */
+    _pipLayout() {
+        const s = this.symbol;
+        // Pip position classes: t=top, m=middle, b=bottom, l=left, r=right, c=center
+        const layouts = {
+            2:  ['tc', 'bc'],
+            3:  ['tc', 'mc', 'bc'],
+            4:  ['tl', 'tr', 'bl', 'br'],
+            5:  ['tl', 'tr', 'mc', 'bl', 'br'],
+            6:  ['tl', 'tr', 'ml', 'mr', 'bl', 'br'],
+            7:  ['tl', 'tr', 'ml', 'mr', 'tmc', 'bl', 'br'],
+            8:  ['tl', 'tr', 'ml', 'mr', 'tmc', 'bmc', 'bl', 'br'],
+            9:  ['tl', 'tr', 'tml', 'tmr', 'mc', 'bml', 'bmr', 'bl', 'br'],
+            10: ['tl', 'tr', 'tml', 'tmr', 'tmc', 'bmc', 'bml', 'bmr', 'bl', 'br'],
+        };
+        const pips = layouts[this.rank] || [];
+        const pipEls = pips.map(pos => `<span class="pip pip-${pos}">${s}</span>`).join('');
+        return `<div class="pip-area">${pipEls}</div>`;
+    }
+
+    /**
+     * Generate face card center art using styled symbols.
+     */
+    _faceCardCenter() {
+        const faces = { 11: 'J', 12: 'Q', 13: 'K' };
+        const portraits = {
+            11: { symbol: '\u2694', label: 'JACK' },   // crossed swords
+            12: { symbol: '\u265B', label: 'QUEEN' },   // chess queen
+            13: { symbol: '\u265A', label: 'KING' },    // chess king
+        };
+        const p = portraits[this.rank];
+        return `<div class="face-art">
+            <span class="face-portrait">${p.symbol}</span>
+            <span class="face-suit">${this.symbol}</span>
+        </div>`;
     }
 
     /**
