@@ -8,7 +8,7 @@ import random
 from flask import Flask, render_template, session, redirect, url_for, request
 
 from english_word_game import (
-    WORDS_1ST_GRADE, WORDS_2ND_GRADE, WORDS_3RD_GRADE, GRADES,
+    WORDS_1ST_GRADE, WORDS_2ND_GRADE, WORDS_3RD_GRADE, WORDS_4TH_GRADE, GRADES,
     ROUNDS_PER_GAME, get_word_list, get_word_pool,
     build_choices, build_antonym_choices, build_missing_letter_choices,
 )
@@ -46,7 +46,8 @@ def home():
     return render_template("home.html",
                            first_count=len(WORDS_1ST_GRADE),
                            second_count=len(WORDS_2ND_GRADE),
-                           third_count=len(WORDS_3RD_GRADE))
+                           third_count=len(WORDS_3RD_GRADE),
+                           fourth_count=len(WORDS_4TH_GRADE))
 
 
 @app.route("/difficulty", methods=["POST"])
