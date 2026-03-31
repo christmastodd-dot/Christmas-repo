@@ -322,19 +322,31 @@ body {
 .card .rank-top,
 .card .rank-bottom {
     position: absolute;
-    font-size: 0.8rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     line-height: 1;
     font-weight: 700;
+    z-index: 2;
+}
+
+.card .rank-label {
+    font-size: 0.8rem;
+}
+
+.card .rank-suit {
+    font-size: 0.55rem;
+    margin-top: 1px;
 }
 
 .card .rank-top {
-    top: 5px;
-    left: 6px;
+    top: 4px;
+    left: 4px;
 }
 
 .card .rank-bottom {
-    bottom: 5px;
-    right: 6px;
+    bottom: 4px;
+    right: 4px;
     transform: rotate(180deg);
 }
 
@@ -350,11 +362,14 @@ body {
 /* === Pip layout for numbered cards === */
 .pip-area {
     position: absolute;
-    inset: 16px 8px;
+    top: 4px;
+    bottom: 4px;
+    left: 18px;
+    right: 18px;
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-template-rows: repeat(5, 1fr);
-    font-size: 0.85rem;
+    font-size: 0.7rem;
     line-height: 1;
 }
 
@@ -1362,8 +1377,9 @@ body {
 
     .card .suit-center { font-size: 1.4rem; }
     .card .suit-ace { font-size: 1.8rem; }
-    .card .rank-top, .card .rank-bottom { font-size: 0.7rem; }
-    .pip-area { font-size: 0.65rem; inset: 14px 5px; }
+    .card .rank-label { font-size: 0.7rem; }
+    .card .rank-suit { font-size: 0.45rem; }
+    .pip-area { font-size: 0.55rem; left: 14px; right: 14px; }
     .face-portrait { font-size: 1.5rem; }
     .face-suit { font-size: 0.7rem; }
 
@@ -1392,10 +1408,11 @@ body {
 
     .card .suit-center { font-size: 1.1rem; }
     .card .suit-ace { font-size: 1.4rem; }
-    .card .rank-top, .card .rank-bottom { font-size: 0.6rem; }
+    .card .rank-label { font-size: 0.55rem; }
+    .card .rank-suit { font-size: 0.35rem; }
     .card .rank-top { top: 2px; left: 3px; }
     .card .rank-bottom { bottom: 2px; right: 3px; }
-    .pip-area { font-size: 0.5rem; inset: 12px 3px; }
+    .pip-area { font-size: 0.4rem; left: 12px; right: 12px; }
     .face-portrait { font-size: 1.2rem; }
     .face-suit { font-size: 0.55rem; }
 
@@ -1468,9 +1485,10 @@ body {
 
     .card .suit-center { font-size: 0.9rem; }
     .card .suit-ace { font-size: 1.1rem; }
-    .card .rank-top, .card .rank-bottom { font-size: 0.5rem; }
+    .card .rank-label { font-size: 0.45rem; }
+    .card .rank-suit { font-size: 0.3rem; }
     .card { border-radius: 5px; }
-    .pip-area { font-size: 0.4rem; inset: 10px 2px; }
+    .pip-area { font-size: 0.35rem; left: 10px; right: 10px; }
     .face-portrait { font-size: 1rem; }
     .face-suit { font-size: 0.45rem; }
 
@@ -1526,7 +1544,9 @@ body {
 
     .card .suit-center { font-size: 1rem; }
     .card .suit-ace { font-size: 1.3rem; }
-    .pip-area { font-size: 0.55rem; inset: 12px 4px; }
+    .card .rank-label { font-size: 0.6rem; }
+    .card .rank-suit { font-size: 0.4rem; }
+    .pip-area { font-size: 0.45rem; left: 13px; right: 13px; }
     .face-portrait { font-size: 1.3rem; }
     .face-suit { font-size: 0.6rem; }
 

@@ -81,9 +81,9 @@ class Card {
         const center = this._buildCenter();
 
         el.innerHTML = `
-            <span class="rank-top">${this.displayRank}<br>${this.symbol}</span>
+            <span class="rank-top"><span class="rank-label">${this.displayRank}</span><span class="rank-suit">${this.symbol}</span></span>
             ${center}
-            <span class="rank-bottom">${this.displayRank}<br>${this.symbol}</span>
+            <span class="rank-bottom"><span class="rank-label">${this.displayRank}</span><span class="rank-suit">${this.symbol}</span></span>
         `;
         return el;
     }
