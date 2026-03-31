@@ -458,6 +458,7 @@
         player.hand.filter(c => !selected.has(c.id)).forEach((card, i) => {
             const el = card.toElement();
             el.style.animationDelay = `${i * 0.02}s`;
+            el.style.zIndex = i;
             el.classList.add('dealing', 'discard-candidate');
             if (kittyCardIds.includes(card.id)) {
                 el.classList.add('kitty-new');

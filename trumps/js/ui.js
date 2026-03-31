@@ -24,6 +24,8 @@ const UI = {
                 el.style.animationDelay = `${i * 0.04}s`;
                 el.classList.add('dealing');
             }
+            // Ensure consistent left-to-right overlap
+            el.style.zIndex = i;
             container.appendChild(el);
         });
 

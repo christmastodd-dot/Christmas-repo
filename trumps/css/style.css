@@ -16,8 +16,8 @@
     --panel-bg: rgba(0, 0, 0, 0.88);
     --suit-red: #c0392b;
     --suit-black: #1a1a1a;
-    --card-w: 72px;
-    --card-h: 104px;
+    --card-w: 88px;
+    --card-h: 126px;
 }
 
 body {
@@ -220,7 +220,7 @@ body {
 .seat-south .hand .card:hover {
     transform: translateY(-18px) scale(1.05);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
-    z-index: 100;
+    z-index: 100 !important;
 }
 
 /* ── North hand — tight horizontal stack ── */
@@ -929,13 +929,9 @@ body {
     }
 }
 
-/* === Discard mode — wider fan === */
-.seat-south .hand.discard-mode .card {
-    margin-left: -10px;
-}
-
-.seat-south .hand.discard-mode .card:first-child {
-    margin-left: 0;
+/* === Discard mode === */
+.seat-south .hand.discard-mode {
+    /* Same overlap as normal play — no zoom or layout change */
 }
 
 /* === Discard tray (above hand) === */
@@ -1375,8 +1371,8 @@ body {
 /* === Responsive — Tablet landscape === */
 @media (max-height: 700px) {
     :root {
-        --card-w: 60px;
-        --card-h: 88px;
+        --card-w: 70px;
+        --card-h: 100px;
     }
 
     .card .suit-center { font-size: 1.4rem; }
@@ -1398,8 +1394,8 @@ body {
 /* === Responsive — Small screens / phones (width) === */
 @media (max-width: 800px) {
     :root {
-        --card-w: 52px;
-        --card-h: 76px;
+        --card-w: 62px;
+        --card-h: 90px;
     }
 
     #game-header {
@@ -1473,15 +1469,14 @@ body {
     .trump-suit-grid .btn-suit { padding: 10px 14px; font-size: 0.95rem; }
     .trump-suit-grid .btn-suit .suit-icon { font-size: 1.4rem; }
 
-    .seat-south .hand.discard-mode .card { margin-left: -14px; }
     .discard-tray-card { transform: scale(0.75); }
 }
 
 /* === Responsive — Phone portrait (narrow + tall) === */
 @media (max-width: 500px) {
     :root {
-        --card-w: 44px;
-        --card-h: 64px;
+        --card-w: 52px;
+        --card-h: 76px;
     }
 
     #game-header h1 { font-size: 0.85rem; }
@@ -1531,15 +1526,14 @@ body {
     .bid-winner-value { font-size: 2rem; }
     .bid-winner-direction { font-size: 0.8rem; padding: 3px 12px; }
 
-    .seat-south .hand.discard-mode .card { margin-left: -18px; }
     .discard-tray-card { transform: scale(0.7); }
 }
 
 /* === Responsive — Phone landscape (short + wide) === */
 @media (max-height: 500px) and (orientation: landscape) {
     :root {
-        --card-w: 46px;
-        --card-h: 66px;
+        --card-w: 54px;
+        --card-h: 78px;
     }
 
     #game-header { padding: 2px 12px; }
