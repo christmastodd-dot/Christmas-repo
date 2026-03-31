@@ -11,7 +11,9 @@
 <div class="correct-box">
     <div class="icon">&#10003;</div>
     <h2>Correct!</h2>
-    {% if game.mode == "missing_letter" %}
+    {% if game.mode == "scramble" %}
+    <p>The unscrambled word is "<strong>{{ word.name }}</strong>"</p>
+    {% elif game.mode == "missing_letter" %}
     <p>The missing letter is "<strong>{{ correct_answer }}</strong>" — the word is "<strong>{{ word.name }}</strong>"</p>
     {% else %}
     <p>"<strong>{{ chosen }}</strong>" is {{ "an antonym" if game.mode == "antonym" else "a synonym" }} of "<strong>{{ word.name }}</strong>"</p>
@@ -21,7 +23,10 @@
 <div class="incorrect-box">
     <div class="icon">&#10060;</div>
     <h2>Not Quite!</h2>
-    {% if game.mode == "missing_letter" %}
+    {% if game.mode == "scramble" %}
+    <p>You picked "<strong>{{ chosen }}</strong>"</p>
+    <p class="mt-12">The correct word was "<strong>{{ word.name }}</strong>"</p>
+    {% elif game.mode == "missing_letter" %}
     <p>You picked "<strong>{{ chosen }}</strong>"</p>
     <p class="mt-12">The correct letter was "<strong>{{ correct_answer }}</strong>" — the word is "<strong>{{ word.name }}</strong>"</p>
     {% else %}
@@ -49,7 +54,7 @@
         <div class="fact-label">Example</div>
         <div class="fact-value"><em>{{ word.example }}</em></div>
     </div>
-    {% if game.mode == "missing_letter" %}
+    {% if game.mode in ["missing_letter", "scramble"] %}
     <div class="fact-row">
         <div class="fact-label">Spelling</div>
         <div class="fact-value" style="font-size: 24px; letter-spacing: 4px; font-family: monospace;">{{ word.name }}</div>

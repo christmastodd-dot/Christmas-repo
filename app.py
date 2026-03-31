@@ -11,6 +11,7 @@ from english_word_game import (
     WORDS_1ST_GRADE, WORDS_2ND_GRADE, WORDS_3RD_GRADE, WORDS_4TH_GRADE, GRADES,
     ROUNDS_PER_GAME, get_word_list, get_word_pool,
     build_choices, build_antonym_choices, build_missing_letter_choices,
+    build_scramble_choices,
 )
 
 app = Flask(__name__)
@@ -108,7 +109,11 @@ def play():
     word = get_word_by_index(game["grade"], word_idx)
 
     blanked = None
-    if game.get("mode") == "missing_letter":
+    scrambled = None
+    if game.get("mode") == "scramble":
+        word_list = get_word_list(game["grade"])
+        scrambled, choices, correct = build_scramble_choices(word, word_list)
+    elif game.get("mode") == "missing_letter":
         blanked, choices, correct, blank_idx = build_missing_letter_choices(word)
     elif game.get("mode") == "antonym":
         choices, correct = build_antonym_choices(word)
@@ -124,6 +129,7 @@ def play():
 
     return render_template("play.html",
                            game=game,
+                           scrambled=scrambled,
                            word=word,
                            choices=choices,
                            blanked=blanked,
@@ -167,8 +173,8 @@ def answer():
         "difficulty": word["difficulty"],
         "mode": game.get("mode", "synonym"),
     }
-    if game.get("mode") == "missing_letter":
-        seen_entry["correct_letter"] = correct_answer
+    if game.get("mode") in ("missing_letter", "scramble"):
+        pass  # spelling shown from word name
     elif game.get("mode") == "antonym":
         seen_entry["antonyms"] = word["antonyms"]
     else:

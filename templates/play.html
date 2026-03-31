@@ -11,13 +11,19 @@
     <div class="status">
         <span class="badge badge-blue">{{ game.grade }} Grade</span>
         <span class="badge badge-purple">{{ game.difficulty|upper }}</span>
-        <span class="badge badge-{{ 'green' if game.mode == 'missing_letter' else 'red' if game.mode == 'antonym' else 'blue' }}">{{ "Missing Letter" if game.mode == "missing_letter" else "Antonym" if game.mode == "antonym" else "Synonym" }}</span>
+        <span class="badge badge-{{ 'amber' if game.mode == 'scramble' else 'green' if game.mode == 'missing_letter' else 'red' if game.mode == 'antonym' else 'blue' }}">{{ "Scramble" if game.mode == "scramble" else "Missing Letter" if game.mode == "missing_letter" else "Antonym" if game.mode == "antonym" else "Synonym" }}</span>
         {% if game.streak >= 2 %}
         <span class="badge badge-amber">Streak: {{ game.streak }}</span>
         {% endif %}
     </div>
 
-    {% if game.mode == "missing_letter" %}
+    {% if game.mode == "scramble" %}
+    <p style="font-size: 32px; text-align: center; letter-spacing: 4px; font-family: monospace; margin-bottom: 8px;">{{ scrambled }}</p>
+    <p class="text-center text-muted" style="margin-bottom: 20px;">
+        "{{ word.definition }}"
+    </p>
+    <p style="font-weight: 600; margin-bottom: 12px;">Which word do these letters spell?</p>
+    {% elif game.mode == "missing_letter" %}
     <p style="font-size: 36px; text-align: center; letter-spacing: 6px; font-family: monospace; margin-bottom: 8px;">{{ blanked }}</p>
     <p class="text-center text-muted" style="margin-bottom: 20px;">
         "{{ word.definition }}"

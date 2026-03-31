@@ -24,7 +24,7 @@
         <div class="word-name" style="color: {{ name_color }};">{{ w.name }} <span class="badge {{ badge_class }}">{{ w.difficulty }}</span></div>
         <div class="word-def">{{ w.definition }}</div>
         <div style="margin-top: 4px;">
-            {% if w.mode == "missing_letter" %}
+            {% if w.mode in ["missing_letter", "scramble"] %}
             <span class="text-muted" style="font-size: 12px;">Spelling:</span>
             <span class="word-chip" style="font-size: 11px; letter-spacing: 2px;">{{ w.name }}</span>
             {% elif w.mode == "antonym" %}

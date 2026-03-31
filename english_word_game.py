@@ -5544,6 +5544,34 @@ def build_missing_letter_choices(word):
     return blanked, choices, correct, blank_idx
 
 
+def build_scramble_choices(word, word_list):
+    """Build a word scramble puzzle: jumble the letters, offer 4 word choices.
+
+    Returns (scrambled, choices, correct_word).
+    All text is lowercase.
+    """
+    correct = word["name"].lower()
+
+    # Scramble letters — keep trying until different from original
+    letters = list(correct)
+    for _ in range(20):
+        random.shuffle(letters)
+        scrambled = "".join(letters)
+        if scrambled != correct:
+            break
+
+    # Pick 3 wrong words from the same grade (similar length preferred)
+    others = [w["name"].lower() for w in word_list if w["name"].lower() != correct]
+    # Sort by length similarity, then sample from the closest matches
+    others.sort(key=lambda w: abs(len(w) - len(correct)))
+    pool = others[:12]  # top 12 closest-length words
+    wrong = random.sample(pool, min(3, len(pool)))
+
+    choices = [correct] + wrong
+    random.shuffle(choices)
+    return scrambled, choices, correct
+
+
 def play_round(word, round_num, total_rounds):
     """Play one round: show word + definition, pick synonym from 4 choices."""
     choices, correct = build_choices(word)
