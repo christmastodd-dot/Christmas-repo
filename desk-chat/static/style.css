@@ -39,7 +39,8 @@ body {
     margin-bottom: 1.5rem;
 }
 
-.join-card input {
+.join-card input[type="text"],
+.join-card input[type="password"] {
     display: block;
     width: 100%;
     padding: 0.6rem 0.75rem;
@@ -52,11 +53,13 @@ body {
     outline: none;
 }
 
-.join-card input:focus {
+.join-card input[type="text"]:focus,
+.join-card input[type="password"]:focus {
     border-color: #5a7a9a;
 }
 
-.join-card input::placeholder {
+.join-card input[type="text"]::placeholder,
+.join-card input[type="password"]::placeholder {
     color: #666;
 }
 
