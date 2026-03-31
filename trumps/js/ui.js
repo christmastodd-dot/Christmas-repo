@@ -9,7 +9,7 @@ const UI = {
     },
 
     /** Render a player's hand into their seat container. */
-    renderHand(player) {
+    renderHand(player, animate = false) {
         const container = document.getElementById(`hand-${player.position}`);
         container.innerHTML = '';
 
@@ -17,10 +17,10 @@ const UI = {
             let el;
             if (player.isHuman) {
                 el = card.toElement();
-                el.style.animationDelay = `${i * 0.04}s`;
-                el.classList.add('dealing');
             } else {
                 el = Card.backElement();
+            }
+            if (animate) {
                 el.style.animationDelay = `${i * 0.04}s`;
                 el.classList.add('dealing');
             }
@@ -48,8 +48,8 @@ const UI = {
     },
 
     /** Render all four hands. */
-    renderAllHands(players) {
-        players.forEach(p => UI.renderHand(p));
+    renderAllHands(players, animate = true) {
+        players.forEach(p => UI.renderHand(p, animate));
     },
 
     /** Update the scoreboard. */
