@@ -15,32 +15,29 @@ const AI = {
      */
     decideBid(player, currentBid, game) {
         const eval_ = this._evaluateHand(player);
-        const isFirstBidderFirstTurn = player.index === game.firstBidder && !game.biddersActed.has(player.index);
+        const isFirstBidder = game.biddingPosition === 0;
 
         // Calculate minimum bid considering low superiority
         let minBid;
         if (!currentBid) {
             minBid = 3;
         } else if (eval_.direction === 'low' && currentBid.direction === 'high') {
-            // Low can match a High bid at the same number
             minBid = currentBid.amount;
         } else {
             minBid = currentBid.amount + 1;
         }
 
         // First bidder must bid — always open with at least 3
-        if (isFirstBidderFirstTurn) {
-            const amount = Math.max(minBid, Math.min(eval_.maxBid, minBid));
-            return { amount, direction: eval_.direction };
+        if (isFirstBidder) {
+            return { amount: Math.max(3, minBid), direction: eval_.direction };
         }
 
-        // Not strong enough
+        // Not strong enough to outbid
         if (eval_.maxBid < minBid) return null;
 
-        // Position matters: if partner has already bid, be more conservative
+        // Partner has the current bid — don't outbid unless very strong
         const partnerBid = this._partnerHasBid(player, game);
         if (partnerBid && eval_.maxBid < minBid + 1) {
-            // Partner already has the bid — don't outbid them unless very strong
             return null;
         }
 
@@ -50,7 +47,7 @@ const AI = {
 
         if (Math.random() > aggressiveness && currentBid) return null;
 
-        // First to bid — open if decent
+        // Open if decent (no current bid)
         if (!currentBid && eval_.maxBid >= 3) {
             return { amount: 3, direction: eval_.direction };
         }

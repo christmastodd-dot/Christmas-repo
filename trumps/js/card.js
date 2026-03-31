@@ -125,18 +125,44 @@ class Card {
     }
 
     /**
-     * Generate face card center art using styled symbols.
+     * Generate face card center art with inline SVG portraits.
      */
     _faceCardCenter() {
-        const faces = { 11: 'J', 12: 'Q', 13: 'K' };
+        const c = this.color === 'red' ? '#c0392b' : '#1a1a1a';
+        const c2 = this.color === 'red' ? '#e74c3c' : '#333';
+        const bg = this.color === 'red' ? '#fde8e5' : '#e8e8f0';
+
         const portraits = {
-            11: { symbol: '\u2694', label: 'JACK' },   // crossed swords
-            12: { symbol: '\u265B', label: 'QUEEN' },   // chess queen
-            13: { symbol: '\u265A', label: 'KING' },    // chess king
+            11: `<svg viewBox="0 0 40 52" class="face-svg">
+                <rect x="2" y="2" width="36" height="48" rx="4" fill="${bg}" stroke="${c}" stroke-width="1"/>
+                <circle cx="20" cy="16" r="7" fill="${c2}"/>
+                <rect x="12" y="22" width="16" height="4" rx="2" fill="${c}"/>
+                <path d="M14 26 L14 38 L18 38 L18 30 L22 30 L22 38 L26 38 L26 26 Z" fill="${c}"/>
+                <rect x="10" y="23" width="20" height="2" rx="1" fill="${c2}"/>
+                <circle cx="20" cy="10" r="2" fill="${bg}"/>
+                <rect x="16" y="6" width="8" height="3" rx="1" fill="${c}"/>
+            </svg>`,
+            12: `<svg viewBox="0 0 40 52" class="face-svg">
+                <rect x="2" y="2" width="36" height="48" rx="4" fill="${bg}" stroke="${c}" stroke-width="1"/>
+                <circle cx="20" cy="16" r="7" fill="${c2}"/>
+                <path d="M14 22 Q14 40 20 42 Q26 40 26 22 Z" fill="${c}"/>
+                <circle cx="20" cy="16" r="5" fill="${bg}" opacity="0.3"/>
+                <path d="M14 7 L16 12 L20 9 L24 12 L26 7 L23 10 L20 6 L17 10 Z" fill="${c}"/>
+                <circle cx="20" cy="10" r="1.5" fill="${bg}"/>
+            </svg>`,
+            13: `<svg viewBox="0 0 40 52" class="face-svg">
+                <rect x="2" y="2" width="36" height="48" rx="4" fill="${bg}" stroke="${c}" stroke-width="1"/>
+                <circle cx="20" cy="16" r="7" fill="${c2}"/>
+                <path d="M12 24 L12 38 L16 38 L16 32 L24 32 L24 38 L28 38 L28 24 Z" fill="${c}"/>
+                <rect x="12" y="22" width="16" height="4" rx="2" fill="${c}"/>
+                <polygon points="13,8 20,3 27,8 24,8 20,5 16,8" fill="${c}"/>
+                <rect x="15" y="8" width="10" height="2" rx="1" fill="${c2}"/>
+                <circle cx="20" cy="5" r="1.5" fill="${bg}"/>
+            </svg>`,
         };
-        const p = portraits[this.rank];
+
         return `<div class="face-art">
-            <span class="face-portrait">${p.symbol}</span>
+            ${portraits[this.rank]}
             <span class="face-suit">${this.symbol}</span>
         </div>`;
     }

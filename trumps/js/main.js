@@ -267,9 +267,9 @@
         actionRow.appendChild(bidConfirmBtn);
 
         // Pass button (hidden if first bidder must bid)
-        const isFirstBidderFirstTurn = game.bidderIndex === game.firstBidder && !game.biddersActed.has(game.bidderIndex);
+        const isFirstBidder = game.biddingPosition === 0;
 
-        if (!isFirstBidderFirstTurn) {
+        if (!isFirstBidder) {
             const passBtn = document.createElement('button');
             passBtn.className = 'btn btn-secondary';
             passBtn.textContent = 'Pass';

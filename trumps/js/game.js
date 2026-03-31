@@ -37,6 +37,7 @@ class Game {
         this.bidderIndex = null;      // whose turn to bid
         this.passCount = 0;           // how many consecutive passes
         this.biddingOrder = [];       // ordered list of player indices for bidding
+        this.biddingPosition = 0;     // current position in biddingOrder (0-3)
         this.biddersActed = new Set(); // players who have had at least one turn
 
         // Callbacks — set by the controller (main.js) to drive UI
@@ -132,13 +133,15 @@ class Game {
         this.bidWinner = null;
         this.biddersActed = new Set();
 
-        // Build bidding order: start left of dealer, go clockwise
+        // Build bidding order: start left of dealer, go clockwise, end with dealer
+        // Each player gets exactly one turn. No second bids.
         this.biddingOrder = [];
         let idx = this.firstBidder;
         for (let i = 0; i < 4; i++) {
             this.biddingOrder.push(idx);
             idx = this.nextPlayer(idx);
         }
+        this.biddingPosition = 0; // index into biddingOrder
 
         this.bidderIndex = this.biddingOrder[0];
         this._emit('onPhaseChange', 'bidding', { bidder: this.bidderIndex });
@@ -148,6 +151,7 @@ class Game {
     /**
      * Process a bid from the current bidder.
      * bid: { amount, direction } or null for pass.
+     * Each player gets exactly one turn. Bidding ends after the dealer (4th player).
      * Returns: { valid, message, biddingComplete }
      */
     placeBid(playerIndex, bid) {
@@ -155,9 +159,14 @@ class Game {
             return { valid: false, message: 'Not your turn to bid.' };
         }
 
+        // Prevent bidding twice
+        if (this.biddersActed.has(playerIndex)) {
+            return { valid: false, message: 'You have already bid.' };
+        }
+
         if (bid === null) {
-            // First bidder must bid on their first turn
-            if (playerIndex === this.firstBidder && !this.biddersActed.has(playerIndex)) {
+            // First bidder must bid
+            if (this.biddingPosition === 0) {
                 return { valid: false, message: 'First bidder must bid — cannot pass.' };
             }
 
@@ -166,12 +175,12 @@ class Game {
             this.players[playerIndex].lastBid = null;
             this.biddersActed.add(playerIndex);
 
-            // Check if bidding is over
+            // Check if this was the last bidder (dealer)
             if (this._isBiddingComplete()) {
                 return this._finalizeBidding();
             }
 
-            // Advance to next bidder
+            // Advance to next bidder in order
             this._advanceBidder();
             return { valid: true, message: `${this.players[playerIndex].label} passes.`, biddingComplete: false };
         }
@@ -195,7 +204,12 @@ class Game {
             return this._finalizeBidding();
         }
 
-        // Advance to next bidder
+        // Check if this was the last bidder (dealer)
+        if (this._isBiddingComplete()) {
+            return this._finalizeBidding();
+        }
+
+        // Advance to next bidder in order
         this._advanceBidder();
         return { valid: true, message: `${this.players[playerIndex].label} bids ${bid.amount} ${bid.direction || ''}.`, biddingComplete: false };
     }
@@ -226,30 +240,18 @@ class Game {
         return { valid: true };
     }
 
-    /** Advance to the next eligible bidder (skip over settled). */
+    /** Advance to the next bidder in order (simple sequential, no skipping). */
     _advanceBidder() {
-        this.bidderIndex = this.nextPlayer(this.bidderIndex);
-
-        // Skip the current high bidder (they don't bid against themselves)
-        if (this.currentBid && this.bidderIndex === this.currentBid.playerIndex) {
-            this.bidderIndex = this.nextPlayer(this.bidderIndex);
+        this.biddingPosition++;
+        if (this.biddingPosition < this.biddingOrder.length) {
+            this.bidderIndex = this.biddingOrder[this.biddingPosition];
+            this._emit('onTurnChange', this.bidderIndex);
         }
-
-        this._emit('onTurnChange', this.bidderIndex);
     }
 
-    /** Check if bidding is complete (all 4 must act; then 2 passes after a bid, or all 4 pass). */
+    /** Check if bidding is complete (all 4 players have had their turn). */
     _isBiddingComplete() {
-        // All four players must have at least one turn before bidding can close
-        if (this.biddersActed.size < 4) return false;
-
-        if (this.currentBid === null && this.passCount >= 4) {
-            return true; // Everyone passed — redeal (shouldn't happen since first bidder must bid)
-        }
-        if (this.currentBid !== null && this.passCount >= 2) {
-            return true; // 2 other players passed after the last bid (since we skip the high bidder)
-        }
-        return false;
+        return this.biddingPosition >= this.biddingOrder.length - 1;
     }
 
     /** Finalize bidding — determine winner or trigger redeal. */
