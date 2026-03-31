@@ -4306,8 +4306,8 @@
             d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
         }
 
-        var isAdmin = userId === 'Coach';
-        var canDelete = post.author === userId || isAdmin;
+        var userIsAdmin = isAdmin();
+        var canDelete = post.author === userId || userIsAdmin;
         var deleteBtn = canDelete ? '<button class="feed-card__delete" onclick="deleteFeedPost(\'' + post.id + '\')">Delete</button>' : '';
 
         // Build reactions
@@ -6091,9 +6091,9 @@
         }).join(' · ');
         var author = t.author ? '<div class="templates__card-author">by ' + t.author + '</div>' : '';
         var actions = '';
-        var isAdmin = userId === 'Coach';
+        var userIsAdmin = isAdmin();
         var canEdit = !t.shared && !t.builtin;
-        if (canEdit || isAdmin) {
+        if (canEdit || userIsAdmin) {
           actions = '<button class="templates__card-btn" onclick="editTemplate(\'' + t.id + '\')">' + (t.builtin || t.shared ? 'Edit Copy' : 'Edit') + '</button>' +
             '<button class="templates__card-btn templates__card-btn--delete" onclick="deleteTemplate(\'' + t.id + '\')">' + (t.builtin ? 'Hide' : 'Delete') + '</button>';
         }
@@ -6489,9 +6489,13 @@
 
     // ===== Exercise Manager (Coach admin) =====
 
+    function isAdmin() {
+      return userId === 'Coach' || userId === 'Riyodiyo';
+    }
+
     function showExerciseManagerIfAdmin() {
       var mgr = document.getElementById('exercise-manager');
-      if (userId === 'Coach') {
+      if (isAdmin()) {
         mgr.classList.add('exercise-manager--visible');
       } else {
         mgr.classList.remove('exercise-manager--visible');
