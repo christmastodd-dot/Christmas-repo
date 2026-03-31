@@ -1433,6 +1433,8 @@ body {
     .seat-north .hand .card { margin-left: -36px; }
     .seat-west .hand .card,
     .seat-east .hand .card { margin-top: -48px; }
+    .seat-west .hand .card { transform: rotate(90deg) scale(0.8); }
+    .seat-east .hand .card { transform: rotate(-90deg) scale(0.8); }
 
     .panel {
         min-width: 260px !important;
@@ -1503,8 +1505,10 @@ body {
     .seat-west .hand .card,
     .seat-east .hand .card { margin-top: -42px; }
 
-    .seat-west .hand .card { transform: rotate(90deg) scale(0.85); }
-    .seat-east .hand .card { transform: rotate(-90deg) scale(0.85); }
+    .seat-west .hand .card { transform: rotate(90deg) scale(0.7); }
+    .seat-east .hand .card { transform: rotate(-90deg) scale(0.7); }
+    .seat-west .hand .card,
+    .seat-east .hand .card { margin-top: -48px; }
 
     .played-card-wrapper .player-tag { font-size: 0.5rem; }
 
