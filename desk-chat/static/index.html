@@ -17,6 +17,7 @@
         <div class="join-card">
             <h1>Cap Chat</h1>
             <input type="text" id="name" placeholder="Display name" maxlength="24" autofocus>
+            <label class="caps-label"><input type="checkbox" id="caps-check"> Display name in ALL CAPS</label>
             <div class="landing-buttons">
                 <button id="create-btn">Create Room</button>
                 <button id="join-btn" class="secondary">Join Room</button>
@@ -55,7 +56,23 @@
 
     <script>
         const nameEl = document.getElementById("name");
+        const capsCheck = document.getElementById("caps-check");
         let displayName = "";
+
+        function getDisplayName() {
+            let name = nameEl.value.trim();
+            if (capsCheck.checked) name = name.toUpperCase();
+            return name;
+        }
+
+        // Auto-uppercase as you type when checked
+        capsCheck.addEventListener("change", () => {
+            if (capsCheck.checked) {
+                nameEl.style.textTransform = "uppercase";
+            } else {
+                nameEl.style.textTransform = "";
+            }
+        });
 
         const WORDS = [
             "anchor", "barrel", "canyon", "dagger", "falcon", "garden",
@@ -108,7 +125,7 @@
 
         // Landing
         document.getElementById("create-btn").addEventListener("click", () => {
-            displayName = nameEl.value.trim();
+            displayName = getDisplayName();
             if (!displayName) { nameEl.focus(); return; }
 
             const encKey = generateKey();
@@ -120,7 +137,7 @@
         });
 
         document.getElementById("join-btn").addEventListener("click", () => {
-            displayName = nameEl.value.trim();
+            displayName = getDisplayName();
             if (!displayName) { nameEl.focus(); return; }
 
             document.getElementById("landing").style.display = "none";
