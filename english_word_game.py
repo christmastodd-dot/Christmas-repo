@@ -5572,6 +5572,22 @@ def build_scramble_choices(word, word_list):
     return scrambled, choices, correct
 
 
+def build_definition_choices(word, word_list):
+    """Build a definition match puzzle: show the word, offer 4 definitions.
+
+    Returns (choices, correct_definition).
+    """
+    correct = word["definition"]
+
+    # Pick 3 wrong definitions from other words in the same grade
+    others = [w["definition"] for w in word_list if w["name"] != word["name"]]
+    wrong = random.sample(others, min(3, len(others)))
+
+    choices = [correct] + wrong
+    random.shuffle(choices)
+    return choices, correct
+
+
 def play_round(word, round_num, total_rounds):
     """Play one round: show word + definition, pick synonym from 4 choices."""
     choices, correct = build_choices(word)

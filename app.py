@@ -11,7 +11,7 @@ from english_word_game import (
     WORDS_1ST_GRADE, WORDS_2ND_GRADE, WORDS_3RD_GRADE, WORDS_4TH_GRADE, GRADES,
     ROUNDS_PER_GAME, get_word_list, get_word_pool,
     build_choices, build_antonym_choices, build_missing_letter_choices,
-    build_scramble_choices,
+    build_scramble_choices, build_definition_choices,
 )
 
 app = Flask(__name__)
@@ -110,7 +110,10 @@ def play():
 
     blanked = None
     scrambled = None
-    if game.get("mode") == "scramble":
+    if game.get("mode") == "definition":
+        word_list = get_word_list(game["grade"])
+        choices, correct = build_definition_choices(word, word_list)
+    elif game.get("mode") == "scramble":
         word_list = get_word_list(game["grade"])
         scrambled, choices, correct = build_scramble_choices(word, word_list)
     elif game.get("mode") == "missing_letter":
@@ -173,7 +176,7 @@ def answer():
         "difficulty": word["difficulty"],
         "mode": game.get("mode", "synonym"),
     }
-    if game.get("mode") in ("missing_letter", "scramble"):
+    if game.get("mode") in ("missing_letter", "scramble", "definition"):
         pass  # spelling shown from word name
     elif game.get("mode") == "antonym":
         seen_entry["antonyms"] = word["antonyms"]

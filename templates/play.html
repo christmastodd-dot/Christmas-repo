@@ -11,13 +11,18 @@
     <div class="status">
         <span class="badge badge-blue">{{ game.grade }} Grade</span>
         <span class="badge badge-purple">{{ game.difficulty|upper }}</span>
-        <span class="badge badge-{{ 'amber' if game.mode == 'scramble' else 'green' if game.mode == 'missing_letter' else 'red' if game.mode == 'antonym' else 'blue' }}">{{ "Scramble" if game.mode == "scramble" else "Missing Letter" if game.mode == "missing_letter" else "Antonym" if game.mode == "antonym" else "Synonym" }}</span>
+        {% set mode_badge = {"synonym": "blue", "antonym": "red", "missing_letter": "green", "scramble": "amber", "definition": "purple"} %}
+        {% set mode_label = {"synonym": "Synonym", "antonym": "Antonym", "missing_letter": "Missing Letter", "scramble": "Scramble", "definition": "Definition"} %}
+        <span class="badge badge-{{ mode_badge.get(game.mode, 'blue') }}">{{ mode_label.get(game.mode, "Synonym") }}</span>
         {% if game.streak >= 2 %}
         <span class="badge badge-amber">Streak: {{ game.streak }}</span>
         {% endif %}
     </div>
 
-    {% if game.mode == "scramble" %}
+    {% if game.mode == "definition" %}
+    <h2 style="font-size: 28px; text-align: center; margin-bottom: 16px;">{{ word.name }}</h2>
+    <p style="font-weight: 600; margin-bottom: 12px;">Which definition matches this word?</p>
+    {% elif game.mode == "scramble" %}
     <p style="font-size: 32px; text-align: center; letter-spacing: 4px; font-family: monospace; margin-bottom: 8px;">{{ scrambled }}</p>
     <p class="text-center text-muted" style="margin-bottom: 20px;">
         "{{ word.definition }}"
@@ -39,7 +44,7 @@
 
     <form method="POST" action="/answer">
         {% for choice in choices %}
-        <button type="submit" name="choice" value="{{ loop.index0 }}" class="question-btn">
+        <button type="submit" name="choice" value="{{ loop.index0 }}" class="question-btn" {% if game.mode == "definition" %}style="text-align: left; font-size: 14px;"{% endif %}>
             {{ choice }}
         </button>
         {% endfor %}

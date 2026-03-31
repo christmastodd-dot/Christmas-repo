@@ -11,7 +11,9 @@
 <div class="correct-box">
     <div class="icon">&#10003;</div>
     <h2>Correct!</h2>
-    {% if game.mode == "scramble" %}
+    {% if game.mode == "definition" %}
+    <p>"<strong>{{ word.name }}</strong>" means "{{ word.definition }}"</p>
+    {% elif game.mode == "scramble" %}
     <p>The unscrambled word is "<strong>{{ word.name }}</strong>"</p>
     {% elif game.mode == "missing_letter" %}
     <p>The missing letter is "<strong>{{ correct_answer }}</strong>" — the word is "<strong>{{ word.name }}</strong>"</p>
@@ -23,7 +25,9 @@
 <div class="incorrect-box">
     <div class="icon">&#10060;</div>
     <h2>Not Quite!</h2>
-    {% if game.mode == "scramble" %}
+    {% if game.mode == "definition" %}
+    <p class="mt-12">The correct definition was: "{{ correct_answer }}"</p>
+    {% elif game.mode == "scramble" %}
     <p>You picked "<strong>{{ chosen }}</strong>"</p>
     <p class="mt-12">The correct word was "<strong>{{ word.name }}</strong>"</p>
     {% elif game.mode == "missing_letter" %}
