@@ -168,6 +168,125 @@
             }
           ],
           "ts": 1774819059604
+        },
+        {
+          "date": "2026-03-31",
+          "startTime": "06:43",
+          "duration": "51:15",
+          "exercises": [
+            {
+              "name": "Walking",
+              "sets": [
+                {
+                  "duration": "15:00",
+                  "distance": 0.6
+                }
+              ],
+              "inputType": "cardio"
+            },
+            {
+              "name": "Incline Bench Press",
+              "sets": [
+                {
+                  "reps": 10,
+                  "weight": 45
+                },
+                {
+                  "reps": 10,
+                  "weight": 135
+                },
+                {
+                  "reps": 8,
+                  "weight": 155
+                },
+                {
+                  "reps": 10,
+                  "weight": 155
+                }
+              ],
+              "inputType": "weight"
+            },
+            {
+              "name": "Shoulder Press Machine",
+              "sets": [
+                {
+                  "reps": 10,
+                  "weight": 120
+                }
+              ],
+              "inputType": "weight"
+            },
+            {
+              "name": "Rotator Cuff Rehab",
+              "sets": [
+                {
+                  "duration": "10:00"
+                }
+              ],
+              "inputType": "duration"
+            },
+            {
+              "name": "Lateral Raise",
+              "sets": [
+                {
+                  "reps": 20,
+                  "weight": 0
+                },
+                {
+                  "reps": 20,
+                  "weight": 5
+                },
+                {
+                  "reps": 20,
+                  "weight": 7.5
+                }
+              ],
+              "inputType": "weight"
+            },
+            {
+              "name": "Overhead Tricep Extension",
+              "sets": [
+                {
+                  "reps": 20,
+                  "weight": 17.5
+                },
+                {
+                  "reps": 16,
+                  "weight": 25
+                }
+              ],
+              "inputType": "weight"
+            },
+            {
+              "name": "Front Raise",
+              "sets": [
+                {
+                  "reps": 20,
+                  "weight": 0
+                },
+                {
+                  "reps": 20,
+                  "weight": 5
+                }
+              ],
+              "inputType": "weight"
+            },
+            {
+              "name": "Tricep Pushdown",
+              "sets": [
+                {
+                  "reps": 20,
+                  "weight": 40
+                },
+                {
+                  "reps": 20,
+                  "weight": 40
+                }
+              ],
+              "inputType": "weight"
+            }
+          ],
+          "ts": 1774978506731
         }
       ],
       "templates": [
@@ -281,7 +400,7 @@
           "author": "Coach"
         }
       ],
-      "lastSync": "2026-03-31T16:43:45.433Z"
+      "lastSync": "2026-03-31T17:35:19.179Z"
     },
     "Manny Fresh": {
       "xp": 10,
@@ -835,6 +954,132 @@
     }
   },
   "feed": [
+    {
+      "id": "feed_w_1774978506731",
+      "author": "Coach",
+      "date": "2026-03-31T17:35:06.731Z",
+      "type": "workout",
+      "caption": "Completed a workout!",
+      "workoutSummary": "8 exercises · 16 sets · 8,490 lbs vol · 51:15 min",
+      "workoutData": [
+        {
+          "name": "Walking",
+          "sets": [
+            {
+              "duration": "15:00",
+              "distance": 0.6
+            }
+          ],
+          "inputType": "cardio"
+        },
+        {
+          "name": "Incline Bench Press",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 45
+            },
+            {
+              "reps": 10,
+              "weight": 135
+            },
+            {
+              "reps": 8,
+              "weight": 155
+            },
+            {
+              "reps": 10,
+              "weight": 155
+            }
+          ],
+          "inputType": "weight"
+        },
+        {
+          "name": "Shoulder Press Machine",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 120
+            }
+          ],
+          "inputType": "weight"
+        },
+        {
+          "name": "Rotator Cuff Rehab",
+          "sets": [
+            {
+              "duration": "10:00"
+            }
+          ],
+          "inputType": "duration"
+        },
+        {
+          "name": "Lateral Raise",
+          "sets": [
+            {
+              "reps": 20,
+              "weight": 0
+            },
+            {
+              "reps": 20,
+              "weight": 5
+            },
+            {
+              "reps": 20,
+              "weight": 7.5
+            }
+          ],
+          "inputType": "weight"
+        },
+        {
+          "name": "Overhead Tricep Extension",
+          "sets": [
+            {
+              "reps": 20,
+              "weight": 17.5
+            },
+            {
+              "reps": 16,
+              "weight": 25
+            }
+          ],
+          "inputType": "weight"
+        },
+        {
+          "name": "Front Raise",
+          "sets": [
+            {
+              "reps": 20,
+              "weight": 0
+            },
+            {
+              "reps": 20,
+              "weight": 5
+            }
+          ],
+          "inputType": "weight"
+        },
+        {
+          "name": "Tricep Pushdown",
+          "sets": [
+            {
+              "reps": 20,
+              "weight": 40
+            },
+            {
+              "reps": 20,
+              "weight": 40
+            }
+          ],
+          "inputType": "weight"
+        }
+      ],
+      "reactions": {
+        "🔥": [
+          "Coach"
+        ]
+      }
+    },
     {
       "id": "feed_1774902486928",
       "author": "Vinncent",
