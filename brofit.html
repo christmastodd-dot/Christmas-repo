@@ -5354,14 +5354,32 @@
         var durationInput = row.querySelector('[data-field="duration"]');
         var distanceInput = row.querySelector('[data-field="distance"]');
 
-        if (weightInput && (s.weight || s.weight === 0)) weightInput.value = s.weight;
-        if (repsInput && s.reps) repsInput.value = s.reps;
-        if (durationInput && s.duration) durationInput.value = s.duration;
-        if (distanceInput && s.distance) distanceInput.value = s.distance;
+        if (weightInput && (s.weight || s.weight === 0)) { weightInput.value = s.weight; markPrefilled(weightInput); }
+        if (repsInput && s.reps) { repsInput.value = s.reps; markPrefilled(repsInput); }
+        if (durationInput && s.duration) { durationInput.value = s.duration; markPrefilled(durationInput); }
+        if (distanceInput && s.distance) { distanceInput.value = s.distance; markPrefilled(distanceInput); }
       });
 
       // Make sure add-set button is visible since we have data
       revealAddSetBtn(exerciseId);
+    }
+
+    function markPrefilled(input) {
+      input.setAttribute('data-prefilled-value', 'true');
+      input.style.opacity = '0.5';
+      input.addEventListener('focus', function onFocus() {
+        if (input.getAttribute('data-prefilled-value') === 'true') {
+          input.value = '';
+          input.style.opacity = '';
+          input.removeAttribute('data-prefilled-value');
+        }
+        input.removeEventListener('focus', onFocus);
+      });
+      input.addEventListener('input', function onInput() {
+        input.style.opacity = '';
+        input.removeAttribute('data-prefilled-value');
+        input.removeEventListener('input', onInput);
+      });
     }
 
     function saveWorkout() {
