@@ -126,6 +126,12 @@
         let selectedAmount = null;
         let selectedDirection = 'low'; // Default to low since it's superior
 
+        // Create confirm button early so it can be referenced by updatePreview
+        const bidConfirmBtn = document.createElement('button');
+        bidConfirmBtn.className = 'btn btn-primary bid-confirm-btn';
+        bidConfirmBtn.textContent = 'Bid';
+        bidConfirmBtn.disabled = true;
+
         // Current bid info
         if (game.currentBid) {
             const info = document.createElement('div');
@@ -241,14 +247,10 @@
         // Preview
         controls.appendChild(previewRow);
 
-        // Confirm Bid button
+        // Action buttons row
         const actionRow = document.createElement('div');
         actionRow.className = 'bid-actions';
 
-        const bidConfirmBtn = document.createElement('button');
-        bidConfirmBtn.className = 'btn btn-primary bid-confirm-btn';
-        bidConfirmBtn.textContent = 'Bid';
-        bidConfirmBtn.disabled = true;
         bidConfirmBtn.onclick = () => {
             if (selectedAmount === null) return;
             UI.hidePanel('bid-panel');
