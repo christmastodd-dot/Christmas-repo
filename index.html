@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>E-Manual Labor</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #111; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+canvas { image-rendering: pixelated; image-rendering: crisp-edges; border: 3px solid #444; }
+</style>
+</head>
+<body>
+<canvas id="game" width="960" height="720"></canvas>
+<script>
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+
+// ── PRELOAD FLAG IMAGE ──
+const flagImg = new Image();
+flagImg.crossOrigin = 'anonymous';
+flagImg.src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Flag_of_Iran.svg/1280px-Flag_of_Iran.svg.png';
+let flagLoaded = false;
+flagImg.onload = () => { flagLoaded = true; };
+
+// ── GAME STATE ──
+const STATE = { TITLE: 0, PLAYING: 1, WIN: 2, LOSE: 3 };
+let gameState = STATE.TITLE;
+let score = 0;
+let levelScore = 0;
+let level = 1;
+let timer = 45;
+let timerInterval = null;
+let frameCount = 0;
+let musicStarted = false;
+let endScreenTimer = 0; // tracks frames since end screen started
+let powerupSpawnTimer = 0; // dedicated powerup timer
+
+const player = {
+  x: 400, y: 360, speed: 4.125, baseSpeed: 4.125,
+  carrying: null, dir: 0, frame: 0, frameTimer: 0,
+  speedBoost: 0, liftBoost: 0, slowDown: 0
+};
+
+const dropZone = { x: 780, y: 70, w: 140, h: 100 };
+let sandbags = [];
+let powerups = [];
+
+const keys = {};
+document.addEventListener('keydown', e => { keys[e.key.toLowerCase()] = true; });
+document.addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
+
+// ── GYM EQUIPMENT ──
+const equipment = [
+  { x: 60,  y: 180, w: 130, h: 55, type: 'bench' },
+  { x: 60,  y: 430, w: 130, h: 55, type: 'bench' },
+  { x: 380, y: 510, w: 75,  h: 100, type: 'squat' },
+  { x: 560, y: 510, w: 75,  h: 100, type: 'squat' },
+  { x: 15,  y: 70,  w: 35,  h: 220, type: 'rack' },
+  { x: 250, y: 90,  w: 65, h: 120, type: 'treadmill' },
+  { x: 345, y: 90,  w: 65, h: 120, type: 'treadmill' },
+  { x: 720, y: 360, w: 85, h: 130, type: 'cable' },
+  { x: 500, y: 270, w: 110, h: 75, type: 'legpress' },
+  { x: 840, y: 540, w: 60, h: 45, type: 'freeweights' },
+];
+
+// ── DRAWING HELPERS ──
+function px(x, y, w, h, color) {
+  ctx.fillStyle = color;
+  ctx.fillRect(Math.floor(x), Math.floor(y), w, h);
+}
+
+// ══════════════════════════════════════════════════
+// ── DETAILED PLAYER SPRITE (native res, ~48px tall)
+// ══════════════════════════════════════════════════
+function drawDetailedMan(x, y, frame, dir, carrying, expression) {
+  x = Math.floor(x); y = Math.floor(y);
+  const skin = '#D4A574'; const skinLt = '#E8CBA0'; const skinDk = '#B8895A';
+  const beard = '#1A0E08'; const beardLt = '#2C1810'; const beardDk = '#0E0604';
+  const hoodie = '#444444'; const hoodieDk = '#2A2A2A'; const hoodieLt = '#555555';
+  const pants = '#2244AA'; const pantsDk = '#1A3388'; const pantsLt = '#3355BB';
+  const shoes = '#1a1a1a'; const shoeLt = '#2a2a2a';
+
+  const walk = (frame % 4);
+  const bob = walk < 2 ? 0 : -1;
+
+  // Shadow (wider for taller character)
+  ctx.fillStyle = 'rgba(0,0,0,0.18)';
+  ctx.beginPath(); ctx.ellipse(x+20, y+67, 20, 6, 0, 0, Math.PI*2); ctx.fill();
+
+  // ── HOOD (up, thin/fitted) ──
+  // Hood top
+  px(x+7, y+0+bob, 26, 2, hoodieDk);
+  px(x+5, y+2+bob, 30, 2, hoodie);
+  // Hood sides (thin, 2px border around face)
+  px(x+4, y+4+bob, 2, 14, hoodie); px(x+34, y+4+bob, 2, 14, hoodie);
+  // Hood bottom edge
+  px(x+5, y+18+bob, 30, 1, hoodieDk);
+  // Hood opening (face visible)
+  px(x+6, y+4+bob, 28, 14, skin);
+  // Hood rim highlight
+  px(x+6, y+3+bob, 28, 1, hoodieLt);
+  px(x+4, y+4+bob, 2, 1, hoodieLt); px(x+34, y+4+bob, 2, 1, hoodieLt);
+  // Hood top highlight
+  px(x+12, y+0+bob, 12, 1, hoodieLt);
+
+  // Bald head visible inside hood
+  px(x+7, y+4+bob, 26, 2, skinLt);
+  px(x+12, y+4+bob, 12, 1, '#F0DCC0');
+
+  // ── FACE ──
+  const ex = dir < 0 ? -2 : dir > 0 ? 2 : 0;
+  if (expression === 'happy') {
+    px(x+10+ex, y+8+bob, 6, 1, '#111'); px(x+10+ex, y+9+bob, 7, 1, '#111');
+    px(x+24+ex, y+8+bob, 6, 1, '#111'); px(x+24+ex, y+9+bob, 7, 1, '#111');
+    px(x+12, y+15+bob, 16, 2, '#FFF');
+    px(x+11, y+14+bob, 1, 2, skinDk); px(x+28, y+14+bob, 1, 2, skinDk);
+  } else if (expression === 'cry') {
+    px(x+10+ex, y+8+bob, 7, 3, '#FFF');  px(x+24+ex, y+8+bob, 7, 3, '#FFF');
+    px(x+12+ex, y+9+bob, 3, 2, '#111');  px(x+26+ex, y+9+bob, 3, 2, '#111');
+    px(x+12, y+11+bob, 2, 8, '#66AAFF'); px(x+27, y+11+bob, 2, 8, '#66AAFF');
+    px(x+11, y+14+bob, 1, 4, '#5599EE'); px(x+28, y+14+bob, 1, 4, '#5599EE');
+    px(x+14, y+16+bob, 12, 1, skinDk);
+    px(x+13, y+15+bob, 2, 1, skinDk); px(x+25, y+15+bob, 2, 1, skinDk);
+  } else if (expression === 'strain') {
+    px(x+10+ex, y+8+bob, 7, 1, '#111'); px(x+9+ex, y+9+bob, 3, 1, '#111');
+    px(x+24+ex, y+8+bob, 7, 1, '#111'); px(x+28+ex, y+9+bob, 3, 1, '#111');
+    px(x+13, y+15+bob, 14, 2, '#FFF');
+    px(x+15, y+15+bob, 2, 2, skinDk); px(x+19, y+15+bob, 2, 2, skinDk); px(x+23, y+15+bob, 2, 2, skinDk);
+    if (frameCount % 20 < 10) {
+      px(x+3, y+4+bob, 2, 3, '#88CCFF');
+      px(x+36, y+6+bob, 2, 3, '#88CCFF');
+    }
+  } else {
+    px(x+10+ex, y+8+bob, 7, 4, '#FFF');  px(x+24+ex, y+8+bob, 7, 4, '#FFF');
+    px(x+12+ex, y+9+bob, 4, 3, '#3B2510'); px(x+26+ex, y+9+bob, 4, 3, '#3B2510');
+    px(x+13+ex, y+9+bob, 2, 2, '#111');   px(x+27+ex, y+9+bob, 2, 2, '#111');
+    px(x+13+ex, y+9+bob, 1, 1, '#FFF');   px(x+27+ex, y+9+bob, 1, 1, '#FFF');
+    px(x+10+ex, y+7+bob, 7, 1, skinDk);  px(x+24+ex, y+7+bob, 7, 1, skinDk);
+  }
+  // Thick eyebrows
+  px(x+9, y+6+bob, 8, 2, beardDk);  px(x+23, y+6+bob, 8, 2, beardDk);
+  px(x+8, y+7+bob, 2, 1, beardDk);  px(x+30, y+7+bob, 2, 1, beardDk);
+
+  // Nose
+  px(x+17, y+11+bob, 4, 3, skinDk); px(x+18, y+11+bob, 2, 2, skin);
+  px(x+16, y+13+bob, 6, 1, skinDk);
+
+  // ── MUSTACHE (connects to beard as goatee) ──
+  px(x+14, y+13+bob, 12, 1, beard);
+  px(x+15, y+12+bob, 4, 1, beardLt); px(x+21, y+12+bob, 4, 1, beardLt);
+  // Goatee connector — mustache flows down sides of mouth into chin
+  px(x+13, y+14+bob, 2, 8, beard);  px(x+25, y+14+bob, 2, 8, beard);
+  // Chin patch (center of goatee)
+  px(x+15, y+17+bob, 10, 1, beard);
+  px(x+14, y+18+bob, 12, 2, beard);
+  px(x+15, y+20+bob, 10, 2, beardDk);
+  px(x+16, y+22+bob, 8, 1, beardDk);
+
+  // ── BEARD (jawline, trimmed short) ──
+  // Sideburns
+  px(x+6, y+14+bob, 3, 6, beard);   px(x+31, y+14+bob, 3, 6, beard);
+  px(x+7, y+15+bob, 6, 1, beard);   px(x+27, y+15+bob, 6, 1, beard);
+  // Jawline
+  px(x+8, y+16+bob, 5, 2, beard);   px(x+27, y+16+bob, 5, 2, beard);
+  px(x+9, y+18+bob, 4, 2, beard);   px(x+27, y+18+bob, 4, 2, beard);
+  // Subtle stubble texture
+  px(x+10, y+17+bob, 1, 2, beardLt); px(x+29, y+17+bob, 1, 2, beardLt);
+  // Clean edge lines
+  px(x+5, y+14+bob, 1, 5, beardDk); px(x+34, y+14+bob, 1, 5, beardDk);
+
+  // ── NECK (short, hood covers most) ──
+  px(x+14, y+22+bob, 12, 4, skin);
+  // Hood drapes down to torso (thin)
+  px(x+3, y+18+bob, 3, 8, hoodie); px(x+34, y+18+bob, 3, 8, hoodie);
+
+  // ── TORSO / HOODIE ──
+  px(x+6, y+24+bob, 28, 21, hoodie);
+  // Hood-to-body seam
+  px(x+8, y+24+bob, 24, 2, hoodieDk);
+  // Hoodie pocket (kangaroo pouch)
+  px(x+10, y+35+bob, 20, 5, hoodieDk);
+  px(x+11, y+36+bob, 18, 3, hoodie);
+  // Hoodie strings dangling from hood
+  px(x+16, y+20+bob, 1, 10, '#777'); px(x+23, y+20+bob, 1, 10, '#777');
+  // String tips
+  px(x+15, y+29+bob, 3, 1, '#888'); px(x+22, y+29+bob, 3, 1, '#888');
+  // Wrinkle details
+  px(x+10, y+30+bob, 8, 1, hoodieDk); px(x+22, y+33+bob, 6, 1, hoodieDk);
+  px(x+8, y+38+bob, 4, 1, hoodieLt);  px(x+28, y+30+bob, 3, 1, hoodieLt);
+
+  // ── ARMS ──
+  const wrapColor = '#8B7355'; const wrapDk = '#6B5535';
+  if (carrying) {
+    // Right arm up holding bag on shoulder
+    px(x+30, y+28+bob, 5, 8, hoodie); // sleeve
+    px(x+30, y+36+bob, 5, 6, skin);
+    // Elbow wrap (right arm)
+    px(x+30, y+34+bob, 5, 3, wrapColor); px(x+31, y+35+bob, 3, 1, wrapDk);
+    px(x+31, y+42+bob, 4, 3, skinDk); // hand up on bag
+    // Left arm relaxed
+    px(x+2, y+28+bob, 5, 8, hoodie);
+    px(x+2, y+36+bob, 5, 10, skin);
+    // Elbow wrap (left arm)
+    px(x+2, y+34+bob, 5, 3, wrapColor); px(x+3, y+35+bob, 3, 1, wrapDk);
+    px(x+2, y+45+bob, 5, 3, skinDk); // hand
+    // Veins when carrying heavy
+    if (carrying.weight >= 200) {
+      px(x+3, y+38+bob, 1, 5, '#8BA07A'); px(x+32, y+38+bob, 1, 4, '#8BA07A');
+    }
+    // Sandbag hoisted on right shoulder
+    drawSandbag(x+24, y+10+bob, carrying.weight, true);
+  } else {
+    const a = walk % 4;
+    const s1 = a<2 ? 0 : 5; const s2 = a<2 ? 5 : 0;
+    // Left arm
+    px(x+1, y+28+bob+s1, 5, 8, hoodie);
+    px(x+1, y+36+bob+s1, 5, 10, skin);
+    px(x+1, y+34+bob+s1, 5, 3, wrapColor); px(x+2, y+35+bob+s1, 3, 1, wrapDk);
+    px(x+1, y+45+bob+s1, 5, 3, skinDk);
+    // Right arm
+    px(x+34, y+28+bob+s2, 5, 8, hoodie);
+    px(x+34, y+36+bob+s2, 5, 10, skin);
+    px(x+34, y+34+bob+s2, 5, 3, wrapColor); px(x+35, y+35+bob+s2, 3, 1, wrapDk);
+    px(x+34, y+45+bob+s2, 5, 3, skinDk);
+  }
+
+  // ── BELT ──
+  px(x+6, y+45+bob, 28, 2, '#222');
+  px(x+17, y+45+bob, 6, 2, '#AA8800');
+  px(x+19, y+45+bob, 2, 2, '#CCAA00');
+
+  // ── PANTS (longer legs, +4px) ──
+  const lf = walk % 4;
+  const lo1 = lf < 2 ? 0 : 4; const lo2 = lf < 2 ? 4 : 0;
+  px(x+8, y+47+bob, 10, 14-lo1, pants); px(x+22, y+47+bob, 10, 14-lo2, pants);
+  // Knee shading
+  px(x+9, y+53+bob-lo1, 3, 2, pantsDk);  px(x+23, y+53+bob-lo2, 3, 2, pantsDk);
+  px(x+13, y+49+bob, 2, 3, pantsLt);     px(x+27, y+49+bob, 2, 3, pantsLt);
+  // Calf
+  px(x+9, y+58+bob-lo1, 8, 3, pantsDk);  px(x+23, y+58+bob-lo2, 8, 3, pantsDk);
+
+  // ── SHOES ──
+  px(x+7, y+61+bob-lo1, 12, 4, shoes);  px(x+21, y+61+bob-lo2, 12, 4, shoes);
+  px(x+7, y+64+bob-lo1, 13, 1, '#333'); px(x+21, y+64+bob-lo2, 13, 1, '#333');
+  // Shoe detail
+  px(x+9, y+61+bob-lo1, 2, 1, shoeLt);  px(x+23, y+61+bob-lo2, 2, 1, shoeLt);
+  // Laces
+  px(x+11, y+62+bob-lo1, 4, 1, '#FFF');  px(x+25, y+62+bob-lo2, 4, 1, '#FFF');
+
+  // Powerup auras
+  if (player.speedBoost > 0) {
+    ctx.strokeStyle = `rgba(0,255,255,${0.3+Math.sin(frameCount*0.2)*0.2})`;
+    ctx.lineWidth = 2;
+    ctx.strokeRect(x-2, y-2+bob, 44, 72);
+    for (let i=0;i<4;i++) {
+      ctx.globalAlpha = 0.3-i*0.07;
+      px(x-6-i*4, y+10+i*15+bob, 3, 7, '#0FF');
+    }
+    ctx.globalAlpha = 1;
+  }
+  if (player.liftBoost > 0) {
+    ctx.strokeStyle = `rgba(255,100,255,${0.3+Math.sin(frameCount*0.2)*0.2})`;
+    ctx.lineWidth = 2;
+    ctx.strokeRect(x-4, y-4+bob, 48, 76);
+  }
+  if (player.slowDown > 0) {
+    // Smoke haze around character
+    ctx.globalAlpha = 0.25;
+    for (let i=0;i<3;i++) {
+      const sx2 = x+10+Math.sin(frameCount*0.03+i*2)*12;
+      const sy2 = y-8-i*8+Math.cos(frameCount*0.02+i)*4;
+      px(sx2, sy2+bob, 8+i*3, 5, '#888');
+    }
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = `rgba(255,80,30,${0.3+Math.sin(frameCount*0.15)*0.2})`;
+    ctx.lineWidth = 2;
+    ctx.strokeRect(x-2, y-2+bob, 44, 72);
+  }
+}
+
+// ══════════════════════════════════════
+// ── DETAILED WOMAN SPRITE (~52px tall)
+// ══════════════════════════════════════
+function drawDetailedWoman(x, y, expression, lifted) {
+  x = Math.floor(x); y = Math.floor(y);
+  const skin = '#9B7044'; const skinLt = '#B08050'; const skinDk = '#7A5530';
+  const hair = '#0A0604'; const hairLt = '#1A100A'; const hairDk = '#050200';
+  const dress = '#2E8B57'; const dressDk = '#1E6B3E'; const dressLt = '#3EAB6A';
+  const heel = '#CC0022';
+
+  // Shadow (only if on ground)
+  if (!lifted) {
+    ctx.fillStyle = 'rgba(0,0,0,0.15)';
+    ctx.beginPath(); ctx.ellipse(x+18, y+63, 17, 5, 0, 0, Math.PI*2); ctx.fill();
+  }
+
+  // ── HAIR (long dark, flows down) ──
+  px(x+6, y-4, 24, 4, hair);
+  px(x+4, y+0, 28, 6, hair);
+  px(x+3, y+6, 30, 14, hair);
+  // Hair sides flowing down
+  px(x+2, y+10, 4, 34, hair); px(x+30, y+10, 4, 34, hair);
+  px(x+1, y+14, 3, 28, hairDk); px(x+32, y+14, 3, 28, hairDk);
+  // Hair highlights
+  px(x+10, y+0, 6, 3, hairLt); px(x+18, y+1, 4, 2, hairLt);
+  px(x+8, y+6, 2, 8, hairLt);  px(x+22, y+5, 2, 10, hairLt);
+  // Hair tips
+  px(x+1, y+42, 4, 3, hairLt); px(x+31, y+42, 4, 3, hairLt);
+
+  // ── FACE ──
+  px(x+7, y+6, 22, 16, skin);
+  px(x+6, y+8, 1, 10, skin);  px(x+29, y+8, 1, 10, skin);
+  // Forehead highlight
+  px(x+12, y+6, 12, 2, skinLt);
+
+  if (expression === 'happy') {
+    px(x+10, y+12, 6, 1, '#3B2510'); px(x+10, y+13, 7, 1, '#3B2510');
+    px(x+20, y+12, 6, 1, '#3B2510'); px(x+20, y+13, 7, 1, '#3B2510');
+    px(x+9, y+11, 2, 1, '#111'); px(x+16, y+11, 1, 1, '#111');
+    px(x+19, y+11, 2, 1, '#111'); px(x+26, y+11, 1, 1, '#111');
+    px(x+13, y+18, 10, 2, '#D47070');
+    px(x+12, y+17, 2, 1, skinDk); px(x+22, y+17, 2, 1, skinDk);
+    px(x+7, y+16, 4, 2, '#C08060'); px(x+25, y+16, 4, 2, '#C08060');
+  } else if (expression === 'cry') {
+    px(x+10, y+12, 7, 3, '#FFF'); px(x+20, y+12, 7, 3, '#FFF');
+    px(x+12, y+13, 3, 2, '#3B2510'); px(x+22, y+13, 3, 2, '#3B2510');
+    px(x+13, y+13, 2, 1, '#111'); px(x+23, y+13, 2, 1, '#111');
+    px(x+12, y+15, 2, 8, '#66AAFF'); px(x+23, y+15, 2, 8, '#66AAFF');
+    px(x+11, y+18, 1, 4, '#5599EE'); px(x+25, y+18, 1, 4, '#5599EE');
+    px(x+14, y+19, 8, 1, skinDk);
+    px(x+13, y+18, 2, 1, skinDk); px(x+21, y+18, 2, 1, skinDk);
+    px(x+11, y+15, 1, 3, '#333'); px(x+25, y+15, 1, 3, '#333');
+  } else {
+    px(x+10, y+12, 7, 3, '#FFF'); px(x+20, y+12, 7, 3, '#FFF');
+    px(x+12, y+12, 4, 3, '#3B2510'); px(x+22, y+12, 4, 3, '#3B2510');
+    px(x+13, y+13, 2, 2, '#111'); px(x+23, y+13, 2, 2, '#111');
+    px(x+13, y+12, 1, 1, '#FFF'); px(x+23, y+12, 1, 1, '#FFF');
+    px(x+9, y+11, 2, 1, '#111'); px(x+16, y+11, 2, 1, '#111');
+    px(x+19, y+11, 2, 1, '#111'); px(x+26, y+11, 2, 1, '#111');
+    px(x+14, y+18, 8, 2, '#D47070');
+    px(x+15, y+18, 6, 1, '#E08080');
+  }
+
+  // Nose
+  px(x+16, y+15, 3, 2, skinDk); px(x+17, y+15, 1, 1, skin);
+
+  // Eyebrows (thinner, feminine)
+  px(x+10, y+10, 6, 1, hairDk); px(x+20, y+10, 6, 1, hairDk);
+
+  // ── NECK (longer) ──
+  px(x+14, y+22, 8, 4, skin);
+  // Necklace
+  px(x+12, y+25, 12, 1, '#FFD700');
+  px(x+17, y+26, 2, 2, '#FFD700');
+
+  // ── DRESS (taller torso) ──
+  px(x+8, y+26, 20, 17, dress);
+  // Neckline
+  px(x+12, y+26, 12, 3, dressDk);
+  px(x+13, y+26, 10, 1, skin);
+  px(x+14, y+27, 8, 1, skinLt);
+  // Dress details
+  px(x+9, y+32, 18, 1, dressDk);
+  px(x+10, y+35, 3, 1, dressLt); px(x+23, y+34, 3, 1, dressLt);
+  // Waist cinch
+  px(x+10, y+34, 16, 2, dressDk);
+  // Skirt flare (longer)
+  px(x+5, y+43, 26, 7, dress);
+  px(x+4, y+47, 28, 5, dress);
+  px(x+6, y+44, 4, 4, dressLt); px(x+20, y+45, 5, 3, dressLt);
+  // Hem detail
+  px(x+4, y+51, 28, 1, dressDk);
+
+  // ── ARMS (longer) ──
+  px(x+4, y+27, 4, 14, skin); px(x+28, y+27, 4, 14, skin);
+  px(x+4, y+27, 4, 3, dress);  px(x+28, y+27, 4, 3, dress);
+  // Hands
+  px(x+4, y+40, 4, 2, skinDk); px(x+28, y+40, 4, 2, skinDk);
+
+  // ── LEGS (longer) ──
+  px(x+10, y+52, 5, 10, skin); px(x+21, y+52, 5, 10, skin);
+  // Knee
+  px(x+11, y+57, 3, 1, skinDk); px(x+22, y+57, 3, 1, skinDk);
+
+  // ── HEELS ──
+  px(x+8, y+62, 8, 2, heel); px(x+19, y+62, 8, 2, heel);
+  px(x+8, y+63, 9, 1, '#990018'); px(x+19, y+63, 9, 1, '#990018');
+  // Heel spike
+  px(x+14, y+62, 2, 3, heel); px(x+25, y+62, 2, 3, heel);
+}
+
+// ── SANDBAG ──
+function drawSandbag(x, y, weight, small) {
+  const s = small ? 0.95 : 1.05;
+  const w = Math.floor(48 * s); const h = Math.floor(22 * s);
+  const dark = (weight / 250) * 80;
+  const g1 = Math.max(0, 55-dark/2); const g2 = Math.max(0, 170-dark);
+  const gc = `rgb(${g1},${g2},${g1})`;
+  const gd = `rgb(${Math.max(0,g1-18)},${Math.max(0,g2-35)},${Math.max(0,g1-18)})`;
+  const gl = `rgb(${Math.min(255,g1+25)},${Math.min(255,g2+30)},${Math.min(255,g1+25)})`;
+
+  // Bag body
+  px(x+2, y, w-4, h, gc);
+  px(x, y+2, w, h-4, gc);
+  px(x+1, y+1, w-2, h-2, gc);
+  // Top highlight
+  px(x+4, y+1, w-8, 3, gl);
+  // Bottom shadow
+  px(x+4, y+h-4, w-8, 3, gd);
+  // End caps
+  px(x, y+3, 3, h-6, gd); px(x+w-3, y+3, 3, h-6, gd);
+  // Stitching
+  px(x+Math.floor(w*0.3), y+2, 1, h-4, gd);
+  px(x+Math.floor(w*0.7), y+2, 1, h-4, gd);
+  // Cross stitches
+  for (let i=0; i<3; i++) {
+    const sx = x + Math.floor(w*0.3) - 1 + Math.floor(i*(w*0.2));
+    px(sx, y+Math.floor(h*0.3), 3, 1, gd);
+    px(sx, y+Math.floor(h*0.7), 3, 1, gd);
+  }
+  // Handles
+  px(x+Math.floor(w*0.15), y-4, 6, 5, '#444');
+  px(x+Math.floor(w*0.15)+1, y-5, 4, 2, '#555');
+  px(x+Math.floor(w*0.7), y-4, 6, 5, '#444');
+  px(x+Math.floor(w*0.7)+1, y-5, 4, 2, '#555');
+  // Center handle
+  px(x+Math.floor(w*0.3), y-6, Math.floor(w*0.4), 3, '#555');
+  px(x+Math.floor(w*0.32), y-8, Math.floor(w*0.36), 3, '#666');
+  px(x+Math.floor(w*0.34), y-9, Math.floor(w*0.32), 1, '#777');
+  // Zipper line
+  px(x+Math.floor(w*0.1), y+Math.floor(h/2), Math.floor(w*0.8), 1, gd);
+
+  // Weight label (clearly visible at both sizes)
+  const fontSize = small ? 11 : 13;
+  ctx.fillStyle = '#FFF'; ctx.font = `bold ${fontSize}px monospace`;
+  ctx.strokeStyle = '#000'; ctx.lineWidth = 2;
+  const label = weight+'lb';
+  const tx = x + Math.floor(w/2 - label.length*fontSize*0.3);
+  const ty = y + Math.floor(h/2) + Math.floor(fontSize/3);
+  ctx.strokeText(label, tx, ty);
+  ctx.fillText(label, tx, ty);
+  ctx.lineWidth = 1;
+}
+
+// ── POWERUPS ──
+function drawCreatine(x, y) {
+  // Cap
+  px(x+8, y, 12, 5, '#777'); px(x+9, y-2, 10, 3, '#888');
+  px(x+10, y-3, 8, 1, '#999');
+  // Body
+  px(x+6, y+5, 16, 24, '#F5F5F5');
+  px(x+5, y+7, 1, 20, '#EEE'); px(x+22, y+7, 1, 20, '#EEE');
+  // Label
+  px(x+7, y+9, 14, 14, '#2255BB');
+  px(x+8, y+10, 12, 12, '#2860CC');
+  ctx.fillStyle = '#FFF'; ctx.font = 'bold 9px monospace';
+  ctx.fillText('CRE', x+8, y+19);
+  // Shine
+  px(x+7, y+6, 2, 22, 'rgba(255,255,255,0.35)');
+  // Glow
+  const a = 0.4+Math.sin(frameCount*0.1)*0.25;
+  ctx.strokeStyle = `rgba(80,180,255,${a})`; ctx.lineWidth = 2;
+  ctx.strokeRect(x+3, y-4, 22, 34);
+}
+
+function drawSyringe(x, y) {
+  // Handle
+  px(x-4, y+6, 6, 8, '#BBB'); px(x-5, y+8, 2, 4, '#999');
+  // Barrel
+  px(x+2, y+8, 22, 5, '#EEE');
+  px(x+3, y+9, 18, 3, '#88FF88');
+  // Markings
+  for (let i=0;i<5;i++) px(x+4+i*4, y+8, 1, 1, '#AAA');
+  // Needle mount
+  px(x+24, y+9, 4, 3, '#BBB');
+  // Needle
+  px(x+28, y+10, 10, 1, '#CCC');
+  // Drip
+  if (frameCount%30<15) px(x+38, y+10, 1, 3, '#88FF88');
+  // Glow
+  const a = 0.4+Math.sin(frameCount*0.1)*0.25;
+  ctx.strokeStyle = `rgba(80,255,80,${a})`; ctx.lineWidth = 2;
+  ctx.strokeRect(x-6, y+3, 48, 16);
+}
+
+function drawCigarette(x, y) {
+  // Filter tip (orange)
+  px(x, y+8, 8, 5, '#CC8844'); px(x+1, y+9, 6, 3, '#DD9955');
+  // Paper (white body)
+  px(x+8, y+8, 20, 5, '#F5F0E8'); px(x+9, y+9, 18, 3, '#FFF');
+  // Lit end (ember)
+  px(x+28, y+7, 4, 7, '#FF4400'); px(x+29, y+8, 2, 5, '#FF8800');
+  px(x+28, y+7, 3, 1, '#FFCC00');
+  // Smoke wisps
+  const s = frameCount*0.05;
+  ctx.globalAlpha = 0.35;
+  for (let i=0;i<3;i++) {
+    const sx2 = x+30+Math.sin(s+i*1.5)*6+i*4;
+    const sy2 = y+2-i*5+Math.cos(s*0.7+i)*3;
+    px(sx2, sy2, 3, 3, '#AAA');
+    px(sx2+2, sy2-2, 2, 2, '#CCC');
+  }
+  ctx.globalAlpha = 1;
+  // Warning glow (red)
+  const a = 0.4+Math.sin(frameCount*0.1)*0.25;
+  ctx.strokeStyle = `rgba(255,60,60,${a})`; ctx.lineWidth = 2;
+  ctx.strokeRect(x-2, y+4, 38, 14);
+}
+
+// ── EQUIPMENT ──
+function drawEquipment(eq) {
+  const {x,y,w,h,type} = eq;
+  switch(type) {
+    case 'bench':
+      px(x, y+h-14, w, 14, '#555'); px(x+4, y+h-18, w-8, 6, '#777');
+      px(x+10, y+h-24, w-20, 10, '#333'); px(x+12, y+h-26, w-24, 4, '#444');
+      px(x+7, y+h-6, 8, 8, '#444'); px(x+w-15, y+h-6, 8, 8, '#444');
+      px(x+2, y, 8, h-12, '#666'); px(x+w-10, y, 8, h-12, '#666');
+      px(x-12, y+6, w+24, 4, '#888');
+      px(x-16, y, 8, 16, '#333'); px(x+w+8, y, 8, 16, '#333');
+      px(x-18, y+2, 4, 12, '#2A2A2A'); px(x+w+14, y+2, 4, 12, '#2A2A2A');
+      break;
+    case 'squat':
+      px(x, y, 10, h, '#666'); px(x+w-10, y, 10, h, '#666');
+      px(x, y+h*0.6, w, 6, '#555'); px(x, y, w, 8, '#777');
+      px(x+2, y+22, 14, 8, '#888'); px(x+w-16, y+22, 14, 8, '#888');
+      px(x-10, y+20, w+20, 5, '#999');
+      px(x-16, y+10, 10, 24, '#333'); px(x+w+6, y+10, 10, 24, '#333');
+      px(x-8, y+h-10, w+16, 12, '#4A3A2A');
+      break;
+    case 'rack':
+      px(x, y, w, h, '#555'); px(x+2, y+2, w-4, h-4, '#666');
+      for (let i=0;i<5;i++) {
+        const sy = y+10+i*(h/5);
+        px(x-5, sy, w+10, 6, '#555');
+        const ds = 6+i*2;
+        px(x+4, sy-ds/2, w-8, ds, '#444');
+        px(x+2, sy-ds/2-1, 6, ds+2, '#333'); px(x+w-8, sy-ds/2-1, 6, ds+2, '#333');
+      }
+      break;
+    case 'treadmill':
+      px(x, y+h-32, w, 32, '#333'); px(x+4, y+h-28, w-8, 24, '#222');
+      for (let i=0;i<6;i++) px(x+6, y+h-26+i*4, w-12, 1, '#2A2A2A');
+      px(x+w/2-4, y, 8, h-30, '#444');
+      px(x+6, y, w-12, 22, '#555'); px(x+10, y+3, w-20, 14, '#1a3a1a');
+      px(x+12, y+5, w-24, 10, '#2a5a2a');
+      px(x+2, y+20, 6, h-50, '#666'); px(x+w-8, y+20, 6, h-50, '#666');
+      break;
+    case 'cable':
+      px(x, y, w, h, '#555'); px(x+4, y+4, w-8, h-8, '#444');
+      px(x+12, y+10, w-24, h-30, '#333');
+      for (let i=0;i<8;i++) px(x+14, y+12+i*((h-34)/8), w-28, (h-34)/8-2, '#3A3A3A');
+      px(x+w/2-8, y+2, 16, 10, '#777');
+      ctx.strokeStyle='#AAA'; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.moveTo(x+w/2,y+10); ctx.lineTo(x+w/2,y+h-15); ctx.stroke();
+      px(x+w/2-12, y+h-20, 24, 6, '#666');
+      break;
+    case 'legpress':
+      px(x, y+h-16, w, 16, '#555');
+      px(x+5, y+h-32, 38, 20, '#333'); px(x+8, y+h-34, 32, 6, '#444');
+      px(x+42, y, w-47, h-16, '#666'); px(x+47, y+5, w-57, h-26, '#555');
+      px(x+w-16, y+5, 14, h-26, '#777');
+      px(x+52, y+8, 8, 12, '#888'); px(x+52, y+22, 8, 12, '#888');
+      px(x+50, y+5, 12, 8, '#333'); px(x+50, y+19, 12, 8, '#333');
+      break;
+    case 'freeweights':
+      // Dumbbell rack base
+      px(x, y+h-8, w, 8, '#555'); px(x+2, y+h-10, w-4, 4, '#666');
+      px(x+4, y, 4, h-8, '#777'); px(x+w-8, y, 4, h-8, '#777'); // uprights
+      px(x+2, y+8, w-4, 3, '#666'); // shelf
+      px(x+2, y+22, w-4, 3, '#666'); // shelf 2
+      // Dumbbells on rack (3 pairs)
+      for (let i=0; i<3; i++) {
+        const dy = y + 2 + i*14;
+        const dx = x + 10 + i*6;
+        // Left dumbbell
+        px(dx, dy, 4, 5, '#333'); px(dx+4, dy+1, 8, 3, '#888'); px(dx+12, dy, 4, 5, '#333');
+        // Right dumbbell
+        px(dx+18, dy, 4, 5, '#444'); px(dx+22, dy+1, 6, 3, '#999'); px(dx+28, dy, 4, 5, '#444');
+      }
+      break;
+  }
+}
+
+// ── GYM BACKGROUND ──
+function drawGym() {
+  for (let tx=0; tx<960; tx+=60) {
+    for (let ty=0; ty<720; ty+=60) {
+      px(tx, ty, 60, 60, ((tx/60+ty/60)%2===0) ? '#6B5B4F' : '#7D6B55');
+      ctx.strokeStyle='#5A4A3A'; ctx.lineWidth=1; ctx.strokeRect(tx,ty,60,60);
+    }
+  }
+  equipment.forEach(eq => {
+    px(eq.x-8, eq.y-8, eq.w+16, eq.h+16, '#2A2A2E');
+    px(eq.x-6, eq.y-6, eq.w+12, eq.h+12, '#333338');
+  });
+  px(0,0,960,45,'#4A4A4A'); px(0,45,960,6,'#333');
+  for (let wx=0;wx<960;wx+=80) { px(wx,8,76,34,'#525252'); px(wx+2,10,72,30,'#4E4E4E'); }
+
+  px(150,8,80,30,'#CC3333'); ctx.fillStyle='#FFF'; ctx.font='bold 14px monospace';
+  ctx.fillText('LIFT HEAVY',155,28);
+  px(400,8,100,30,'#3344CC'); ctx.fillStyle='#FFF'; ctx.fillText('NO EXCUSES',405,28);
+  px(680,8,70,30,'#33AA33'); ctx.fillStyle='#FFF'; ctx.fillText('GAINS',692,28);
+
+  equipment.forEach(drawEquipment);
+
+
+  ctx.fillStyle=`rgba(255,215,0,${0.1+Math.sin(frameCount*0.04)*0.05})`;
+  ctx.fillRect(dropZone.x,dropZone.y,dropZone.w,dropZone.h);
+  ctx.strokeStyle='#FFD700'; ctx.lineWidth=3; ctx.setLineDash([8,6]);
+  ctx.strokeRect(dropZone.x,dropZone.y,dropZone.w,dropZone.h); ctx.setLineDash([]);
+  ctx.fillStyle='#FFD700'; ctx.font='bold 16px monospace'; ctx.textAlign='center';
+  ctx.fillText('DROP',dropZone.x+dropZone.w/2,dropZone.y+40);
+  ctx.fillText('ZONE',dropZone.x+dropZone.w/2,dropZone.y+60);
+  ctx.font='24px monospace'; ctx.fillText('\u2193',dropZone.x+dropZone.w/2,dropZone.y+85);
+  ctx.textAlign='left';
+
+  px(915,200,40,300,'#7FAACC');
+  px(915,200,40,4,'#666'); px(915,496,40,4,'#666');
+  px(915,200,4,300,'#666'); px(951,200,4,300,'#666');
+  px(922,220,6,260,'rgba(180,220,255,0.12)');
+}
+
+// ── COLLISION ──
+function collides(ax,ay,aw,ah,bx,by,bw,bh) { return ax<bx+bw&&ax+aw>bx&&ay<by+bh&&ay+ah>by; }
+function collidesEquipment(nx,ny) {
+  for (const eq of equipment) {
+    if (collides(nx+6,ny+12,28,54, eq.x-4,eq.y-4,eq.w+8,eq.h+8)) return true;
+  }
+  return false;
+}
+
+// ── GAME LOGIC ──
+function ensureFiftyLbBag() {
+  const has50 = sandbags.some(b => b.active && b.weight === 50);
+  if (!has50) {
+    let sx,sy,tries=0;
+    do { sx=80+Math.random()*750; sy=80+Math.random()*550; tries++; }
+    while (collidesEquipment(sx,sy) && tries<50);
+    sandbags.push({ x:sx, y:sy, weight:50, active:true });
+  }
+}
+
+function spawnSandbags() {
+  sandbags = [];
+  const weights = [50,100,150,200,250];
+  // Always start with at least two 50lb bags
+  for (let i=0; i<2; i++) {
+    let sx,sy,tries=0;
+    do { sx=80+Math.random()*750; sy=80+Math.random()*550; tries++; }
+    while (collidesEquipment(sx,sy) && tries<50);
+    sandbags.push({ x:sx, y:sy, weight:50, active:true });
+  }
+  for (let i=0; i<8; i++) {
+    let sx,sy,tries=0;
+    do { sx=80+Math.random()*750; sy=80+Math.random()*550; tries++; }
+    while (collidesEquipment(sx,sy) && tries<50);
+    sandbags.push({ x:sx, y:sy, weight:weights[Math.floor(Math.random()*weights.length)], active:true });
+  }
+}
+
+function spawnPowerup() {
+  const r = Math.random();
+  const type = r < 0.35 ? 'creatine' : r < 0.7 ? 'syringe' : 'cigarette';
+  let sx,sy,tries=0;
+  do { sx=80+Math.random()*750; sy=80+Math.random()*550; tries++; }
+  while (collidesEquipment(sx,sy) && tries<50);
+  powerups.push({ x:sx, y:sy, type, timer:600 });
+}
+
+function getMaxLift() { return level*50 + (player.liftBoost>0 ? 100 : 0); }
+function getSpeed() { let s = player.baseSpeed + (player.speedBoost>0 ? 3.44 : 0); if (player.slowDown>0) s *= 0.45; return s; }
+function updateLevel() {
+  if (levelScore>=4000) level=5; else if (levelScore>=2500) level=4;
+  else if (levelScore>=1200) level=3; else if (levelScore>=400) level=2; else level=1;
+}
+
+function update() {
+  if (gameState !== STATE.PLAYING) return;
+
+  let dx=0, dy=0;
+  if (keys['arrowleft']||keys['a']) dx=-1;
+  if (keys['arrowright']||keys['d']) dx=1;
+  if (keys['arrowup']||keys['w']) dy=-1;
+  if (keys['arrowdown']||keys['s']) dy=1;
+  if (dx!==0&&dy!==0) { dx*=0.707; dy*=0.707; }
+
+  const spd = getSpeed();
+  const penalty = player.carrying ? (1 - player.carrying.weight/500) : 1;
+  const nx = player.x + dx*spd*penalty;
+  const ny = player.y + dy*spd*penalty;
+
+  if (!collidesEquipment(nx,player.y) && nx>0 && nx<920) player.x=nx;
+  if (!collidesEquipment(player.x,ny) && ny>50 && ny<648) player.y=ny;
+
+  if (dx<0) player.dir=-1; else if (dx>0) player.dir=1;
+  if (dx!==0||dy!==0) { player.frameTimer++; if (player.frameTimer>5) { player.frame++; player.frameTimer=0; } }
+
+  if (player.speedBoost>0) player.speedBoost--;
+  if (player.liftBoost>0) player.liftBoost--;
+  if (player.slowDown>0) player.slowDown--;
+
+  // Pick up
+  if (keys[' '] && !player.carrying) {
+    for (let bag of sandbags) {
+      if (!bag.active) continue;
+      if (Math.abs(player.x+20-bag.x)<45 && Math.abs(player.y+25-bag.y)<45) {
+        if (bag.weight <= getMaxLift()) { player.carrying=bag; bag.active=false; break; }
+      }
+    }
+    keys[' ']=false;
+  }
+
+  // Drop in zone
+  if (player.carrying) {
+    const pcx=player.x+20, pcy=player.y+25;
+    if (pcx>dropZone.x && pcx<dropZone.x+dropZone.w && pcy>dropZone.y && pcy<dropZone.y+dropZone.h) {
+      const pts = player.carrying.weight === 50 ? player.carrying.weight*2 : player.carrying.weight*8;
+      score += pts;
+      levelScore += player.carrying.weight === 50 ? 134 : pts;
+      player.carrying = null;
+      updateLevel();
+      const active = sandbags.filter(b=>b.active).length;
+      if (active < 5) {
+        const weights=[50,100,150,200,250];
+        for (let i=0;i<5;i++) {
+          let sx,sy,tries=0;
+          do { sx=80+Math.random()*750; sy=80+Math.random()*550; tries++; }
+          while (collidesEquipment(sx,sy) && tries<50);
+          sandbags.push({ x:sx, y:sy, weight:weights[Math.floor(Math.random()*weights.length)], active:true });
+        }
+      }
+      // Always ensure a 50lb bag exists
+      ensureFiftyLbBag();
+    }
+  }
+
+  // Ensure 50lb bag every few seconds
+  if (frameCount % 120 === 0) ensureFiftyLbBag();
+
+  // Powerups
+  for (let i=powerups.length-1; i>=0; i--) {
+    const p=powerups[i]; p.timer--;
+    if (p.timer<=0) { powerups.splice(i,1); continue; }
+    if (Math.abs(player.x+20-(p.x+14))<30 && Math.abs(player.y+25-(p.y+10))<30) {
+      if (p.type==='creatine') player.speedBoost=300; else if (p.type==='syringe') player.liftBoost=300; else if (p.type==='cigarette') player.slowDown=360;
+      powerups.splice(i,1);
+    }
+  }
+  // Spawn a powerup every 5 seconds (300 frames at 60fps)
+  powerupSpawnTimer++;
+  if (powerupSpawnTimer >= 300) {
+    spawnPowerup();
+    powerupSpawnTimer = 0;
+  }
+}
+
+// ── HUD ──
+function drawHUD() {
+  px(0,672,960,48,'rgba(0,0,0,0.85)'); px(0,670,960,3,'#444');
+  ctx.fillStyle='#FFF'; ctx.font='bold 18px monospace';
+  ctx.fillText(`SCORE: ${score}/5000`,20,698);
+  if (timer<=10) { ctx.fillStyle=timer%1<0.5?'#FF3333':'#FF8888'; }
+  ctx.fillText(`TIME: ${Math.ceil(timer)}s`,300,698);
+  ctx.fillStyle='#FFD700'; ctx.fillText(`LVL ${level}`,480,698);
+  ctx.fillStyle='#8F8'; ctx.fillText(`LIFT: ${getMaxLift()}lb`,600,698);
+  const pct=Math.min(score/5000,1);
+  px(20,658,280,10,'#333'); px(20,658,Math.floor(280*pct),10,pct>=1?'#0F0':'#FFD700');
+  if (player.speedBoost>0) { ctx.fillStyle='#0FF'; ctx.font='bold 12px monospace'; ctx.fillText(`SPD ${Math.ceil(player.speedBoost/60)}s`,780,665); }
+  if (player.liftBoost>0) { ctx.fillStyle='#F8F'; ctx.font='bold 12px monospace'; ctx.fillText(`LFT+ ${Math.ceil(player.liftBoost/60)}s`,780,680); }
+  if (player.slowDown>0) { ctx.fillStyle='#F44'; ctx.font='bold 12px monospace'; ctx.fillText(`SLOW ${Math.ceil(player.slowDown/60)}s`,780,650); }
+  if (player.carrying) { ctx.fillStyle='#FFA'; ctx.font='12px monospace'; ctx.fillText(`Carrying: ${player.carrying.weight}lb`,780,698); }
+}
+
+// ── FLEXING MAN (title screen pose) ──
+function drawFlexingMan(x, y, frame) {
+  x = Math.floor(x); y = Math.floor(y);
+  const skin = '#D4A574'; const skinLt = '#E8CBA0'; const skinDk = '#B8895A';
+  const beard = '#1A0E08'; const beardLt = '#2C1810'; const beardDk = '#0E0604';
+  const hoodie = '#444444'; const hoodieDk = '#2A2A2A'; const hoodieLt = '#555555';
+  const pants = '#2244AA'; const pantsDk = '#1A3388';
+  const shoes = '#1a1a1a';
+  const wrapColor = '#8B7355'; const wrapDk = '#6B5535';
+  const bob = (frame%4)<2 ? 0 : -1;
+
+  // Shadow
+  ctx.fillStyle = 'rgba(0,0,0,0.18)';
+  ctx.beginPath(); ctx.ellipse(x+20, y+67, 20, 6, 0, 0, Math.PI*2); ctx.fill();
+
+  // Hood (thin)
+  px(x+7, y+0+bob, 26, 2, hoodieDk);
+  px(x+5, y+2+bob, 30, 2, hoodie);
+  px(x+4, y+4+bob, 2, 14, hoodie); px(x+34, y+4+bob, 2, 14, hoodie);
+  px(x+5, y+18+bob, 30, 1, hoodieDk);
+  px(x+6, y+4+bob, 28, 14, skin);
+  px(x+6, y+3+bob, 28, 1, hoodieLt);
+  px(x+12, y+0+bob, 12, 1, hoodieLt);
+  px(x+7, y+4+bob, 26, 2, skinLt);
+
+  // Face - happy/confident
+  px(x+10, y+8+bob, 6, 1, '#111'); px(x+10, y+9+bob, 7, 1, '#111');
+  px(x+24, y+8+bob, 6, 1, '#111'); px(x+24, y+9+bob, 7, 1, '#111');
+  px(x+12, y+15+bob, 16, 2, '#FFF');
+  px(x+11, y+14+bob, 1, 2, skinDk); px(x+28, y+14+bob, 1, 2, skinDk);
+  // Eyebrows
+  px(x+9, y+6+bob, 8, 2, beardDk); px(x+23, y+6+bob, 8, 2, beardDk);
+  // Nose
+  px(x+17, y+11+bob, 4, 3, skinDk);
+  // Goatee
+  px(x+14, y+13+bob, 12, 1, beard);
+  px(x+13, y+14+bob, 2, 8, beard); px(x+25, y+14+bob, 2, 8, beard);
+  px(x+15, y+17+bob, 10, 1, beard);
+  px(x+14, y+18+bob, 12, 2, beard);
+  px(x+15, y+20+bob, 10, 2, beardDk);
+  px(x+16, y+22+bob, 8, 1, beardDk);
+  px(x+6, y+14+bob, 3, 6, beard); px(x+31, y+14+bob, 3, 6, beard);
+
+  // Neck
+  px(x+14, y+22+bob, 12, 4, skin);
+  px(x+3, y+18+bob, 3, 8, hoodie); px(x+34, y+18+bob, 3, 8, hoodie);
+
+  // Torso
+  px(x+6, y+24+bob, 28, 21, hoodie);
+  px(x+8, y+24+bob, 24, 2, hoodieDk);
+  px(x+10, y+35+bob, 20, 5, hoodieDk);
+  px(x+16, y+20+bob, 1, 10, '#777'); px(x+23, y+20+bob, 1, 10, '#777');
+
+  // ── FLEXING ARMS (bicep curl pose) ──
+  // Left arm - flexed up
+  px(x-4, y+24+bob, 10, 5, hoodie); // shoulder/sleeve
+  px(x-8, y+22+bob, 8, 6, skin);    // upper arm angled up
+  px(x-10, y+18+bob, 6, 6, skin);   // forearm curled up
+  px(x-8, y+16+bob, 5, 3, skinDk);  // fist
+  // Elbow wrap
+  px(x-6, y+26+bob, 6, 3, wrapColor); px(x-5, y+27+bob, 4, 1, wrapDk);
+  // Bicep bulge
+  px(x-6, y+22+bob, 3, 4, skinLt);
+
+  // Right arm - flexed up
+  px(x+34, y+24+bob, 10, 5, hoodie);
+  px(x+40, y+22+bob, 8, 6, skin);
+  px(x+42, y+18+bob, 6, 6, skin);
+  px(x+43, y+16+bob, 5, 3, skinDk);
+  // Elbow wrap
+  px(x+40, y+26+bob, 6, 3, wrapColor); px(x+41, y+27+bob, 4, 1, wrapDk);
+  // Bicep bulge
+  px(x+43, y+22+bob, 3, 4, skinLt);
+
+  // Belt
+  px(x+6, y+45+bob, 28, 2, '#222');
+  px(x+17, y+45+bob, 6, 2, '#AA8800');
+
+  // Pants
+  px(x+8, y+47+bob, 10, 14, pants); px(x+22, y+47+bob, 10, 14, pants);
+  px(x+9, y+53+bob, 3, 2, pantsDk); px(x+23, y+53+bob, 3, 2, pantsDk);
+
+  // Shoes
+  px(x+7, y+61+bob, 12, 4, shoes); px(x+21, y+61+bob, 12, 4, shoes);
+}
+
+// ── TITLE SCREEN ──
+function drawTitle() {
+  px(0,0,960,720,'#0D0D1A');
+  for (let i=0;i<960;i+=80) { px(i+15,480,12,240,'#1A1A2E'); px(i,500,40,10,'#1A1A2E'); }
+  const grad=ctx.createRadialGradient(480,200,50,480,200,400);
+  grad.addColorStop(0,'rgba(255,215,0,0.08)'); grad.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=grad; ctx.fillRect(0,0,960,720);
+
+  ctx.fillStyle='#FFD700'; ctx.font='bold 64px monospace'; ctx.textAlign='center';
+  ctx.fillText('E-MANUAL',480,160); ctx.fillText('LABOR',480,230);
+  px(280,250,400,3,'#FFD700');
+
+  // Draw flexing man on title (2x scale, centered)
+  ctx.save();
+  ctx.scale(2, 2);
+  drawFlexingMan(210, 170, Math.floor(frameCount/10));
+  ctx.restore();
+
+  ctx.fillStyle='#DDD'; ctx.font='18px monospace';
+  ctx.fillText('Carry sandbags to the drop zone!',480,300); ctx.fillText('Score 5000 in 45 seconds!',480,325);
+  ctx.fillStyle='#999'; ctx.font='15px monospace';
+  ctx.fillText('WASD/Arrows = Move  |  SPACE = Pick up',480,440);
+  ctx.fillStyle='#0CC'; ctx.font='14px monospace';
+  ctx.fillText('Creatine = Speed | Syringe = Lift',480,465);
+  ctx.fillStyle='#F44'; ctx.fillText('Cigarette = SLOW (avoid!)',480,485);
+
+  if (Math.floor(frameCount/30)%2===0) {
+    ctx.fillStyle='#FFD700'; ctx.font='bold 24px monospace';
+    ctx.fillText('PRESS ENTER TO START',480,560);
+  }
+  ctx.textAlign='left';
+}
+
+// ── HEART ──
+function drawHeart(hx,hy,color,size) {
+  const s = size||2;
+  ctx.fillStyle=color;
+  ctx.fillRect(hx+s,hy,2*s,s); ctx.fillRect(hx+4*s,hy,2*s,s);
+  ctx.fillRect(hx,hy+s,3*s,2*s); ctx.fillRect(hx+4*s,hy+s,3*s,2*s);
+  ctx.fillRect(hx,hy+3*s,7*s,s); ctx.fillRect(hx+s,hy+4*s,5*s,s);
+  ctx.fillRect(hx+2*s,hy+5*s,3*s,s); ctx.fillRect(hx+3*s,hy+6*s,s,s);
+}
+
+// ══════════════════════════════════════
+// ── WIN SCREEN (animated pickup)
+// ══════════════════════════════════════
+function drawWinScreen() {
+  endScreenTimer++;
+
+  // Iranian flag background (actual image)
+  if (flagLoaded) {
+    ctx.drawImage(flagImg, 0, 0, 960, 720);
+  } else {
+    // Fallback if image hasn't loaded yet
+    px(0,0,960,240,'#239F40'); px(0,240,960,240,'#FFFFFF'); px(0,480,960,240,'#DA0000');
+  }
+  ctx.fillStyle='rgba(0,0,0,0.3)'; ctx.fillRect(0,0,960,720);
+
+  const phase = endScreenTimer;
+
+  // 2x scale for characters on end screens
+  ctx.save();
+  ctx.scale(2, 2);
+  // All coordinates in this block are in half-resolution (480x360 space)
+  const mx = 170, groundY = 240;
+
+  if (phase < 60) {
+    const womanX = mx + 20;
+    const manX = mx - 50 + phase * 1.05;
+    drawDetailedMan(Math.min(manX, womanX-38), groundY-68, Math.floor(phase/6), 1, null, 'happy');
+    drawDetailedWoman(womanX, groundY-66, 'neutral', false);
+  } else if (phase < 100) {
+    const t = phase - 60;
+    const bendY = Math.min(t * 0.3, 8);
+    const manX = mx - 4;
+    const womanX = mx + 30;
+    drawDetailedMan(manX, groundY-68+bendY, 0, 1, null, 'strain');
+    drawDetailedWoman(womanX, groundY-66, 'neutral', false);
+    const armEndX = womanX + 10;
+    px(manX+34, groundY-68+bendY+30, armEndX-manX-34, 5, '#D4A574');
+    px(manX+34, groundY-68+bendY+24, armEndX-manX-34, 5, '#444444');
+  } else if (phase < 160) {
+    const t = phase - 100;
+    const liftY = Math.min(t * 0.8, 40);
+    const manX = mx - 4;
+    const womanX = mx + 22;
+    drawDetailedMan(manX, groundY-68, 0, 1, null, 'happy');
+    drawDetailedWoman(womanX, groundY-66-liftY, 'happy', true);
+    const armY1 = groundY-68+30-liftY*0.3;
+    const armY2 = groundY-68+36-liftY*0.3;
+    px(manX+34, armY1, womanX+10-manX-34, 5, '#D4A574');
+    px(manX+34, armY2, womanX+10-manX-34, 5, '#D4A574');
+    if (t%8<4) {
+      for (let i=0;i<3;i++) {
+        px(manX+20+Math.sin(t*0.3+i*2)*15, groundY-84-i*12, 3, 3, '#FFD700');
+      }
+    }
+  } else {
+    const df = Math.floor(frameCount/8) % 4;
+    const bob = df<2 ? 0 : -3;
+    const manX = mx - 4;
+    const womanX = mx + 20;
+    const mFrame = Math.floor(frameCount/8);
+    drawDetailedMan(manX + (df%2===0?-1:1), groundY-68+bob, mFrame, 0, null, 'happy');
+    drawDetailedWoman(womanX + (df%2===0?1:-1), groundY-119+bob, 'happy', true);
+    const wx = womanX + (df%2===0?1:-1);
+    px(manX+34+(df%2===0?-1:1), groundY-68+bob+26, wx+12-manX-34, 5, '#D4A574');
+    px(manX+34+(df%2===0?-1:1), groundY-68+bob+32, wx+12-manX-34, 5, '#D4A574');
+  }
+  ctx.restore();
+
+  // Hearts and confetti drawn at normal scale (outside the 2x block)
+  if (phase >= 160) {
+    for (let i=0;i<10;i++) {
+      const hx = 380 + Math.sin(frameCount*0.02+i*1.1)*180;
+      const hy = 340 - (frameCount*0.5+i*45)%300;
+      drawHeart(hx, hy, i%2===0?'#FF3366':'#FF6699', 3);
+    }
+    for (let i=0;i<15;i++) {
+      const cx = (frameCount*2+i*67)%960;
+      const cy = (frameCount*1.5+i*43)%720;
+      const colors = ['#FFD700','#FF3366','#00FF88','#FF69B4','#88DDFF'];
+      px(cx, cy, 4, 4, colors[i%5]);
+    }
+  }
+
+  // Title
+  ctx.fillStyle='#FFD700'; ctx.font='bold 52px monospace'; ctx.textAlign='center';
+  ctx.fillText("You're so strong, Manny!",480,80);
+  ctx.fillStyle='#FFF'; ctx.font='bold 20px monospace';
+  ctx.fillText(`Final Score: ${score}`,480,620);
+
+  if (phase > 100 && Math.floor(frameCount/30)%2===0) {
+    ctx.fillStyle='#FFD700'; ctx.font='20px monospace';
+    ctx.fillText('PRESS ENTER TO PLAY AGAIN',480,670);
+  }
+  ctx.textAlign='left';
+}
+
+// ══════════════════════════════════════
+// ── LOSE SCREEN (animated drop + cry)
+// ══════════════════════════════════════
+function drawLoseScreen() {
+  endScreenTimer++;
+
+  px(0,0,960,720,'#0D0D1A'); px(0,520,960,200,'#1A1A2E');
+
+  const grad=ctx.createRadialGradient(480,350,30,480,350,350);
+  grad.addColorStop(0,'rgba(100,100,180,0.06)'); grad.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=grad; ctx.fillRect(0,0,960,720);
+
+  const phase = endScreenTimer;
+
+  // 2x scale for characters
+  ctx.save();
+  ctx.scale(2, 2);
+  const mx = 160, groundY = 250;
+
+  if (phase < 50) {
+    const womanX = mx + 20;
+    const manX = mx - 40 + phase * 1;
+    drawDetailedMan(Math.min(manX, womanX-38), groundY-68, Math.floor(phase/6), 1, null, 'normal');
+    drawDetailedWoman(womanX, groundY-66, 'neutral', false);
+  } else if (phase < 90) {
+    const t = phase - 50;
+    const shake = Math.sin(t*0.8) * 2;
+    const manX = mx - 4;
+    const womanX = mx + 30;
+    drawDetailedMan(manX+shake, groundY-68, 0, 1, null, 'strain');
+    const wLift = Math.min(t*0.2, 5);
+    drawDetailedWoman(womanX, groundY-66-wLift+Math.abs(shake)*0.5, 'neutral', false);
+    px(manX+34+shake, groundY-68+34, womanX+10-manX-34, 5, '#D4A574');
+    px(manX+34+shake, groundY-68+28, womanX+10-manX-34, 5, '#444444');
+    if (t%6<3) {
+      for (let i=0;i<4;i++) {
+        ctx.strokeStyle='#FF6'; ctx.lineWidth=1;
+        ctx.beginPath();
+        ctx.moveTo(manX+20+shake, groundY-74);
+        ctx.lineTo(manX+20+shake+(i-1.5)*12, groundY-90);
+        ctx.stroke();
+      }
+    }
+    px(manX+5+shake, groundY-72, 2, 4, '#88CCFF');
+    px(manX+38+shake, groundY-66, 2, 4, '#88CCFF');
+  } else if (phase < 120) {
+    const t = phase - 90;
+    const manX = mx - 4;
+    const dropY = Math.min(t*t*0.15, 30);
+    drawDetailedMan(manX, groundY-68, 0, 0, null, 'strain');
+    const womanX = mx+30 + t*0.8;
+    drawDetailedWoman(womanX, groundY-66+dropY, 'cry', false);
+    if (dropY >= 28 && t < 20) {
+      for (let i=0;i<5;i++) {
+        const sx = womanX+18 + Math.cos(i*1.2)*18;
+        const sy = groundY-10 + Math.sin(i*1.2)*8;
+        px(sx, sy, 3, 3, '#FFD700');
+      }
+    }
+  } else {
+    const t = phase - 120;
+    const cf = Math.floor(frameCount/15)%2;
+    const manX = mx - 5;
+    const shake = cf===0 ? -1 : 1;
+
+    drawDetailedMan(manX+shake, groundY-64, 0, 0, null, 'cry');
+
+    // Sitting woman (drawn inline at 2x)
+    const womanX = mx + 60;
+    const wy = groundY - 36;
+    const skin2='#9B7044', skinDk2='#7A5530';
+    const hair2='#0A0604', hairLt2='#1A100A';
+    const dress2='#2E8B57', dressDk2='#1E6B3E';
+
+    px(womanX+5, wy-4, 22, 24, hair2);
+    px(womanX+3, wy+4, 4, 18, hair2); px(womanX+26, wy+4, 4, 18, hair2);
+    px(womanX+8, wy-3, 6, 2, hairLt2);
+    px(womanX+7, wy+4, 18, 14, skin2);
+    px(womanX+10, wy+8, 5, 3, '#FFF'); px(womanX+18, wy+8, 5, 3, '#FFF');
+    px(womanX+11, wy+9, 3, 2, '#553322'); px(womanX+19, wy+9, 3, 2, '#553322');
+    px(womanX+11, wy+11, 2, 8+cf*3, '#66AAFF');
+    px(womanX+20, wy+11, 2, 8+cf*3, '#66AAFF');
+    px(womanX+10, wy+14, 1, 4, '#5599EE');
+    px(womanX+22, wy+14, 1, 4, '#5599EE');
+    px(womanX+9, wy+11, 1, 5, '#333'); px(womanX+23, wy+11, 1, 5, '#333');
+    px(womanX+13, wy+16, 6, 1, skinDk2);
+    px(womanX+12, wy+15, 2, 1, skinDk2); px(womanX+18, wy+15, 2, 1, skinDk2);
+    px(womanX+5, wy+20, 22, 10, dress2);
+    px(womanX+8, wy+22, 16, 2, dressDk2);
+    px(womanX+2, wy+30, 28, 5, dress2);
+    px(womanX+1, wy+35, 8, 5, skin2); px(womanX+23, wy+35, 8, 5, skin2);
+    px(womanX, wy+39, 10, 2, '#CC0022'); px(womanX+22, wy+39, 10, 2, '#CC0022');
+    px(womanX+4, wy+20, 4, 10, skin2);
+    px(womanX+24, wy+20, 4, 10, skin2);
+  }
+  ctx.restore();
+
+  // Rain and puddle at normal scale (outside 2x block)
+  if (phase >= 120) {
+    const t = phase - 120;
+    const puddleW = Math.min(t * 0.5, 80);
+    ctx.fillStyle = 'rgba(100,170,255,0.25)';
+    ctx.beginPath();
+    ctx.ellipse(420, 490, 40+puddleW, 5+puddleW*0.1, 0, 0, Math.PI*2);
+    ctx.fill();
+
+    ctx.strokeStyle = 'rgba(100,150,255,0.1)';
+    ctx.lineWidth = 1;
+    for (let i=0;i<25;i++) {
+      const rx = (frameCount*3+i*49)%960;
+      const ry = (frameCount*4+i*37)%500;
+      ctx.beginPath(); ctx.moveTo(rx,ry); ctx.lineTo(rx-2,ry+10); ctx.stroke();
+    }
+  }
+
+  // Title
+  ctx.fillStyle='#FF4444'; ctx.font='bold 52px monospace'; ctx.textAlign='center';
+  ctx.fillText('GAME OVER',480,80);
+  ctx.fillStyle='#AAA'; ctx.font='20px monospace';
+  ctx.fillText(`Score: ${score} / 5000`,480,140);
+  ctx.fillText('Not strong enough...',480,175);
+
+  if (phase > 100 && Math.floor(frameCount/30)%2===0) {
+    ctx.fillStyle='#FFD700'; ctx.font='20px monospace';
+    ctx.fillText('PRESS ENTER TO TRY AGAIN',480,670);
+  }
+  ctx.textAlign='left';
+}
+
+// ══════════════════════════════════════════════════════
+// ── LO-FI MUSIC ENGINE ──
+// ══════════════════════════════════════════════════════
+let musicPlaying = false;
+let bgMusic = null;
+
+function startMusic() {
+  if (musicPlaying) return;
+  musicPlaying = true;
+  bgMusic = new Audio('https://archive.org/download/royalty-free-music/Arabian%20Dance%20%28Royalty%20Free%20Music%29.mp3');
+  bgMusic.loop = true;
+  bgMusic.volume = 0.4;
+  bgMusic.play().catch(()=>{});
+}
+
+// ── GAME START ──
+function startGame() {
+  score=0; levelScore=0; level=1; timer=45; endScreenTimer=0;
+  player.x=400; player.y=360; player.carrying=null; player.speedBoost=0; player.liftBoost=0; player.slowDown=0;
+  powerups=[]; powerupSpawnTimer=0; gameState=STATE.PLAYING; spawnSandbags();
+  spawnPowerup(); // spawn first powerup immediately
+  if (!musicStarted) { startMusic(); musicStarted=true; }
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = setInterval(()=>{
+    if (gameState===STATE.PLAYING) {
+      timer-=1/60;
+      if (timer<=0) { timer=0; endScreenTimer=0; gameState=score>=5000?STATE.WIN:STATE.LOSE; clearInterval(timerInterval); }
+    }
+  },1000/60);
+}
+
+document.addEventListener('keydown', e=>{
+  if (e.key==='Enter' && (gameState===STATE.TITLE||gameState===STATE.WIN||gameState===STATE.LOSE)) startGame();
+});
+
+function gameLoop() {
+  frameCount++;
+  ctx.clearRect(0,0,960,720);
+  switch(gameState) {
+    case STATE.TITLE: drawTitle(); break;
+    case STATE.PLAYING:
+      update(); drawGym();
+      for (let bag of sandbags) { if (bag.active) drawSandbag(bag.x,bag.y,bag.weight,false); }
+      for (let p of powerups) { if (p.type==='creatine') drawCreatine(p.x,p.y); else if (p.type==='syringe') drawSyringe(p.x,p.y); else if (p.type==='cigarette') drawCigarette(p.x,p.y); }
+      drawDetailedMan(player.x,player.y,player.frame,player.dir,player.carrying,'normal');
+      drawHUD(); break;
+    case STATE.WIN: drawWinScreen(); break;
+    case STATE.LOSE: drawLoseScreen(); break;
+  }
+  requestAnimationFrame(gameLoop);
+}
+gameLoop();
+</script>
+</body>
+</html>
