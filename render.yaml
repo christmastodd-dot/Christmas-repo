@@ -3,7 +3,7 @@ services:
     name: basketball-franchise-manager
     runtime: python
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn basketball_gm.web_app:app --bind 0.0.0.0:$PORT --workers 2 --timeout 120
+    startCommand: gunicorn basketball_gm.web_app:app --bind 0.0.0.0:$PORT --workers 1 --threads 4 --timeout 120
     envVars:
       - key: PYTHON_VERSION
         value: "3.11"

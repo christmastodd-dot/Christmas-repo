@@ -27,6 +27,8 @@ from basketball_gm.stats import get_league_leaders
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
 app.secret_key = "basketball-gm-secret-key-change-in-production"
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+app.config["SESSION_COOKIE_HTTPONLY"] = True
 
 # In-memory game state (keyed by session)
 games: dict[str, dict] = {}
