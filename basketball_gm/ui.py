@@ -9,6 +9,7 @@ from basketball_gm.league import League, ScheduledGame
 from basketball_gm.team import Team
 from basketball_gm.player import Player
 from basketball_gm.game_sim import GameResult
+from basketball_gm.playoffs import PlayoffBracket, PlayoffSeries, ROUND_NAMES
 from basketball_gm.stats import format_box_score, get_league_leaders
 
 
@@ -380,3 +381,127 @@ def view_player_detail_menu(league: League) -> None:
 
     choice = get_choice(f"\n  Player # (1-{len(team.roster)}): ", 1, len(team.roster))
     print_player_detail(team.roster[choice - 1])
+
+
+# ── Playoff Display ─────────────────────────────────────────────────
+
+
+def print_playoff_bracket(bracket: PlayoffBracket, league: League) -> None:
+    """Display the full playoff bracket."""
+    print(f"\n  {'=' * 60}")
+    print(f"  PLAYOFFS")
+    print(f"  {'=' * 60}")
+
+    for rd_idx, rd_series in enumerate(bracket.rounds):
+        rd_name = ROUND_NAMES[rd_idx] if rd_idx < len(ROUND_NAMES) else f"Round {rd_idx + 1}"
+        active = " (current)" if rd_idx == bracket.current_round and not bracket.playoffs_complete else ""
+        print(f"\n  --- {rd_name}{active} ---")
+
+        for series in rd_series:
+            higher = league.get_team(series.higher_seed_id)
+            lower = league.get_team(series.lower_seed_id)
+            h_name = f"({series.higher_seed_rank}) {higher.full_name}" if higher else "TBD"
+            l_name = f"({series.lower_seed_rank}) {lower.full_name}" if lower else "TBD"
+            conf_str = f"[{series.conference}]" if series.conference else ""
+
+            if series.complete:
+                winner_name = higher.abbr if series.winner_id == series.higher_seed_id else lower.abbr
+                w = max(series.higher_wins, series.lower_wins)
+                l = min(series.higher_wins, series.lower_wins)
+                status = f"{winner_name} wins {w}-{l}"
+            else:
+                status = f"{series.higher_wins}-{series.lower_wins}"
+
+            print(f"    {conf_str:>10s}  {h_name:<28s} vs {l_name:<28s}  {status}")
+
+    if bracket.champion_id:
+        champ = league.get_team(bracket.champion_id)
+        champ_name = champ.full_name if champ else "???"
+        print(f"\n  *** CHAMPION: {champ_name} ***")
+        if bracket.finals_mvp_id:
+            mvp, _ = league.find_player(bracket.finals_mvp_id)
+            if mvp:
+                print(f"  *** Finals MVP: {mvp.name} ***")
+    print()
+
+
+def print_series_detail(series: PlayoffSeries, league: League) -> None:
+    """Show game-by-game detail for a series."""
+    higher = league.get_team(series.higher_seed_id)
+    lower = league.get_team(series.lower_seed_id)
+    h_name = higher.abbr if higher else "???"
+    l_name = lower.abbr if lower else "???"
+
+    print(f"\n  {series.status_str(league)}")
+    print(f"  {'-' * 40}")
+
+    for i, result in enumerate(series.results, 1):
+        home = league.get_team(result.home_team_id)
+        away = league.get_team(result.away_team_id)
+        home_name = home.abbr if home else "???"
+        away_name = away.abbr if away else "???"
+        ot = f" OT{result.overtime_periods}" if result.overtime_periods else ""
+        print(f"  Game {i}: {away_name} {result.away_score} @ {home_name} {result.home_score}{ot}")
+    print()
+
+
+def playoff_menu(league: League, bracket: PlayoffBracket) -> str:
+    """Display the playoff menu and return user choice."""
+    team = league.user_team
+    if not team:
+        return "quit"
+
+    print(f"\n  {'=' * 58}")
+    print(f"  PLAYOFFS - {bracket.current_round_name}")
+    print(f"  {team.full_name}")
+    print(f"  {'=' * 58}")
+
+    # Check if user team is in playoffs
+    user_in = False
+    user_series = None
+    for series in bracket.current_series_list:
+        if series.higher_seed_id == team.id or series.lower_seed_id == team.id:
+            user_in = True
+            user_series = series
+            break
+
+    if user_in and user_series and not user_series.complete:
+        print(f"\n  Your series: {user_series.status_str(league)}")
+
+    options = [
+        "View Bracket",
+        "Simulate One Game (your series)" if user_in and user_series and not user_series.complete else "Simulate One Game (next series)",
+        "Simulate Current Round",
+        "Simulate All Remaining Playoffs",
+        "View Series Detail",
+        "View My Roster",
+        "View Standings",
+    ]
+
+    for i, opt in enumerate(options, 1):
+        print(f"  {i:2d}. {opt}")
+
+    choice = get_choice("\n  Enter choice: ", 1, len(options))
+
+    return [
+        "bracket", "sim_game", "sim_round", "sim_all",
+        "series_detail", "roster", "standings",
+    ][choice - 1]
+
+
+def select_series(bracket: PlayoffBracket, league: League) -> Optional[PlayoffSeries]:
+    """Let user pick a series to view."""
+    active = [s for s in bracket.current_series_list if not s.complete]
+    if not active:
+        active = bracket.current_series_list
+
+    print("\n  Select a series:")
+    for i, s in enumerate(active, 1):
+        print(f"  {i:3d}  {s.status_str(league)}")
+
+    if not active:
+        print("  No active series.")
+        return None
+
+    choice = get_choice(f"\n  Series # (1-{len(active)}): ", 1, len(active))
+    return active[choice - 1]
