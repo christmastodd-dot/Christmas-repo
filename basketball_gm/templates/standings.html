@@ -12,7 +12,7 @@
                 {% for t in teams %}
                 <tr class="{{ 'user-team' if t.is_user else '' }}">
                     <td>{{ t.rank }}</td>
-                    <td><a href="{{ url_for('roster', team_id=loop.index) }}">{{ t.abbr }}</a> {{ t.name }}</td>
+                    <td><a href="{{ url_for('roster', team_id=loop.index) }}">{{ t.abbr }}</a><span class="desktop-only"> {{ t.name }}</span></td>
                     <td class="num">{{ t.wins }}</td>
                     <td class="num">{{ t.losses }}</td>
                     <td class="num">{{ t.pct }}</td>

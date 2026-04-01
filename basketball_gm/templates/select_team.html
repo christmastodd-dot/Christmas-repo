@@ -50,8 +50,6 @@
 </div>
 
 <style>
-    .desktop-only { display: block; }
-    .mobile-only { display: none; }
     .team-cards { display: flex; flex-direction: column; gap: 0.5rem; }
     .team-card {
         display: flex;
@@ -65,9 +63,5 @@
     }
     .team-card-name { font-weight: 600; font-size: 0.9rem; }
     .team-card-meta { color: #7f8c8d; font-size: 0.78rem; margin-top: 0.15rem; }
-    @media (max-width: 768px) {
-        .desktop-only { display: none !important; }
-        .mobile-only { display: block !important; }
-    }
 </style>
 {% endblock %}

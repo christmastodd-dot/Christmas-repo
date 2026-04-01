@@ -119,7 +119,6 @@
             width: 100%;
             border-collapse: collapse;
             font-size: 0.85rem;
-            min-width: 400px;
         }
         th {
             text-align: left;
@@ -212,8 +211,14 @@
         }
         .champ-banner h2 { border: none; font-size: 1.4rem; }
 
+        /* Utility: desktop/mobile visibility */
+        .desktop-only { display: revert; }
+        .mobile-only { display: none; }
+
         /* ===== MOBILE RESPONSIVE ===== */
         @media (max-width: 768px) {
+            .desktop-only { display: none !important; }
+            .mobile-only { display: block !important; }
             .navbar { padding: 0.5rem 0.8rem; gap: 0.5rem; }
             .nav-toggle { display: block; }
             .navbar .nav-links {
@@ -236,12 +241,12 @@
                 order: 5;
             }
             .two-col { grid-template-columns: 1fr; }
-            .container { padding: 0.6rem; }
-            .card { padding: 0.8rem; margin-bottom: 0.8rem; }
-            .card h2 { font-size: 0.95rem; }
-            table { font-size: 0.78rem; }
-            th { font-size: 0.68rem; padding: 0.4rem 0.35rem; }
-            td { padding: 0.45rem 0.35rem; }
+            .container { padding: 0.5rem; }
+            .card { padding: 0.7rem; margin-bottom: 0.7rem; }
+            .card h2 { font-size: 0.9rem; }
+            table { font-size: 0.75rem; }
+            th { font-size: 0.65rem; padding: 0.35rem 0.25rem; }
+            td { padding: 0.4rem 0.25rem; }
             .btn { padding: 0.6rem 1rem; font-size: 0.85rem; }
             .btn-sm { padding: 0.4rem 0.7rem; font-size: 0.78rem; }
             .action-grid { grid-template-columns: 1fr 1fr; }
@@ -253,6 +258,9 @@
             .action-grid { grid-template-columns: 1fr; }
             .champ-banner h2 { font-size: 1.1rem; }
             .champ-banner { padding: 1.5rem 0.5rem; }
+            table { font-size: 0.72rem; }
+            th { font-size: 0.62rem; padding: 0.3rem 0.2rem; }
+            td { padding: 0.35rem 0.2rem; }
         }
 
         /* Safe area insets for notched phones */

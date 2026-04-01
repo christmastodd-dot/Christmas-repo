@@ -1,8 +1,11 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="card">
-    <h2>Free Agents — Cap Space: ${{ "%.1f"|format(team.cap_space / 1000000) }}M — Roster: {{ team.roster|length }}/15</h2>
-    <div class="table-wrap"><table>
+    <h2>Free Agents — Cap: ${{ "%.1f"|format(team.cap_space / 1000000) }}M — Roster: {{ team.roster|length }}/15</h2>
+
+    <!-- Desktop table view -->
+    <div class="table-wrap desktop-only">
+    <table>
         <thead>
             <tr><th>POS</th><th>Name</th><th class="num">OVR</th><th class="num">POT</th><th class="num">Age</th><th>Asking</th><th></th></tr>
         </thead>
@@ -29,6 +32,70 @@
             </tr>
             {% endfor %}
         </tbody>
-    </table></div>
+    </table>
+    </div>
+
+    <!-- Mobile card view -->
+    <div class="mobile-only">
+        {% for p in agents %}
+        <div class="fa-card">
+            <div class="fa-card-top">
+                <div>
+                    <span class="fa-card-name">{{ p.name }}</span>
+                    <span class="fa-card-pos">{{ p.position }}</span>
+                </div>
+                <div class="fa-card-ovr">{{ p.overall }}</div>
+            </div>
+            <div class="fa-card-meta">
+                Age {{ p.age }} &middot; POT {{ p.potential }} &middot; Asking {{ p.asking }}
+            </div>
+            <form method="post" action="{{ url_for('sign_fa') }}" class="fa-card-form">
+                <input type="hidden" name="player_id" value="{{ p.id }}">
+                <input type="number" name="salary" step="0.1" min="1.1" max="45" placeholder="$M" style="width:65px;" required>
+                <select name="years">
+                    <option value="1">1yr</option><option value="2">2yr</option>
+                    <option value="3">3yr</option><option value="4">4yr</option>
+                </select>
+                <button type="submit" class="btn btn-sm">Sign</button>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
 </div>
+
+<style>
+    .fa-card {
+        background: #0f1923;
+        border: 1px solid #2c3e50;
+        border-radius: 6px;
+        padding: 0.6rem 0.7rem;
+        margin-bottom: 0.4rem;
+    }
+    .fa-card-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.25rem;
+    }
+    .fa-card-name { font-weight: 600; font-size: 0.88rem; }
+    .fa-card-pos { color: #7f8c8d; font-size: 0.75rem; margin-left: 0.4rem; }
+    .fa-card-ovr {
+        background: #e67e22;
+        color: #fff;
+        font-weight: 700;
+        font-size: 0.8rem;
+        padding: 0.15rem 0.45rem;
+        border-radius: 4px;
+    }
+    .fa-card-meta {
+        font-size: 0.75rem;
+        color: #7f8c8d;
+        margin-bottom: 0.4rem;
+    }
+    .fa-card-form {
+        display: flex;
+        gap: 0.4rem;
+        align-items: center;
+    }
+</style>
 {% endblock %}

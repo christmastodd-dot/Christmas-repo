@@ -3,10 +3,9 @@
 <div class="card">
     <h2>Trade Center</h2>
 
-    <!-- Select trade partner -->
     <form method="get" action="{{ url_for('trade_view') }}" style="margin-bottom: 1rem;">
         <label>Trade Partner: </label>
-        <select name="partner_id" onchange="this.form.submit()">
+        <select name="partner_id" onchange="this.form.submit()" style="width: 100%; max-width: 300px;">
             <option value="">Select a team...</option>
             {% for t in other_teams %}
             <option value="{{ t.id }}" {{ 'selected' if partner and partner.id == t.id }}>{{ t.abbr }} {{ t.full_name }} ({{ t.record }})</option>
@@ -19,9 +18,12 @@
 <form method="post" action="{{ url_for('trade_view') }}">
     <input type="hidden" name="partner_id" value="{{ partner.id }}">
     <div class="two-col">
+        <!-- Your players -->
         <div class="card">
-            <h2>Your Players ({{ team.abbr }}) — Select to offer</h2>
-            <div class="table-wrap"><table>
+            <h2>Your Players ({{ team.abbr }})</h2>
+
+            <div class="table-wrap desktop-only">
+            <table>
                 <thead><tr><th></th><th>POS</th><th>Name</th><th class="num">OVR</th><th class="num">Age</th><th>Salary</th><th class="num">Val</th></tr></thead>
                 <tbody>
                     {% for p in my_players %}
@@ -33,11 +35,28 @@
                     </tr>
                     {% endfor %}
                 </tbody>
-            </table></div>
+            </table>
+            </div>
+
+            <div class="mobile-only">
+                {% for p in my_players %}
+                <label class="trade-card">
+                    <input type="checkbox" name="offer" value="{{ p.id }}">
+                    <div class="trade-card-info">
+                        <div class="trade-card-name">{{ p.name }} <span class="trade-card-pos">{{ p.position }}</span></div>
+                        <div class="trade-card-meta">OVR {{ p.overall }} &middot; Age {{ p.age }} &middot; {{ p.salary }} &middot; Val {{ p.value }}</div>
+                    </div>
+                </label>
+                {% endfor %}
+            </div>
         </div>
+
+        <!-- Partner players -->
         <div class="card">
-            <h2>{{ partner.full_name }} — Select to request</h2>
-            <div class="table-wrap"><table>
+            <h2>{{ partner.full_name }}</h2>
+
+            <div class="table-wrap desktop-only">
+            <table>
                 <thead><tr><th></th><th>POS</th><th>Name</th><th class="num">OVR</th><th class="num">Age</th><th>Salary</th><th class="num">Val</th></tr></thead>
                 <tbody>
                     {% for p in partner_players %}
@@ -49,7 +68,20 @@
                     </tr>
                     {% endfor %}
                 </tbody>
-            </table></div>
+            </table>
+            </div>
+
+            <div class="mobile-only">
+                {% for p in partner_players %}
+                <label class="trade-card">
+                    <input type="checkbox" name="request" value="{{ p.id }}">
+                    <div class="trade-card-info">
+                        <div class="trade-card-name">{{ p.name }} <span class="trade-card-pos">{{ p.position }}</span></div>
+                        <div class="trade-card-meta">OVR {{ p.overall }} &middot; Age {{ p.age }} &middot; {{ p.salary }} &middot; Val {{ p.value }}</div>
+                    </div>
+                </label>
+                {% endfor %}
+            </div>
         </div>
     </div>
     <div style="text-align: center; margin-top: 1rem;">
@@ -57,4 +89,22 @@
     </div>
 </form>
 {% endif %}
+
+<style>
+    .trade-card {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.55rem 0.5rem;
+        background: #0f1923;
+        border: 1px solid #2c3e50;
+        border-radius: 6px;
+        margin-bottom: 0.35rem;
+        cursor: pointer;
+    }
+    .trade-card input[type="checkbox"] { width: 18px; height: 18px; flex-shrink: 0; }
+    .trade-card-name { font-weight: 600; font-size: 0.85rem; }
+    .trade-card-pos { color: #7f8c8d; font-size: 0.72rem; font-weight: 400; }
+    .trade-card-meta { font-size: 0.72rem; color: #7f8c8d; margin-top: 0.1rem; }
+</style>
 {% endblock %}

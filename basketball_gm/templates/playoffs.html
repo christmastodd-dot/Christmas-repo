@@ -3,32 +3,32 @@
 {% if champ %}
 <div class="card champ-banner">
     <h2>CHAMPION: {{ champ }}</h2>
-    {% if mvp %}<p style="font-size:1.1rem; margin-top:0.5rem;">Finals MVP: <strong>{{ mvp }}</strong></p>{% endif %}
+    {% if mvp %}<p style="font-size:1rem; margin-top:0.5rem;">Finals MVP: <strong>{{ mvp }}</strong></p>{% endif %}
 </div>
 {% endif %}
 
 {% for rd in rounds %}
 <div class="card">
     <h2>{{ rd.name }} {{ "(current)" if rd.is_current and not champ else "" }}</h2>
-    <div class="table-wrap"><table>
+    <table>
         <thead>
-            <tr><th>Conf</th><th>Matchup</th><th class="num">Score</th><th>Status</th></tr>
+            <tr><th class="desktop-only">Conf</th><th>Matchup</th><th class="num">Score</th><th>Status</th></tr>
         </thead>
         <tbody>
             {% for s in rd.series %}
             <tr>
-                <td><span style="color:#7f8c8d;">{{ s.conference }}</span></td>
+                <td class="desktop-only"><span style="color:#7f8c8d;">{{ s.conference }}</span></td>
                 <td>
-                    <strong>({{ s.higher_seed }}) {{ s.higher_abbr }}</strong>
-                    vs
-                    <strong>({{ s.lower_seed }}) {{ s.lower_abbr }}</strong>
+                    <strong>{{ s.higher_abbr }}</strong>
+                    <span style="color:#7f8c8d;">vs</span>
+                    <strong>{{ s.lower_abbr }}</strong>
                 </td>
-                <td class="num">{{ s.higher_wins }} - {{ s.lower_wins }}</td>
+                <td class="num">{{ s.higher_wins }}-{{ s.lower_wins }}</td>
                 <td>{{ s.status }}</td>
             </tr>
             {% endfor %}
         </tbody>
-    </table></div>
+    </table>
 </div>
 {% endfor %}
 {% endblock %}

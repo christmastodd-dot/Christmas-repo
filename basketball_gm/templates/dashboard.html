@@ -6,7 +6,7 @@
         <span class="phase-badge phase-{{ phase }}">{{ phase.replace('_', ' ') }}</span>
     </h2>
 
-    <div style="display: flex; gap: 2rem; margin-bottom: 1rem; flex-wrap: wrap;">
+    <div style="display: flex; gap: 0.8rem 1.5rem; margin-bottom: 1rem; flex-wrap: wrap; font-size: 0.88rem;">
         <div>
             <span style="color:#7f8c8d;">Record:</span>
             <strong>{{ team.record }}</strong>
@@ -103,7 +103,7 @@
                 {% for t in league.standings(conf)[:8] %}
                 <tr class="{{ 'user-team' if t.id == league.user_team_id else '' }}">
                     <td>{{ loop.index }}</td>
-                    <td>{{ t.abbr }} {{ t.name }}</td>
+                    <td><span class="desktop-only">{{ t.abbr }} {{ t.name }}</span><span class="mobile-only" style="display:none;">{{ t.abbr }}</span></td>
                     <td class="num">{{ t.wins }}</td>
                     <td class="num">{{ t.losses }}</td>
                     <td class="num">{{ "%.3f"|format(t.win_pct) }}</td>

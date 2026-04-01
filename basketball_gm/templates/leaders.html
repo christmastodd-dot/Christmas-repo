@@ -4,9 +4,9 @@
 <div class="card">
     <h2>{{ cat_labels.get(cat, cat) }}</h2>
     {% if players %}
-    <div class="table-wrap"><table>
+    <table>
         <thead>
-            <tr><th>#</th><th>Name</th><th>Team</th><th>Pos</th><th class="num">GP</th><th class="num">Value</th></tr>
+            <tr><th>#</th><th>Name</th><th>Team</th><th class="desktop-only">Pos</th><th class="num desktop-only">GP</th><th class="num">Value</th></tr>
         </thead>
         <tbody>
             {% for p in players %}
@@ -14,13 +14,13 @@
                 <td>{{ loop.index }}</td>
                 <td><strong>{{ p.name }}</strong></td>
                 <td>{{ p.team }}</td>
-                <td>{{ p.position }}</td>
-                <td class="num">{{ p.gp }}</td>
+                <td class="desktop-only">{{ p.position }}</td>
+                <td class="num desktop-only">{{ p.gp }}</td>
                 <td class="num">{{ p.value }}</td>
             </tr>
             {% endfor %}
         </tbody>
-    </table></div>
+    </table>
     {% else %}
     <p style="color:#7f8c8d;">Not enough games played yet.</p>
     {% endif %}
