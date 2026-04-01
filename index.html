@@ -657,9 +657,10 @@ function drawGym() {
   px(0,0,960,45,'#4A4A4A'); px(0,45,960,6,'#333');
   for (let wx=0;wx<960;wx+=80) { px(wx,8,76,34,'#525252'); px(wx+2,10,72,30,'#4E4E4E'); }
 
-  px(150,8,80,30,'#CC3333'); ctx.fillStyle='#FFF'; ctx.font='bold 14px monospace';
-  ctx.fillText('LIFT HEAVY',155,28);
-  px(400,8,100,30,'#3344CC'); ctx.fillStyle='#FFF'; ctx.fillText('NO EXCUSES',405,28);
+  px(146,6,120,38,'#CC3333'); ctx.fillStyle='#FFF'; ctx.font='bold 14px monospace';
+  ctx.textAlign='center'; ctx.fillText('LIFT HEAVY',206,30);
+  px(392,6,130,38,'#3344CC'); ctx.fillStyle='#FFF'; ctx.textAlign='center'; ctx.fillText('NO EXCUSES',457,30);
+  ctx.textAlign='left';
   px(680,8,70,30,'#33AA33'); ctx.fillStyle='#FFF'; ctx.fillText('GAINS',692,28);
 
   equipment.forEach(drawEquipment);
