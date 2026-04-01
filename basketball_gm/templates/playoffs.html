@@ -10,7 +10,7 @@
 {% for rd in rounds %}
 <div class="card">
     <h2>{{ rd.name }} {{ "(current)" if rd.is_current and not champ else "" }}</h2>
-    <table>
+    <div class="table-wrap"><table>
         <thead>
             <tr><th>Conf</th><th>Matchup</th><th class="num">Score</th><th>Status</th></tr>
         </thead>
@@ -28,7 +28,7 @@
             </tr>
             {% endfor %}
         </tbody>
-    </table>
+    </table></div>
 </div>
 {% endfor %}
 {% endblock %}

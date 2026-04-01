@@ -4,7 +4,7 @@
 <div class="card">
     <h2>{{ cat_labels.get(cat, cat) }}</h2>
     {% if players %}
-    <table>
+    <div class="table-wrap"><table>
         <thead>
             <tr><th>#</th><th>Name</th><th>Team</th><th>Pos</th><th class="num">GP</th><th class="num">Value</th></tr>
         </thead>
@@ -20,7 +20,7 @@
             </tr>
             {% endfor %}
         </tbody>
-    </table>
+    </table></div>
     {% else %}
     <p style="color:#7f8c8d;">Not enough games played yet.</p>
     {% endif %}

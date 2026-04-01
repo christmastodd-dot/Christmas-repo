@@ -2,7 +2,7 @@
 {% block content %}
 <div class="card">
     <h2>Free Agents — Cap Space: ${{ "%.1f"|format(team.cap_space / 1000000) }}M — Roster: {{ team.roster|length }}/15</h2>
-    <table>
+    <div class="table-wrap"><table>
         <thead>
             <tr><th>POS</th><th>Name</th><th class="num">OVR</th><th class="num">POT</th><th class="num">Age</th><th>Asking</th><th></th></tr>
         </thead>
@@ -29,6 +29,6 @@
             </tr>
             {% endfor %}
         </tbody>
-    </table>
+    </table></div>
 </div>
 {% endblock %}

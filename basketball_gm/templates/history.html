@@ -3,7 +3,7 @@
 <div class="card">
     <h2>Championship History</h2>
     {% if history %}
-    <table>
+    <div class="table-wrap"><table>
         <thead>
             <tr><th>Season</th><th>Champion</th><th>Record</th><th>Finals MVP</th></tr>
         </thead>
@@ -17,7 +17,7 @@
             </tr>
             {% endfor %}
         </tbody>
-    </table>
+    </table></div>
     {% else %}
     <p style="color:#7f8c8d;">No championships yet. Play through a season to see history.</p>
     {% endif %}

@@ -1,0 +1,20 @@
+{
+  "name": "Basketball Franchise Manager",
+  "short_name": "Basketball GM",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f1923",
+  "theme_color": "#e67e22",
+  "icons": [
+    {
+      "src": "/static/basketball-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/basketball-icon-180.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}

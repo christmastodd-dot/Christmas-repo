@@ -95,7 +95,7 @@
     {% for conf in ["Eastern", "Western"] %}
     <div class="card">
         <h2>{{ conf }} Conference</h2>
-        <table>
+        <div class="table-wrap"><table>
             <thead>
                 <tr><th>#</th><th>Team</th><th class="num">W</th><th class="num">L</th><th class="num">PCT</th></tr>
             </thead>
@@ -110,7 +110,7 @@
                 </tr>
                 {% endfor %}
             </tbody>
-        </table>
+        </table></div>
     </div>
     {% endfor %}
 </div>

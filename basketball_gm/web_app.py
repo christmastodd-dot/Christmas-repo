@@ -25,7 +25,7 @@ from basketball_gm.development import develop_players, compute_awards
 from basketball_gm.game_sim import accumulate_player_stats
 from basketball_gm.stats import get_league_leaders
 
-app = Flask(__name__, template_folder="templates")
+app = Flask(__name__, template_folder="templates", static_folder="static")
 app.secret_key = "basketball-gm-secret-key-change-in-production"
 
 # In-memory game state (keyed by session)

@@ -21,7 +21,7 @@
     <div class="two-col">
         <div class="card">
             <h2>Your Players ({{ team.abbr }}) — Select to offer</h2>
-            <table>
+            <div class="table-wrap"><table>
                 <thead><tr><th></th><th>POS</th><th>Name</th><th class="num">OVR</th><th class="num">Age</th><th>Salary</th><th class="num">Val</th></tr></thead>
                 <tbody>
                     {% for p in my_players %}
@@ -33,11 +33,11 @@
                     </tr>
                     {% endfor %}
                 </tbody>
-            </table>
+            </table></div>
         </div>
         <div class="card">
             <h2>{{ partner.full_name }} — Select to request</h2>
-            <table>
+            <div class="table-wrap"><table>
                 <thead><tr><th></th><th>POS</th><th>Name</th><th class="num">OVR</th><th class="num">Age</th><th>Salary</th><th class="num">Val</th></tr></thead>
                 <tbody>
                     {% for p in partner_players %}
@@ -49,7 +49,7 @@
                     </tr>
                     {% endfor %}
                 </tbody>
-            </table>
+            </table></div>
         </div>
     </div>
     <div style="text-align: center; margin-top: 1rem;">
