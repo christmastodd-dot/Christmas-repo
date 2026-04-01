@@ -20,6 +20,13 @@ canvas { image-rendering: pixelated; image-rendering: crisp-edges; border: 3px s
   pointer-events: none; z-index: 100;
 }
 @media (pointer: coarse) { #touch-controls { display: flex; } }
+/* Landscape: overlay controls on canvas edges, full height for canvas */
+@media (pointer: coarse) and (orientation: landscape) {
+  #touch-controls { background: transparent; padding: 8px 14px; padding-bottom: calc(8px + env(safe-area-inset-bottom)); }
+  #dpad { grid-template-columns: repeat(3, 52px); grid-template-rows: repeat(3, 52px); gap: 3px; }
+  .dpad-btn { font-size: 20px; border-radius: 8px; }
+  #btn-action { width: 78px; height: 78px; font-size: 13px; }
+}
 #dpad {
   display: grid; grid-template-columns: repeat(3, 64px); grid-template-rows: repeat(3, 64px);
   gap: 4px; pointer-events: all;
@@ -1211,12 +1218,15 @@ document.addEventListener('keydown', e=>{
 // ── MOBILE SUPPORT ──
 function resizeCanvas() {
   const isMobile = window.matchMedia('(pointer: coarse)').matches;
-  const controlsH = isMobile ? 220 : 0;
+  const isLandscape = window.innerWidth > window.innerHeight;
+  // In landscape: controls overlay the canvas so no height penalty; in portrait: controls sit below
+  const controlsH = (isMobile && !isLandscape) ? 220 : 0;
   const scale = Math.min(window.innerWidth / 960, (window.innerHeight - controlsH) / 720);
   canvas.style.width = Math.floor(960 * scale) + 'px';
   canvas.style.height = Math.floor(720 * scale) + 'px';
 }
 window.addEventListener('resize', resizeCanvas);
+window.addEventListener('orientationchange', () => setTimeout(resizeCanvas, 100));
 resizeCanvas();
 
 function addDpadBtn(id, key) {
