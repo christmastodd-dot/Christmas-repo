@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+    <h2>
+        {{ team.full_name }} ({{ team.record }})
+        &middot; OVR {{ team.team_overall() }}
+        &middot; Payroll {{ team.payroll_str() }}
+    </h2>
+
+    {% if team.id != league.user_team_id %}
+    <p style="color: #7f8c8d; margin-bottom: 1rem;">Viewing another team's roster</p>
+    {% endif %}
+
+    <div style="margin-bottom: 1rem;">
+        <form method="get" action="{{ url_for('roster') }}" style="display: inline;">
+            <select name="team_id" onchange="this.form.submit()" style="margin-right: 0.5rem;">
+                {% for t in all_teams %}
+                <option value="{{ t.id }}" {{ 'selected' if t.id == team.id }}>{{ t.abbr }} {{ t.full_name }} ({{ t.record }})</option>
+                {% endfor %}
+            </select>
+        </form>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th></th><th>POS</th><th>Name</th>
+                <th class="num">OVR</th><th class="num">POT</th><th class="num">Age</th>
+                <th class="num">PPG</th><th class="num">RPG</th><th class="num">APG</th>
+                <th class="num">GP</th><th>Salary</th><th class="num">Yrs</th>
+                {% if team.id == league.user_team_id %}<th></th>{% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in players %}
+            <tr class="{{ 'starter' if p.is_starter else '' }}">
+                <td>{{ "★" if p.is_starter else "" }}</td>
+                <td>{{ p.position }}</td>
+                <td><strong>{{ p.name }}</strong></td>
+                <td class="num">{{ p.overall }}</td>
+                <td class="num">{{ p.potential }}</td>
+                <td class="num">{{ p.age }}</td>
+                <td class="num">{{ p.ppg }}</td>
+                <td class="num">{{ p.rpg }}</td>
+                <td class="num">{{ p.apg }}</td>
+                <td class="num">{{ p.gp }}</td>
+                <td>{{ p.salary }}</td>
+                <td class="num">{{ p.years }}</td>
+                {% if team.id == league.user_team_id %}
+                <td>
+                    <form method="post" action="{{ url_for('release_player_route') }}" style="display:inline;"
+                          onsubmit="return confirm('Release {{ p.name }}?');">
+                        <input type="hidden" name="player_id" value="{{ p.id }}">
+                        <button type="submit" class="btn btn-danger btn-sm">Cut</button>
+                    </form>
+                </td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

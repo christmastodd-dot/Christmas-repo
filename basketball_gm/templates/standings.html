@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="two-col">
+    {% for conf, teams in [("Eastern", east), ("Western", west)] %}
+    <div class="card">
+        <h2>{{ conf }} Conference</h2>
+        <table>
+            <thead>
+                <tr><th>#</th><th>Team</th><th class="num">W</th><th class="num">L</th><th class="num">PCT</th></tr>
+            </thead>
+            <tbody>
+                {% for t in teams %}
+                <tr class="{{ 'user-team' if t.is_user else '' }}">
+                    <td>{{ t.rank }}</td>
+                    <td><a href="{{ url_for('roster', team_id=loop.index) }}">{{ t.abbr }}</a> {{ t.name }}</td>
+                    <td class="num">{{ t.wins }}</td>
+                    <td class="num">{{ t.losses }}</td>
+                    <td class="num">{{ t.pct }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

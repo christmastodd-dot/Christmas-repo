@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basketball Franchise Manager</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #0f1923;
+            color: #e0e6ed;
+            min-height: 100vh;
+        }
+        a { color: #5dade2; text-decoration: none; }
+        a:hover { color: #85c1e9; text-decoration: underline; }
+
+        .navbar {
+            background: #1a2733;
+            border-bottom: 2px solid #e67e22;
+            padding: 0.8rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+        .navbar .brand {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #e67e22;
+            letter-spacing: 1px;
+        }
+        .navbar .nav-links { display: flex; gap: 1.2rem; flex-wrap: wrap; }
+        .navbar .nav-links a {
+            color: #aab7c4;
+            font-size: 0.9rem;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        .navbar .nav-links a:hover { background: #243447; color: #fff; text-decoration: none; }
+        .navbar .team-info {
+            margin-left: auto;
+            font-size: 0.85rem;
+            color: #7f8c8d;
+        }
+        .navbar .team-info strong { color: #e0e6ed; }
+
+        .container { max-width: 1100px; margin: 0 auto; padding: 1.5rem; }
+
+        .card {
+            background: #1a2733;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.2rem;
+            border: 1px solid #2c3e50;
+        }
+        .card h2 {
+            color: #e67e22;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #2c3e50;
+            padding-bottom: 0.5rem;
+        }
+
+        .messages {
+            margin-bottom: 1rem;
+        }
+        .messages .msg {
+            background: #1e3a2f;
+            border-left: 3px solid #27ae60;
+            padding: 0.6rem 1rem;
+            margin-bottom: 0.4rem;
+            border-radius: 0 4px 4px 0;
+            font-size: 0.9rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+        th {
+            text-align: left;
+            padding: 0.5rem 0.6rem;
+            border-bottom: 2px solid #2c3e50;
+            color: #7f8c8d;
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        th.num { text-align: right; }
+        td {
+            padding: 0.45rem 0.6rem;
+            border-bottom: 1px solid #1e2d3d;
+        }
+        td.num { text-align: right; font-variant-numeric: tabular-nums; }
+        tr:hover { background: #1e2d3d; }
+        tr.user-team { background: #1a2f1a; }
+        tr.user-team:hover { background: #224422; }
+        tr.starter td { font-weight: 500; }
+
+        .btn {
+            display: inline-block;
+            padding: 0.5rem 1.2rem;
+            background: #e67e22;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        .btn:hover { background: #d35400; text-decoration: none; color: #fff; }
+        .btn-sm { padding: 0.3rem 0.8rem; font-size: 0.8rem; }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #e67e22;
+            color: #e67e22;
+        }
+        .btn-outline:hover { background: #e67e22; color: #fff; }
+        .btn-danger { background: #c0392b; }
+        .btn-danger:hover { background: #a93226; }
+        .btn-secondary { background: #2c3e50; }
+        .btn-secondary:hover { background: #34495e; }
+
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 0.8rem;
+        }
+        .action-grid form { display: contents; }
+        .action-grid .btn { width: 100%; text-align: center; }
+
+        .phase-badge {
+            display: inline-block;
+            padding: 0.2rem 0.7rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .phase-regular_season { background: #1a6b1a; color: #7ddf7d; }
+        .phase-playoffs { background: #6b3a1a; color: #f0a050; }
+        .phase-offseason, .phase-draft, .phase-free_agency, .phase-next_season { background: #1a3a6b; color: #70b0f0; }
+        .phase-preseason { background: #4a4a1a; color: #d0d070; }
+
+        input[type="number"], input[type="text"], select {
+            background: #0f1923;
+            border: 1px solid #2c3e50;
+            color: #e0e6ed;
+            padding: 0.4rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+        @media (max-width: 768px) { .two-col { grid-template-columns: 1fr; } }
+
+        .champ-banner {
+            text-align: center;
+            padding: 2rem;
+            background: linear-gradient(135deg, #1a2733, #2c1a10);
+            border: 2px solid #e67e22;
+        }
+        .champ-banner h2 { border: none; font-size: 1.5rem; }
+    </style>
+</head>
+<body>
+    {% if league is defined and league %}
+    <nav class="navbar">
+        <span class="brand">BASKETBALL GM</span>
+        <div class="nav-links">
+            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('standings') }}">Standings</a>
+            <a href="{{ url_for('roster') }}">My Roster</a>
+            <a href="{{ url_for('leaders') }}">Leaders</a>
+            {% if league.phase in ['regular_season', 'preseason'] %}
+            <a href="{{ url_for('free_agents_view') }}">Free Agents</a>
+            <a href="{{ url_for('trade_view') }}">Trade</a>
+            {% endif %}
+            {% if bracket is defined and bracket %}
+            <a href="{{ url_for('playoffs_view') }}">Playoffs</a>
+            {% endif %}
+            <a href="{{ url_for('history') }}">History</a>
+        </div>
+        {% if league.user_team %}
+        <div class="team-info">
+            <strong>{{ league.user_team.full_name }}</strong> ({{ league.user_team.record }})
+            &middot; Season {{ league.season }}
+        </div>
+        {% endif %}
+    </nav>
+    {% endif %}
+    <div class="container">
+        {% if messages is defined and messages %}
+        <div class="messages">
+            {% for msg in messages %}
+            <div class="msg">{{ msg }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

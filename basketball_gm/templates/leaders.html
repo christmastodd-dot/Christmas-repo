@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+{% for cat, players in categories.items() %}
+<div class="card">
+    <h2>{{ cat_labels.get(cat, cat) }}</h2>
+    {% if players %}
+    <table>
+        <thead>
+            <tr><th>#</th><th>Name</th><th>Team</th><th>Pos</th><th class="num">GP</th><th class="num">Value</th></tr>
+        </thead>
+        <tbody>
+            {% for p in players %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td><strong>{{ p.name }}</strong></td>
+                <td>{{ p.team }}</td>
+                <td>{{ p.position }}</td>
+                <td class="num">{{ p.gp }}</td>
+                <td class="num">{{ p.value }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="color:#7f8c8d;">Not enough games played yet.</p>
+    {% endif %}
+</div>
+{% endfor %}
+{% endblock %}

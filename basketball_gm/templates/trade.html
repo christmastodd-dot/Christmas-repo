@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+    <h2>Trade Center</h2>
+
+    <!-- Select trade partner -->
+    <form method="get" action="{{ url_for('trade_view') }}" style="margin-bottom: 1rem;">
+        <label>Trade Partner: </label>
+        <select name="partner_id" onchange="this.form.submit()">
+            <option value="">Select a team...</option>
+            {% for t in other_teams %}
+            <option value="{{ t.id }}" {{ 'selected' if partner and partner.id == t.id }}>{{ t.abbr }} {{ t.full_name }} ({{ t.record }})</option>
+            {% endfor %}
+        </select>
+    </form>
+</div>
+
+{% if partner %}
+<form method="post" action="{{ url_for('trade_view') }}">
+    <input type="hidden" name="partner_id" value="{{ partner.id }}">
+    <div class="two-col">
+        <div class="card">
+            <h2>Your Players ({{ team.abbr }}) — Select to offer</h2>
+            <table>
+                <thead><tr><th></th><th>POS</th><th>Name</th><th class="num">OVR</th><th class="num">Age</th><th>Salary</th><th class="num">Val</th></tr></thead>
+                <tbody>
+                    {% for p in my_players %}
+                    <tr>
+                        <td><input type="checkbox" name="offer" value="{{ p.id }}"></td>
+                        <td>{{ p.position }}</td><td>{{ p.name }}</td>
+                        <td class="num">{{ p.overall }}</td><td class="num">{{ p.age }}</td>
+                        <td>{{ p.salary }}</td><td class="num">{{ p.value }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="card">
+            <h2>{{ partner.full_name }} — Select to request</h2>
+            <table>
+                <thead><tr><th></th><th>POS</th><th>Name</th><th class="num">OVR</th><th class="num">Age</th><th>Salary</th><th class="num">Val</th></tr></thead>
+                <tbody>
+                    {% for p in partner_players %}
+                    <tr>
+                        <td><input type="checkbox" name="request" value="{{ p.id }}"></td>
+                        <td>{{ p.position }}</td><td>{{ p.name }}</td>
+                        <td class="num">{{ p.overall }}</td><td class="num">{{ p.age }}</td>
+                        <td>{{ p.salary }}</td><td class="num">{{ p.value }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div style="text-align: center; margin-top: 1rem;">
+        <button type="submit" class="btn" style="font-size: 1rem; padding: 0.6rem 2rem;">Propose Trade</button>
+    </div>
+</form>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+    <h2>Championship History</h2>
+    {% if history %}
+    <table>
+        <thead>
+            <tr><th>Season</th><th>Champion</th><th>Record</th><th>Finals MVP</th></tr>
+        </thead>
+        <tbody>
+            {% for h in history|reverse %}
+            <tr>
+                <td>{{ h.season }}</td>
+                <td><strong>{{ h.champion }}</strong></td>
+                <td>{{ h.champion_record }}</td>
+                <td>{{ h.finals_mvp }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="color:#7f8c8d;">No championships yet. Play through a season to see history.</p>
+    {% endif %}
+</div>
+{% endblock %}

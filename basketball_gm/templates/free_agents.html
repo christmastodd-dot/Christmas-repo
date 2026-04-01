@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+    <h2>Free Agents — Cap Space: ${{ "%.1f"|format(team.cap_space / 1000000) }}M — Roster: {{ team.roster|length }}/15</h2>
+    <table>
+        <thead>
+            <tr><th>POS</th><th>Name</th><th class="num">OVR</th><th class="num">POT</th><th class="num">Age</th><th>Asking</th><th></th></tr>
+        </thead>
+        <tbody>
+            {% for p in agents %}
+            <tr>
+                <td>{{ p.position }}</td>
+                <td><strong>{{ p.name }}</strong></td>
+                <td class="num">{{ p.overall }}</td>
+                <td class="num">{{ p.potential }}</td>
+                <td class="num">{{ p.age }}</td>
+                <td>{{ p.asking }}</td>
+                <td>
+                    <form method="post" action="{{ url_for('sign_fa') }}" style="display:flex; gap:0.3rem; align-items:center;">
+                        <input type="hidden" name="player_id" value="{{ p.id }}">
+                        <input type="number" name="salary" step="0.1" min="1.1" max="45" placeholder="$M" style="width:60px;" required>
+                        <select name="years">
+                            <option value="1">1yr</option><option value="2">2yr</option>
+                            <option value="3">3yr</option><option value="4">4yr</option>
+                        </select>
+                        <button type="submit" class="btn btn-sm">Sign</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

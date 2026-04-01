@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+    <h2>Choose Your Franchise</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Team</th>
+                <th>Conference</th>
+                <th>Division</th>
+                <th class="num">OVR</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for t in teams %}
+            <tr>
+                <td><strong>{{ t.full_name }}</strong> <span style="color:#7f8c8d">({{ t.abbr }})</span></td>
+                <td>{{ t.conference }}</td>
+                <td>{{ t.division }}</td>
+                <td class="num">{{ t.overall }}</td>
+                <td>
+                    <form method="post" action="{{ url_for('select_team') }}" style="display:inline;">
+                        <input type="hidden" name="team_id" value="{{ t.id }}">
+                        <button type="submit" class="btn btn-sm">Select</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

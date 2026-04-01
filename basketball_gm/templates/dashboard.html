@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+    <h2>
+        Season {{ season }}
+        <span class="phase-badge phase-{{ phase }}">{{ phase.replace('_', ' ') }}</span>
+    </h2>
+
+    <div style="display: flex; gap: 2rem; margin-bottom: 1rem; flex-wrap: wrap;">
+        <div>
+            <span style="color:#7f8c8d;">Record:</span>
+            <strong>{{ team.record }}</strong>
+        </div>
+        <div>
+            <span style="color:#7f8c8d;">Team OVR:</span>
+            <strong>{{ team.team_overall() }}</strong>
+        </div>
+        <div>
+            <span style="color:#7f8c8d;">Payroll:</span>
+            <strong>{{ team.payroll_str() }}</strong>
+        </div>
+        {% if games_played is defined %}
+        <div>
+            <span style="color:#7f8c8d;">Progress:</span>
+            <strong>{{ games_played }}/{{ total_games }} games</strong>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="action-grid">
+        {% if phase == "preseason" %}
+        <form method="post" action="{{ url_for('do_action', action='start_season') }}">
+            <button type="submit" class="btn">Start Season</button>
+        </form>
+
+        {% elif phase == "regular_season" %}
+        <form method="post" action="{{ url_for('do_action', action='sim_day') }}">
+            <button type="submit" class="btn">Sim Day</button>
+        </form>
+        <form method="post" action="{{ url_for('do_action', action='sim_week') }}">
+            <button type="submit" class="btn">Sim Week</button>
+        </form>
+        <form method="post" action="{{ url_for('do_action', action='sim_month') }}">
+            <button type="submit" class="btn btn-secondary">Sim Month</button>
+        </form>
+        <form method="post" action="{{ url_for('do_action', action='sim_rest') }}">
+            <button type="submit" class="btn btn-secondary">Sim Rest of Season</button>
+        </form>
+
+        {% elif phase == "playoffs" %}
+            {% if not bracket %}
+        <form method="post" action="{{ url_for('do_action', action='start_playoffs') }}">
+            <button type="submit" class="btn">Start Playoffs</button>
+        </form>
+            {% elif not playoffs_complete %}
+        <form method="post" action="{{ url_for('do_action', action='sim_playoff_round') }}">
+            <button type="submit" class="btn">Sim Round</button>
+        </form>
+        <form method="post" action="{{ url_for('do_action', action='sim_all_playoffs') }}">
+            <button type="submit" class="btn btn-secondary">Sim All Playoffs</button>
+        </form>
+        <a href="{{ url_for('playoffs_view') }}" class="btn btn-outline">View Bracket</a>
+            {% else %}
+        <form method="post" action="{{ url_for('do_action', action='start_offseason') }}">
+            <button type="submit" class="btn">Continue to Offseason</button>
+        </form>
+            {% endif %}
+
+        {% elif phase == "offseason" %}
+        <form method="post" action="{{ url_for('do_action', action='start_offseason') }}">
+            <button type="submit" class="btn">Run Offseason</button>
+        </form>
+
+        {% elif phase == "draft" %}
+        <form method="post" action="{{ url_for('do_action', action='start_draft') }}">
+            <button type="submit" class="btn">Run Draft</button>
+        </form>
+
+        {% elif phase == "free_agency" %}
+        <a href="{{ url_for('free_agents_view') }}" class="btn btn-outline">Browse Free Agents</a>
+        <form method="post" action="{{ url_for('do_action', action='start_free_agency') }}">
+            <button type="submit" class="btn">Run AI Free Agency & Continue</button>
+        </form>
+
+        {% elif phase == "next_season" %}
+        <form method="post" action="{{ url_for('do_action', action='next_season') }}">
+            <button type="submit" class="btn">Start Next Season</button>
+        </form>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Quick standings -->
+<div class="two-col">
+    {% for conf in ["Eastern", "Western"] %}
+    <div class="card">
+        <h2>{{ conf }} Conference</h2>
+        <table>
+            <thead>
+                <tr><th>#</th><th>Team</th><th class="num">W</th><th class="num">L</th><th class="num">PCT</th></tr>
+            </thead>
+            <tbody>
+                {% for t in league.standings(conf)[:8] %}
+                <tr class="{{ 'user-team' if t.id == league.user_team_id else '' }}">
+                    <td>{{ loop.index }}</td>
+                    <td>{{ t.abbr }} {{ t.name }}</td>
+                    <td class="num">{{ t.wins }}</td>
+                    <td class="num">{{ t.losses }}</td>
+                    <td class="num">{{ "%.3f"|format(t.win_pct) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endfor %}
+</div>
+
+<div style="margin-top: 1rem; text-align: center;">
+    <form method="post" action="{{ url_for('quit_game') }}" style="display: inline;">
+        <button type="submit" class="btn btn-danger btn-sm">Quit Game</button>
+    </form>
+</div>
+{% endblock %}
