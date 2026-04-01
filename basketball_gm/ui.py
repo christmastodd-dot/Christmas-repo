@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 from typing import Optional
 
+from basketball_gm.config import ROSTER_SIZE
 from basketball_gm.league import League, ScheduledGame
 from basketball_gm.team import Team
 from basketball_gm.player import Player
@@ -505,3 +506,268 @@ def select_series(bracket: PlayoffBracket, league: League) -> Optional[PlayoffSe
 
     choice = get_choice(f"\n  Series # (1-{len(active)}): ", 1, len(active))
     return active[choice - 1]
+
+
+# ── Free Agency UI ──────────────────────────────────────────────────
+
+
+def free_agency_menu(league: League) -> str:
+    """Free agency menu."""
+    from basketball_gm.free_agency import get_free_agents_sorted, desired_salary
+
+    team = league.user_team
+    if not team:
+        return "back"
+
+    print(f"\n  {'=' * 58}")
+    print(f"  FREE AGENCY")
+    print(f"  {team.full_name} - Cap Space: ${team.cap_space / 1e6:.1f}M  Roster: {len(team.roster)}/{ROSTER_SIZE}")
+    print(f"  {'=' * 58}")
+
+    options = [
+        "Browse Free Agents",
+        "Sign a Free Agent",
+        "Release a Player",
+        "Back",
+    ]
+    for i, opt in enumerate(options, 1):
+        print(f"  {i}. {opt}")
+
+    choice = get_choice("\n  Enter choice: ", 1, len(options))
+    return ["browse_fa", "sign_fa", "release", "back"][choice - 1]
+
+
+def browse_free_agents(league: League, page: int = 0, per_page: int = 20) -> None:
+    """Display available free agents."""
+    from basketball_gm.free_agency import get_free_agents_sorted, desired_salary
+
+    agents = get_free_agents_sorted(league)
+    total = len(agents)
+    start = page * per_page
+    end = min(start + per_page, total)
+
+    print(f"\n  Free Agents ({total} available) - Page {page + 1}")
+    print(f"  {'#':>3s} {'POS':<4s} {'NAME':<22s} {'OVR':>4s} {'POT':>4s} {'AGE':>4s} {'ASKING':>8s}")
+    print(f"  {'-' * 52}")
+
+    for i, p in enumerate(agents[start:end], start + 1):
+        ask = desired_salary(p)
+        ask_str = f"${ask / 1e6:.1f}M"
+        print(f"  {i:3d} {p.position:<4s} {p.name:<22s} {p.overall:4d} {p.potential:4d} "
+              f"{p.age:4d} {ask_str:>8s}")
+
+    if end < total:
+        print(f"\n  Showing {start+1}-{end} of {total}. More available.")
+
+
+def sign_free_agent_ui(league: League) -> Optional[str]:
+    """Interactive UI to sign a free agent."""
+    from basketball_gm.free_agency import get_free_agents_sorted, desired_salary, sign_player
+
+    team = league.user_team
+    if not team:
+        return None
+
+    agents = get_free_agents_sorted(league)
+    if not agents:
+        print("\n  No free agents available.")
+        return None
+
+    browse_free_agents(league)
+
+    idx = get_choice(f"\n  Player # to sign (1-{len(agents)}, 0 to cancel): ", 0, len(agents))
+    if idx == 0:
+        return None
+
+    player = agents[idx - 1]
+    ask = desired_salary(player)
+
+    print(f"\n  {player.name} ({player.position}, OVR {player.overall})")
+    print(f"  Asking: ${ask / 1e6:.1f}M")
+    print(f"  Your cap space: ${team.cap_space / 1e6:.1f}M")
+
+    print(f"\n  Offer salary (in millions, e.g. 5.5):")
+    try:
+        sal_input = input("  $").strip()
+        salary = int(float(sal_input) * 1_000_000)
+    except (ValueError, EOFError):
+        print("  Invalid salary.")
+        return None
+
+    years = get_choice("  Contract years (1-5): ", 1, 5)
+
+    success, msg = sign_player(team, player, league, salary, years)
+    print(f"\n  {msg}")
+    return msg if success else None
+
+
+def release_player_ui(league: League) -> Optional[str]:
+    """Interactive UI to release a player."""
+    from basketball_gm.free_agency import release_player
+
+    team = league.user_team
+    if not team:
+        return None
+
+    print(f"\n  Release a player from {team.full_name}:")
+    for i, p in enumerate(team.roster, 1):
+        print(f"  {i:3d}  {p.position:<4s} {p.name:<22s} OVR:{p.overall:3d} {p.salary_str():>8s}")
+
+    idx = get_choice(f"\n  Player # to release (1-{len(team.roster)}, 0 to cancel): ",
+                     0, len(team.roster))
+    if idx == 0:
+        return None
+
+    player = team.roster[idx - 1]
+    if get_yes_no(f"  Release {player.name}? (y/n): "):
+        success, msg = release_player(team, player.id, league)
+        print(f"\n  {msg}")
+        return msg if success else None
+    return None
+
+
+# ── Trade UI ────────────────────────────────────────────────────────
+
+
+def trade_menu(league: League) -> str:
+    """Trade menu."""
+    team = league.user_team
+    if not team:
+        return "back"
+
+    print(f"\n  {'=' * 58}")
+    print(f"  TRADE CENTER")
+    print(f"  {team.full_name}")
+    print(f"  {'=' * 58}")
+
+    options = [
+        "Propose a Trade",
+        "Back",
+    ]
+    for i, opt in enumerate(options, 1):
+        print(f"  {i}. {opt}")
+
+    choice = get_choice("\n  Enter choice: ", 1, len(options))
+    return ["propose_trade", "back"][choice - 1]
+
+
+def propose_trade_ui(league: League, rng: Optional[random.Random] = None) -> Optional[str]:
+    """Interactive trade proposal UI."""
+    from basketball_gm.trade import (
+        TradeProposal, validate_trade, ai_accepts_trade,
+        execute_trade, player_trade_value,
+    )
+
+    team = league.user_team
+    if not team:
+        return None
+
+    # Select trade partner
+    print("\n  Select trade partner:")
+    other_teams = [t for t in league.teams if t.id != team.id]
+    for i, t in enumerate(other_teams, 1):
+        print(f"  {i:3d}  {t.abbr:4s} {t.full_name:<28s} ({t.record})")
+
+    idx = get_choice(f"\n  Team # (1-{len(other_teams)}, 0 to cancel): ", 0, len(other_teams))
+    if idx == 0:
+        return None
+
+    partner = other_teams[idx - 1]
+
+    # Select players to offer
+    print(f"\n  Your players ({team.abbr}):")
+    for i, p in enumerate(team.roster, 1):
+        val = player_trade_value(p)
+        print(f"  {i:3d}  {p.position:<4s} {p.name:<22s} OVR:{p.overall:3d} "
+              f"Val:{val:5.0f} {p.salary_str():>8s}")
+
+    print("\n  Enter player #s to offer (comma-separated, e.g. 1,3,5):")
+    try:
+        offer_input = input("  > ").strip()
+        offer_ids = [team.roster[int(x.strip()) - 1].id for x in offer_input.split(",") if x.strip()]
+    except (ValueError, IndexError, EOFError):
+        print("  Invalid selection.")
+        return None
+
+    if not offer_ids:
+        print("  No players selected.")
+        return None
+
+    # Select players to request
+    print(f"\n  {partner.full_name} roster:")
+    for i, p in enumerate(partner.roster, 1):
+        val = player_trade_value(p)
+        print(f"  {i:3d}  {p.position:<4s} {p.name:<22s} OVR:{p.overall:3d} "
+              f"Val:{val:5.0f} {p.salary_str():>8s}")
+
+    print("\n  Enter player #s to request (comma-separated):")
+    try:
+        request_input = input("  > ").strip()
+        request_ids = [partner.roster[int(x.strip()) - 1].id
+                       for x in request_input.split(",") if x.strip()]
+    except (ValueError, IndexError, EOFError):
+        print("  Invalid selection.")
+        return None
+
+    if not request_ids:
+        print("  No players selected.")
+        return None
+
+    proposal = TradeProposal(
+        team1_id=team.id,
+        team2_id=partner.id,
+        team1_players=offer_ids,
+        team2_players=request_ids,
+    )
+
+    # Validate
+    valid, msg = validate_trade(proposal, league)
+    if not valid:
+        print(f"\n  Trade invalid: {msg}")
+        return None
+
+    # Check AI acceptance
+    accepted, msg = ai_accepts_trade(proposal, partner.id, league, rng)
+    if accepted:
+        result = execute_trade(proposal, league)
+        print(f"\n  {result}")
+        return result
+    else:
+        print(f"\n  {msg}")
+        return None
+
+
+def handle_ai_trade_proposal(league: League, rng: Optional[random.Random] = None) -> None:
+    """Show an AI trade proposal to the user."""
+    from basketball_gm.trade import ai_propose_trade, execute_trade
+
+    proposal = ai_propose_trade(league, rng)
+    if not proposal:
+        return
+
+    team = league.user_team
+    partner = league.get_team(proposal.team2_id)
+    if not team or not partner:
+        return
+
+    print(f"\n  {'=' * 50}")
+    print(f"  TRADE OFFER from {partner.full_name}")
+    print(f"  {'=' * 50}")
+
+    print(f"\n  You receive:")
+    for pid in proposal.team2_players:
+        p = partner.get_player(pid)
+        if p:
+            print(f"    {p.position} {p.name} (OVR {p.overall}, {p.salary_str()})")
+
+    print(f"\n  You send:")
+    for pid in proposal.team1_players:
+        p = team.get_player(pid)
+        if p:
+            print(f"    {p.position} {p.name} (OVR {p.overall}, {p.salary_str()})")
+
+    if get_yes_no("\n  Accept trade? (y/n): "):
+        result = execute_trade(proposal, league)
+        print(f"\n  {result}")
+    else:
+        print("\n  Trade declined.")
