@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block content %}
+
+{% if messages %}
+<div class="messages">
+    {% for msg in messages %}
+    <div class="msg">{{ msg }}</div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="card">
+    <h2>Negotiating with {{ player.name }}</h2>
+
+    <div class="nego-player">
+        <div class="nego-player-top">
+            <div>
+                <span class="nego-player-name">{{ player.name }}</span>
+                <span class="nego-player-pos">{{ player.position }}</span>
+            </div>
+            <div class="nego-player-ovr">{{ player.overall }}</div>
+        </div>
+        <div class="nego-player-meta">
+            Age {{ player.age }} &middot; POT {{ player.potential }}
+            &middot; Cap: ${{ "%.1f"|format(team.cap_space / 1000000) }}M
+            &middot; Roster: {{ team.roster|length }}/15
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <h2>
+        {% if status == "initial" %}
+        Player's Opening Demand
+        {% else %}
+        Player's Counter-Offer
+        {% endif %}
+    </h2>
+    <div class="nego-demand">
+        <div class="nego-demand-amount">
+            <span class="nego-label">Salary</span>
+            <span class="nego-value">{{ player.counter_salary_str }}</span>
+        </div>
+        <div class="nego-demand-amount">
+            <span class="nego-label">Years</span>
+            <span class="nego-value">{{ player.counter_years }} yr{{ "s" if player.counter_years != 1 }}</span>
+        </div>
+    </div>
+
+    <!-- Accept their current demand -->
+    <form method="post" action="{{ url_for('sign_fa') }}" style="margin-top:1rem;">
+        <input type="hidden" name="player_id" value="{{ player.id }}">
+        <input type="hidden" name="salary" value="{{ player.counter_salary }}">
+        <input type="hidden" name="years" value="{{ player.counter_years }}">
+        <button type="submit" class="btn" style="width:100%;">Accept {{ player.counter_salary_str }} x {{ player.counter_years }} yr{{ "s" if player.counter_years != 1 }}</button>
+    </form>
+</div>
+
+<div class="card">
+    <h2>Your Counter-Offer</h2>
+    <form method="post" action="{{ url_for('negotiate_offer', player_id=player.id) }}">
+        <div class="nego-form-row">
+            <div class="nego-form-field">
+                <label>Salary ($M)</label>
+                <input type="number" name="salary" step="0.1" min="1.1" max="45"
+                       value="{{ player.counter_salary }}" required>
+            </div>
+            <div class="nego-form-field">
+                <label>Years</label>
+                <select name="years">
+                    {% for y in range(1, 5) %}
+                    <option value="{{ y }}" {{ 'selected' if y == player.counter_years }}>{{ y }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-outline" style="width:100%; margin-top:0.8rem;">Submit Counter-Offer</button>
+    </form>
+</div>
+
+<div style="text-align:center; margin-top:0.5rem;">
+    <a href="{{ url_for('free_agents_view') }}" class="btn btn-secondary btn-sm">Walk Away</a>
+</div>
+
+<style>
+    .nego-player {
+        background: #0f1923;
+        border: 1px solid #2c3e50;
+        border-radius: 6px;
+        padding: 0.7rem 0.8rem;
+    }
+    .nego-player-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.25rem;
+    }
+    .nego-player-name { font-weight: 700; font-size: 1.05rem; }
+    .nego-player-pos { color: #7f8c8d; font-size: 0.8rem; margin-left: 0.4rem; }
+    .nego-player-ovr {
+        background: #e67e22;
+        color: #fff;
+        font-weight: 700;
+        font-size: 0.95rem;
+        padding: 0.2rem 0.55rem;
+        border-radius: 4px;
+    }
+    .nego-player-meta { font-size: 0.8rem; color: #7f8c8d; }
+
+    .nego-demand {
+        display: flex;
+        gap: 2rem;
+    }
+    .nego-demand-amount { display: flex; flex-direction: column; }
+    .nego-label { font-size: 0.72rem; color: #7f8c8d; text-transform: uppercase; letter-spacing: 0.5px; }
+    .nego-value { font-size: 1.3rem; font-weight: 700; color: #e67e22; }
+
+    .nego-form-row {
+        display: flex;
+        gap: 1rem;
+    }
+    .nego-form-field {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+    }
+    .nego-form-field label {
+        font-size: 0.75rem;
+        color: #7f8c8d;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .nego-form-field input,
+    .nego-form-field select {
+        width: 100%;
+    }
+</style>
+{% endblock %}

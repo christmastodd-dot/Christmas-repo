@@ -35,6 +35,79 @@ def desired_salary(player: Player) -> int:
         return MIN_SALARY
 
 
+def desired_years(player: Player) -> int:
+    """Preferred contract length based on age and rating."""
+    age = player.age
+    ovr = player.overall
+    if age >= 34:
+        return 1
+    elif age >= 30:
+        return 2 if ovr >= 70 else 1
+    elif age >= 27:
+        return 3 if ovr >= 75 else 2
+    else:
+        # Young players want longer deals if they're good
+        if ovr >= 75:
+            return 4
+        elif ovr >= 65:
+            return 3
+        else:
+            return 2
+
+
+def proposed_contract(player: Player) -> tuple[int, int]:
+    """Return (salary, years) the player proposes as their opening demand."""
+    return desired_salary(player), desired_years(player)
+
+
+def negotiate_counter(
+    player: Player,
+    offered_salary: int,
+    offered_years: int,
+    rng: Optional[random.Random] = None,
+) -> tuple[str, int, int]:
+    """Player responds to a counter-offer.
+
+    Returns (result, counter_salary, counter_years) where result is one of:
+    - "accept" — player takes the deal
+    - "reject" — player walks away (offer was insulting)
+    - "counter" — player makes a counter-offer (closer to their demand)
+    """
+    r = rng or random.Random()
+    ask_salary = desired_salary(player)
+    ask_years = desired_years(player)
+    min_salary = int(ask_salary * 0.75)
+
+    salary_ratio = offered_salary / max(ask_salary, 1)
+    years_diff = offered_years - ask_years
+
+    # Insulting offer — reject outright
+    if salary_ratio < 0.50:
+        return "reject", ask_salary, ask_years
+
+    # Great offer — accept immediately
+    if offered_salary >= min_salary and abs(years_diff) <= 1:
+        # Higher offers have better acceptance chance
+        accept_chance = 0.5 + (salary_ratio - 0.75) * 2.0  # 0.5 at 75%, ~1.0 at 100%
+        if years_diff >= 0:
+            accept_chance += 0.15
+        if r.random() < min(accept_chance, 0.95):
+            return "accept", offered_salary, offered_years
+
+    # Counter-offer: meet halfway between their ask and the offer
+    counter_salary = int((ask_salary + offered_salary) / 2)
+    counter_salary = max(min_salary, min(counter_salary, ask_salary))
+
+    if offered_years < ask_years:
+        counter_years = max(offered_years, ask_years - 1)
+    elif offered_years > ask_years + 1:
+        counter_years = ask_years + 1
+    else:
+        counter_years = ask_years
+
+    return "counter", counter_salary, counter_years
+
+
 def sign_player(
     team: Team,
     player: Player,

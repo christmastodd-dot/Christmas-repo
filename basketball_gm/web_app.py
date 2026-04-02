@@ -20,7 +20,9 @@ from basketball_gm.draft import generate_draft_class, run_draft_lottery, run_dra
 from basketball_gm.free_agency import (
     get_free_agents_sorted, desired_salary, sign_player,
     release_player, ai_free_agency, expire_contracts,
+    proposed_contract, negotiate_counter,
 )
+from basketball_gm.config import ROSTER_SIZE, SALARY_CAP, MID_LEVEL_EXCEPTION
 from basketball_gm.trade import (
     TradeProposal, validate_trade, ai_accepts_trade,
     execute_trade, player_trade_value,
@@ -574,17 +576,23 @@ def free_agents_view():
         return redirect(url_for("index"))
     league = game["league"]
     agents = get_free_agents_sorted(league)[:50]
-    fa_data = [{
-        "id": p.id, "name": p.name, "position": p.position,
-        "overall": p.overall, "potential": p.potential, "age": p.age,
-        "asking": f"${desired_salary(p)/1e6:.1f}M",
-    } for p in agents]
+    fa_data = []
+    for p in agents:
+        sal, yrs = proposed_contract(p)
+        fa_data.append({
+            "id": p.id, "name": p.name, "position": p.position,
+            "overall": p.overall, "potential": p.potential, "age": p.age,
+            "asking_salary": f"${sal/1e6:.1f}M",
+            "asking_years": yrs,
+            "asking_salary_raw": round(sal / 1e6, 1),
+        })
     team = league.user_team
     return render_template("free_agents.html", agents=fa_data, team=team, league=league)
 
 
 @app.route("/sign_fa", methods=["POST"])
 def sign_fa():
+    """Accept a free agent's proposed contract directly."""
     game = get_game()
     if not game:
         return redirect(url_for("index"))
@@ -610,6 +618,120 @@ def sign_fa():
 
     persist_current_game()
     return redirect(url_for("free_agents_view"))
+
+
+@app.route("/negotiate/<int:player_id>")
+def negotiate_view(player_id):
+    """Show negotiation page for a specific free agent."""
+    game = get_game()
+    if not game:
+        return redirect(url_for("index"))
+    league = game["league"]
+    team = league.user_team
+
+    player = None
+    for p in league.free_agents:
+        if p.id == player_id:
+            player = p
+            break
+    if not player:
+        game["messages"].append("Player not found.")
+        return redirect(url_for("free_agents_view"))
+
+    sal, yrs = proposed_contract(player)
+    nego = game.get("negotiation", {})
+
+    # If there's an active counter from the player, show it
+    if nego.get("player_id") == player_id and nego.get("counter_salary"):
+        counter_sal = nego["counter_salary"]
+        counter_yrs = nego["counter_years"]
+        status = nego.get("status", "counter")
+    else:
+        counter_sal = sal
+        counter_yrs = yrs
+        status = "initial"
+        game["negotiation"] = {
+            "player_id": player_id,
+            "counter_salary": sal,
+            "counter_years": yrs,
+            "status": "initial",
+        }
+
+    p_data = {
+        "id": player.id, "name": player.name, "position": player.position,
+        "overall": player.overall, "potential": player.potential, "age": player.age,
+        "asking_salary": f"${sal/1e6:.1f}M", "asking_years": yrs,
+        "counter_salary": round(counter_sal / 1e6, 1),
+        "counter_salary_str": f"${counter_sal/1e6:.1f}M",
+        "counter_years": counter_yrs,
+    }
+
+    return render_template("negotiate.html", player=p_data, team=team,
+                           league=league, status=status,
+                           messages=game.pop("nego_messages", []))
+
+
+@app.route("/negotiate/<int:player_id>/offer", methods=["POST"])
+def negotiate_offer(player_id):
+    """Submit a counter-offer to a free agent."""
+    game = get_game()
+    if not game:
+        return redirect(url_for("index"))
+    league = game["league"]
+    team = league.user_team
+
+    player = None
+    for p in league.free_agents:
+        if p.id == player_id:
+            player = p
+            break
+    if not player:
+        game["messages"].append("Player not found.")
+        return redirect(url_for("free_agents_view"))
+
+    salary_m = float(request.form["salary"])
+    years = int(request.form["years"])
+    salary = int(salary_m * 1_000_000)
+
+    # Check cap/roster before negotiating
+    if len(team.roster) >= ROSTER_SIZE:
+        game["nego_messages"] = ["Roster is full (15 players). Release someone first."]
+        return redirect(url_for("negotiate_view", player_id=player_id))
+    if team.payroll + salary > SALARY_CAP and salary > MID_LEVEL_EXCEPTION:
+        game["nego_messages"] = [f"Not enough cap space. Need ${salary_m:.1f}M, have ${team.cap_space/1e6:.1f}M."]
+        return redirect(url_for("negotiate_view", player_id=player_id))
+
+    result, counter_sal, counter_yrs = negotiate_counter(
+        player, salary, years, rng=game["rng"]
+    )
+
+    if result == "accept":
+        ok, msg = sign_player(team, player, league, salary, years)
+        game["messages"].append(msg)
+        game.pop("negotiation", None)
+        persist_current_game()
+        return redirect(url_for("free_agents_view"))
+
+    elif result == "reject":
+        game["nego_messages"] = [
+            f"{player.name} found your offer insulting and is no longer interested."
+        ]
+        game.pop("negotiation", None)
+        persist_current_game()
+        return redirect(url_for("free_agents_view"))
+
+    else:  # counter
+        game["negotiation"] = {
+            "player_id": player_id,
+            "counter_salary": counter_sal,
+            "counter_years": counter_yrs,
+            "status": "counter",
+        }
+        game["nego_messages"] = [
+            f"{player.name} counters with ${counter_sal/1e6:.1f}M x {counter_yrs} yr(s)."
+        ]
+        persist_current_game()
+        return redirect(url_for("negotiate_view", player_id=player_id))
 
 
 @app.route("/release_player", methods=["POST"])

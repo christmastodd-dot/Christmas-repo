@@ -3,40 +3,11 @@
 <div class="card">
     <h2>Free Agents — Cap: ${{ "%.1f"|format(team.cap_space / 1000000) }}M — Roster: {{ team.roster|length }}/15</h2>
 
-    <!-- Desktop table view -->
-    <div class="table-wrap desktop-only">
-    <table>
-        <thead>
-            <tr><th>POS</th><th>Name</th><th class="num">OVR</th><th class="num">POT</th><th class="num">Age</th><th>Asking</th><th></th></tr>
-        </thead>
-        <tbody>
-            {% for p in agents %}
-            <tr>
-                <td>{{ p.position }}</td>
-                <td><strong>{{ p.name }}</strong></td>
-                <td class="num">{{ p.overall }}</td>
-                <td class="num">{{ p.potential }}</td>
-                <td class="num">{{ p.age }}</td>
-                <td>{{ p.asking }}</td>
-                <td>
-                    <form method="post" action="{{ url_for('sign_fa') }}" style="display:flex; gap:0.3rem; align-items:center;">
-                        <input type="hidden" name="player_id" value="{{ p.id }}">
-                        <input type="number" name="salary" step="0.1" min="1.1" max="45" placeholder="$M" style="width:60px;" required>
-                        <select name="years">
-                            <option value="1">1yr</option><option value="2">2yr</option>
-                            <option value="3">3yr</option><option value="4">4yr</option>
-                        </select>
-                        <button type="submit" class="btn btn-sm">Sign</button>
-                    </form>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    </div>
+    {% if not agents %}
+    <p style="color:#7f8c8d;">No free agents available.</p>
+    {% endif %}
 
-    <!-- Mobile card view -->
-    <div class="mobile-only">
+    <div class="fa-list">
         {% for p in agents %}
         <div class="fa-card">
             <div class="fa-card-top">
@@ -47,37 +18,40 @@
                 <div class="fa-card-ovr">{{ p.overall }}</div>
             </div>
             <div class="fa-card-meta">
-                Age {{ p.age }} &middot; POT {{ p.potential }} &middot; Asking {{ p.asking }}
+                Age {{ p.age }} &middot; POT {{ p.potential }}
             </div>
-            <form method="post" action="{{ url_for('sign_fa') }}" class="fa-card-form">
-                <input type="hidden" name="player_id" value="{{ p.id }}">
-                <input type="number" name="salary" step="0.1" min="1.1" max="45" placeholder="$M" style="width:65px;" required>
-                <select name="years">
-                    <option value="1">1yr</option><option value="2">2yr</option>
-                    <option value="3">3yr</option><option value="4">4yr</option>
-                </select>
-                <button type="submit" class="btn btn-sm">Sign</button>
-            </form>
+            <div class="fa-card-demand">
+                Wants <strong>{{ p.asking_salary }}</strong> x <strong>{{ p.asking_years }} yr{{ "s" if p.asking_years != 1 }}</strong>
+            </div>
+            <div class="fa-card-actions">
+                <form method="post" action="{{ url_for('sign_fa') }}" style="display:inline;">
+                    <input type="hidden" name="player_id" value="{{ p.id }}">
+                    <input type="hidden" name="salary" value="{{ p.asking_salary_raw }}">
+                    <input type="hidden" name="years" value="{{ p.asking_years }}">
+                    <button type="submit" class="btn btn-sm">Accept</button>
+                </form>
+                <a href="{{ url_for('negotiate_view', player_id=p.id) }}" class="btn btn-sm btn-outline">Negotiate</a>
+            </div>
         </div>
         {% endfor %}
     </div>
 </div>
 
 <style>
+    .fa-list { display: flex; flex-direction: column; gap: 0.5rem; }
     .fa-card {
         background: #0f1923;
         border: 1px solid #2c3e50;
         border-radius: 6px;
-        padding: 0.6rem 0.7rem;
-        margin-bottom: 0.4rem;
+        padding: 0.7rem 0.8rem;
     }
     .fa-card-top {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 0.25rem;
+        margin-bottom: 0.2rem;
     }
-    .fa-card-name { font-weight: 600; font-size: 0.88rem; }
+    .fa-card-name { font-weight: 600; font-size: 0.9rem; }
     .fa-card-pos { color: #7f8c8d; font-size: 0.75rem; margin-left: 0.4rem; }
     .fa-card-ovr {
         background: #e67e22;
@@ -90,12 +64,16 @@
     .fa-card-meta {
         font-size: 0.75rem;
         color: #7f8c8d;
-        margin-bottom: 0.4rem;
+        margin-bottom: 0.25rem;
     }
-    .fa-card-form {
+    .fa-card-demand {
+        font-size: 0.82rem;
+        color: #aab7c4;
+        margin-bottom: 0.5rem;
+    }
+    .fa-card-actions {
         display: flex;
-        gap: 0.4rem;
-        align-items: center;
+        gap: 0.5rem;
     }
 </style>
 {% endblock %}
