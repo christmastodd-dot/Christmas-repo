@@ -7480,6 +7480,14 @@
 
     function pushToRoom() {
       if (!userId || !ghToken || soloMode) return Promise.resolve();
+      return pushToRoomWithRetry(0);
+    }
+
+    function pushToRoomWithRetry(attempt) {
+      if (attempt > 2) {
+        console.error('Push failed after retries');
+        return Promise.resolve();
+      }
 
       var urls = buildGHUrls();
 
@@ -7564,17 +7572,24 @@
           body: JSON.stringify(body)
         });
       }).then(function(res) {
+        if (res.status === 409) {
+          // SHA conflict — retry with fresh data
+          console.warn('Push 409, retrying (attempt ' + (attempt + 1) + ')...');
+          return new Promise(function(resolve) {
+            setTimeout(function() { resolve(pushToRoomWithRetry(attempt + 1)); }, (attempt + 1) * 1000);
+          });
+        }
         if (!res.ok) {
           return res.json().then(function(j) { throw new Error('Push ' + res.status + ': ' + (j.message || '')); });
         }
-        return res.json();
-      }).then(function(result) {
-        if (result.content) ghFileSha = result.content.sha;
-        setSyncStatus('online');
-        renderAllLeaderboards();
+        return res.json().then(function(result) {
+          if (result.content) ghFileSha = result.content.sha;
+          setSyncStatus('online');
+          renderAllLeaderboards();
+        });
       }).catch(function(err) {
         console.error('Push failed:', err);
-        setSyncStatus('offline');
+        // Don't mark offline on push failure — we can still read data
       });
     }
 
@@ -7968,11 +7983,13 @@
         } else {
           fetchRoom().then(function(data) {
             sharedData = data;
-            pushToRoom();
-            syncInterval = setInterval(pullFromRoom, 30000);
+            setSyncStatus('online');
             renderAllLeaderboards();
             checkForGifts();
-          }).catch(function() {
+            pushToRoom();
+            syncInterval = setInterval(pullFromRoom, 30000);
+          }).catch(function(err) {
+            console.error('Initial fetch failed:', err);
             sharedData = { members: {} };
             setSyncStatus('offline');
           });
