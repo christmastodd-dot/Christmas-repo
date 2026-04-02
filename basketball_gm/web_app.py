@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+import os
+import pickle
 import random
 import uuid
+import threading
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 
 from basketball_gm.league import League, create_league
@@ -24,21 +27,83 @@ from basketball_gm.trade import (
 from basketball_gm.development import develop_players, compute_awards
 from basketball_gm.game_sim import accumulate_player_stats
 from basketball_gm.stats import get_league_leaders
+from basketball_gm.player import get_rookie_salary, Contract
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
 app.secret_key = "basketball-gm-secret-key-change-in-production"
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 
-# In-memory game state (keyed by session)
-games: dict[str, dict] = {}
+# ── Game state persistence ─────────────────────────────────────────
+# In-memory cache + disk persistence so state survives restarts
+
+SAVE_DIR = os.environ.get("GAME_SAVE_DIR", "/tmp/basketball_gm_saves")
+os.makedirs(SAVE_DIR, exist_ok=True)
+
+_cache: dict[str, dict] = {}
+_lock = threading.Lock()
+
+
+def _save_path(gid: str) -> str:
+    # Sanitize to prevent path traversal
+    safe = gid.replace("/", "").replace("..", "")
+    return os.path.join(SAVE_DIR, f"{safe}.pkl")
+
+
+def _persist(gid: str, game: dict) -> None:
+    """Save game state to disk (best effort)."""
+    try:
+        with open(_save_path(gid), "wb") as f:
+            pickle.dump(game, f, protocol=pickle.HIGHEST_PROTOCOL)
+    except Exception:
+        pass
+
+
+def _load_from_disk(gid: str) -> dict | None:
+    """Try loading game state from disk."""
+    try:
+        path = _save_path(gid)
+        if os.path.exists(path):
+            with open(path, "rb") as f:
+                return pickle.load(f)
+    except Exception:
+        pass
+    return None
 
 
 def get_game() -> dict | None:
+    """Retrieve game state: memory first, then disk."""
     gid = session.get("game_id")
-    if gid and gid in games:
-        return games[gid]
+    if not gid:
+        return None
+    with _lock:
+        if gid in _cache:
+            return _cache[gid]
+    # Try disk
+    game = _load_from_disk(gid)
+    if game:
+        with _lock:
+            _cache[gid] = game
+        return game
     return None
+
+
+def save_game() -> None:
+    """Persist current game to disk. Call after any state mutation."""
+    gid = session.get("game_id")
+    if not gid:
+        return
+    with _lock:
+        game = _cache.get(gid)
+    if game:
+        _persist(gid, game)
+
+
+def store_game(gid: str, game: dict) -> None:
+    """Store a new game in cache and persist to disk."""
+    with _lock:
+        _cache[gid] = game
+    _persist(gid, game)
 
 
 def create_game_state(league: League, rng: random.Random) -> dict:
@@ -70,9 +135,20 @@ def new_game():
     league = create_league(seed=seed)
     rng = random.Random(seed)
     gid = str(uuid.uuid4())
-    games[gid] = create_game_state(league, rng)
+    game = create_game_state(league, rng)
+    store_game(gid, game)
     session["game_id"] = gid
-    return redirect(url_for("select_team"))
+
+    # Render select_team directly instead of redirecting.
+    # This avoids mobile browsers dropping the session cookie on 302.
+    teams_data = []
+    for t in league.teams:
+        teams_data.append({
+            "id": t.id, "full_name": t.full_name, "abbr": t.abbr,
+            "conference": t.conference, "division": t.division,
+            "overall": t.team_overall(),
+        })
+    return render_template("select_team.html", teams=teams_data)
 
 
 @app.route("/select_team", methods=["GET", "POST"])
@@ -86,6 +162,7 @@ def select_team():
         team_id = int(request.form["team_id"])
         league.user_team_id = team_id
         league.phase = "preseason"
+        save_game()
         return redirect(url_for("dashboard"))
 
     teams_data = []
@@ -235,6 +312,7 @@ def do_action(action):
             team.reset_season()
         game["messages"].append(f"Welcome to Season {league.season}!")
 
+    save_game()
     return redirect(url_for("dashboard"))
 
 
@@ -317,7 +395,6 @@ def _run_draft_auto(game):
                     best = prospect
 
             salary = get_rookie_salary(pick_num)
-            from basketball_gm.player import Contract
             best.player.contract = Contract(salary=salary, years=min(4, 5 - round_num))
             best.player.draft_year = league.season
             best.player.draft_pick = pick_num
@@ -517,6 +594,7 @@ def sign_fa():
     else:
         game["messages"].append("Player not found.")
 
+    save_game()
     return redirect(url_for("free_agents_view"))
 
 
@@ -530,6 +608,7 @@ def release_player_route():
     player_id = int(request.form["player_id"])
     ok, msg = release_player(team, player_id, league)
     game["messages"].append(msg)
+    save_game()
     return redirect(url_for("roster"))
 
 
@@ -561,6 +640,7 @@ def trade_view():
                     game["messages"].append(msg)
             else:
                 game["messages"].append(f"Invalid trade: {msg}")
+        save_game()
         return redirect(url_for("trade_view"))
 
     other_teams = [{"id": t.id, "full_name": t.full_name, "abbr": t.abbr,
@@ -585,8 +665,13 @@ def trade_view():
 @app.route("/quit_game", methods=["POST"])
 def quit_game():
     gid = session.get("game_id")
-    if gid and gid in games:
-        del games[gid]
+    if gid:
+        with _lock:
+            _cache.pop(gid, None)
+        try:
+            os.remove(_save_path(gid))
+        except OSError:
+            pass
     session.clear()
     return redirect(url_for("index"))
 
@@ -604,10 +689,6 @@ def _player_dict(p, is_starter):
         "is_starter": is_starter,
         "value": f"{player_trade_value(p):.0f}",
     }
-
-
-# Import for draft
-from basketball_gm.player import get_rookie_salary
 
 
 if __name__ == "__main__":
