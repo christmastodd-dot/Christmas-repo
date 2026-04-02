@@ -3398,6 +3398,12 @@
           <span class="workout-logger__timer-clock" id="workout-timer-clock">00:00</span>
           <span class="workout-logger__timer-label">elapsed</span>
         </div>
+        <div class="workout-logger__meta-row workout-chooser--hidden" id="workout-duration-row">
+          <div class="workout-logger__meta-field" style="flex:1">
+            <span class="workout-logger__meta-label">Duration</span>
+            <input class="workout-logger__date-input" id="workout-edit-duration" type="text" placeholder="mm:ss or h:mm:ss" inputmode="numeric">
+          </div>
+        </div>
         <div id="workout-exercises"></div>
         <div class="workout-logger__actions">
           <button class="workout-logger__add-exercise" id="workout-add-exercise" onclick="addWorkoutExercise()">+ Add Exercise</button>
@@ -5889,14 +5895,15 @@
         var existing = history[editingWorkoutIdx];
         existing.date = date;
         existing.startTime = startTime;
+        existing.duration = document.getElementById('workout-edit-duration').value.trim() || existing.duration || '';
         existing.exercises = exercises;
-        // Keep original duration and ts
         history[editingWorkoutIdx] = existing;
         saveWorkoutHistory(history);
         editingWorkoutIdx = null;
 
-        // Restore timer and save button
+        // Restore timer, duration row, and save button
         document.getElementById('workout-timer').style.display = '';
+        document.getElementById('workout-duration-row').classList.add('workout-chooser--hidden');
         document.getElementById('workout-save').textContent = 'Save Workout';
       } else {
         // New workout
@@ -6154,6 +6161,9 @@
       // Hide timer for edits, show duration field instead
       var timerEl = document.getElementById('workout-timer');
       timerEl.style.display = 'none';
+      var durationRow = document.getElementById('workout-duration-row');
+      durationRow.classList.remove('workout-chooser--hidden');
+      document.getElementById('workout-edit-duration').value = w.duration || '';
 
       // Change save button
       var saveBtn = document.getElementById('workout-save');
@@ -6230,6 +6240,7 @@
         if (editingWorkoutIdx !== null) {
           editingWorkoutIdx = null;
           document.getElementById('workout-timer').style.display = '';
+          document.getElementById('workout-duration-row').classList.add('workout-chooser--hidden');
           document.getElementById('workout-save').textContent = 'Save Workout';
         }
         resetWorkoutForm();
