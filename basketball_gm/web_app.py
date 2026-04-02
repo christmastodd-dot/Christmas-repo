@@ -42,6 +42,18 @@ app = Flask(__name__, template_folder="templates", static_folder="static")
 app.secret_key = "basketball-gm-secret-key-change-in-production"
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 app.config["SESSION_COOKIE_HTTPONLY"] = True
+app.config["SESSION_COOKIE_SECURE"] = False  # allow over HTTP too
+app.config["PERMANENT_SESSION_LIFETIME"] = 60 * 60 * 24 * 30  # 30 days
+
+
+@app.before_request
+def restore_session():
+    """Restore game_id from backup cookie if Flask session was lost."""
+    if not session.get("game_id"):
+        backup = request.cookies.get("bgm_gid")
+        if backup:
+            session.permanent = True
+            session["game_id"] = backup
 
 
 @app.after_request
@@ -51,6 +63,11 @@ def no_cache(response):
         response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
         response.headers["Pragma"] = "no-cache"
         response.headers["Expires"] = "0"
+    # Keep a backup cookie with the game_id (survives session loss)
+    gid = session.get("game_id")
+    if gid:
+        response.set_cookie("bgm_gid", gid, max_age=60*60*24*30,
+                            httponly=True, samesite="Lax")
     return response
 
 
@@ -92,8 +109,17 @@ def _load_from_disk(gid: str) -> dict | None:
 
 
 def get_game() -> dict | None:
-    """Retrieve game state: memory first, then disk."""
+    """Retrieve game state: memory first, then disk.
+
+    Also checks for game_id in request args/form as a fallback
+    when the session cookie is lost (common on mobile redirects).
+    """
     gid = session.get("game_id")
+    if not gid:
+        # Fallback: check request args or form data
+        gid = request.args.get("gid") or request.form.get("gid")
+        if gid:
+            session["game_id"] = gid  # restore into session
     if not gid:
         return None
     with _lock:
@@ -159,6 +185,7 @@ def new_game():
     gid = str(uuid.uuid4())
     game = create_game_state(league, rng)
     store_game(gid, game)
+    session.permanent = True
     session["game_id"] = gid
 
     # Render select_team directly instead of redirecting.
@@ -185,7 +212,9 @@ def select_team():
         league.user_team_id = team_id
         league.phase = "preseason"
         persist_current_game()
-        return redirect(url_for("dashboard"))
+        # Render dashboard directly instead of redirecting.
+        # Avoids mobile browsers dropping session cookie on 302.
+        return _render_dashboard(game)
 
     teams_data = []
     for t in league.teams:
@@ -197,22 +226,14 @@ def select_team():
     return render_template("select_team.html", teams=teams_data)
 
 
-@app.route("/dashboard")
-def dashboard():
-    game = get_game()
-    if not game:
-        return redirect(url_for("index"))
+def _render_dashboard(game):
+    """Render the dashboard page from game state."""
     league = game["league"]
     team = league.user_team
-    if not team:
-        return redirect(url_for("select_team"))
-
     phase = league.phase
-    season_obj = game.get("season_obj")
     messages = game.get("messages", [])
     game["messages"] = []  # clear after display
 
-    # Build context
     ctx = {
         "team": team,
         "league": league,
@@ -221,6 +242,7 @@ def dashboard():
         "season": league.season,
     }
 
+    season_obj = game.get("season_obj")
     if season_obj:
         ctx["games_played"] = season_obj.games_played
         ctx["total_games"] = len(season_obj.schedule)
@@ -233,6 +255,19 @@ def dashboard():
         ctx["playoffs_complete"] = bracket.playoffs_complete
 
     return render_template("dashboard.html", **ctx)
+
+
+@app.route("/dashboard")
+def dashboard():
+    game = get_game()
+    if not game:
+        return redirect(url_for("index"))
+    league = game["league"]
+    team = league.user_team
+    if not team:
+        return redirect(url_for("select_team"))
+
+    return _render_dashboard(game)
 
 
 @app.route("/action/<action>", methods=["POST"])
@@ -1148,7 +1183,9 @@ def quit_game():
         except OSError:
             pass
     session.clear()
-    return redirect(url_for("index"))
+    resp = redirect(url_for("index"))
+    resp.delete_cookie("bgm_gid")
+    return resp
 
 
 # ── Save / Load ────────────────────────────────────────────────────
@@ -1256,6 +1293,7 @@ def load_game_route():
 
     gid = str(uuid.uuid4())
     store_game(gid, game)
+    session.permanent = True
     session["game_id"] = gid
     game["messages"] = [f"Game loaded from slot {slot}!"]
     persist_current_game()
@@ -1303,6 +1341,7 @@ def upload_save():
         game = _restore_game_from_save(data)
         gid = str(uuid.uuid4())
         store_game(gid, game)
+        session.permanent = True
         session["game_id"] = gid
         game["messages"] = ["Game loaded from uploaded file!"]
         persist_current_game()
