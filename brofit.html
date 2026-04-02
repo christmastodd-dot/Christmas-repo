@@ -718,6 +718,204 @@
       padding: 20px;
     }
 
+    /* Gift Feature */
+    .gift-btn {
+      background: transparent;
+      color: var(--color-gold);
+      font-family: var(--font-body);
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border: 1.5px solid var(--color-gold);
+      border-radius: 20px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .gift-btn:active {
+      transform: scale(0.95);
+    }
+
+    .gift-modal {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 1100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .gift-modal--hidden { display: none; }
+
+    .gift-modal__box {
+      background: var(--bg-card);
+      border-radius: var(--radius-md);
+      padding: 24px 20px;
+      max-width: 340px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .gift-modal__title {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      margin-bottom: 14px;
+    }
+
+    .gift-modal__members {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 16px;
+      text-align: left;
+    }
+
+    .gift-modal__member {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      background: var(--bg-surface);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.15s;
+    }
+
+    .gift-modal__member--selected {
+      border-color: var(--color-gold);
+      background: rgba(255, 215, 0, 0.08);
+    }
+
+    .gift-modal__member-check {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,0.2);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      flex-shrink: 0;
+    }
+
+    .gift-modal__member--selected .gift-modal__member-check {
+      border-color: var(--color-gold);
+      background: var(--color-gold);
+      color: var(--bg-primary);
+    }
+
+    .gift-modal__preview {
+      margin-bottom: 12px;
+    }
+
+    .gift-modal__preview img {
+      max-width: 100%;
+      max-height: 200px;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .gift-modal__actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .gift-modal__actions button {
+      flex: 1;
+      padding: 10px;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+    }
+
+    .gift-modal__cancel {
+      background: var(--bg-surface);
+      color: var(--text-secondary);
+    }
+
+    .gift-modal__send {
+      background: var(--color-gold);
+      color: var(--bg-primary);
+    }
+
+    .gift-modal__send:active {
+      transform: scale(0.97);
+    }
+
+    .gift-modal__file-btn {
+      background: var(--bg-surface);
+      color: var(--text-secondary);
+      border: 1px dashed rgba(255,255,255,0.25);
+      border-radius: var(--radius-sm);
+      padding: 14px;
+      font-size: 0.85rem;
+      font-family: var(--font-body);
+      cursor: pointer;
+      width: 100%;
+      margin-bottom: 12px;
+    }
+
+    .gift-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.92);
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      animation: giftFadeIn 0.4s ease;
+    }
+
+    @keyframes giftFadeIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .gift-overlay__from {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      color: var(--color-gold);
+      margin-bottom: 12px;
+    }
+
+    .gift-overlay__image {
+      max-width: 90%;
+      max-height: 60vh;
+      border-radius: var(--radius-md);
+      box-shadow: 0 0 40px rgba(255, 215, 0, 0.2);
+      margin-bottom: 16px;
+    }
+
+    .gift-overlay__timer {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    .gift-overlay__timer-bar {
+      width: 120px;
+      height: 3px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 2px;
+      margin-top: 6px;
+      overflow: hidden;
+    }
+
+    .gift-overlay__timer-fill {
+      height: 100%;
+      background: var(--color-gold);
+      border-radius: 2px;
+      transition: width 1s linear;
+    }
+
     /* ===== Leaderboard ===== */
 
     /* ===== Macrocycle / Training Program ===== */
@@ -3085,7 +3283,25 @@
         <div class="sync-bar__dot" id="sync-dot"></div>
         <span id="sync-label">Connecting...</span>
       </div>
-      <button class="sync-bar__share" onclick="shareRoom()">Share Link</button>
+      <div style="display:flex;gap:6px">
+        <button class="gift-btn" onclick="openGiftModal()">Leave a Gift</button>
+        <button class="sync-bar__share" onclick="shareRoom()">Share Link</button>
+      </div>
+    </div>
+
+    <!-- Gift Modal -->
+    <div class="gift-modal gift-modal--hidden" id="gift-modal">
+      <div class="gift-modal__box">
+        <div class="gift-modal__title">Leave a Gift</div>
+        <div class="gift-modal__members" id="gift-members"></div>
+        <button class="gift-modal__file-btn" id="gift-file-btn" onclick="document.getElementById('gift-file-input').click()">+ Choose a Photo</button>
+        <input type="file" id="gift-file-input" accept="image/*" style="display:none" onchange="handleGiftImage(this)">
+        <div class="gift-modal__preview" id="gift-preview"></div>
+        <div class="gift-modal__actions">
+          <button class="gift-modal__cancel" onclick="closeGiftModal()">Cancel</button>
+          <button class="gift-modal__send" onclick="sendGift()">Send Gift</button>
+        </div>
+      </div>
     </div>
 
     <!-- PR Log (appears near top when opened) -->
@@ -4623,6 +4839,156 @@
         html += '</div>';
       });
       return html;
+    }
+
+    // ===== Gift Feature =====
+
+    var giftPendingImage = null;
+    var giftSelectedMembers = {};
+
+    function openGiftModal() {
+      giftPendingImage = null;
+      giftSelectedMembers = {};
+      document.getElementById('gift-preview').innerHTML = '';
+      document.getElementById('gift-file-btn').textContent = '+ Choose a Photo';
+
+      // Build member list
+      var members = [];
+      if (sharedData && sharedData.members) {
+        Object.keys(sharedData.members).forEach(function(name) {
+          if (name !== userId) members.push(name);
+        });
+      }
+
+      var container = document.getElementById('gift-members');
+      if (members.length === 0) {
+        container.innerHTML = '<div style="color:var(--text-muted);font-size:0.8rem;padding:8px">No crew members to gift</div>';
+      } else {
+        container.innerHTML = '';
+        members.forEach(function(name) {
+          var div = document.createElement('div');
+          div.className = 'gift-modal__member';
+          div.innerHTML = '<div class="gift-modal__member-check"></div><span>' + name + '</span>';
+          div.addEventListener('click', function() {
+            giftSelectedMembers[name] = !giftSelectedMembers[name];
+            div.classList.toggle('gift-modal__member--selected', giftSelectedMembers[name]);
+            div.querySelector('.gift-modal__member-check').textContent = giftSelectedMembers[name] ? '✓' : '';
+          });
+          container.appendChild(div);
+        });
+      }
+
+      document.getElementById('gift-modal').classList.remove('gift-modal--hidden');
+    }
+
+    function closeGiftModal() {
+      document.getElementById('gift-modal').classList.add('gift-modal--hidden');
+      giftPendingImage = null;
+      giftSelectedMembers = {};
+    }
+
+    function handleGiftImage(input) {
+      var file = input.files && input.files[0];
+      if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var img = new Image();
+        img.onload = function() {
+          var maxW = 600, maxH = 600;
+          var w = img.width, h = img.height;
+          if (w > maxW || h > maxH) {
+            var ratio = Math.min(maxW / w, maxH / h);
+            w = Math.round(w * ratio);
+            h = Math.round(h * ratio);
+          }
+          var canvas = document.createElement('canvas');
+          canvas.width = w;
+          canvas.height = h;
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          giftPendingImage = canvas.toDataURL('image/jpeg', 0.7);
+          document.getElementById('gift-preview').innerHTML = '<img src="' + giftPendingImage + '">';
+          document.getElementById('gift-file-btn').textContent = 'Change Photo';
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+      input.value = '';
+    }
+
+    function sendGift() {
+      if (!giftPendingImage) { alert('Choose a photo first'); return; }
+      var recipients = Object.keys(giftSelectedMembers).filter(function(k) { return giftSelectedMembers[k]; });
+      if (recipients.length === 0) { alert('Select at least one crew member'); return; }
+
+      if (!sharedData) sharedData = { members: {} };
+      if (!sharedData.gifts) sharedData.gifts = [];
+
+      recipients.forEach(function(name) {
+        sharedData.gifts.push({
+          id: 'gift_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+          from: userId,
+          to: name,
+          image: giftPendingImage,
+          date: new Date().toISOString()
+        });
+      });
+
+      closeGiftModal();
+      pushToRoom();
+    }
+
+    function checkForGifts() {
+      if (!userId || !sharedData || !sharedData.gifts) return;
+      var myGifts = sharedData.gifts.filter(function(g) { return g.to === userId; });
+      if (myGifts.length === 0) return;
+
+      // Show gifts one at a time
+      showGift(myGifts, 0);
+    }
+
+    function showGift(gifts, idx) {
+      if (idx >= gifts.length) return;
+      var gift = gifts[idx];
+
+      var overlay = document.createElement('div');
+      overlay.className = 'gift-overlay';
+      overlay.innerHTML =
+        '<div class="gift-overlay__from">A gift from ' + escapeHtml(gift.from) + '</div>' +
+        '<img class="gift-overlay__image" src="' + gift.image + '">' +
+        '<div class="gift-overlay__timer">' +
+          '<span id="gift-timer-text">Disappears in 5s</span>' +
+          '<div class="gift-overlay__timer-bar"><div class="gift-overlay__timer-fill" id="gift-timer-fill" style="width:100%"></div></div>' +
+        '</div>';
+      document.body.appendChild(overlay);
+
+      var seconds = 5;
+      var fill = document.getElementById('gift-timer-fill');
+      var timerText = document.getElementById('gift-timer-text');
+
+      // Start countdown
+      var interval = setInterval(function() {
+        seconds--;
+        if (fill) fill.style.width = (seconds / 5 * 100) + '%';
+        if (timerText) timerText.textContent = 'Disappears in ' + seconds + 's';
+        if (seconds <= 0) {
+          clearInterval(interval);
+          overlay.style.opacity = '0';
+          overlay.style.transition = 'opacity 0.4s';
+          setTimeout(function() {
+            overlay.remove();
+            // Remove this gift from sharedData
+            removeGift(gift.id);
+            // Show next gift
+            showGift(gifts, idx + 1);
+          }, 400);
+        }
+      }, 1000);
+    }
+
+    function removeGift(giftId) {
+      if (!sharedData || !sharedData.gifts) return;
+      sharedData.gifts = sharedData.gifts.filter(function(g) { return g.id !== giftId; });
+      pushToRoom();
     }
 
     function escapeHtml(str) {
@@ -7135,6 +7501,7 @@
         sharedData = data;
         setSyncStatus('online');
         renderAllLeaderboards();
+        checkForGifts();
       }).catch(function(err) {
         console.error('Pull failed:', err);
         setSyncStatus('offline');
@@ -7398,6 +7765,7 @@
       // Render everything
       refreshUI();
       renderAllLeaderboards();
+      checkForGifts();
     }
 
     function updateCrewDisplay() {
@@ -7521,6 +7889,7 @@
             pushToRoom();
             syncInterval = setInterval(pullFromRoom, 30000);
             renderAllLeaderboards();
+            checkForGifts();
           }).catch(function() {
             sharedData = { members: {} };
             setSyncStatus('offline');
