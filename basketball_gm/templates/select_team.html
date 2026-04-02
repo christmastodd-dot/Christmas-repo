@@ -2,40 +2,7 @@
 {% block content %}
 <div class="card">
     <h2>Choose Your Franchise</h2>
-
-    <!-- Desktop table view -->
-    <div class="table-wrap desktop-only">
-    <table>
-        <thead>
-            <tr>
-                <th>Team</th>
-                <th>Conference</th>
-                <th>Division</th>
-                <th class="num">OVR</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for t in teams %}
-            <tr>
-                <td><strong>{{ t.full_name }}</strong> <span style="color:#7f8c8d">({{ t.abbr }})</span></td>
-                <td>{{ t.conference }}</td>
-                <td>{{ t.division }}</td>
-                <td class="num">{{ t.overall }}</td>
-                <td>
-                    <form method="post" action="{{ url_for('select_team') }}" style="display:inline;">
-                        <input type="hidden" name="team_id" value="{{ t.id }}">
-                        <button type="submit" class="btn btn-sm">Select</button>
-                    </form>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    </div>
-
-    <!-- Mobile card view -->
-    <div class="mobile-only team-cards">
+    <div class="team-cards">
         {% for t in teams %}
         <form method="post" action="{{ url_for('select_team') }}" class="team-card">
             <input type="hidden" name="team_id" value="{{ t.id }}">
@@ -55,12 +22,13 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 0.7rem 0.6rem;
+        padding: 0.7rem 0.8rem;
         background: #0f1923;
         border: 1px solid #2c3e50;
         border-radius: 6px;
         gap: 0.8rem;
     }
+    .team-card:hover { border-color: #e67e22; }
     .team-card-name { font-weight: 600; font-size: 0.9rem; }
     .team-card-meta { color: #7f8c8d; font-size: 0.78rem; margin-top: 0.15rem; }
 </style>
