@@ -1,7 +1,8 @@
-"""Draft system — draft class generation, lottery, and draft event."""
+"""Draft system — draft class generation, lottery, scouting, and draft event."""
 
 from __future__ import annotations
 
+import math
 import random
 from dataclasses import dataclass, field
 from typing import Optional
@@ -15,6 +16,26 @@ from basketball_gm.team import Team
 # Draft lottery odds for bottom 14 teams (NBA-style)
 LOTTERY_ODDS = [140, 140, 140, 125, 105, 90, 75, 60, 45, 30, 20, 15, 10, 5]
 
+# Scouting strategies
+SCOUTING_STRATEGIES = {
+    "balanced": {
+        "label": "Balanced",
+        "description": "Even scouting across all prospects. Steady noise reduction for everyone.",
+    },
+    "top_prospects": {
+        "label": "Focus Top Prospects",
+        "description": "Concentrate on the top 15 prospects. Better intel on lottery picks, less on late rounds.",
+    },
+    "position_need": {
+        "label": "Position Need",
+        "description": "Scout prospects at your team's weakest position more heavily.",
+    },
+    "sleeper_hunting": {
+        "label": "Sleeper Hunting",
+        "description": "Focus on 2nd-round talent. Better chance of finding hidden gems late.",
+    },
+}
+
 
 @dataclass
 class DraftProspect:
@@ -22,12 +43,18 @@ class DraftProspect:
     player: Player
     scouted_overall: int = 0  # what scouts think the overall is
     scouting_report: str = ""
+    base_noise: int = 0       # original noise applied (for progressive reveal)
+    current_noise: int = 0    # remaining noise (shrinks with scouting)
+    scouting_level: int = 0   # 0-100, how well scouted this prospect is
 
     def to_dict(self) -> dict:
         return {
             "player": self.player.to_dict(),
             "scouted_overall": self.scouted_overall,
             "scouting_report": self.scouting_report,
+            "base_noise": self.base_noise,
+            "current_noise": self.current_noise,
+            "scouting_level": self.scouting_level,
         }
 
 
@@ -78,7 +105,7 @@ def generate_draft_class(
         player = generate_rookie(tier=tier, rng=r)
 
         # Scouting: add noise to perceived overall
-        noise = r.randint(-8, 8)
+        noise = r.randint(-12, 12)
         scouted = max(25, min(99, player.overall + noise))
 
         report = _generate_scouting_report(player, r)
@@ -87,11 +114,63 @@ def generate_draft_class(
             player=player,
             scouted_overall=scouted,
             scouting_report=report,
+            base_noise=noise,
+            current_noise=noise,
+            scouting_level=0,
         ))
 
     # Sort by scouted overall (best prospects first)
     prospects.sort(key=lambda p: p.scouted_overall, reverse=True)
     return prospects
+
+
+def advance_scouting(
+    prospects: list[DraftProspect],
+    strategy: str,
+    games_simmed: int,
+    total_games: int,
+    team_weakest_pos: str = "PG",
+    rng: Optional[random.Random] = None,
+) -> None:
+    """Reduce scouting noise based on strategy and season progress.
+
+    Called after sim actions. Updates scouted_overall in-place.
+    """
+    r = rng or random.Random()
+    # Season progress 0.0 to 1.0
+    progress = min(1.0, games_simmed / max(total_games, 1))
+
+    for i, prospect in enumerate(prospects):
+        # Base scouting rate depends on strategy
+        if strategy == "top_prospects":
+            # Top 15 get heavy scouting, rest gets less
+            rate = 1.4 if i < 15 else 0.5
+        elif strategy == "sleeper_hunting":
+            # Bottom 30 get heavy scouting, top gets less
+            rate = 0.6 if i < 30 else 1.4
+        elif strategy == "position_need":
+            # Matching position gets bonus
+            rate = 1.3 if prospect.player.position == team_weakest_pos else 0.8
+        else:  # balanced
+            rate = 1.0
+
+        # Target scouting level based on progress and rate
+        target_level = min(100, int(progress * 100 * rate))
+        # Only increase, never decrease
+        if target_level > prospect.scouting_level:
+            prospect.scouting_level = target_level
+
+        # Noise reduces as scouting level increases
+        # At level 0: full noise. At level 100: noise → 0
+        remaining_frac = 1.0 - (prospect.scouting_level / 100.0)
+        prospect.current_noise = int(round(prospect.base_noise * remaining_frac))
+
+        # Update scouted overall
+        prospect.scouted_overall = max(25, min(99,
+            prospect.player.overall + prospect.current_noise))
+
+    # Re-sort by scouted overall
+    prospects.sort(key=lambda p: p.scouted_overall, reverse=True)
 
 
 def _generate_scouting_report(player: Player, rng: random.Random) -> str:
@@ -127,6 +206,26 @@ def _generate_scouting_report(player: Player, rng: random.Random) -> str:
         report += f". Needs work on {rng.choice(weaknesses)}"
 
     return report
+
+
+def get_scouting_report_display(prospect: DraftProspect) -> str:
+    """Return scouting report with detail based on scouting level."""
+    if prospect.scouting_level >= 30:
+        return prospect.scouting_report
+    return "Not enough intel yet."
+
+
+def get_confidence_label(scouting_level: int) -> str:
+    """Return a confidence label for the scouting level."""
+    if scouting_level >= 90:
+        return "Very High"
+    elif scouting_level >= 70:
+        return "High"
+    elif scouting_level >= 45:
+        return "Medium"
+    elif scouting_level >= 20:
+        return "Low"
+    return "Very Low"
 
 
 def run_draft_lottery(

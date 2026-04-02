@@ -16,13 +16,17 @@ from basketball_gm.playoffs import (
     PlayoffBracket, create_playoff_bracket, sim_series_game,
     sim_playoff_round, sim_full_playoffs, _pick_finals_mvp,
 )
-from basketball_gm.draft import generate_draft_class, run_draft_lottery, run_draft
+from basketball_gm.draft import (
+    generate_draft_class, run_draft_lottery, run_draft,
+    advance_scouting, SCOUTING_STRATEGIES,
+    get_scouting_report_display, get_confidence_label,
+)
 from basketball_gm.free_agency import (
     get_free_agents_sorted, desired_salary, sign_player,
     release_player, ai_free_agency, expire_contracts,
     proposed_contract, negotiate_counter,
 )
-from basketball_gm.config import ROSTER_SIZE, SALARY_CAP, MID_LEVEL_EXCEPTION
+from basketball_gm.config import ROSTER_SIZE, SALARY_CAP, MID_LEVEL_EXCEPTION, DRAFT_ROUNDS, POSITIONS
 from basketball_gm.trade import (
     TradeProposal, validate_trade, ai_accepts_trade,
     execute_trade, player_trade_value,
@@ -131,6 +135,8 @@ def create_game_state(league: League, rng: random.Random) -> dict:
         "messages": [],
         "draft_class": None,
         "draft_order": None,
+        "scouting_strategy": "balanced",
+        "scouting_position": None,  # for position_need strategy
     }
 
 
@@ -242,6 +248,10 @@ def do_action(action):
         season_obj.initialize(seed=rng.randint(0, 999999))
         game["season_obj"] = season_obj
         league.phase = "regular_season"
+        # Generate draft class if not already created during preseason
+        if not game.get("draft_class"):
+            game["draft_class"] = generate_draft_class(rng=rng)
+            game["scouting_strategy"] = game.get("scouting_strategy", "balanced")
         game["messages"].append(f"Season {league.season} has begun!")
 
     elif action == "sim_day":
@@ -256,6 +266,7 @@ def do_action(action):
                     ot = f" (OT{r.overtime_periods})" if r.overtime_periods else ""
                     game["messages"].append(
                         f"{away.abbr} {r.away_score} @ {home.abbr} {r.home_score}{ot}")
+            _advance_scouting(game)
             _check_season_end(game)
 
     elif action == "sim_week":
@@ -268,6 +279,7 @@ def do_action(action):
             wins = sum(1 for r in user_results if r.winner_id == team.id)
             losses = len(user_results) - wins
             game["messages"].append(f"Week simulated: {wins}-{losses} this week, {team.record} overall")
+            _advance_scouting(game)
             _check_season_end(game)
 
     elif action == "sim_month":
@@ -276,12 +288,14 @@ def do_action(action):
             results = season_obj.sim_days(30)
             team = league.user_team
             game["messages"].append(f"Month simulated: {team.record}")
+            _advance_scouting(game)
             _check_season_end(game)
 
     elif action == "sim_rest":
         season_obj = game.get("season_obj")
         if season_obj and not season_obj.season_complete:
             season_obj.sim_rest_of_season()
+            _advance_scouting(game)
             game["messages"].append(f"Regular season complete! {league.user_team.record}")
             league.phase = "playoffs"
 
@@ -314,7 +328,15 @@ def do_action(action):
         _run_offseason(game)
 
     elif action == "start_draft":
-        _run_draft_auto(game)
+        _setup_draft(game)
+        draft_done = _auto_pick_until_user(game)
+        if not draft_done:
+            # User's turn — redirect to draft page
+            persist_current_game()
+            return redirect(url_for("draft_view"))
+        else:
+            game["messages"].append("Draft complete!")
+            league.phase = "free_agency"
 
     elif action == "start_free_agency":
         _run_free_agency(game)
@@ -324,12 +346,40 @@ def do_action(action):
         league.phase = "preseason"
         game["season_obj"] = None
         game["bracket"] = None
+        game["draft_class"] = None
+        game["scouting_strategy"] = "balanced"
+        game["scouting_position"] = None
         for team in league.teams:
             team.reset_season()
         game["messages"].append(f"Welcome to Season {league.season}!")
 
     persist_current_game()
     return redirect(url_for("dashboard"))
+
+
+def _advance_scouting(game):
+    """Update scouting progress based on games played so far."""
+    draft_class = game.get("draft_class")
+    season_obj = game.get("season_obj")
+    if not draft_class or not season_obj:
+        return
+    league = game["league"]
+    team = league.user_team
+    # Determine weakest position for position_need strategy
+    pos_strength = {pos: 0 for pos in POSITIONS}
+    if team:
+        for p in team.roster:
+            pos_strength[p.position] = max(pos_strength[p.position], p.overall)
+    weakest = game.get("scouting_position") or min(pos_strength, key=pos_strength.get)
+
+    advance_scouting(
+        draft_class,
+        game.get("scouting_strategy", "balanced"),
+        season_obj.games_played,
+        len(season_obj.schedule),
+        team_weakest_pos=weakest,
+        rng=game["rng"],
+    )
 
 
 def _check_season_end(game):
@@ -384,44 +434,99 @@ def _run_offseason(game):
     league.phase = "draft"
 
 
-def _run_draft_auto(game):
+def _setup_draft(game):
+    """Initialize the draft: generate class (if needed), run lottery, set up state."""
     league = game["league"]
     rng = game["rng"]
 
-    draft_class = generate_draft_class(rng=rng)
+    if not game.get("draft_class"):
+        game["draft_class"] = generate_draft_class(rng=rng)
+
     draft_order = run_draft_lottery(league, rng)
+    game["draft_order"] = draft_order
+    game["draft_picks"] = []  # list of completed pick dicts
+    game["draft_current_pick"] = 0  # index into the full pick sequence
+    game["draft_available"] = list(range(len(game["draft_class"])))  # indices of available prospects
 
-    # Auto-draft for all teams (including user for web version)
-    msgs = []
-    available = list(draft_class)
-    pick_num = 0
-    for round_num in range(1, 3):
-        for team_id in draft_order:
-            if not available:
-                break
-            team = league.get_team(team_id)
-            if not team:
-                continue
-            pick_num += 1
+    # Build full pick sequence: [(round, pick_in_round, team_id), ...]
+    sequence = []
+    for round_num in range(1, DRAFT_ROUNDS + 1):
+        for pick_in_round, team_id in enumerate(draft_order, 1):
+            sequence.append((round_num, pick_in_round, team_id))
+    game["draft_sequence"] = sequence
 
-            # Best available by scouted overall with some need-based adjustment
-            best = available[0]
-            for prospect in available[:5]:
-                if prospect.scouted_overall > best.scouted_overall:
-                    best = prospect
 
-            salary = get_rookie_salary(pick_num)
-            best.player.contract = Contract(salary=salary, years=min(4, 5 - round_num))
-            best.player.draft_year = league.season
-            best.player.draft_pick = pick_num
-            team.add_player(best.player)
-            available.remove(best)
+def _auto_pick_until_user(game):
+    """Auto-draft AI picks until it's the user's turn or draft is over."""
+    league = game["league"]
+    rng = game["rng"]
+    draft_class = game["draft_class"]
+    available_indices = game["draft_available"]
+    sequence = game["draft_sequence"]
+    picks = game["draft_picks"]
+    current = game["draft_current_pick"]
 
-            if team_id == league.user_team_id:
-                msgs.append(f"You drafted {best.player.name} ({best.player.position}, OVR {best.player.overall}) with pick #{pick_num}")
+    while current < len(sequence):
+        round_num, pick_in_round, team_id = sequence[current]
+        if not available_indices:
+            break
 
-    game["messages"] = msgs
-    league.phase = "free_agency"
+        # If it's the user's pick, stop and let them choose
+        if team_id == league.user_team_id:
+            break
+
+        # AI pick
+        team = league.get_team(team_id)
+        if not team:
+            current += 1
+            continue
+
+        # AI logic: best available with need consideration
+        candidates = available_indices[:10]
+        best_idx = candidates[0]
+        best_score = -999
+        pos_strength = {pos: 0 for pos in POSITIONS}
+        for p in team.roster:
+            pos_strength[p.position] = max(pos_strength[p.position], p.overall)
+        weakest_pos = min(pos_strength, key=pos_strength.get)
+
+        for idx in candidates:
+            prospect = draft_class[idx]
+            score = prospect.scouted_overall + rng.randint(-3, 3)
+            if prospect.player.position == weakest_pos:
+                score += rng.randint(3, 8)
+            if score > best_score:
+                best_score = score
+                best_idx = idx
+
+        prospect = draft_class[best_idx]
+        overall_pick = current + 1
+        salary = get_rookie_salary(overall_pick)
+        prospect.player.contract = Contract(salary=salary, years=min(4, 5 - round_num))
+        prospect.player.draft_year = league.season
+        prospect.player.draft_pick = overall_pick
+        team.add_player(prospect.player)
+        available_indices.remove(best_idx)
+
+        picks.append({
+            "pick": overall_pick, "round": round_num,
+            "team_abbr": team.abbr, "team_name": team.full_name,
+            "player_name": prospect.player.name,
+            "position": prospect.player.position,
+            "overall": prospect.player.overall,
+            "scouted_overall": prospect.scouted_overall,
+        })
+        current += 1
+
+    game["draft_current_pick"] = current
+
+    # Check if draft is complete
+    if current >= len(sequence) or not available_indices:
+        game["draft_class"] = None
+        game["draft_order"] = None
+        league.phase = "free_agency"
+        return True  # draft complete
+    return False  # user's turn
 
 
 def _run_free_agency(game):
@@ -860,6 +965,176 @@ def trade_view():
                            partner=partner, partner_players=partner_players,
                            my_players=my_players, league=league,
                            messages=game.get("messages", []))
+
+
+@app.route("/scouting", methods=["GET", "POST"])
+def scouting_view():
+    """Set scouting strategy during preseason, or view draft board during season."""
+    game = get_game()
+    if not game:
+        return redirect(url_for("index"))
+    league = game["league"]
+    team = league.user_team
+
+    if request.method == "POST":
+        strategy = request.form.get("strategy", "balanced")
+        if strategy in SCOUTING_STRATEGIES:
+            game["scouting_strategy"] = strategy
+        pos = request.form.get("position")
+        if pos in POSITIONS:
+            game["scouting_position"] = pos
+        # Generate draft class when strategy is set
+        if not game.get("draft_class"):
+            game["draft_class"] = generate_draft_class(rng=game["rng"])
+        game["messages"].append(f"Scouting strategy set: {SCOUTING_STRATEGIES[strategy]['label']}")
+        persist_current_game()
+        return redirect(url_for("scouting_view"))
+
+    # Build prospect data for display
+    draft_class = game.get("draft_class")
+    prospects = []
+    if draft_class:
+        for i, p in enumerate(draft_class):
+            prospects.append({
+                "rank": i + 1,
+                "name": p.player.name,
+                "position": p.player.position,
+                "age": p.player.age,
+                "scouted_overall": p.scouted_overall,
+                "potential": p.player.potential if p.scouting_level >= 50 else "?",
+                "scouting_level": p.scouting_level,
+                "confidence": get_confidence_label(p.scouting_level),
+                "report": get_scouting_report_display(p),
+            })
+
+    # Determine weakest position
+    pos_strength = {pos: 0 for pos in POSITIONS}
+    if team:
+        for p in team.roster:
+            pos_strength[p.position] = max(pos_strength[p.position], p.overall)
+    weakest_pos = min(pos_strength, key=pos_strength.get)
+
+    current_strategy = game.get("scouting_strategy", "balanced")
+    scout_pos = game.get("scouting_position") or weakest_pos
+
+    # Season progress info
+    season_obj = game.get("season_obj")
+    games_played = season_obj.games_played if season_obj else 0
+    total_games = len(season_obj.schedule) if season_obj else 0
+
+    return render_template("scouting.html",
+                           league=league, team=team,
+                           prospects=prospects,
+                           strategies=SCOUTING_STRATEGIES,
+                           current_strategy=current_strategy,
+                           scouting_position=scout_pos,
+                           positions=POSITIONS,
+                           phase=league.phase,
+                           games_played=games_played,
+                           total_games=total_games,
+                           messages=game.get("messages", []))
+
+
+@app.route("/draft")
+def draft_view():
+    """Interactive draft page where user makes their picks."""
+    game = get_game()
+    if not game:
+        return redirect(url_for("index"))
+    league = game["league"]
+
+    sequence = game.get("draft_sequence")
+    if not sequence:
+        return redirect(url_for("dashboard"))
+
+    current = game.get("draft_current_pick", 0)
+    draft_class = game.get("draft_class")
+    available_indices = game.get("draft_available", [])
+    picks = game.get("draft_picks", [])
+
+    # Current pick info
+    if current < len(sequence):
+        round_num, pick_in_round, team_id = sequence[current]
+        overall_pick = current + 1
+    else:
+        return redirect(url_for("dashboard"))
+
+    # Available prospects for user to pick from
+    available = []
+    for idx in available_indices:
+        p = draft_class[idx]
+        available.append({
+            "idx": idx,
+            "name": p.player.name,
+            "position": p.player.position,
+            "age": p.player.age,
+            "scouted_overall": p.scouted_overall,
+            "potential": p.player.potential if p.scouting_level >= 50 else "?",
+            "confidence": get_confidence_label(p.scouting_level),
+            "report": get_scouting_report_display(p),
+        })
+
+    return render_template("draft.html",
+                           league=league,
+                           round_num=round_num,
+                           pick_in_round=pick_in_round,
+                           overall_pick=overall_pick,
+                           available=available,
+                           picks=picks,
+                           messages=game.get("messages", []))
+
+
+@app.route("/draft_pick", methods=["POST"])
+def draft_pick():
+    """User selects a prospect during the draft."""
+    game = get_game()
+    if not game:
+        return redirect(url_for("index"))
+    league = game["league"]
+    rng = game["rng"]
+
+    prospect_idx = int(request.form["prospect_idx"])
+    draft_class = game.get("draft_class")
+    available_indices = game.get("draft_available", [])
+    sequence = game.get("draft_sequence")
+    current = game.get("draft_current_pick", 0)
+    picks = game.get("draft_picks", [])
+
+    if prospect_idx not in available_indices or current >= len(sequence):
+        return redirect(url_for("draft_view"))
+
+    round_num, pick_in_round, team_id = sequence[current]
+    overall_pick = current + 1
+    team = league.get_team(team_id)
+
+    prospect = draft_class[prospect_idx]
+    salary = get_rookie_salary(overall_pick)
+    prospect.player.contract = Contract(salary=salary, years=min(4, 5 - round_num))
+    prospect.player.draft_year = league.season
+    prospect.player.draft_pick = overall_pick
+    team.add_player(prospect.player)
+    available_indices.remove(prospect_idx)
+
+    picks.append({
+        "pick": overall_pick, "round": round_num,
+        "team_abbr": team.abbr, "team_name": team.full_name,
+        "player_name": prospect.player.name,
+        "position": prospect.player.position,
+        "overall": prospect.player.overall,
+        "scouted_overall": prospect.scouted_overall,
+    })
+
+    game["messages"] = [f"You selected {prospect.player.name} ({prospect.player.position}, OVR {prospect.player.overall}) with pick #{overall_pick}!"]
+    game["draft_current_pick"] = current + 1
+
+    # Continue auto-drafting AI picks
+    draft_done = _auto_pick_until_user(game)
+    persist_current_game()
+
+    if draft_done:
+        game["messages"].append("Draft complete!")
+        return redirect(url_for("dashboard"))
+    return redirect(url_for("draft_view"))
 
 
 @app.route("/quit_game", methods=["POST"])

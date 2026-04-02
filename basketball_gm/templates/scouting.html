@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+{% block content %}
+
+{% if messages %}
+<div class="messages">
+    {% for msg in messages %}
+    <div class="msg">{{ msg }}</div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- Scouting Strategy Card -->
+<div class="card">
+    <h2 style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+        <span>Draft Scouting</span>
+        {% if phase == "regular_season" and total_games > 0 %}
+        <span style="font-size:0.8rem; color:#7f8c8d; font-weight:400;">
+            Season Progress: {{ games_played }}/{{ total_games }} games
+        </span>
+        {% endif %}
+    </h2>
+
+    {% if phase == "preseason" %}
+    <p style="color:#aab7c4; font-size:0.88rem; margin-bottom:1rem;">
+        Set your scouting strategy before the season begins. Your scouts will gather intel on draft prospects throughout the regular season based on this strategy.
+    </p>
+    <form method="post" action="{{ url_for('scouting_view') }}">
+        <div class="scout-strategies">
+            {% for key, info in strategies.items() %}
+            <label class="scout-strategy-card {{ 'active' if key == current_strategy }}">
+                <input type="radio" name="strategy" value="{{ key }}" {{ 'checked' if key == current_strategy }}>
+                <div class="scout-strategy-name">{{ info.label }}</div>
+                <div class="scout-strategy-desc">{{ info.description }}</div>
+            </label>
+            {% endfor %}
+        </div>
+
+        {% if current_strategy == "position_need" %}
+        <div style="margin-top:1rem;">
+            <label style="font-size:0.8rem; color:#7f8c8d; text-transform:uppercase; letter-spacing:0.5px;">Focus Position</label>
+            <select name="position" style="margin-left:0.5rem;">
+                {% for pos in positions %}
+                <option value="{{ pos }}" {{ 'selected' if pos == scouting_position }}>{{ pos }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        {% endif %}
+
+        <button type="submit" class="btn" style="margin-top:1rem; width:100%;">Set Strategy</button>
+    </form>
+    {% else %}
+    <div style="font-size:0.88rem; color:#aab7c4; margin-bottom:0.5rem;">
+        Strategy: <strong style="color:#e67e22;">{{ strategies[current_strategy].label }}</strong>
+        {% if current_strategy == "position_need" %} ({{ scouting_position }}){% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- Draft Board -->
+{% if prospects %}
+<div class="card">
+    <h2>Draft Board — {{ prospects|length }} Prospects</h2>
+    <div class="table-wrap"><table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Pos</th>
+                <th class="num">S.OVR</th>
+                <th class="num desktop-only">POT</th>
+                <th class="desktop-only">Confidence</th>
+                <th class="desktop-only">Report</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in prospects %}
+            <tr>
+                <td>{{ p.rank }}</td>
+                <td><strong>{{ p.name }}</strong></td>
+                <td>{{ p.position }}</td>
+                <td class="num">
+                    <span class="scout-ovr scout-{{ p.confidence|lower|replace(' ', '-') }}">{{ p.scouted_overall }}</span>
+                </td>
+                <td class="num desktop-only">{{ p.potential }}</td>
+                <td class="desktop-only">
+                    <span class="confidence-badge conf-{{ p.confidence|lower|replace(' ', '-') }}">{{ p.confidence }}</span>
+                </td>
+                <td class="desktop-only" style="font-size:0.78rem; color:#aab7c4; max-width:250px; overflow:hidden; text-overflow:ellipsis;">{{ p.report }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table></div>
+</div>
+{% elif phase == "preseason" %}
+<div class="card">
+    <p style="color:#7f8c8d; text-align:center;">Set your scouting strategy above to generate the draft class.</p>
+</div>
+{% endif %}
+
+<div style="text-align:center; margin-top:0.5rem;">
+    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary btn-sm">Back to Dashboard</a>
+</div>
+
+<style>
+    .scout-strategies {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 0.7rem;
+    }
+    .scout-strategy-card {
+        background: #0f1923;
+        border: 2px solid #2c3e50;
+        border-radius: 6px;
+        padding: 0.8rem;
+        cursor: pointer;
+        transition: border-color 0.2s;
+    }
+    .scout-strategy-card:hover { border-color: #5dade2; }
+    .scout-strategy-card.active { border-color: #e67e22; background: #1e2d1e; }
+    .scout-strategy-card input { display: none; }
+    .scout-strategy-name { font-weight: 700; font-size: 0.95rem; margin-bottom: 0.3rem; }
+    .scout-strategy-desc { font-size: 0.78rem; color: #7f8c8d; line-height: 1.4; }
+
+    .scout-ovr {
+        font-weight: 700;
+        padding: 0.15rem 0.4rem;
+        border-radius: 3px;
+        font-size: 0.85rem;
+    }
+    .scout-very-high { color: #2ecc71; }
+    .scout-high { color: #7ddf7d; }
+    .scout-medium { color: #e67e22; }
+    .scout-low { color: #e74c3c; }
+    .scout-very-low { color: #7f8c8d; }
+
+    .confidence-badge {
+        font-size: 0.7rem;
+        font-weight: 600;
+        padding: 0.15rem 0.5rem;
+        border-radius: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .conf-very-high { background: #1a3a1a; color: #2ecc71; }
+    .conf-high { background: #1a3a2a; color: #7ddf7d; }
+    .conf-medium { background: #3a2a1a; color: #e67e22; }
+    .conf-low { background: #3a1a1a; color: #e74c3c; }
+    .conf-very-low { background: #2a2a2a; color: #7f8c8d; }
+
+    @media (max-width: 768px) {
+        .scout-strategies { grid-template-columns: 1fr; }
+    }
+</style>
+
+<script>
+// Make strategy cards toggle the radio and update active class
+document.querySelectorAll('.scout-strategy-card').forEach(function(card) {
+    card.addEventListener('click', function() {
+        document.querySelectorAll('.scout-strategy-card').forEach(function(c) { c.classList.remove('active'); });
+        card.classList.add('active');
+        card.querySelector('input').checked = true;
+    });
+});
+</script>
+{% endblock %}

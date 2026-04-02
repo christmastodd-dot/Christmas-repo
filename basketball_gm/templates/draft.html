@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block content %}
+
+{% if messages %}
+<div class="messages">
+    {% for msg in messages %}
+    <div class="msg">{{ msg }}</div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- Current Pick Banner -->
+<div class="card" style="text-align:center; border-color:#e67e22;">
+    <h2 style="border:none; font-size:1.2rem; margin:0;">
+        YOUR PICK
+    </h2>
+    <div style="font-size:0.9rem; color:#aab7c4; margin-top:0.3rem;">
+        Round {{ round_num }}, Pick {{ pick_in_round }} &mdash; #{{ overall_pick }} Overall
+    </div>
+</div>
+
+<!-- Available Prospects -->
+<div class="card">
+    <h2>Available Prospects</h2>
+    <div class="table-wrap"><table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Pos</th>
+                <th class="num">S.OVR</th>
+                <th class="num desktop-only">POT</th>
+                <th class="desktop-only">Conf</th>
+                <th class="desktop-only">Report</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in available[:30] %}
+            <tr>
+                <td><strong>{{ p.name }}</strong></td>
+                <td>{{ p.position }}</td>
+                <td class="num">
+                    <span class="scout-ovr scout-{{ p.confidence|lower|replace(' ', '-') }}">{{ p.scouted_overall }}</span>
+                </td>
+                <td class="num desktop-only">{{ p.potential }}</td>
+                <td class="desktop-only">
+                    <span class="confidence-badge conf-{{ p.confidence|lower|replace(' ', '-') }}">{{ p.confidence }}</span>
+                </td>
+                <td class="desktop-only" style="font-size:0.78rem; color:#aab7c4; max-width:200px; overflow:hidden; text-overflow:ellipsis;">{{ p.report }}</td>
+                <td>
+                    <form method="post" action="{{ url_for('draft_pick') }}" style="margin:0;"
+                          onsubmit="return confirm('Draft {{ p.name }} ({{ p.position }}, {{ p.scouted_overall }} OVR)?');">
+                        <input type="hidden" name="prospect_idx" value="{{ p.idx }}">
+                        <button type="submit" class="btn btn-sm">Draft</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table></div>
+</div>
+
+<!-- Recent Picks -->
+{% if picks %}
+<div class="card">
+    <h2>Draft Results</h2>
+    <div class="table-wrap"><table>
+        <thead>
+            <tr><th>#</th><th>Rd</th><th>Team</th><th>Player</th><th>Pos</th><th class="num">OVR</th></tr>
+        </thead>
+        <tbody>
+            {% for p in picks|reverse %}
+            <tr class="{{ 'user-team' if p.team_abbr == league.user_team.abbr }}">
+                <td>{{ p.pick }}</td>
+                <td>{{ p.round }}</td>
+                <td><strong>{{ p.team_abbr }}</strong></td>
+                <td>{{ p.player_name }}</td>
+                <td>{{ p.position }}</td>
+                <td class="num">{{ p.overall }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table></div>
+</div>
+{% endif %}
+
+<style>
+    .scout-ovr {
+        font-weight: 700;
+        padding: 0.15rem 0.4rem;
+        border-radius: 3px;
+        font-size: 0.85rem;
+    }
+    .scout-very-high { color: #2ecc71; }
+    .scout-high { color: #7ddf7d; }
+    .scout-medium { color: #e67e22; }
+    .scout-low { color: #e74c3c; }
+    .scout-very-low { color: #7f8c8d; }
+
+    .confidence-badge {
+        font-size: 0.7rem;
+        font-weight: 600;
+        padding: 0.15rem 0.5rem;
+        border-radius: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .conf-very-high { background: #1a3a1a; color: #2ecc71; }
+    .conf-high { background: #1a3a2a; color: #7ddf7d; }
+    .conf-medium { background: #3a2a1a; color: #e67e22; }
+    .conf-low { background: #3a1a1a; color: #e74c3c; }
+    .conf-very-low { background: #2a2a2a; color: #7f8c8d; }
+</style>
+{% endblock %}

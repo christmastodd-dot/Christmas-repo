@@ -29,6 +29,7 @@
 
     <div class="action-grid">
         {% if phase == "preseason" %}
+        <a href="{{ url_for('scouting_view') }}" class="btn btn-outline">Set Scouting Strategy</a>
         <form method="post" action="{{ url_for('do_action', action='start_season') }}">
             <button type="submit" class="btn">Start Season</button>
         </form>
@@ -72,8 +73,9 @@
         </form>
 
         {% elif phase == "draft" %}
+        <a href="{{ url_for('scouting_view') }}" class="btn btn-outline">View Draft Board</a>
         <form method="post" action="{{ url_for('do_action', action='start_draft') }}">
-            <button type="submit" class="btn">Run Draft</button>
+            <button type="submit" class="btn">Start Draft</button>
         </form>
 
         {% elif phase == "free_agency" %}
