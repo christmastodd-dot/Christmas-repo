@@ -6215,67 +6215,110 @@
       });
     }
 
+    var editExCounter = 0;
+
     function editAddExercise(btn) {
-      var iType = 'weighted';
+      var eid = ++editExCounter;
       var html = '<div class="workout-edit-exercise" data-ex-idx="new">';
       html += '<button class="workout-edit-del-exercise" onclick="editRemoveExercise(this)" title="Remove exercise">✕</button>';
-      html += '<input class="workout-edit-exercise-name" type="text" value="" placeholder="Exercise name">';
-      html += '<select class="workout-edit-type-select" onchange="editChangeExerciseType(this)" style="width:100%;margin:4px 0 6px;padding:6px;background:var(--bg-surface);color:var(--text-primary);border:1px solid rgba(255,255,255,0.1);border-radius:4px;font-size:0.75rem">' +
-        '<option value="weighted" selected>Weighted (Weight × Reps)</option>' +
-        '<option value="bw">Bodyweight (Reps ± Weight)</option>' +
-        '<option value="cardio">Cardio (Duration / Distance)</option>' +
-        '<option value="duration">Duration Only</option>' +
-      '</select>';
-      html += buildEditHeader(iType);
-      html += '<div class="workout-edit-set-row" data-set-idx="0" data-input-type="' + iType + '">';
-      html += '<span class="set-label">1</span>';
-      html += '<input type="number" data-field="weight" value="" placeholder="Weight" step="any">';
-      html += '<input type="number" data-field="reps" value="" placeholder="Reps">';
-      html += '<button class="del-set-btn" onclick="editRemoveSet(this)" title="Remove set">✕</button>';
+      html += '<div style="position:relative">';
+      html += '<input class="workout-edit-exercise-name" id="edit-new-ex-' + eid + '" type="text" value="" placeholder="Search exercises..." autocomplete="off">';
+      html += '<div class="workout-logger__autocomplete" id="edit-new-ac-' + eid + '"></div>';
       html += '</div>';
-      html += '<button class="workout-edit-add-set" onclick="editAddSet(this, \'' + iType + '\')" data-input-type="' + iType + '">+ Add Set</button>';
+      html += '<div id="edit-new-body-' + eid + '"></div>';
       html += '</div>';
 
       var temp = document.createElement('div');
       temp.innerHTML = html;
-      btn.before(temp.firstChild);
+      var exEl = temp.firstChild;
+      btn.before(exEl);
+
+      var input = document.getElementById('edit-new-ex-' + eid);
+      input.addEventListener('input', function() { showEditAutocomplete(eid); });
+      input.addEventListener('focus', function() { showEditAutocomplete(eid); });
+      input.addEventListener('blur', function() {
+        setTimeout(function() {
+          var ac = document.getElementById('edit-new-ac-' + eid);
+          if (ac) ac.classList.remove('workout-logger__autocomplete--open');
+          // If typed a custom name, build default weighted body
+          var name = input.value.trim();
+          if (name && !document.getElementById('edit-new-body-' + eid).hasChildNodes()) {
+            buildEditExerciseBody(eid, name, 'weighted');
+          }
+        }, 200);
+      });
+      input.focus();
     }
 
-    function editChangeExerciseType(select) {
-      var exercise = select.closest('.workout-edit-exercise');
-      var iType = select.value;
-      // Remove existing sets and add-set button
-      exercise.querySelectorAll('.workout-edit-set-row').forEach(function(r) { r.remove(); });
-      var oldHeader = exercise.querySelector('.workout-edit-hdr');
-      if (oldHeader) oldHeader.remove();
-      var oldAddBtn = exercise.querySelector('.workout-edit-add-set');
-      if (oldAddBtn) oldAddBtn.remove();
+    function showEditAutocomplete(eid) {
+      var input = document.getElementById('edit-new-ex-' + eid);
+      var ac = document.getElementById('edit-new-ac-' + eid);
+      var query = input.value.toLowerCase().trim();
+      var exercises = getExerciseList();
+      var html = '';
+      var eqOrder = ['barbell','dumbbell','machine','cable','bodyweight','cardio','medicine_ball','plyometric','warmup','stretching','custom'];
+      var eqNames = { barbell:'Barbell', dumbbell:'Dumbbell', machine:'Machine', cable:'Cable', bodyweight:'Bodyweight', cardio:'Cardio', medicine_ball:'Medicine Ball', plyometric:'Plyometric', warmup:'Warmup', stretching:'Stretching', custom:'Custom' };
+      var hasResults = false;
 
-      // Insert new header + one empty set + add button after the select
-      var headerHtml = buildEditHeader(iType);
-      var setHtml = '<div class="workout-edit-set-row" data-set-idx="0" data-input-type="' + iType + '">';
-      setHtml += '<span class="set-label">1</span>';
+      eqOrder.forEach(function(equip) {
+        if (!exercises[equip]) return;
+        var matches = exercises[equip].filter(function(item) {
+          return !query || item.name.toLowerCase().indexOf(query) !== -1 || item.muscle.toLowerCase().indexOf(query) !== -1;
+        });
+        if (matches.length > 0) {
+          hasResults = true;
+          html += '<div class="workout-logger__autocomplete-cat">' +
+            '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:' + (equipColors[equip] || '#888') + ';margin-right:4px"></span>' +
+            (eqNames[equip] || equip) + '</div>';
+          matches.forEach(function(item) {
+            var tag = equipLabels[equip] ? '<span style="font-size:0.6rem;color:' + equipColors[equip] + ';margin-left:6px;font-weight:700">' + equipLabels[equip] + '</span>' : '';
+            var muscle = '<span style="font-size:0.6rem;color:var(--text-muted);margin-left:4px">' + item.muscle + '</span>';
+            html += '<div class="workout-logger__autocomplete-item" onmousedown="selectEditExercise(' + eid + ',\'' + item.name.replace(/'/g, "\\'") + '\')">' + item.name + tag + muscle + '</div>';
+          });
+        }
+      });
+
+      if (hasResults) {
+        ac.innerHTML = html;
+        ac.classList.add('workout-logger__autocomplete--open');
+      } else {
+        ac.classList.remove('workout-logger__autocomplete--open');
+      }
+    }
+
+    function selectEditExercise(eid, name) {
+      var input = document.getElementById('edit-new-ex-' + eid);
+      input.value = name;
+      var ac = document.getElementById('edit-new-ac-' + eid);
+      if (ac) ac.classList.remove('workout-logger__autocomplete--open');
+
+      var info = getExerciseInfo(name);
+      buildEditExerciseBody(eid, name, info.input);
+    }
+
+    function buildEditExerciseBody(eid, name, iType) {
+      var body = document.getElementById('edit-new-body-' + eid);
+      var html = buildEditHeader(iType);
+      html += '<div class="workout-edit-set-row" data-set-idx="0" data-input-type="' + iType + '">';
+      html += '<span class="set-label">1</span>';
       if (iType === 'cardio') {
-        setHtml += '<input type="text" data-field="duration" value="" placeholder="Duration" inputmode="numeric">';
-        setHtml += '<input type="text" data-field="distance" value="" placeholder="Distance (mi)">';
+        html += '<input type="text" data-field="duration" value="" placeholder="Duration" inputmode="numeric">';
+        html += '<input type="text" data-field="distance" value="" placeholder="Distance (mi)">';
       } else if (iType === 'duration') {
-        setHtml += '<input type="text" data-field="duration" value="" placeholder="Duration" inputmode="numeric">';
+        html += '<input type="text" data-field="duration" value="" placeholder="Duration" inputmode="numeric">';
       } else if (iType === 'bw') {
-        setHtml += '<input type="number" data-field="weight" value="" placeholder="+/- lbs" step="any">';
-        setHtml += '<input type="number" data-field="reps" value="" placeholder="Reps">';
-        setHtml += '<select data-field="bwMode" style="flex:0.6;background:var(--bg-surface);color:var(--text-primary);border:1px solid rgba(255,255,255,0.1);border-radius:4px;padding:6px;font-size:0.75rem">' +
+        html += '<input type="number" data-field="weight" value="" placeholder="+/- lbs" step="any">';
+        html += '<input type="number" data-field="reps" value="" placeholder="Reps">';
+        html += '<select data-field="bwMode" style="flex:0.6;background:var(--bg-surface);color:var(--text-primary);border:1px solid rgba(255,255,255,0.1);border-radius:4px;padding:6px;font-size:0.75rem">' +
           '<option value="bw">BW</option><option value="assisted">Assisted</option><option value="added">Added</option></select>';
       } else {
-        setHtml += '<input type="number" data-field="weight" value="" placeholder="Weight" step="any">';
-        setHtml += '<input type="number" data-field="reps" value="" placeholder="Reps">';
+        html += '<input type="number" data-field="weight" value="" placeholder="Weight" step="any">';
+        html += '<input type="number" data-field="reps" value="" placeholder="Reps">';
       }
-      setHtml += '<button class="del-set-btn" onclick="editRemoveSet(this)" title="Remove set">✕</button>';
-      setHtml += '</div>';
-      setHtml += '<button class="workout-edit-add-set" onclick="editAddSet(this, \'' + iType + '\')" data-input-type="' + iType + '">+ Add Set</button>';
-
-      var temp = document.createElement('div');
-      temp.innerHTML = headerHtml + setHtml;
-      while (temp.firstChild) exercise.appendChild(temp.firstChild);
+      html += '<button class="del-set-btn" onclick="editRemoveSet(this)" title="Remove set">✕</button>';
+      html += '</div>';
+      html += '<button class="workout-edit-add-set" onclick="editAddSet(this, \'' + iType + '\')" data-input-type="' + iType + '">+ Add Set</button>';
+      body.innerHTML = html;
     }
 
     function editRemoveExercise(btn) {
@@ -6361,8 +6404,8 @@
 
         if (sets.length > 0) {
           var editedName = exEl.querySelector('.workout-edit-exercise-name').value.trim() || (origEx ? origEx.name : 'Exercise');
-          var typeSelect = exEl.querySelector('.workout-edit-type-select');
-          var iType = typeSelect ? typeSelect.value : (origEx ? (origEx.inputType || getExerciseInfo(editedName).input) : getExerciseInfo(editedName).input);
+          var info = getExerciseInfo(editedName);
+          var iType = origEx ? (origEx.inputType || info.input) : info.input;
           exercises.push({ name: editedName, sets: sets, inputType: iType });
         }
       });
