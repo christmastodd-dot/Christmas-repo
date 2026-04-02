@@ -5882,36 +5882,53 @@
       var timeInput = document.getElementById('workout-time');
       var startTime = timeInput ? timeInput.value : '';
 
-      // Calculate workout duration
-      var durationSecs = workoutStartTime ? Math.floor((Date.now() - workoutStartTime) / 1000) : 0;
-      var durationStr = '';
-      if (durationSecs > 0) {
-        var dHrs = Math.floor(durationSecs / 3600);
-        var dMins = Math.floor((durationSecs % 3600) / 60);
-        var dSecs = durationSecs % 60;
-        durationStr = dHrs > 0
-          ? dHrs + ':' + String(dMins).padStart(2, '0') + ':' + String(dSecs).padStart(2, '0')
-          : String(dMins).padStart(2, '0') + ':' + String(dSecs).padStart(2, '0');
-      }
-
-      var workout = {
-        date: date,
-        startTime: startTime,
-        duration: durationStr,
-        exercises: exercises,
-        ts: Date.now()
-      };
-
       var history = loadWorkoutHistory();
-      history.push(workout);
-      saveWorkoutHistory(history);
 
-      // Post to crew feed
-      postWorkoutToFeed(workout);
-      renderCrewFeed();
+      if (editingWorkoutIdx !== null) {
+        // Editing an existing workout
+        var existing = history[editingWorkoutIdx];
+        existing.date = date;
+        existing.startTime = startTime;
+        existing.exercises = exercises;
+        // Keep original duration and ts
+        history[editingWorkoutIdx] = existing;
+        saveWorkoutHistory(history);
+        editingWorkoutIdx = null;
 
-      // Offer to save as template
-      offerSaveAsTemplate(exercises);
+        // Restore timer and save button
+        document.getElementById('workout-timer').style.display = '';
+        document.getElementById('workout-save').textContent = 'Save Workout';
+      } else {
+        // New workout
+        var durationSecs = workoutStartTime ? Math.floor((Date.now() - workoutStartTime) / 1000) : 0;
+        var durationStr = '';
+        if (durationSecs > 0) {
+          var dHrs = Math.floor(durationSecs / 3600);
+          var dMins = Math.floor((durationSecs % 3600) / 60);
+          var dSecs = durationSecs % 60;
+          durationStr = dHrs > 0
+            ? dHrs + ':' + String(dMins).padStart(2, '0') + ':' + String(dSecs).padStart(2, '0')
+            : String(dMins).padStart(2, '0') + ':' + String(dSecs).padStart(2, '0');
+        }
+
+        var workout = {
+          date: date,
+          startTime: startTime,
+          duration: durationStr,
+          exercises: exercises,
+          ts: Date.now()
+        };
+
+        history.push(workout);
+        saveWorkoutHistory(history);
+
+        // Post to crew feed
+        postWorkoutToFeed(workout);
+        renderCrewFeed();
+
+        // Offer to save as template
+        offerSaveAsTemplate(exercises);
+      }
 
       // Reset form and go back to chooser
       resetWorkoutForm();
@@ -6109,314 +6126,79 @@
       }
     }
 
-    function buildEditHeader(iType) {
-      var h = '<div class="workout-edit-hdr"><span class="hdr-spacer"></span>';
-      if (iType === 'cardio') {
-        h += '<span>Duration</span><span>Distance</span>';
-      } else if (iType === 'duration') {
-        h += '<span>Duration</span>';
-      } else if (iType === 'bw') {
-        h += '<span>+/- lbs</span><span>Reps</span><span style="flex:0.6">Mode</span>';
-      } else {
-        h += '<span>Weight</span><span>Reps</span>';
-      }
-      h += '<span class="hdr-del-spacer"></span></div>';
-      return h;
-    }
 
     function editWorkout(idx) {
       var history = loadWorkoutHistory();
       var w = history[idx];
       if (!w) return;
 
-      var overlay = document.createElement('div');
-      overlay.className = 'workout-edit-overlay';
-      overlay.id = 'workout-edit-overlay';
+      editingWorkoutIdx = idx;
 
-      var html = '<div class="workout-edit-container">';
-      html += '<div class="workout-edit-title">Edit Workout</div>';
+      // Open the workout panel and logger
+      var panel = document.getElementById('workout-panel');
+      var btn = document.getElementById('workout-toggle');
+      panel.classList.add('workout-panel--open');
+      btn.classList.add('workout-start-btn--active');
+      btn.querySelector('.workout-start-btn__text').textContent = 'Close Workout';
 
-      // Date field
-      html += '<div class="workout-edit-field"><label>Date</label>' +
-        '<input type="date" id="edit-workout-date" value="' + (w.date || '') + '"></div>';
+      resetWorkoutForm();
 
-      // Start time field
-      html += '<div class="workout-edit-field"><label>Start Time</label>' +
-        '<input type="time" id="edit-workout-time" value="' + (w.startTime || '') + '"></div>';
+      // Set date/time from the workout being edited
+      document.getElementById('workout-date').value = w.date || '';
+      document.getElementById('workout-time').value = w.startTime || '';
 
-      // Duration field
-      html += '<div class="workout-edit-field"><label>Workout Duration</label>' +
-        '<input type="text" id="edit-workout-duration" value="' + (w.duration || '') + '" placeholder="mm:ss or h:mm:ss" inputmode="numeric"></div>';
+      // Hide chooser, show logger
+      document.getElementById('workout-chooser').classList.add('workout-chooser--hidden');
+      document.getElementById('workout-logger').classList.remove('workout-chooser--hidden');
 
-      // Exercises
-      (w.exercises || []).forEach(function(ex, exIdx) {
-        var iType = ex.inputType || getExerciseInfo(ex.name).input;
-        html += '<div class="workout-edit-exercise" data-ex-idx="' + exIdx + '">';
-        html += '<button class="workout-edit-del-exercise" onclick="editRemoveExercise(this)" title="Remove exercise">✕</button>';
-        html += '<input class="workout-edit-exercise-name" type="text" value="' + ex.name.replace(/"/g, '&quot;') + '" placeholder="Exercise name">';
-        html += buildEditHeader(iType);
+      // Hide timer for edits, show duration field instead
+      var timerEl = document.getElementById('workout-timer');
+      timerEl.style.display = 'none';
 
-        (ex.sets || []).forEach(function(s, sIdx) {
-          html += '<div class="workout-edit-set-row" data-set-idx="' + sIdx + '" data-input-type="' + iType + '">';
-          html += '<span class="set-label">' + (sIdx + 1) + '</span>';
+      // Change save button
+      var saveBtn = document.getElementById('workout-save');
+      saveBtn.textContent = 'Save Changes';
 
-          if (iType === 'cardio') {
-            html += '<input type="text" data-field="duration" value="' + (s.duration || '') + '" placeholder="Duration" inputmode="numeric">';
-            html += '<input type="text" data-field="distance" value="' + (s.distance || '') + '" placeholder="Distance (mi)">';
-          } else if (iType === 'duration') {
-            html += '<input type="text" data-field="duration" value="' + (s.duration || '') + '" placeholder="Duration" inputmode="numeric">';
-          } else if (iType === 'bw') {
-            html += '<input type="number" data-field="weight" value="' + (s.weight || '') + '" placeholder="+/- lbs" step="any">';
-            html += '<input type="number" data-field="reps" value="' + (s.reps || '') + '" placeholder="Reps">';
-            html += '<select data-field="bwMode" style="flex:0.6;background:var(--bg-surface);color:var(--text-primary);border:1px solid rgba(255,255,255,0.1);border-radius:4px;padding:6px;font-size:0.75rem">' +
-              '<option value="bw"' + (!s.bwMode || s.bwMode === 'bw' ? ' selected' : '') + '>BW</option>' +
-              '<option value="assisted"' + (s.bwMode === 'assisted' ? ' selected' : '') + '>Assisted</option>' +
-              '<option value="added"' + (s.bwMode === 'added' ? ' selected' : '') + '>Added</option>' +
-            '</select>';
-          } else {
-            html += '<input type="number" data-field="weight" value="' + (s.weight || '') + '" placeholder="Weight" step="any">';
-            html += '<input type="number" data-field="reps" value="' + (s.reps || '') + '" placeholder="Reps">';
-          }
+      // Populate exercises
+      (w.exercises || []).forEach(function(ex) {
+        addWorkoutExercise(ex.name);
+        var exId = workoutExerciseCounter;
 
-          html += '<button class="del-set-btn" onclick="editRemoveSet(this)" title="Remove set">✕</button>';
-          html += '</div>';
-        });
-
-        html += '<button class="workout-edit-add-set" onclick="editAddSet(this, \'' + iType + '\')" data-input-type="' + iType + '">+ Add Set</button>';
-        html += '</div>';
-      });
-
-      html += '<button class="workout-edit-add-set" onclick="editAddExercise(this)" style="width:100%;margin:8px 0 12px">+ Add Exercise</button>';
-
-      html += '<div class="workout-edit-actions">' +
-        '<button class="workout-edit-cancel" onclick="closeEditWorkout()">Cancel</button>' +
-        '<button class="workout-edit-save" onclick="saveEditedWorkout(' + idx + ')">Save Changes</button>' +
-      '</div>';
-
-      html += '</div>';
-      overlay.innerHTML = html;
-      document.body.appendChild(overlay);
-    }
-
-    function closeEditWorkout() {
-      var overlay = document.getElementById('workout-edit-overlay');
-      if (overlay) overlay.remove();
-    }
-
-    function editRemoveSet(btn) {
-      var row = btn.closest('.workout-edit-set-row');
-      var exercise = row.closest('.workout-edit-exercise');
-      row.remove();
-      // Renumber sets
-      var rows = exercise.querySelectorAll('.workout-edit-set-row');
-      rows.forEach(function(r, i) {
-        r.querySelector('.set-label').textContent = i + 1;
-        r.setAttribute('data-set-idx', i);
-      });
-    }
-
-    var editExCounter = 0;
-
-    function editAddExercise(btn) {
-      var eid = ++editExCounter;
-      var html = '<div class="workout-edit-exercise" data-ex-idx="new">';
-      html += '<button class="workout-edit-del-exercise" onclick="editRemoveExercise(this)" title="Remove exercise">✕</button>';
-      html += '<div style="position:relative">';
-      html += '<input class="workout-edit-exercise-name" id="edit-new-ex-' + eid + '" type="text" value="" placeholder="Search exercises..." autocomplete="off">';
-      html += '<div class="workout-logger__autocomplete" id="edit-new-ac-' + eid + '"></div>';
-      html += '</div>';
-      html += '<div id="edit-new-body-' + eid + '"></div>';
-      html += '</div>';
-
-      var temp = document.createElement('div');
-      temp.innerHTML = html;
-      var exEl = temp.firstChild;
-      btn.before(exEl);
-
-      var input = document.getElementById('edit-new-ex-' + eid);
-      input.addEventListener('input', function() { showEditAutocomplete(eid); });
-      input.addEventListener('focus', function() { showEditAutocomplete(eid); });
-      input.addEventListener('blur', function() {
-        setTimeout(function() {
-          var ac = document.getElementById('edit-new-ac-' + eid);
-          if (ac) ac.classList.remove('workout-logger__autocomplete--open');
-          // If typed a custom name, build default weighted body
-          var name = input.value.trim();
-          if (name && !document.getElementById('edit-new-body-' + eid).hasChildNodes()) {
-            buildEditExerciseBody(eid, name, 'weighted');
-          }
-        }, 200);
-      });
-      input.focus();
-    }
-
-    function showEditAutocomplete(eid) {
-      var input = document.getElementById('edit-new-ex-' + eid);
-      var ac = document.getElementById('edit-new-ac-' + eid);
-      var query = input.value.toLowerCase().trim();
-      var exercises = getExerciseList();
-      var html = '';
-      var eqOrder = ['barbell','dumbbell','machine','cable','bodyweight','cardio','medicine_ball','plyometric','warmup','stretching','custom'];
-      var eqNames = { barbell:'Barbell', dumbbell:'Dumbbell', machine:'Machine', cable:'Cable', bodyweight:'Bodyweight', cardio:'Cardio', medicine_ball:'Medicine Ball', plyometric:'Plyometric', warmup:'Warmup', stretching:'Stretching', custom:'Custom' };
-      var hasResults = false;
-
-      eqOrder.forEach(function(equip) {
-        if (!exercises[equip]) return;
-        var matches = exercises[equip].filter(function(item) {
-          return !query || item.name.toLowerCase().indexOf(query) !== -1 || item.muscle.toLowerCase().indexOf(query) !== -1;
-        });
-        if (matches.length > 0) {
-          hasResults = true;
-          html += '<div class="workout-logger__autocomplete-cat">' +
-            '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:' + (equipColors[equip] || '#888') + ';margin-right:4px"></span>' +
-            (eqNames[equip] || equip) + '</div>';
-          matches.forEach(function(item) {
-            var tag = equipLabels[equip] ? '<span style="font-size:0.6rem;color:' + equipColors[equip] + ';margin-left:6px;font-weight:700">' + equipLabels[equip] + '</span>' : '';
-            var muscle = '<span style="font-size:0.6rem;color:var(--text-muted);margin-left:4px">' + item.muscle + '</span>';
-            html += '<div class="workout-logger__autocomplete-item" onmousedown="selectEditExercise(' + eid + ',\'' + item.name.replace(/'/g, "\\'") + '\')">' + item.name + tag + muscle + '</div>';
+        if (ex.sets && ex.sets.length > 0) {
+          var setsContainer = document.getElementById('workout-sets-' + exId);
+          setsContainer.innerHTML = '';
+          setCounters[exId] = 0;
+          ex.sets.forEach(function(s) {
+            addWorkoutSet(exId);
+            var setNum = setCounters[exId];
+            var row = document.getElementById('workout-set-' + exId + '-' + setNum);
+            if (!row) return;
+            if (s.reps) {
+              var repsInp = row.querySelector('[data-field="reps"]');
+              if (repsInp) repsInp.value = s.reps;
+            }
+            if (s.weight || s.weight === 0) {
+              var weightInp = row.querySelector('[data-field="weight"]');
+              if (weightInp) { weightInp.value = s.weight; weightInp.disabled = false; weightInp.style.opacity = '1'; }
+            }
+            if (s.duration) {
+              var durInp = row.querySelector('[data-field="duration"]');
+              if (durInp) durInp.value = s.duration;
+            }
+            if (s.distance) {
+              var distInp = row.querySelector('[data-field="distance"]');
+              if (distInp) distInp.value = s.distance;
+            }
+            revealAddSetBtn(exId);
           });
         }
       });
 
-      if (hasResults) {
-        ac.innerHTML = html;
-        ac.classList.add('workout-logger__autocomplete--open');
-      } else {
-        ac.classList.remove('workout-logger__autocomplete--open');
-      }
-    }
-
-    function selectEditExercise(eid, name) {
-      var input = document.getElementById('edit-new-ex-' + eid);
-      input.value = name;
-      var ac = document.getElementById('edit-new-ac-' + eid);
-      if (ac) ac.classList.remove('workout-logger__autocomplete--open');
-
-      var info = getExerciseInfo(name);
-      buildEditExerciseBody(eid, name, info.input);
-    }
-
-    function buildEditExerciseBody(eid, name, iType) {
-      var body = document.getElementById('edit-new-body-' + eid);
-      var html = buildEditHeader(iType);
-      html += '<div class="workout-edit-set-row" data-set-idx="0" data-input-type="' + iType + '">';
-      html += '<span class="set-label">1</span>';
-      if (iType === 'cardio') {
-        html += '<input type="text" data-field="duration" value="" placeholder="Duration" inputmode="numeric">';
-        html += '<input type="text" data-field="distance" value="" placeholder="Distance (mi)">';
-      } else if (iType === 'duration') {
-        html += '<input type="text" data-field="duration" value="" placeholder="Duration" inputmode="numeric">';
-      } else if (iType === 'bw') {
-        html += '<input type="number" data-field="weight" value="" placeholder="+/- lbs" step="any">';
-        html += '<input type="number" data-field="reps" value="" placeholder="Reps">';
-        html += '<select data-field="bwMode" style="flex:0.6;background:var(--bg-surface);color:var(--text-primary);border:1px solid rgba(255,255,255,0.1);border-radius:4px;padding:6px;font-size:0.75rem">' +
-          '<option value="bw">BW</option><option value="assisted">Assisted</option><option value="added">Added</option></select>';
-      } else {
-        html += '<input type="number" data-field="weight" value="" placeholder="Weight" step="any">';
-        html += '<input type="number" data-field="reps" value="" placeholder="Reps">';
-      }
-      html += '<button class="del-set-btn" onclick="editRemoveSet(this)" title="Remove set">✕</button>';
-      html += '</div>';
-      html += '<button class="workout-edit-add-set" onclick="editAddSet(this, \'' + iType + '\')" data-input-type="' + iType + '">+ Add Set</button>';
-      body.innerHTML = html;
-    }
-
-    function editRemoveExercise(btn) {
-      var exercise = btn.closest('.workout-edit-exercise');
-      exercise.remove();
-    }
-
-    function editAddSet(btn, inputType) {
-      var exercise = btn.closest('.workout-edit-exercise');
-      var rows = exercise.querySelectorAll('.workout-edit-set-row');
-      var newIdx = rows.length;
-
-      var html = '<div class="workout-edit-set-row" data-set-idx="' + newIdx + '" data-input-type="' + inputType + '">';
-      html += '<span class="set-label">' + (newIdx + 1) + '</span>';
-
-      if (inputType === 'cardio') {
-        html += '<input type="text" data-field="duration" value="" placeholder="Duration" inputmode="numeric">';
-        html += '<input type="text" data-field="distance" value="" placeholder="Distance (mi)">';
-      } else if (inputType === 'duration') {
-        html += '<input type="text" data-field="duration" value="" placeholder="Duration" inputmode="numeric">';
-      } else if (inputType === 'bw') {
-        html += '<input type="number" data-field="weight" value="" placeholder="+/- lbs" step="any">';
-        html += '<input type="number" data-field="reps" value="" placeholder="Reps">';
-        html += '<select data-field="bwMode" style="flex:0.6;background:var(--bg-surface);color:var(--text-primary);border:1px solid rgba(255,255,255,0.1);border-radius:4px;padding:6px;font-size:0.75rem">' +
-          '<option value="bw">BW</option><option value="assisted">Assisted</option><option value="added">Added</option></select>';
-      } else {
-        html += '<input type="number" data-field="weight" value="" placeholder="Weight" step="any">';
-        html += '<input type="number" data-field="reps" value="" placeholder="Reps">';
-      }
-
-      html += '<button class="del-set-btn" onclick="editRemoveSet(this)" title="Remove set">✕</button>';
-      html += '</div>';
-
-      var temp = document.createElement('div');
-      temp.innerHTML = html;
-      btn.before(temp.firstChild);
-    }
-
-    function saveEditedWorkout(idx) {
-      var history = loadWorkoutHistory();
-      var w = history[idx];
-      if (!w) return;
-
-      var overlay = document.getElementById('workout-edit-overlay');
-
-      // Update date, time, duration
-      w.date = overlay.querySelector('#edit-workout-date').value || w.date;
-      w.startTime = overlay.querySelector('#edit-workout-time').value || '';
-      w.duration = overlay.querySelector('#edit-workout-duration').value.trim() || '';
-
-      // Update exercises
-      var exerciseEls = overlay.querySelectorAll('.workout-edit-exercise');
-      var exercises = [];
-
-      exerciseEls.forEach(function(exEl) {
-        var origIdx = exEl.getAttribute('data-ex-idx');
-        var origEx = origIdx !== 'new' ? (w.exercises || [])[parseInt(origIdx)] : null;
-
-        var sets = [];
-        var setRows = exEl.querySelectorAll('.workout-edit-set-row');
-        setRows.forEach(function(row) {
-          var iType = row.getAttribute('data-input-type');
-          if (iType === 'cardio') {
-            var dur = row.querySelector('[data-field="duration"]').value.trim();
-            var dist = parseFloat(row.querySelector('[data-field="distance"]').value) || 0;
-            if (dur || dist > 0) sets.push({ duration: dur, distance: dist });
-          } else if (iType === 'duration') {
-            var dur2 = row.querySelector('[data-field="duration"]').value.trim();
-            if (dur2) sets.push({ duration: dur2 });
-          } else if (iType === 'bw') {
-            var reps = parseInt(row.querySelector('[data-field="reps"]').value) || 0;
-            var rawBw = row.querySelector('[data-field="weight"]').value.trim();
-            var weight = rawBw !== '' ? parseFloat(rawBw) || 0 : null;
-            var mode = row.querySelector('[data-field="bwMode"]').value;
-            if (reps > 0 || weight !== null) sets.push({ reps: reps, weight: weight !== null ? weight : 0, bwMode: mode });
-          } else {
-            var reps2 = parseInt(row.querySelector('[data-field="reps"]').value) || 0;
-            var rawW2 = row.querySelector('[data-field="weight"]').value.trim();
-            var weight2 = rawW2 !== '' ? parseFloat(rawW2) || 0 : null;
-            if (reps2 > 0 || weight2 !== null) sets.push({ reps: reps2, weight: weight2 !== null ? weight2 : 0 });
-          }
-        });
-
-        if (sets.length > 0) {
-          var editedName = exEl.querySelector('.workout-edit-exercise-name').value.trim() || (origEx ? origEx.name : 'Exercise');
-          var info = getExerciseInfo(editedName);
-          var iType = origEx ? (origEx.inputType || info.input) : info.input;
-          exercises.push({ name: editedName, sets: sets, inputType: iType });
-        }
-      });
-
-      w.exercises = exercises;
-      history[idx] = w;
-      saveWorkoutHistory(history);
-      renderWorkoutHistory();
-      renderHistoryPanel();
-      closeEditWorkout();
-      schedulePush();
+      // Scroll to workout panel
+      setTimeout(function() {
+        var top = panel.getBoundingClientRect().top + window.scrollY - document.querySelector('.header').offsetHeight - 8;
+        window.scrollTo({ top: top, behavior: 'smooth' });
+      }, 10);
     }
 
     function toggleWorkout() {
@@ -6444,11 +6226,17 @@
         }, 10);
       } else {
         btn.querySelector('.workout-start-btn__text').textContent = 'Start a New Workout';
-        // Reset form
+        // Reset form and edit state
+        if (editingWorkoutIdx !== null) {
+          editingWorkoutIdx = null;
+          document.getElementById('workout-timer').style.display = '';
+          document.getElementById('workout-save').textContent = 'Save Workout';
+        }
         resetWorkoutForm();
       }
     }
 
+    var editingWorkoutIdx = null; // non-null when editing a past workout
     var workoutStartTime = null;
     var workoutTimerInterval = null;
 
