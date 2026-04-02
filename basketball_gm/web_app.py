@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
+import json
 import os
 import pickle
 import random
 import uuid
 import threading
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify, Response
 
 from basketball_gm.league import League, create_league
 from basketball_gm.season import Season
@@ -28,6 +29,8 @@ from basketball_gm.development import develop_players, compute_awards
 from basketball_gm.game_sim import accumulate_player_stats
 from basketball_gm.stats import get_league_leaders
 from basketball_gm.player import get_rookie_salary, Contract
+from basketball_gm.save_load import save_game as save_game_json, load_game as load_game_json, list_saves, delete_save
+from basketball_gm.playoffs import PlayoffBracket
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
 app.secret_key = "basketball-gm-secret-key-change-in-production"
@@ -88,7 +91,7 @@ def get_game() -> dict | None:
     return None
 
 
-def save_game() -> None:
+def persist_current_game() -> None:
     """Persist current game to disk. Call after any state mutation."""
     gid = session.get("game_id")
     if not gid:
@@ -162,7 +165,7 @@ def select_team():
         team_id = int(request.form["team_id"])
         league.user_team_id = team_id
         league.phase = "preseason"
-        save_game()
+        persist_current_game()
         return redirect(url_for("dashboard"))
 
     teams_data = []
@@ -312,7 +315,7 @@ def do_action(action):
             team.reset_season()
         game["messages"].append(f"Welcome to Season {league.season}!")
 
-    save_game()
+    persist_current_game()
     return redirect(url_for("dashboard"))
 
 
@@ -594,7 +597,7 @@ def sign_fa():
     else:
         game["messages"].append("Player not found.")
 
-    save_game()
+    persist_current_game()
     return redirect(url_for("free_agents_view"))
 
 
@@ -608,7 +611,7 @@ def release_player_route():
     player_id = int(request.form["player_id"])
     ok, msg = release_player(team, player_id, league)
     game["messages"].append(msg)
-    save_game()
+    persist_current_game()
     return redirect(url_for("roster"))
 
 
@@ -640,7 +643,7 @@ def trade_view():
                     game["messages"].append(msg)
             else:
                 game["messages"].append(f"Invalid trade: {msg}")
-        save_game()
+        persist_current_game()
         return redirect(url_for("trade_view"))
 
     other_teams = [{"id": t.id, "full_name": t.full_name, "abbr": t.abbr,
@@ -674,6 +677,169 @@ def quit_game():
             pass
     session.clear()
     return redirect(url_for("index"))
+
+
+# ── Save / Load ────────────────────────────────────────────────────
+
+
+def _build_save_data(game: dict) -> dict:
+    """Build a JSON-serializable save dict from game state."""
+    league = game["league"]
+    data = {"league": league.to_dict()}
+    season_obj = game.get("season_obj")
+    if season_obj:
+        data["season_data"] = season_obj.to_dict()
+    bracket = game.get("bracket")
+    if bracket:
+        data["bracket"] = bracket.to_dict()
+    return data
+
+
+def _restore_game_from_save(data: dict) -> dict:
+    """Reconstruct full game state from a save dict."""
+    league = League.from_dict(data["league"])
+    rng = random.Random(data["league"].get("season", 1))
+    game = create_game_state(league, rng)
+    if data.get("season_data"):
+        game["season_obj"] = Season.from_dict(data["season_data"], league)
+    if data.get("bracket"):
+        game["bracket"] = PlayoffBracket.from_dict(data["bracket"])
+    return game
+
+
+@app.route("/save_load")
+def save_load_view():
+    game = get_game()
+    if not game:
+        return redirect(url_for("index"))
+    saves = list_saves()
+    return render_template("save_load.html", saves=saves,
+                           league=game["league"],
+                           messages=game.pop("save_messages", []))
+
+
+@app.route("/save_game", methods=["POST"])
+def save_game_route():
+    game = get_game()
+    if not game:
+        return redirect(url_for("index"))
+    slot = int(request.form.get("slot", 1))
+    league = game["league"]
+    season_data = None
+    season_obj = game.get("season_obj")
+    if season_obj:
+        season_data = season_obj.to_dict()
+
+    # Build extended save with bracket
+    save_data = _build_save_data(game)
+    # Use save_load module for file writing (writes league + season_data)
+    save_game_json(league, slot=slot, season_data=season_data)
+
+    # Also write bracket data into the save file directly
+    from basketball_gm.save_load import SAVE_DIR as JSON_SAVE_DIR, ensure_save_dir
+    ensure_save_dir()
+    filepath = os.path.join(JSON_SAVE_DIR, f"save_{slot}.json")
+    with open(filepath, "r") as f:
+        full = json.load(f)
+    bracket = game.get("bracket")
+    if bracket:
+        full["bracket"] = bracket.to_dict()
+    with open(filepath, "w") as f:
+        json.dump(full, f, separators=(",", ":"))
+
+    game["save_messages"] = [f"Game saved to slot {slot}!"]
+    persist_current_game()
+    return redirect(url_for("save_load_view"))
+
+
+@app.route("/load_game", methods=["POST"])
+def load_game_route():
+    slot = int(request.form.get("slot", 1))
+    result = load_game_json(slot)
+    if not result:
+        game = get_game()
+        if game:
+            game["save_messages"] = ["Save file not found."]
+        return redirect(url_for("save_load_view"))
+
+    league, season_data = result
+
+    # Read bracket from save file
+    from basketball_gm.save_load import SAVE_DIR as JSON_SAVE_DIR
+    bracket_data = None
+    filepath = os.path.join(JSON_SAVE_DIR, f"save_{slot}.json")
+    try:
+        with open(filepath, "r") as f:
+            full = json.load(f)
+        bracket_data = full.get("bracket")
+    except Exception:
+        pass
+
+    rng = random.Random(league.season)
+    game = create_game_state(league, rng)
+    if season_data:
+        game["season_obj"] = Season.from_dict(season_data, league)
+    if bracket_data:
+        game["bracket"] = PlayoffBracket.from_dict(bracket_data)
+
+    gid = str(uuid.uuid4())
+    store_game(gid, game)
+    session["game_id"] = gid
+    game["messages"] = [f"Game loaded from slot {slot}!"]
+    persist_current_game()
+    return redirect(url_for("dashboard"))
+
+
+@app.route("/delete_save", methods=["POST"])
+def delete_save_route():
+    slot = int(request.form.get("slot", 1))
+    deleted = delete_save(slot)
+    game = get_game()
+    if game:
+        game["save_messages"] = [f"Save slot {slot} deleted." if deleted else "Save not found."]
+    return redirect(url_for("save_load_view"))
+
+
+@app.route("/download_save")
+def download_save():
+    """Download current game as a JSON file."""
+    game = get_game()
+    if not game:
+        return redirect(url_for("index"))
+    data = _build_save_data(game)
+    league = game["league"]
+    filename = f"basketball_gm_s{league.season}_{league.user_team.abbr}.json"
+    return Response(
+        json.dumps(data, separators=(",", ":")),
+        mimetype="application/json",
+        headers={"Content-Disposition": f"attachment; filename={filename}"},
+    )
+
+
+@app.route("/upload_save", methods=["POST"])
+def upload_save():
+    """Upload a JSON save file to restore game."""
+    f = request.files.get("savefile")
+    if not f:
+        game = get_game()
+        if game:
+            game["save_messages"] = ["No file selected."]
+        return redirect(url_for("save_load_view"))
+
+    try:
+        data = json.load(f)
+        game = _restore_game_from_save(data)
+        gid = str(uuid.uuid4())
+        store_game(gid, game)
+        session["game_id"] = gid
+        game["messages"] = ["Game loaded from uploaded file!"]
+        persist_current_game()
+        return redirect(url_for("dashboard"))
+    except Exception as e:
+        game = get_game()
+        if game:
+            game["save_messages"] = [f"Invalid save file: {e}"]
+        return redirect(url_for("save_load_view"))
 
 
 def _player_dict(p, is_starter):

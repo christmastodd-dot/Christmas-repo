@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block content %}
+
+{% if messages %}
+<div class="messages">
+    {% for msg in messages %}
+    <div class="msg">{{ msg }}</div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- Save current game -->
+<div class="card">
+    <h2>Save Game</h2>
+    <form method="post" action="{{ url_for('save_game_route') }}" style="display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap;">
+        <label>Slot:</label>
+        <select name="slot" style="width:80px;">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+        </select>
+        <button type="submit" class="btn">Save Game</button>
+    </form>
+</div>
+
+<!-- Load from slot -->
+<div class="card">
+    <h2>Load Game</h2>
+    {% if saves %}
+    <div class="save-slots">
+        {% for s in saves %}
+        <div class="save-slot">
+            <div class="save-slot-info">
+                <div class="save-slot-title">Slot {{ s.slot }}: {{ s.team }}</div>
+                <div class="save-slot-meta">Season {{ s.season }} &middot; {{ s.phase | replace('_', ' ') | title }} &middot; {{ "%.1f"|format(s.size_mb) }}MB</div>
+            </div>
+            <div class="save-slot-actions">
+                <form method="post" action="{{ url_for('load_game_route') }}" style="display:inline;">
+                    <input type="hidden" name="slot" value="{{ s.slot }}">
+                    <button type="submit" class="btn btn-sm">Load</button>
+                </form>
+                <form method="post" action="{{ url_for('delete_save_route') }}" style="display:inline;"
+                      onsubmit="return confirm('Delete save slot {{ s.slot }}?');">
+                    <input type="hidden" name="slot" value="{{ s.slot }}">
+                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p style="color:#7f8c8d;">No save files found.</p>
+    {% endif %}
+</div>
+
+<!-- Download / Upload -->
+<div class="card">
+    <h2>Export / Import</h2>
+    <div style="display:flex; gap:1rem; flex-wrap:wrap; align-items:flex-start;">
+        <div>
+            <p style="color:#7f8c8d; font-size:0.85rem; margin-bottom:0.5rem;">Download your game as a file</p>
+            <a href="{{ url_for('download_save') }}" class="btn btn-outline">Download Save</a>
+        </div>
+        <div>
+            <p style="color:#7f8c8d; font-size:0.85rem; margin-bottom:0.5rem;">Upload a save file</p>
+            <form method="post" action="{{ url_for('upload_save') }}" enctype="multipart/form-data"
+                  style="display:flex; gap:0.4rem; align-items:center; flex-wrap:wrap;">
+                <input type="file" name="savefile" accept=".json" style="font-size:16px; max-width:220px;">
+                <button type="submit" class="btn btn-sm">Upload &amp; Load</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .save-slots { display: flex; flex-direction: column; gap: 0.5rem; }
+    .save-slot {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.6rem 0.7rem;
+        background: #0f1923;
+        border: 1px solid #2c3e50;
+        border-radius: 6px;
+        gap: 0.8rem;
+        flex-wrap: wrap;
+    }
+    .save-slot-title { font-weight: 600; font-size: 0.9rem; }
+    .save-slot-meta { color: #7f8c8d; font-size: 0.78rem; margin-top: 0.15rem; }
+    .save-slot-actions { display: flex; gap: 0.4rem; }
+</style>
+{% endblock %}
