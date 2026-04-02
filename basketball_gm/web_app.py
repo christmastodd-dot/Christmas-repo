@@ -489,7 +489,14 @@ def leaders():
     if not game:
         return redirect(url_for("index"))
     league = game["league"]
+    view = request.args.get("view", "players")
 
+    if view == "teams":
+        return _team_leaders(league)
+    return _player_leaders(league)
+
+
+def _player_leaders(league):
     all_players = league.all_players()
     team_lookup = {}
     for t in league.teams:
@@ -509,7 +516,61 @@ def leaders():
     cat_labels = {"ppg": "Points", "rpg": "Rebounds", "apg": "Assists",
                   "spg": "Steals", "bpg": "Blocks"}
     return render_template("leaders.html", categories=categories,
-                           cat_labels=cat_labels, league=league)
+                           cat_labels=cat_labels, league=league, view="players")
+
+
+def _team_leaders(league):
+    team_stats = []
+    for t in league.teams:
+        gp = max(t.wins + t.losses, 1)
+        totals = {"pts": 0, "reb": 0, "ast": 0, "stl": 0, "blk": 0,
+                  "fg_m": 0, "fg_a": 0, "three_m": 0, "three_a": 0,
+                  "ft_m": 0, "ft_a": 0}
+        for p in t.roster:
+            s = p.season_stats
+            totals["pts"] += s.points
+            totals["reb"] += s.rebounds
+            totals["ast"] += s.assists
+            totals["stl"] += s.steals
+            totals["blk"] += s.blocks
+            totals["fg_m"] += s.fg_made
+            totals["fg_a"] += s.fg_attempted
+            totals["three_m"] += s.three_made
+            totals["three_a"] += s.three_attempted
+            totals["ft_m"] += s.ft_made
+            totals["ft_a"] += s.ft_attempted
+        team_stats.append({
+            "abbr": t.abbr, "name": t.full_name, "record": t.record,
+            "is_user": t.id == league.user_team_id,
+            "ppg": totals["pts"] / gp,
+            "rpg": totals["reb"] / gp,
+            "apg": totals["ast"] / gp,
+            "spg": totals["stl"] / gp,
+            "bpg": totals["blk"] / gp,
+            "fg_pct": totals["fg_m"] / max(totals["fg_a"], 1) * 100,
+            "three_pct": totals["three_m"] / max(totals["three_a"], 1) * 100,
+            "ft_pct": totals["ft_m"] / max(totals["ft_a"], 1) * 100,
+        })
+
+    categories = {}
+    cat_labels = {
+        "ppg": "Points Per Game", "rpg": "Rebounds Per Game",
+        "apg": "Assists Per Game", "spg": "Steals Per Game",
+        "bpg": "Blocks Per Game", "fg_pct": "FG%",
+        "three_pct": "3PT%", "ft_pct": "FT%",
+    }
+    for cat in ["ppg", "rpg", "apg", "spg", "bpg", "fg_pct", "three_pct", "ft_pct"]:
+        is_pct = cat.endswith("_pct")
+        sorted_teams = sorted(team_stats, key=lambda x: x[cat], reverse=True)
+        categories[cat] = [
+            {"abbr": ts["abbr"], "name": ts["name"], "record": ts["record"],
+             "is_user": ts["is_user"],
+             "value": f"{ts[cat]:.1f}{'%' if is_pct else ''}"}
+            for ts in sorted_teams[:10]
+        ]
+
+    return render_template("leaders.html", categories=categories,
+                           cat_labels=cat_labels, league=league, view="teams")
 
 
 @app.route("/playoffs_view")
