@@ -71,7 +71,19 @@
             transition: background 0.2s;
             white-space: nowrap;
         }
-        .navbar .nav-links a:hover { background: #243447; color: #fff; text-decoration: none; }
+        .navbar .nav-links a:hover, .nav-link-btn:hover { background: #243447; color: #fff; text-decoration: none; }
+        .nav-link-btn {
+            background: none;
+            border: none;
+            color: #aab7c4;
+            font-family: inherit;
+            font-size: 0.9rem;
+            padding: 0.4rem 0.6rem;
+            border-radius: 4px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.2s;
+        }
         .navbar .team-info {
             margin-left: auto;
             font-size: 0.85rem;
@@ -330,6 +342,10 @@
             {% endif %}
             <a href="{{ url_for('history') }}">History</a>
             <a href="{{ url_for('save_load_view') }}">Save/Load</a>
+            <form method="post" action="{{ url_for('new_game') }}" style="margin:0;display:inline;"
+                  onsubmit="return confirm('Start a new game? Unsaved progress will be lost.');">
+                <button type="submit" class="nav-link-btn">New Game</button>
+            </form>
         </div>
     </nav>
     {% endif %}
