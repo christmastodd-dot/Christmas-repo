@@ -328,8 +328,8 @@ def _simulate_possessions(
         shooting = handler.ratings["shooting"] / 100.0
         athleticism = handler.ratings["athleticism"] / 100.0
 
-        # Assist chance: handler passes to a scorer
-        assist_chance = 0.62 * (handler.ratings["passing"] / 100.0)
+        # Assist chance: targets ~70% of FGM being assisted (NBA-like)
+        assist_chance = 0.42 + 0.20 * (handler.ratings["passing"] / 100.0)
         is_assisted = r.random() < assist_chance
         if is_assisted:
             # Pick a different scorer
