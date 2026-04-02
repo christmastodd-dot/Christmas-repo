@@ -37,6 +37,17 @@ app.secret_key = "basketball-gm-secret-key-change-in-production"
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 
+
+@app.after_request
+def no_cache(response):
+    """Prevent browser from caching dynamic pages (fixes stale roster after cuts)."""
+    if "text/html" in response.content_type:
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+    return response
+
+
 # ── Game state persistence ─────────────────────────────────────────
 # In-memory cache + disk persistence so state survives restarts
 
@@ -54,12 +65,12 @@ def _save_path(gid: str) -> str:
 
 
 def _persist(gid: str, game: dict) -> None:
-    """Save game state to disk (best effort)."""
+    """Save game state to disk."""
     try:
         with open(_save_path(gid), "wb") as f:
             pickle.dump(game, f, protocol=pickle.HIGHEST_PROTOCOL)
-    except Exception:
-        pass
+    except Exception as e:
+        app.logger.error("Failed to persist game %s: %s", gid, e)
 
 
 def _load_from_disk(gid: str) -> dict | None:
