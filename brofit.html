@@ -5981,7 +5981,10 @@
         html += '<div class="workout-history__entry">' +
           '<div class="workout-history__date">' +
             '<span>' + w.date + (w.startTime ? ' at ' + w.startTime : '') + '</span>' +
-            '<button class="workout-history__delete" onclick="deleteWorkout(' + origIdx + ')">Delete</button>' +
+            '<div>' +
+              '<button class="workout-history__edit" onclick="editWorkout(' + origIdx + ')">Edit</button>' +
+              '<button class="workout-history__delete" onclick="deleteWorkout(' + origIdx + ')">Delete</button>' +
+            '</div>' +
           '</div>' +
           exHtml +
           '<div class="workout-history__stats">' + statsHtml + '</div>' +
