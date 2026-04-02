@@ -6186,6 +6186,8 @@
         html += '</div>';
       });
 
+      html += '<button class="workout-edit-add-set" onclick="editAddExercise(this)" style="width:100%;margin:8px 0 12px">+ Add Exercise</button>';
+
       html += '<div class="workout-edit-actions">' +
         '<button class="workout-edit-cancel" onclick="closeEditWorkout()">Cancel</button>' +
         '<button class="workout-edit-save" onclick="saveEditedWorkout(' + idx + ')">Save Changes</button>' +
@@ -6211,6 +6213,69 @@
         r.querySelector('.set-label').textContent = i + 1;
         r.setAttribute('data-set-idx', i);
       });
+    }
+
+    function editAddExercise(btn) {
+      var iType = 'weighted';
+      var html = '<div class="workout-edit-exercise" data-ex-idx="new">';
+      html += '<button class="workout-edit-del-exercise" onclick="editRemoveExercise(this)" title="Remove exercise">✕</button>';
+      html += '<input class="workout-edit-exercise-name" type="text" value="" placeholder="Exercise name">';
+      html += '<select class="workout-edit-type-select" onchange="editChangeExerciseType(this)" style="width:100%;margin:4px 0 6px;padding:6px;background:var(--bg-surface);color:var(--text-primary);border:1px solid rgba(255,255,255,0.1);border-radius:4px;font-size:0.75rem">' +
+        '<option value="weighted" selected>Weighted (Weight × Reps)</option>' +
+        '<option value="bw">Bodyweight (Reps ± Weight)</option>' +
+        '<option value="cardio">Cardio (Duration / Distance)</option>' +
+        '<option value="duration">Duration Only</option>' +
+      '</select>';
+      html += buildEditHeader(iType);
+      html += '<div class="workout-edit-set-row" data-set-idx="0" data-input-type="' + iType + '">';
+      html += '<span class="set-label">1</span>';
+      html += '<input type="number" data-field="weight" value="" placeholder="Weight" step="any">';
+      html += '<input type="number" data-field="reps" value="" placeholder="Reps">';
+      html += '<button class="del-set-btn" onclick="editRemoveSet(this)" title="Remove set">✕</button>';
+      html += '</div>';
+      html += '<button class="workout-edit-add-set" onclick="editAddSet(this, \'' + iType + '\')" data-input-type="' + iType + '">+ Add Set</button>';
+      html += '</div>';
+
+      var temp = document.createElement('div');
+      temp.innerHTML = html;
+      btn.before(temp.firstChild);
+    }
+
+    function editChangeExerciseType(select) {
+      var exercise = select.closest('.workout-edit-exercise');
+      var iType = select.value;
+      // Remove existing sets and add-set button
+      exercise.querySelectorAll('.workout-edit-set-row').forEach(function(r) { r.remove(); });
+      var oldHeader = exercise.querySelector('.workout-edit-hdr');
+      if (oldHeader) oldHeader.remove();
+      var oldAddBtn = exercise.querySelector('.workout-edit-add-set');
+      if (oldAddBtn) oldAddBtn.remove();
+
+      // Insert new header + one empty set + add button after the select
+      var headerHtml = buildEditHeader(iType);
+      var setHtml = '<div class="workout-edit-set-row" data-set-idx="0" data-input-type="' + iType + '">';
+      setHtml += '<span class="set-label">1</span>';
+      if (iType === 'cardio') {
+        setHtml += '<input type="text" data-field="duration" value="" placeholder="Duration" inputmode="numeric">';
+        setHtml += '<input type="text" data-field="distance" value="" placeholder="Distance (mi)">';
+      } else if (iType === 'duration') {
+        setHtml += '<input type="text" data-field="duration" value="" placeholder="Duration" inputmode="numeric">';
+      } else if (iType === 'bw') {
+        setHtml += '<input type="number" data-field="weight" value="" placeholder="+/- lbs" step="any">';
+        setHtml += '<input type="number" data-field="reps" value="" placeholder="Reps">';
+        setHtml += '<select data-field="bwMode" style="flex:0.6;background:var(--bg-surface);color:var(--text-primary);border:1px solid rgba(255,255,255,0.1);border-radius:4px;padding:6px;font-size:0.75rem">' +
+          '<option value="bw">BW</option><option value="assisted">Assisted</option><option value="added">Added</option></select>';
+      } else {
+        setHtml += '<input type="number" data-field="weight" value="" placeholder="Weight" step="any">';
+        setHtml += '<input type="number" data-field="reps" value="" placeholder="Reps">';
+      }
+      setHtml += '<button class="del-set-btn" onclick="editRemoveSet(this)" title="Remove set">✕</button>';
+      setHtml += '</div>';
+      setHtml += '<button class="workout-edit-add-set" onclick="editAddSet(this, \'' + iType + '\')" data-input-type="' + iType + '">+ Add Set</button>';
+
+      var temp = document.createElement('div');
+      temp.innerHTML = headerHtml + setHtml;
+      while (temp.firstChild) exercise.appendChild(temp.firstChild);
     }
 
     function editRemoveExercise(btn) {
@@ -6266,9 +6331,8 @@
       var exercises = [];
 
       exerciseEls.forEach(function(exEl) {
-        var origIdx = parseInt(exEl.getAttribute('data-ex-idx'));
-        var origEx = (w.exercises || [])[origIdx];
-        if (!origEx) return;
+        var origIdx = exEl.getAttribute('data-ex-idx');
+        var origEx = origIdx !== 'new' ? (w.exercises || [])[parseInt(origIdx)] : null;
 
         var sets = [];
         var setRows = exEl.querySelectorAll('.workout-edit-set-row');
@@ -6296,8 +6360,10 @@
         });
 
         if (sets.length > 0) {
-          var editedName = exEl.querySelector('.workout-edit-exercise-name').value.trim() || origEx.name;
-          exercises.push({ name: editedName, sets: sets, inputType: origEx.inputType || getExerciseInfo(editedName).input });
+          var editedName = exEl.querySelector('.workout-edit-exercise-name').value.trim() || (origEx ? origEx.name : 'Exercise');
+          var typeSelect = exEl.querySelector('.workout-edit-type-select');
+          var iType = typeSelect ? typeSelect.value : (origEx ? (origEx.inputType || getExerciseInfo(editedName).input) : getExerciseInfo(editedName).input);
+          exercises.push({ name: editedName, sets: sets, inputType: iType });
         }
       });
 
