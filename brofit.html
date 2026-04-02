@@ -4937,17 +4937,20 @@
       pushToRoom();
     }
 
+    var giftShowing = false;
+
     function checkForGifts() {
+      if (giftShowing) return; // Don't stack gift overlays
       if (!userId || !sharedData || !sharedData.gifts) return;
       var myGifts = sharedData.gifts.filter(function(g) { return g.to === userId; });
       if (myGifts.length === 0) return;
 
-      // Show gifts one at a time
+      giftShowing = true;
       showGift(myGifts, 0);
     }
 
     function showGift(gifts, idx) {
-      if (idx >= gifts.length) return;
+      if (idx >= gifts.length) { giftShowing = false; return; }
       var gift = gifts[idx];
 
       var overlay = document.createElement('div');
@@ -7410,9 +7413,10 @@
 
       var urls = buildGHUrls();
 
-      // Preserve local feed and challenges before fetching latest
+      // Preserve local feed, challenges, and gifts before fetching latest
       var localFeed = sharedData && sharedData.feed ? sharedData.feed.slice() : [];
       var localChallenges = sharedData && sharedData.challenges ? sharedData.challenges.slice() : [];
+      var localGifts = sharedData && sharedData.gifts ? sharedData.gifts.slice() : [];
 
       // Get latest file SHA first (needed for updates)
       return fetch(urls.api + '?ref=' + GH_BRANCH, {
@@ -7459,6 +7463,14 @@
           }
         });
         sharedData.challenges = localChallenges;
+
+        // Merge gifts: use local as base, add server-only gifts
+        var localGiftIds = {};
+        localGifts.forEach(function(g) { localGiftIds[g.id] = true; });
+        (sharedData.gifts || []).forEach(function(g) {
+          if (!localGiftIds[g.id]) localGifts.push(g);
+        });
+        sharedData.gifts = localGifts;
 
         // If user renamed, delete old name from server data
         if (previousUserId && previousUserId !== userId && sharedData.members[previousUserId]) {
