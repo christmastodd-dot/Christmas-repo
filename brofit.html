@@ -7462,21 +7462,15 @@
     function fetchRoom() {
       if (soloMode) return Promise.resolve({ members: {} });
       var urls = buildGHUrls();
-      // Try raw URL first, fall back to API if it fails
-      return fetch(urls.raw + '?t=' + Date.now()).then(function(res) {
+      // Use API endpoint (more reliable, always fresh)
+      return fetch(urls.api + '?ref=' + GH_BRANCH, {
+        headers: { 'Authorization': 'token ' + ghToken, 'Accept': 'application/vnd.github.v3+json' }
+      }).then(function(res) {
         if (res.status === 404) return { members: {} };
-        if (!res.ok) throw new Error('Raw fetch ' + res.status);
-        return res.json();
-      }).catch(function(rawErr) {
-        console.warn('Raw fetch failed, trying API:', rawErr.message);
-        return fetch(urls.api + '?ref=' + GH_BRANCH, {
-          headers: { 'Authorization': 'token ' + ghToken, 'Accept': 'application/vnd.github.v3+json' }
-        }).then(function(res) {
-          if (res.status === 404) return { members: {} };
-          if (!res.ok) throw new Error('API fetch ' + res.status);
-          return res.json().then(function(file) {
-            return JSON.parse(atob(file.content.replace(/\n/g, '')));
-          });
+        if (!res.ok) throw new Error('API fetch ' + res.status);
+        return res.json().then(function(file) {
+          ghFileSha = file.sha;
+          return JSON.parse(atob(file.content.replace(/\n/g, '')));
         });
       });
     }
