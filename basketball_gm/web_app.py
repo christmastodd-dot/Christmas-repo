@@ -547,6 +547,8 @@ def _team_leaders(league):
             "apg": totals["ast"] / gp,
             "spg": totals["stl"] / gp,
             "bpg": totals["blk"] / gp,
+            "fgm": totals["fg_m"] / gp,
+            "fga": totals["fg_a"] / gp,
             "fg_pct": totals["fg_m"] / max(totals["fg_a"], 1) * 100,
             "three_pct": totals["three_m"] / max(totals["three_a"], 1) * 100,
             "ft_pct": totals["ft_m"] / max(totals["ft_a"], 1) * 100,
@@ -556,10 +558,11 @@ def _team_leaders(league):
     cat_labels = {
         "ppg": "Points Per Game", "rpg": "Rebounds Per Game",
         "apg": "Assists Per Game", "spg": "Steals Per Game",
-        "bpg": "Blocks Per Game", "fg_pct": "FG%",
+        "bpg": "Blocks Per Game", "fgm": "FG Made Per Game",
+        "fga": "FG Attempted Per Game", "fg_pct": "FG%",
         "three_pct": "3PT%", "ft_pct": "FT%",
     }
-    for cat in ["ppg", "rpg", "apg", "spg", "bpg", "fg_pct", "three_pct", "ft_pct"]:
+    for cat in ["ppg", "rpg", "apg", "spg", "bpg", "fgm", "fga", "fg_pct", "three_pct", "ft_pct"]:
         is_pct = cat.endswith("_pct")
         sorted_teams = sorted(team_stats, key=lambda x: x[cat], reverse=True)
         categories[cat] = [
