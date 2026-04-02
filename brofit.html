@@ -4894,7 +4894,7 @@
       reader.onload = function(e) {
         var img = new Image();
         img.onload = function() {
-          var maxW = 600, maxH = 600;
+          var maxW = 400, maxH = 400;
           var w = img.width, h = img.height;
           if (w > maxW || h > maxH) {
             var ratio = Math.min(maxW / w, maxH / h);
@@ -4905,7 +4905,7 @@
           canvas.width = w;
           canvas.height = h;
           canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-          giftPendingImage = canvas.toDataURL('image/jpeg', 0.7);
+          giftPendingImage = canvas.toDataURL('image/jpeg', 0.5);
           document.getElementById('gift-preview').innerHTML = '<img src="' + giftPendingImage + '">';
           document.getElementById('gift-file-btn').textContent = 'Change Photo';
         };
@@ -4934,7 +4934,44 @@
       });
 
       closeGiftModal();
-      pushToRoom();
+
+      // Force immediate push and confirm
+      var urls = buildGHUrls();
+      fetch(urls.api + '?ref=' + GH_BRANCH, {
+        headers: { 'Authorization': 'token ' + ghToken, 'Accept': 'application/vnd.github.v3+json' }
+      }).then(function(res) {
+        if (res.status === 404) { ghFileSha = null; return; }
+        if (!res.ok) throw new Error('API ' + res.status);
+        return res.json().then(function(file) { ghFileSha = file.sha; });
+      }).then(function() {
+        // Merge local member data
+        if (!sharedData.members) sharedData.members = {};
+        sharedData.members[userId] = buildMyData();
+
+        var body = {
+          message: 'BroFit gift from ' + userId,
+          content: btoa(unescape(encodeURIComponent(JSON.stringify(sharedData, null, 2)))),
+          branch: GH_BRANCH
+        };
+        if (ghFileSha) body.sha = ghFileSha;
+
+        return fetch(urls.api, {
+          method: 'PUT',
+          headers: { 'Authorization': 'token ' + ghToken, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
+          body: JSON.stringify(body)
+        });
+      }).then(function(res) {
+        if (!res.ok) {
+          return res.json().then(function(j) { throw new Error('Push ' + res.status + ': ' + (j.message || '')); });
+        }
+        return res.json();
+      }).then(function(result) {
+        if (result.content) ghFileSha = result.content.sha;
+        setSyncStatus('online');
+      }).catch(function(err) {
+        console.error('Gift send failed:', err);
+        alert('Gift failed to send: ' + err.message);
+      });
     }
 
     var giftShowing = false;
