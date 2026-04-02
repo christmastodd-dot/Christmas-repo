@@ -4920,11 +4920,9 @@
       var recipients = Object.keys(giftSelectedMembers).filter(function(k) { return giftSelectedMembers[k]; });
       if (recipients.length === 0) { alert('Select at least one crew member'); return; }
 
-      if (!sharedData) sharedData = { members: {} };
-      if (!sharedData.gifts) sharedData.gifts = [];
-
+      var newGifts = [];
       recipients.forEach(function(name) {
-        sharedData.gifts.push({
+        newGifts.push({
           id: 'gift_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
           from: userId,
           to: name,
@@ -4934,26 +4932,39 @@
       });
 
       closeGiftModal();
+      sendGiftWithRetry(newGifts, 0);
+    }
 
-      // Force immediate push and confirm
+    function sendGiftWithRetry(newGifts, attempt) {
+      if (attempt > 3) { alert('Gift failed to send after retries'); return; }
       var urls = buildGHUrls();
+
+      // Fetch latest file + SHA in one call
       fetch(urls.api + '?ref=' + GH_BRANCH, {
         headers: { 'Authorization': 'token ' + ghToken, 'Accept': 'application/vnd.github.v3+json' }
       }).then(function(res) {
-        if (res.status === 404) { ghFileSha = null; return; }
+        if (res.status === 404) return { data: { members: {} }, sha: null };
         if (!res.ok) throw new Error('API ' + res.status);
-        return res.json().then(function(file) { ghFileSha = file.sha; });
-      }).then(function() {
-        // Merge local member data
-        if (!sharedData.members) sharedData.members = {};
-        sharedData.members[userId] = buildMyData();
+        return res.json().then(function(file) {
+          return { data: JSON.parse(atob(file.content)), sha: file.sha };
+        });
+      }).then(function(result) {
+        var latest = result.data;
+        if (!latest.gifts) latest.gifts = [];
+
+        // Add new gifts to latest server data
+        newGifts.forEach(function(g) { latest.gifts.push(g); });
+
+        // Also update our member data
+        if (!latest.members) latest.members = {};
+        latest.members[userId] = buildMyData();
 
         var body = {
           message: 'BroFit gift from ' + userId,
-          content: btoa(unescape(encodeURIComponent(JSON.stringify(sharedData, null, 2)))),
+          content: btoa(unescape(encodeURIComponent(JSON.stringify(latest, null, 2)))),
           branch: GH_BRANCH
         };
-        if (ghFileSha) body.sha = ghFileSha;
+        if (result.sha) body.sha = result.sha;
 
         return fetch(urls.api, {
           method: 'PUT',
@@ -4961,13 +4972,23 @@
           body: JSON.stringify(body)
         });
       }).then(function(res) {
+        if (res.status === 409) {
+          // SHA conflict — retry with fresh data
+          var delay = (attempt + 1) * 1000;
+          setTimeout(function() { sendGiftWithRetry(newGifts, attempt + 1); }, delay);
+          return;
+        }
         if (!res.ok) {
           return res.json().then(function(j) { throw new Error('Push ' + res.status + ': ' + (j.message || '')); });
         }
-        return res.json();
-      }).then(function(result) {
-        if (result.content) ghFileSha = result.content.sha;
-        setSyncStatus('online');
+        return res.json().then(function(result) {
+          if (result.content) ghFileSha = result.content.sha;
+          // Update local sharedData to match what we just pushed
+          if (!sharedData) sharedData = { members: {} };
+          if (!sharedData.gifts) sharedData.gifts = [];
+          newGifts.forEach(function(g) { sharedData.gifts.push(g); });
+          setSyncStatus('online');
+        });
       }).catch(function(err) {
         console.error('Gift send failed:', err);
         alert('Gift failed to send: ' + err.message);
