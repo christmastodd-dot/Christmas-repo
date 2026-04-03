@@ -432,6 +432,8 @@ table th:last-child { border-radius: 0 6px 0 0; }
 /* ---- ROSTER / LEGISLATOR CARDS ---- */
 
 .category-header {
+    display: block;
+    width: 100%;
     font-size: 1rem;
     text-transform: uppercase;
     letter-spacing: 0.08em;

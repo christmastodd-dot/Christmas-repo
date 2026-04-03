@@ -13,11 +13,12 @@
     {% endif %}
 
     {% set categories = ["A Bracket Committee Chair", "B Bracket Committee Chair", "Minority Party", "Wild Card"] %}
+    {% set display_names = {"B Bracket Committee Chair": "B Bracket Committee Chairs"} %}
     {% for cat in categories %}
         {% set cat_legs = legislators|selectattr("category", "equalto", cat)|list %}
         {% if cat_legs %}
         <div class="mb-2">
-            <h2 class="category-header">{{ cat }}</h2>
+            <h2 class="category-header">{{ display_names.get(cat, cat) }}</h2>
             <div class="roster-grid">
                 {% for leg in cat_legs %}
                 <div class="card legislator-card">

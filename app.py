@@ -424,9 +424,8 @@ def leaderboard():
         FROM legislators l
         LEFT JOIN users u ON l.team_id = u.id
         LEFT JOIN scoring_events se ON se.legislator_id = l.id
-        GROUP BY l.id
-        HAVING total_points > 0
-        ORDER BY total_points DESC
+        GROUP BY l.id, l.name, l.headshot_url, l.category, u.team_name
+        ORDER BY total_points DESC, l.name
     ''').fetchall()
 
     return render_template('leaderboard.html', teams=teams, legislators=legislators)
