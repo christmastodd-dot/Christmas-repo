@@ -323,7 +323,7 @@ def logout():
 def dashboard():
     db = get_db()
     team_count = db.execute(
-        'SELECT COUNT(DISTINCT id) FROM users WHERE team_name IS NOT NULL AND team_name != ""'
+        "SELECT COUNT(DISTINCT id) FROM users WHERE team_name IS NOT NULL AND team_name != ''"
     ).fetchone()[0]
     legislator_count = db.execute(
         'SELECT COUNT(*) FROM legislators WHERE team_id IS NOT NULL'
@@ -546,7 +546,7 @@ def admin_manage_legislators():
         'SELECT * FROM legislators WHERE team_id IS NULL ORDER BY name'
     ).fetchall()
     teams = db.execute(
-        'SELECT * FROM users WHERE team_name IS NOT NULL AND team_name != "" ORDER BY team_name'
+        "SELECT * FROM users WHERE team_name IS NOT NULL AND team_name != '' ORDER BY team_name"
     ).fetchall()
     return render_template('admin/manage_legislators.html',
                            legislators=legislators,
