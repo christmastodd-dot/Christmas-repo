@@ -703,18 +703,6 @@ table th:last-child { border-radius: 0 6px 0 0; }
     .roster-grid {
         grid-template-columns: 1fr 1fr;
     }
-
-    /* Scrollable tables */
-    .table-wrap {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        margin: 0 -0.5rem;
-        padding: 0 0.5rem;
-    }
-
-    table {
-        min-width: 480px;
-    }
 }
 
 /* Mobile */
@@ -923,6 +911,24 @@ table th:last-child { border-radius: 0 6px 0 0; }
     div[style*="grid-template-columns"] {
         display: flex !important;
         flex-direction: column !important;
+    }
+
+    /* Tables — no horizontal scroll, ever */
+    table {
+        width: 100%;
+        table-layout: fixed;
+    }
+
+    table th,
+    table td {
+        padding: 0.5rem 0.5rem;
+        font-size: 0.82rem;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+
+    table th {
+        font-size: 0.7rem;
     }
 
     /* Leaderboard rank badge */

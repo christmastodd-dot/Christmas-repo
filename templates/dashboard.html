@@ -33,7 +33,6 @@
 <div class="card">
     <h2>Recent Activity</h2>
     {% if recent_events %}
-        <div class="table-wrap">
         <table>
             <thead>
                 <tr>
@@ -54,7 +53,6 @@
                 {% endfor %}
             </tbody>
         </table>
-        </div>
     {% else %}
         <p class="mt-1" style="opacity:0.6;">No scoring events yet.</p>
     {% endif %}
