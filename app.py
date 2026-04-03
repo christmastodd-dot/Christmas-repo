@@ -356,11 +356,12 @@ def my_team():
 
     if current_user.team_name:
         legislators = db.execute('''
-            SELECT l.*, COALESCE(SUM(se.points), 0) as points
+            SELECT l.id, l.name, l.headshot_url, l.team_id, l.category,
+                   COALESCE(SUM(se.points), 0) as points
             FROM legislators l
             LEFT JOIN scoring_events se ON se.legislator_id = l.id
             WHERE l.team_id = ?
-            GROUP BY l.id
+            GROUP BY l.id, l.name, l.headshot_url, l.team_id, l.category
             ORDER BY l.category, l.name
         ''', (current_user.id,)).fetchall()
         total_points = sum(leg['points'] for leg in legislators)
@@ -384,11 +385,12 @@ def all_teams():
     team_data = []
     for team in teams:
         legislators = db.execute('''
-            SELECT l.*, COALESCE(SUM(se.points), 0) as points
+            SELECT l.id, l.name, l.headshot_url, l.team_id, l.category,
+                   COALESCE(SUM(se.points), 0) as points
             FROM legislators l
             LEFT JOIN scoring_events se ON se.legislator_id = l.id
             WHERE l.team_id = ?
-            GROUP BY l.id
+            GROUP BY l.id, l.name, l.headshot_url, l.team_id, l.category
             ORDER BY l.category, l.name
         ''', (team['id'],)).fetchall()
         total_points = sum(leg['points'] for leg in legislators)
@@ -413,7 +415,7 @@ def leaderboard():
         LEFT JOIN legislators l ON l.team_id = u.id
         LEFT JOIN scoring_events se ON se.legislator_id = l.id
         WHERE u.team_name IS NOT NULL AND u.team_name != ''
-        GROUP BY u.id
+        GROUP BY u.id, u.team_name, u.username
         ORDER BY total_points DESC
     ''').fetchall()
 
@@ -686,11 +688,12 @@ def admin_scoring():
     team_data = []
     for team in teams:
         legislators = db.execute('''
-            SELECT l.*, COALESCE(SUM(se.points), 0) as points
+            SELECT l.id, l.name, l.headshot_url, l.team_id, l.category,
+                   COALESCE(SUM(se.points), 0) as points
             FROM legislators l
             LEFT JOIN scoring_events se ON se.legislator_id = l.id
             WHERE l.team_id = ?
-            GROUP BY l.id
+            GROUP BY l.id, l.name, l.headshot_url, l.team_id, l.category
             ORDER BY l.category, l.name
         ''', (team['id'],)).fetchall()
         team_data.append({'team': team, 'legislators': legislators})
@@ -705,12 +708,13 @@ def admin_scoring():
 def admin_score_legislator(legislator_id):
     db = get_db()
     legislator = db.execute('''
-        SELECT l.*, u.team_name, COALESCE(SUM(se.points), 0) as total_points
+        SELECT l.id, l.name, l.headshot_url, l.team_id, l.category,
+               u.team_name, COALESCE(SUM(se.points), 0) as total_points
         FROM legislators l
         LEFT JOIN users u ON l.team_id = u.id
         LEFT JOIN scoring_events se ON se.legislator_id = l.id
         WHERE l.id = ?
-        GROUP BY l.id
+        GROUP BY l.id, l.name, l.headshot_url, l.team_id, l.category, u.team_name
     ''', (legislator_id,)).fetchone()
 
     if not legislator:
