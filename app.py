@@ -204,9 +204,25 @@ def seed_admin():
         db.commit()
 
 
+import time as _time
+
+def startup_init():
+    """Initialize DB with retries — Render's DB may not be ready immediately."""
+    for attempt in range(5):
+        try:
+            init_db()
+            seed_admin()
+            return
+        except Exception as e:
+            if attempt < 4:
+                print(f"DB init attempt {attempt + 1} failed: {e}. Retrying in 2s...")
+                _time.sleep(2)
+            else:
+                print(f"DB init failed after 5 attempts: {e}")
+                raise
+
 with app.app_context():
-    init_db()
-    seed_admin()
+    startup_init()
 
 
 # ── User model for Flask-Login ────────────────────────────────────
