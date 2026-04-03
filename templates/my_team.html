@@ -13,7 +13,7 @@
     {% endif %}
 
     {% set categories = ["A Bracket Committee Chair", "B Bracket Committee Chair", "Minority Party", "Wild Card"] %}
-    {% set display_names = {"B Bracket Committee Chair": "B Bracket Committee Chairs"} %}
+    {% set display_names = {"A Bracket Committee Chair": "A Bracket or Leadership", "B Bracket Committee Chair": "B Bracket Committee Chairs"} %}
     {% for cat in categories %}
         {% set cat_legs = legislators|selectattr("category", "equalto", cat)|list %}
         {% if cat_legs %}
