@@ -85,6 +85,34 @@ nav .nav-user {
     opacity: 0.8;
 }
 
+nav .nav-divider {
+    display: none;
+}
+
+/* ---- HAMBURGER ---- */
+
+.hamburger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    z-index: 110;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.hamburger span {
+    display: block;
+    width: 24px;
+    height: 2.5px;
+    background: var(--sand-light);
+    border-radius: 2px;
+    transition: transform 0.3s, opacity 0.3s;
+}
+
 /* ---- LAYOUT ---- */
 
 .container {
@@ -567,60 +595,153 @@ table th:last-child { border-radius: 0 6px 0 0; }
 
 /* ---- RESPONSIVE ---- */
 
+/* Tablet */
 @media (max-width: 768px) {
-    nav {
-        padding: 0 0.75rem;
-        height: auto;
-        min-height: 56px;
-        flex-wrap: wrap;
-        gap: 0.25rem;
-        padding-top: 0.5rem;
-        padding-bottom: 0.5rem;
-    }
-
-    nav .brand {
-        font-size: 1rem;
-    }
-
-    nav .nav-links {
-        gap: 0.5rem;
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-
-    nav .nav-links a {
-        font-size: 0.75rem;
-        padding: 0.25rem 0;
-    }
-
     .container, .container-wide {
-        padding: 1.25rem 0.75rem;
+        padding: 1.25rem 1rem;
     }
 
     h1 {
-        font-size: 1.4rem;
+        font-size: 1.5rem;
     }
 
     .stats-grid {
         grid-template-columns: 1fr 1fr;
     }
 
-    /* Scrollable tables on mobile */
+    .roster-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    /* Scrollable tables */
     .table-wrap {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
+        margin: 0 -0.5rem;
+        padding: 0 0.5rem;
     }
 
     table {
-        min-width: 500px;
+        min-width: 480px;
+    }
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+    /* Hamburger nav */
+    .hamburger {
+        display: flex;
     }
 
-    /* Stack roster cards */
+    nav {
+        padding: 0 1rem;
+        height: 56px;
+        position: sticky;
+        top: 0;
+    }
+
+    nav .brand {
+        font-size: 0.95rem;
+    }
+
+    nav .nav-links {
+        display: none;
+        position: fixed;
+        top: 56px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: var(--charcoal);
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        padding: 0.5rem 0;
+        overflow-y: auto;
+        z-index: 200;
+    }
+
+    nav .nav-links.open {
+        display: flex;
+    }
+
+    nav .nav-links a {
+        display: block;
+        padding: 0.9rem 1.5rem;
+        font-size: 1rem;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+        border-bottom-width: 1px;
+        border-bottom-style: solid;
+        border-bottom-color: rgba(255,255,255,0.08);
+    }
+
+    nav .nav-links a:hover,
+    nav .nav-links a.active {
+        background: rgba(255,255,255,0.05);
+        border-bottom-color: rgba(255,255,255,0.08);
+    }
+
+    nav .nav-divider {
+        display: block;
+        height: 1px;
+        background: rgba(255,255,255,0.15);
+        margin: 0.5rem 1.5rem;
+    }
+
+    nav .nav-user {
+        padding: 0.5rem 1.5rem;
+        font-size: 0.85rem;
+        display: block;
+    }
+
+    /* Layout */
+    .container, .container-wide {
+        padding: 1rem 0.75rem;
+    }
+
+    h1 {
+        font-size: 1.3rem;
+    }
+
+    h2 {
+        font-size: 1.15rem;
+    }
+
+    /* Cards */
+    .card {
+        padding: 1rem;
+    }
+
+    /* Stats */
+    .stats-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+    }
+
+    .stat-card {
+        padding: 0.85rem;
+    }
+
+    .stat-card .stat-value {
+        font-size: 1.6rem;
+    }
+
+    /* Roster */
     .roster-grid {
         grid-template-columns: 1fr;
     }
 
-    /* Stack scoring buttons */
+    .legislator-card {
+        padding: 0.85rem;
+    }
+
+    .legislator-photo img,
+    .legislator-photo-placeholder {
+        width: 52px;
+        height: 52px;
+        font-size: 1.2rem;
+    }
+
+    /* Scoring buttons — horizontal list */
     .scoring-buttons {
         flex-direction: column;
     }
@@ -628,11 +749,29 @@ table th:last-child { border-radius: 0 6px 0 0; }
     .scoring-btn {
         flex-direction: row;
         justify-content: space-between;
+        align-items: center;
         min-width: unset;
         width: 100%;
+        padding: 0.85rem 1rem;
+        min-height: 48px;
     }
 
-    /* Smaller feed avatars */
+    .scoring-btn-label {
+        text-align: left;
+    }
+
+    .scoring-btn-points {
+        margin-top: 0;
+        margin-left: 0.5rem;
+        white-space: nowrap;
+    }
+
+    /* Feed */
+    .feed-item {
+        padding: 0.85rem;
+        gap: 0.75rem;
+    }
+
     .feed-avatar,
     .feed-avatar-placeholder {
         width: 40px;
@@ -640,9 +779,87 @@ table th:last-child { border-radius: 0 6px 0 0; }
         font-size: 1rem;
     }
 
-    /* Assignment form stack */
-    div[style*="grid-template-columns:1fr 1fr 1fr"] {
+    .feed-item-main {
+        font-size: 0.9rem;
+    }
+
+    .feed-item-event {
+        font-size: 0.85rem;
+    }
+
+    .feed-item-meta {
+        font-size: 0.8rem;
+    }
+
+    /* Forms — better touch targets */
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        padding: 0.75rem 0.85rem;
+        font-size: 1rem;
+        min-height: 48px;
+    }
+
+    .form-group select {
+        -webkit-appearance: none;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%233A2E2A' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.85rem center;
+        padding-right: 2.5rem;
+    }
+
+    .btn {
+        padding: 0.65rem 1.3rem;
+        font-size: 0.9rem;
+        min-height: 44px;
+    }
+
+    .btn-small {
+        padding: 0.5rem 0.85rem;
+        font-size: 0.8rem;
+        min-height: 40px;
+    }
+
+    /* Admin quick links — wrap nicely */
+    .card .mt-1 {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    /* Multi-column form grids stack on mobile */
+    div[style*="grid-template-columns"] {
         display: flex !important;
+        flex-direction: column !important;
+    }
+
+    /* Leaderboard rank badge */
+    .rank-badge {
+        width: 24px;
+        height: 24px;
+        font-size: 0.7rem;
+    }
+
+    /* Score legislator header */
+    .card[style*="display:flex"][style*="gap:1.5rem"] {
         flex-direction: column;
+        align-items: flex-start !important;
+        gap: 0.75rem !important;
+    }
+
+    /* Alerts */
+    .alert {
+        font-size: 0.85rem;
+        padding: 0.65rem 0.85rem;
+    }
+
+    /* Login page */
+    .login-wrapper {
+        padding: 1.5rem 1rem;
+    }
+
+    .login-card h1 {
+        font-size: 1.5rem;
     }
 }
