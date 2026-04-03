@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Edit User — Admin{% endblock %}
+
+{% block content %}
+<div style="margin-bottom:1rem;">
+    <a href="{{ url_for('admin_manage_users') }}" style="color:var(--maroon); font-size:0.9rem;">&larr; Back to Users</a>
+</div>
+
+<h1>Edit User: {{ user.username }}</h1>
+
+<div class="card">
+    <form method="POST">
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" value="{{ user.username }}" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Password (leave blank to keep current)</label>
+            <input type="password" id="password" name="password" placeholder="Unchanged">
+        </div>
+        <div class="form-group">
+            <label for="team_name">Team Name (leave blank for non-team viewers)</label>
+            <input type="text" id="team_name" name="team_name" value="{{ user.team_name or '' }}">
+        </div>
+        <div class="form-group">
+            <label>
+                <input type="checkbox" name="is_admin" value="1" {% if user.is_admin %}checked{% endif %}> Admin privileges
+            </label>
+        </div>
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+    </form>
+</div>
+{% endblock %}

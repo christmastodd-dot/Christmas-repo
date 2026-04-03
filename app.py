@@ -338,6 +338,50 @@ def admin_delete_user(user_id):
     return redirect(url_for('admin_manage_users'))
 
 
+@app.route('/admin/users/<int:user_id>/edit', methods=['GET', 'POST'])
+@admin_required
+def admin_edit_user(user_id):
+    db = get_db()
+    user = db.execute('SELECT * FROM users WHERE id = ?', (user_id,)).fetchone()
+    if not user:
+        flash('User not found.', 'error')
+        return redirect(url_for('admin_manage_users'))
+
+    if request.method == 'POST':
+        username = request.form.get('username', '').strip()
+        password = request.form.get('password', '').strip()
+        team_name = request.form.get('team_name', '').strip() or None
+        is_admin = request.form.get('is_admin') == '1'
+
+        if not username:
+            flash('Username is required.', 'error')
+            return redirect(url_for('admin_edit_user', user_id=user_id))
+
+        # Check for duplicate username (excluding this user)
+        existing = db.execute(
+            'SELECT id FROM users WHERE username = ? AND id != ?', (username, user_id)
+        ).fetchone()
+        if existing:
+            flash(f'Username "{username}" already taken.', 'error')
+            return redirect(url_for('admin_edit_user', user_id=user_id))
+
+        if password:
+            db.execute(
+                'UPDATE users SET username = ?, password_hash = ?, team_name = ?, is_admin = ? WHERE id = ?',
+                (username, generate_password_hash(password), team_name, int(is_admin), user_id)
+            )
+        else:
+            db.execute(
+                'UPDATE users SET username = ?, team_name = ?, is_admin = ? WHERE id = ?',
+                (username, team_name, int(is_admin), user_id)
+            )
+        db.commit()
+        flash(f'User "{username}" updated.', 'success')
+        return redirect(url_for('admin_manage_users'))
+
+    return render_template('admin/edit_user.html', user=user)
+
+
 # ── Admin legislator routes ───────────────────────────────────────
 
 @app.route('/admin/legislators')
