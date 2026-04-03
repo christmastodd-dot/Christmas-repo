@@ -12,7 +12,7 @@ from basketball_gm.team import Team
 
 # ── Simulation constants ────────────────────────────────────────────
 
-POSSESSIONS_PER_GAME = 100       # per team (~200 total)
+POSSESSIONS_PER_GAME = 84        # per team (~168 total)
 HOME_COURT_BONUS = 0.025         # +2.5% shooting at home
 
 # Base percentages (before player rating modifiers)
@@ -33,8 +33,45 @@ BENCH_MINUTES_POOL = 240.0 - (5 * STARTER_MINUTES)  # 75 min split among bench
 
 # Stat generation modifiers
 REBOUND_CHANCE_OFFENSIVE = 0.25  # 25% of missed shots are offensive rebounds
-STEAL_CHANCE_PER_TO = 0.55       # what fraction of turnovers are steals
-BLOCK_CHANCE_PER_MISS = 0.18     # base block rate on missed 2pt attempts
+REBOUND_RECOVERY_RATE = 0.72     # only ~72% of misses become tracked rebounds (rest out of bounds etc.)
+STEAL_CHANCE_PER_TO = 0.28       # what fraction of turnovers are steals
+BLOCK_CHANCE_PER_MISS = 0.17     # base block rate on missed 2pt attempts
+
+
+# ── Per-player tendency system ─────────────────────────────────────
+# Deterministic random multipliers seeded by player ID.
+# Creates persistent variation: some players are high-volume scorers,
+# elite rebounders, or shot-blocking specialists independent of ratings.
+
+_tendency_cache: dict[tuple[int, str], float] = {}
+
+
+def _player_tendency(player_id: int, category: str, low: float, high: float) -> float:
+    """Get a deterministic tendency multiplier for a player+category.
+
+    Seeded by player_id so it's consistent across all games but
+    different per player. Heavily right-skewed: 75% of players cluster
+    in the bottom third of the range, 15% are above-average, and 10%
+    are true outliers. This ensures only 3-5 players in any given stat
+    category truly dominate league-wide.
+    """
+    key = (player_id, category)
+    if key in _tendency_cache:
+        return _tendency_cache[key]
+    rng = random.Random(player_id * 7919 + hash(category))
+    span = high - low
+    roll = rng.random()
+    if roll < 0.10:
+        # Elite outlier (~10%): top quarter of range
+        val = low + span * rng.uniform(0.70, 1.0)
+    elif roll < 0.25:
+        # Above-average (~15%): middle of range
+        val = low + span * rng.uniform(0.35, 0.65)
+    else:
+        # Majority (~75%): bottom third, clustered
+        val = low + span * (rng.uniform(0, 0.35) + rng.uniform(0, 0.35)) / 2
+    _tendency_cache[key] = val
+    return val
 
 
 @dataclass
@@ -291,27 +328,27 @@ def _simulate_possessions(
     minute_weights = [offense_minutes[pid] for pid in active_ids]
 
     # Usage weights (who handles the ball / initiates possessions).
-    # Heavily favor passing so elite PGs dominate ball-handling → more assists.
-    # Power of 2.0 creates ~4x handle rate for 90-passing vs 45-passing.
+    # Playmaking tendency (0.25-2.5) creates dominant assist leaders (10+ APG).
     usage_weights = []
     for pid in active_ids:
         p = offense_players[pid]
         raw = (p.ratings["passing"] * 0.55 + p.ratings["basketball_iq"] * 0.25
                + p.ratings["shooting"] * 0.20)
-        usage = offense_minutes[pid] * (raw ** 2.0)
+        tendency = _player_tendency(pid, "playmaking", 0.3, 2.0)
+        usage = offense_minutes[pid] * (raw ** 2.0) * tendency
         usage_weights.append(usage)
 
     # Scoring weights: shooting + athleticism, power-scaled.
-    # Power of 2.2 creates strong separation: a 90-rated scorer gets
-    # ~3x the shot attempts of a 55-rated role player per minute.
-    # Combined with minutes, this produces realistic 25-33 PPG for stars
-    # and 8-15 PPG for role players.
+    # Each player also has a "scoring tendency" (0.5-1.7) that represents
+    # their usage rate — some stars are high-volume (1.5+), others efficient
+    # but lower usage. This creates the #1-vs-#10 PPG spread.
     scoring_weights = []
     for pid in active_ids:
         p = offense_players[pid]
         score_ability = (p.ratings["shooting"] * 0.6 + p.ratings["athleticism"] * 0.3
                          + p.ratings["basketball_iq"] * 0.1)
-        scoring = offense_minutes[pid] * (score_ability ** 2.2)
+        tendency = _player_tendency(pid, "scoring", 0.3, 2.0)
+        scoring = offense_minutes[pid] * (score_ability ** 2.0) * tendency
         scoring_weights.append(scoring)
 
     home_bonus = HOME_COURT_BONUS if is_home else 0.0
@@ -340,7 +377,7 @@ def _simulate_possessions(
         athleticism = handler.ratings["athleticism"] / 100.0
 
         # Assist chance: targets ~70% of FGM being assisted (NBA-like)
-        assist_chance = 0.42 + 0.20 * (handler.ratings["passing"] / 100.0)
+        assist_chance = 0.36 + 0.18 * (handler.ratings["passing"] / 100.0)
         is_assisted = r.random() < assist_chance
         if is_assisted:
             # Pick a different scorer — use scoring weights for star separation
@@ -454,26 +491,29 @@ def _award_rebounds(
     if total_misses == 0:
         return
 
+    # Not every miss becomes a tracked rebound (some go out of bounds etc.)
+    tracked_misses = int(total_misses * REBOUND_RECOVERY_RATE)
+
     # Defensive rebounds (~75% of total)
     def_reb_count = 0
     off_reb_count = 0
-    for _ in range(total_misses):
+    for _ in range(tracked_misses):
         if r.random() < REBOUND_CHANCE_OFFENSIVE:
             off_reb_count += 1
         else:
             def_reb_count += 1
 
-    # Award defensive rebounds — linear weighting with moderate position bonus.
-    # Target: top rebounder ~12-13 RPG (NBA-realistic). Spreading boards
-    # across the whole team rather than concentrating on one big man.
+    # Award defensive rebounds — rebound tendency (0.15-2.8) creates glass-cleaners.
+    # Target: #1 ~13 RPG, #10 ~9 RPG.
     def_ids = [pid for pid in def_stats if def_minutes.get(pid, 0) > 0]
     if def_ids and def_reb_count > 0:
         reb_weights = []
         for pid in def_ids:
             p = def_players[pid]
-            raw = p.ratings["rebounding"] * 0.65 + p.ratings["athleticism"] * 0.35
-            pos_bonus = 1.4 if p.position in ("C", "PF") else (0.9 if p.position == "SF" else 0.45)
-            w = raw * def_minutes.get(pid, 0) * pos_bonus
+            raw = p.ratings["rebounding"] * 0.6 + p.ratings["athleticism"] * 0.4
+            pos_bonus = 1.3 if p.position in ("C", "PF") else (0.75 if p.position == "SF" else 0.40)
+            tendency = _player_tendency(pid, "rebounding", 0.15, 2.8)
+            w = raw * def_minutes.get(pid, 0) * pos_bonus * tendency
             reb_weights.append(max(w, 1.0))
         for _ in range(def_reb_count):
             pid = r.choices(def_ids, weights=reb_weights)[0]
@@ -485,9 +525,10 @@ def _award_rebounds(
         reb_weights = []
         for pid in off_ids:
             p = off_players[pid]
-            raw = p.ratings["rebounding"] * 0.65 + p.ratings["athleticism"] * 0.35
-            pos_bonus = 1.4 if p.position in ("C", "PF") else (0.9 if p.position == "SF" else 0.45)
-            w = raw * off_minutes.get(pid, 0) * pos_bonus
+            raw = p.ratings["rebounding"] * 0.6 + p.ratings["athleticism"] * 0.4
+            pos_bonus = 1.3 if p.position in ("C", "PF") else (0.75 if p.position == "SF" else 0.40)
+            tendency = _player_tendency(pid, "rebounding", 0.15, 2.8)
+            w = raw * off_minutes.get(pid, 0) * pos_bonus * tendency
             reb_weights.append(max(w, 1.0))
         for _ in range(off_reb_count):
             pid = r.choices(off_ids, weights=reb_weights)[0]
@@ -527,15 +568,16 @@ def _award_steals_blocks(
     if not def_ids:
         return
 
-    # Steal weights — power-scaled so elite defenders stand out
+    # Steal weights — wide tendency (0.1-5.0) creates steal specialists.
+    # Target: #1 ~2.0 SPG, #10 ~1.5 SPG.
     steal_weights = []
     for pid in def_ids:
         p = def_players[pid]
         raw = (p.ratings["defense"] * 0.5 + p.ratings["athleticism"] * 0.3
                + p.ratings["basketball_iq"] * 0.2)
-        # Guards get more steals than bigs
         pos_bonus = 1.5 if p.position in ("PG", "SG") else (1.0 if p.position == "SF" else 0.7)
-        w = (raw ** 2.0) * def_minutes.get(pid, 0) * pos_bonus
+        tendency = _player_tendency(pid, "steals", 0.1, 5.0)
+        w = (raw ** 2.0) * def_minutes.get(pid, 0) * pos_bonus * (tendency ** 2)
         steal_weights.append(max(w, 1.0))
 
     # Steals
@@ -544,25 +586,48 @@ def _award_steals_blocks(
         pid = r.choices(def_ids, weights=steal_weights)[0]
         def_stats[pid].steals += 1
 
-    # Blocks (from missed 2pt attempts, roughly)
-    two_pt_misses = int(opponent_misses * 0.6)  # ~60% of misses are 2pt
-    num_blocks = 0
-    for _ in range(two_pt_misses):
-        if r.random() < BLOCK_CHANCE_PER_MISS:
-            num_blocks += 1
+    # Blocks — two-source approach for realistic spread.
+    # Source 1: Base team blocks (~2-3 per game), distributed by position/skill.
+    #   This ensures every team's center gets ~1 BPG floor.
+    # Source 2: Per-player elite blocks for standout shot-blockers.
+    #   This adds 1-3 extra BPG for the league's best blockers.
+    # Target: #1 ~3.2 BPG, #10 ~1.4 BPG.
+    two_pt_misses = int(opponent_misses * 0.6)
 
-    # Block weights — power-scaled, heavily favoring bigs
+    # Source 1: Base team blocks (distributed by pool)
+    base_block_rate = 0.03  # ~0.6 blocks per team per game
+    num_base_blocks = 0
+    for _ in range(two_pt_misses):
+        if r.random() < base_block_rate:
+            num_base_blocks += 1
+
     block_weights = []
     for pid in def_ids:
         p = def_players[pid]
-        pos_bonus = 2.5 if p.position == "C" else (1.8 if p.position == "PF" else (0.8 if p.position == "SF" else 0.3))
-        raw = p.ratings["defense"] * 0.5 + p.ratings["athleticism"] * 0.5
-        w = (raw ** 2.0) * def_minutes.get(pid, 0) * pos_bonus
-        block_weights.append(max(w, 1.0))
+        pos_mult = 3.0 if p.position == "C" else (0.6 if p.position == "PF" else (0.04 if p.position == "SF" else 0.005))
+        raw = (p.ratings["defense"] * 0.5 + p.ratings["athleticism"] * 0.5) / 100.0
+        w = (raw ** 1.5) * def_minutes.get(pid, 0) * pos_mult
+        block_weights.append(max(w, 0.01))
 
-    for _ in range(num_blocks):
+    for _ in range(num_base_blocks):
         pid = r.choices(def_ids, weights=block_weights)[0]
         def_stats[pid].blocks += 1
+
+    # Source 2: Per-player elite blocks (only significant for standout blockers)
+    for pid in def_ids:
+        p = def_players[pid]
+        pos_mult = 1.0 if p.position == "C" else (0.15 if p.position == "PF" else 0.0)
+        if pos_mult == 0.0:
+            continue
+        raw = (p.ratings["defense"] * 0.5 + p.ratings["athleticism"] * 0.5) / 100.0
+        tendency = _player_tendency(pid, "blocks", 0.01, 10.0)
+        minutes_frac = def_minutes.get(pid, 0) / 240.0
+        # Only high-tendency players generate meaningful extra blocks
+        block_rate = 0.035 * raw * pos_mult * tendency * minutes_frac * 5.0
+        block_rate = min(block_rate, 0.15)
+        for _ in range(two_pt_misses):
+            if r.random() < block_rate:
+                def_stats[pid].blocks += 1
 
 
 # ── Utility: accumulate game stats into season stats ────────────────
