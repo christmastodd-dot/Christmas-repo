@@ -468,7 +468,7 @@ def feed():
 @app.route('/rules')
 @admin_required
 def rules():
-    return render_template('rules.html', scoring_actions=SCORING_ACTIONS)
+    return render_template('rules.html', scoring_actions=sorted(SCORING_ACTIONS, key=lambda x: x[1]))
 
 
 # ── Admin routes ──────────────────────────────────────────────────
