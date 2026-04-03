@@ -92,6 +92,51 @@ export function getStreak(habitId) {
   return streak
 }
 
+// --- People & Interactions ---
+
+export function getPeople() {
+  return loadData().people || []
+}
+
+export function addPerson(person) {
+  const data = loadData()
+  data.people.push(person)
+  saveData(data)
+}
+
+export function deletePerson(personId) {
+  const data = loadData()
+  data.people = data.people.filter((p) => p.id !== personId)
+  // Also remove their interactions
+  data.interactions = (data.interactions || []).filter((i) => i.personId !== personId)
+  saveData(data)
+}
+
+export function addInteraction(interaction) {
+  const data = loadData()
+  if (!data.interactions) data.interactions = []
+  data.interactions.push(interaction)
+  saveData(data)
+}
+
+export function getInteractionsForPerson(personId) {
+  const data = loadData()
+  return (data.interactions || []).filter((i) => i.personId === personId)
+}
+
+export function getLastInteraction(personId) {
+  const interactions = getInteractionsForPerson(personId)
+  if (interactions.length === 0) return null
+  return interactions.sort((a, b) => b.date.localeCompare(a.date))[0]
+}
+
+export function daysSince(dateStr) {
+  if (!dateStr) return Infinity
+  const then = new Date(dateStr + 'T12:00:00')
+  const now = new Date()
+  return Math.floor((now - then) / (1000 * 60 * 60 * 24))
+}
+
 export function getWeekCompletionCount(habitId) {
   const data = loadData()
   const completions = data.completions || {}
