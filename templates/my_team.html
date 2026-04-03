@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}My Team — Fantasy Legislature League{% endblock %}
+
+{% block content %}
+<h1>My Team</h1>
+
+{% if current_user.team_name %}
+    <p class="mb-2" style="font-size:1.1rem;">Team: <strong class="text-maroon">{{ current_user.team_name }}</strong></p>
+    <p style="opacity:0.6;">No legislators drafted yet. Check back after the draft!</p>
+{% else %}
+    <div class="card">
+        <p>You are not assigned to a team. Contact the league admin for a team assignment.</p>
+    </div>
+{% endif %}
+{% endblock %}
