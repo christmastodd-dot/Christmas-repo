@@ -22,8 +22,8 @@
   <line x1="256" y1="100" x2="256" y2="80" stroke="#D4A574" stroke-width="6" stroke-linecap="round"/>
   <!-- Star on top -->
   <polygon points="256,62 260,72 271,72 262,78 265,88 256,82 247,88 250,78 241,72 252,72" fill="#B8860B"/>
-  <!-- FLL text -->
-  <text x="256" y="400" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="72" font-weight="800" letter-spacing="8" fill="#D4A574">FLL</text>
+  <!-- FAIL text -->
+  <text x="256" y="400" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="72" font-weight="800" letter-spacing="8" fill="#D4A574">FAIL</text>
   <!-- Subtitle -->
   <text x="256" y="440" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="28" font-weight="600" letter-spacing="3" fill="#E4C49A" opacity="0.7">HAWAII</text>
 </svg>
