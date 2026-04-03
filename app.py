@@ -13,6 +13,19 @@ from flask_login import (
 )
 from werkzeug.security import generate_password_hash, check_password_hash
 
+SCORING_ACTIONS = [
+    ('No vote w/ floor remarks', 25),
+    ('Floor speech >5 min', 500),
+    ('Absent for session day', 1000),
+    ('Passed legislation through house', 100),
+    ('Bill dies with floor vote', 5000),
+    ('Cause of point of order', 1000),
+    ('Bill gets recommitted', 2500),
+    ('Bill gets floor amendment', 500),
+    ('Failed floor amendment', 1000),
+    ('Ruling request on conflict of interest', 500),
+]
+
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-change-me')
 
@@ -384,6 +397,103 @@ def admin_delete_legislator(legislator_id):
     db.commit()
     flash('Legislator deleted.', 'success')
     return redirect(url_for('admin_manage_legislators'))
+
+
+# ── Admin scoring routes ──────────────────────────────────────────
+
+@app.route('/admin/scoring')
+@admin_required
+def admin_scoring():
+    db = get_db()
+    teams = db.execute('''
+        SELECT u.id, u.team_name, u.username
+        FROM users u
+        WHERE u.team_name IS NOT NULL AND u.team_name != ''
+        ORDER BY u.team_name
+    ''').fetchall()
+
+    team_data = []
+    for team in teams:
+        legislators = db.execute('''
+            SELECT l.*, COALESCE(SUM(se.points), 0) as points
+            FROM legislators l
+            LEFT JOIN scoring_events se ON se.legislator_id = l.id
+            WHERE l.team_id = ?
+            GROUP BY l.id
+            ORDER BY l.category, l.name
+        ''', (team['id'],)).fetchall()
+        team_data.append({'team': team, 'legislators': legislators})
+
+    return render_template('admin/scoring.html',
+                           team_data=team_data,
+                           scoring_actions=SCORING_ACTIONS)
+
+
+@app.route('/admin/scoring/legislator/<int:legislator_id>')
+@admin_required
+def admin_score_legislator(legislator_id):
+    db = get_db()
+    legislator = db.execute('''
+        SELECT l.*, u.team_name, COALESCE(SUM(se.points), 0) as total_points
+        FROM legislators l
+        LEFT JOIN users u ON l.team_id = u.id
+        LEFT JOIN scoring_events se ON se.legislator_id = l.id
+        WHERE l.id = ?
+        GROUP BY l.id
+    ''', (legislator_id,)).fetchone()
+
+    if not legislator:
+        flash('Legislator not found.', 'error')
+        return redirect(url_for('admin_scoring'))
+
+    events = db.execute('''
+        SELECT * FROM scoring_events
+        WHERE legislator_id = ?
+        ORDER BY created_at DESC
+    ''', (legislator_id,)).fetchall()
+
+    return render_template('admin/score_legislator.html',
+                           legislator=legislator,
+                           events=events,
+                           scoring_actions=SCORING_ACTIONS)
+
+
+@app.route('/admin/scoring/legislator/<int:legislator_id>/add', methods=['POST'])
+@admin_required
+def admin_add_score(legislator_id):
+    event_type = request.form.get('event_type', '')
+    points = request.form.get('points', type=int)
+
+    if not event_type or points is None:
+        flash('Invalid scoring event.', 'error')
+        return redirect(url_for('admin_score_legislator', legislator_id=legislator_id))
+
+    db = get_db()
+    db.execute(
+        'INSERT INTO scoring_events (legislator_id, event_type, points) VALUES (?, ?, ?)',
+        (legislator_id, event_type, points)
+    )
+    db.commit()
+
+    leg = db.execute('SELECT name FROM legislators WHERE id = ?', (legislator_id,)).fetchone()
+    flash(f'+{points:,} pts to {leg["name"]} for "{event_type}".', 'success')
+    return redirect(url_for('admin_score_legislator', legislator_id=legislator_id))
+
+
+@app.route('/admin/scoring/event/<int:event_id>/undo', methods=['POST'])
+@admin_required
+def admin_undo_score(event_id):
+    db = get_db()
+    event = db.execute('SELECT * FROM scoring_events WHERE id = ?', (event_id,)).fetchone()
+    if not event:
+        flash('Event not found.', 'error')
+        return redirect(url_for('admin_scoring'))
+
+    legislator_id = event['legislator_id']
+    db.execute('DELETE FROM scoring_events WHERE id = ?', (event_id,))
+    db.commit()
+    flash(f'Undid "{event["event_type"]}" ({event["points"]:,} pts).', 'success')
+    return redirect(url_for('admin_score_legislator', legislator_id=legislator_id))
 
 
 # ── Run ───────────────────────────────────────────────────────────

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Scoring — Admin{% endblock %}
+
+{% block content %}
+<h1>Award Points</h1>
+<p class="mb-2" style="font-size:0.9rem; opacity:0.7;">Click a legislator to open their scoring panel.</p>
+
+{% for td in team_data %}
+<div class="card mb-2">
+    <h2>{{ td.team.team_name }}</h2>
+    {% if td.legislators %}
+    <div class="roster-grid">
+        {% for leg in td.legislators %}
+        <a href="{{ url_for('admin_score_legislator', legislator_id=leg.id) }}" class="legislator-card card" style="text-decoration:none; color:inherit;">
+            <div class="legislator-photo">
+                {% if leg.headshot_url %}
+                    <img src="{{ leg.headshot_url }}" alt="{{ leg.name }}">
+                {% else %}
+                    <div class="legislator-photo-placeholder">{{ leg.name[0] }}</div>
+                {% endif %}
+            </div>
+            <div class="legislator-info">
+                <h3>{{ leg.name }}</h3>
+                <div style="font-size:0.8rem; opacity:0.6;">{{ leg.category }}</div>
+                <div class="legislator-points">{{ "{:,}".format(leg.points or 0) }} pts</div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+        <p style="opacity:0.6;">No legislators drafted.</p>
+    {% endif %}
+</div>
+{% endfor %}
+
+{% if not team_data %}
+<div class="card">
+    <p style="opacity:0.6;">No teams with drafted legislators yet.</p>
+</div>
+{% endif %}
+{% endblock %}
