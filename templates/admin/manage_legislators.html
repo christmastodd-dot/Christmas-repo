@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block title %}Manage Legislators — Admin{% endblock %}
+
+{% block content %}
+<h1>Manage Legislators</h1>
+
+<div class="card mb-2">
+    <h2>Add Legislator</h2>
+    <form method="POST" action="{{ url_for('admin_create_legislator') }}">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="headshot_url">Headshot URL</label>
+                <input type="url" id="headshot_url" name="headshot_url" placeholder="https://...">
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Add Legislator</button>
+    </form>
+</div>
+
+<div class="card mb-2">
+    <h2>Assign Legislators to Teams</h2>
+    <p class="mb-2" style="font-size:0.9rem; opacity:0.7;">Select a legislator, choose a team and roster category, then assign.</p>
+    <form method="POST" action="{{ url_for('admin_assign_legislator') }}">
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem;">
+            <div class="form-group">
+                <label for="legislator_id">Legislator</label>
+                <select id="legislator_id" name="legislator_id" required>
+                    <option value="">— Select —</option>
+                    {% for leg in unassigned %}
+                        <option value="{{ leg.id }}">{{ leg.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="team_id">Team</label>
+                <select id="team_id" name="team_id" required>
+                    <option value="">— Select —</option>
+                    {% for team in teams %}
+                        <option value="{{ team.id }}">{{ team.team_name }} ({{ team.username }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="category">Category</label>
+                <select id="category" name="category" required>
+                    <option value="">— Select —</option>
+                    <option value="A Bracket Committee Chair">A Bracket Committee Chair</option>
+                    <option value="B Bracket Committee Chair">B Bracket Committee Chair</option>
+                    <option value="Minority Party">Minority Party</option>
+                    <option value="Wild Card">Wild Card</option>
+                </select>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Assign</button>
+    </form>
+</div>
+
+<div class="card">
+    <h2>All Legislators ({{ legislators|length }})</h2>
+    {% if legislators %}
+    <table>
+        <thead>
+            <tr>
+                <th style="width:50px;"></th>
+                <th>Name</th>
+                <th>Team</th>
+                <th>Category</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for leg in legislators %}
+            <tr>
+                <td>
+                    {% if leg.headshot_url %}
+                        <img src="{{ leg.headshot_url }}" alt="" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
+                    {% else %}
+                        <div style="width:40px; height:40px; border-radius:50%; background:var(--sand-light); display:flex; align-items:center; justify-content:center; font-weight:700; color:var(--maroon); font-size:0.8rem;">{{ leg.name[0] }}</div>
+                    {% endif %}
+                </td>
+                <td><strong>{{ leg.name }}</strong></td>
+                <td>{{ leg.team_name or '—' }}</td>
+                <td>{{ leg.category or '—' }}</td>
+                <td>
+                    {% if leg.team_id %}
+                    <form method="POST" action="{{ url_for('admin_unassign_legislator', legislator_id=leg.id) }}" style="display:inline;">
+                        <button type="submit" class="btn btn-secondary btn-small">Unassign</button>
+                    </form>
+                    {% endif %}
+                    <form method="POST" action="{{ url_for('admin_delete_legislator', legislator_id=leg.id) }}" style="display:inline;"
+                          onsubmit="return confirm('Delete {{ leg.name }}?')">
+                        <button type="submit" class="btn btn-danger btn-small">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p class="mt-1" style="opacity:0.6;">No legislators added yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

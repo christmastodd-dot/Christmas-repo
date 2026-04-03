@@ -189,7 +189,24 @@ def dashboard():
 @app.route('/my-team')
 @login_required
 def my_team():
-    return render_template('my_team.html')
+    db = get_db()
+    legislators = []
+    total_points = 0
+
+    if current_user.team_name:
+        legislators = db.execute('''
+            SELECT l.*, COALESCE(SUM(se.points), 0) as points
+            FROM legislators l
+            LEFT JOIN scoring_events se ON se.legislator_id = l.id
+            WHERE l.team_id = ?
+            GROUP BY l.id
+            ORDER BY l.category, l.name
+        ''', (current_user.id,)).fetchall()
+        total_points = sum(leg['points'] for leg in legislators)
+
+    return render_template('my_team.html',
+                           legislators=legislators,
+                           total_points=total_points)
 
 
 @app.route('/leaderboard')
@@ -257,6 +274,116 @@ def admin_delete_user(user_id):
     db.commit()
     flash('User deleted.', 'success')
     return redirect(url_for('admin_manage_users'))
+
+
+# ── Admin legislator routes ───────────────────────────────────────
+
+@app.route('/admin/legislators')
+@admin_required
+def admin_manage_legislators():
+    db = get_db()
+    legislators = db.execute('''
+        SELECT l.*, u.team_name
+        FROM legislators l
+        LEFT JOIN users u ON l.team_id = u.id
+        ORDER BY l.name
+    ''').fetchall()
+    unassigned = db.execute(
+        'SELECT * FROM legislators WHERE team_id IS NULL ORDER BY name'
+    ).fetchall()
+    teams = db.execute(
+        'SELECT * FROM users WHERE team_name IS NOT NULL AND team_name != "" ORDER BY team_name'
+    ).fetchall()
+    return render_template('admin/manage_legislators.html',
+                           legislators=legislators,
+                           unassigned=unassigned,
+                           teams=teams)
+
+
+@app.route('/admin/legislators/create', methods=['POST'])
+@admin_required
+def admin_create_legislator():
+    name = request.form.get('name', '').strip()
+    headshot_url = request.form.get('headshot_url', '').strip() or None
+
+    if not name:
+        flash('Legislator name is required.', 'error')
+        return redirect(url_for('admin_manage_legislators'))
+
+    db = get_db()
+    db.execute(
+        'INSERT INTO legislators (name, headshot_url) VALUES (?, ?)',
+        (name, headshot_url)
+    )
+    db.commit()
+    flash(f'Legislator "{name}" added.', 'success')
+    return redirect(url_for('admin_manage_legislators'))
+
+
+@app.route('/admin/legislators/assign', methods=['POST'])
+@admin_required
+def admin_assign_legislator():
+    legislator_id = request.form.get('legislator_id', type=int)
+    team_id = request.form.get('team_id', type=int)
+    category = request.form.get('category', '').strip()
+
+    if not legislator_id or not team_id or not category:
+        flash('All fields are required for assignment.', 'error')
+        return redirect(url_for('admin_manage_legislators'))
+
+    db = get_db()
+
+    # Validate roster limits
+    CATEGORY_LIMITS = {
+        'A Bracket Committee Chair': 1,
+        'B Bracket Committee Chair': 2,
+        'Minority Party': 1,
+        'Wild Card': 1,
+    }
+    limit = CATEGORY_LIMITS.get(category, 0)
+    current_count = db.execute(
+        'SELECT COUNT(*) FROM legislators WHERE team_id = ? AND category = ?',
+        (team_id, category)
+    ).fetchone()[0]
+
+    if current_count >= limit:
+        team = db.execute('SELECT team_name FROM users WHERE id = ?', (team_id,)).fetchone()
+        flash(f'{team["team_name"]} already has {limit} {category} slot(s) filled.', 'error')
+        return redirect(url_for('admin_manage_legislators'))
+
+    db.execute(
+        'UPDATE legislators SET team_id = ?, category = ? WHERE id = ?',
+        (team_id, category, legislator_id)
+    )
+    db.commit()
+
+    leg = db.execute('SELECT name FROM legislators WHERE id = ?', (legislator_id,)).fetchone()
+    team = db.execute('SELECT team_name FROM users WHERE id = ?', (team_id,)).fetchone()
+    flash(f'{leg["name"]} assigned to {team["team_name"]} as {category}.', 'success')
+    return redirect(url_for('admin_manage_legislators'))
+
+
+@app.route('/admin/legislators/<int:legislator_id>/unassign', methods=['POST'])
+@admin_required
+def admin_unassign_legislator(legislator_id):
+    db = get_db()
+    db.execute(
+        'UPDATE legislators SET team_id = NULL, category = NULL WHERE id = ?',
+        (legislator_id,)
+    )
+    db.commit()
+    flash('Legislator unassigned.', 'success')
+    return redirect(url_for('admin_manage_legislators'))
+
+
+@app.route('/admin/legislators/<int:legislator_id>/delete', methods=['POST'])
+@admin_required
+def admin_delete_legislator(legislator_id):
+    db = get_db()
+    db.execute('DELETE FROM legislators WHERE id = ?', (legislator_id,))
+    db.commit()
+    flash('Legislator deleted.', 'success')
+    return redirect(url_for('admin_manage_legislators'))
 
 
 # ── Run ───────────────────────────────────────────────────────────

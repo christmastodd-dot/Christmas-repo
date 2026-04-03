@@ -356,6 +356,64 @@ table th:last-child { border-radius: 0 6px 0 0; }
     margin-top: 0.25rem;
 }
 
+/* ---- ROSTER / LEGISLATOR CARDS ---- */
+
+.category-header {
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--charcoal);
+    border-left: 4px solid var(--maroon);
+    padding-left: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.roster-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1rem;
+}
+
+.legislator-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+}
+
+.legislator-photo img {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--maroon);
+}
+
+.legislator-photo-placeholder {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--sand-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.4rem;
+    color: var(--maroon);
+    border: 3px solid var(--maroon);
+}
+
+.legislator-info h3 {
+    margin-bottom: 0.15rem;
+    font-size: 1rem;
+}
+
+.legislator-points {
+    font-weight: 700;
+    color: var(--gold);
+    font-size: 0.95rem;
+}
+
 /* ---- UTILITY ---- */
 
 .text-center { text-align: center; }

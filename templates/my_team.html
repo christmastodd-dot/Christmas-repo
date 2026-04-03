@@ -2,12 +2,51 @@
 {% block title %}My Team — Fantasy Legislature League{% endblock %}
 
 {% block content %}
-<h1>My Team</h1>
-
 {% if current_user.team_name %}
-    <p class="mb-2" style="font-size:1.1rem;">Team: <strong class="text-maroon">{{ current_user.team_name }}</strong></p>
-    <p style="opacity:0.6;">No legislators drafted yet. Check back after the draft!</p>
+    <h1>{{ current_user.team_name }}</h1>
+
+    {% if total_points > 0 %}
+    <div class="card mb-2" style="display:inline-block;">
+        <span class="stat-value">{{ "{:,}".format(total_points) }}</span>
+        <span class="stat-label" style="margin-left:0.5rem;">Total Points</span>
+    </div>
+    {% endif %}
+
+    {% set categories = ["A Bracket Committee Chair", "B Bracket Committee Chair", "Minority Party", "Wild Card"] %}
+    {% for cat in categories %}
+        {% set cat_legs = legislators|selectattr("category", "equalto", cat)|list %}
+        {% if cat_legs %}
+        <div class="mb-2">
+            <h2 class="category-header">{{ cat }}</h2>
+            <div class="roster-grid">
+                {% for leg in cat_legs %}
+                <div class="card legislator-card">
+                    <div class="legislator-photo">
+                        {% if leg.headshot_url %}
+                            <img src="{{ leg.headshot_url }}" alt="{{ leg.name }}">
+                        {% else %}
+                            <div class="legislator-photo-placeholder">{{ leg.name[0] }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="legislator-info">
+                        <h3>{{ leg.name }}</h3>
+                        <div class="legislator-points">{{ "{:,}".format(leg.points or 0) }} pts</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    {% endfor %}
+
+    {% if not legislators %}
+        <div class="card mt-2">
+            <p style="opacity:0.6;">No legislators drafted yet. Check back after the draft!</p>
+        </div>
+    {% endif %}
+
 {% else %}
+    <h1>My Team</h1>
     <div class="card">
         <p>You are not assigned to a team. Contact the league admin for a team assignment.</p>
     </div>
