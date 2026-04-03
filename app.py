@@ -463,6 +463,14 @@ def feed():
                            has_prev=has_prev)
 
 
+# ── Rules page ────────────────────────────────────────────────────
+
+@app.route('/rules')
+@admin_required
+def rules():
+    return render_template('rules.html', scoring_actions=SCORING_ACTIONS)
+
+
 # ── Admin routes ──────────────────────────────────────────────────
 
 @app.route('/admin/users')

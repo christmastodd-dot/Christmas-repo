@@ -30,6 +30,7 @@
                 <a href="{{ url_for('leaderboard') }}">Leaderboard</a>
                 <a href="{{ url_for('feed') }}">Feed</a>
                 {% if current_user.is_admin %}
+                    <a href="{{ url_for('rules') }}">Rules</a>
                     <a href="{{ url_for('admin_manage_users') }}">Admin</a>
                 {% endif %}
                 <div class="nav-divider"></div>
