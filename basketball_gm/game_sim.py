@@ -12,13 +12,13 @@ from basketball_gm.team import Team
 
 # ── Simulation constants ────────────────────────────────────────────
 
-POSSESSIONS_PER_GAME = 84        # per team (~168 total)
+POSSESSIONS_PER_GAME = 98        # per team (~196 total)
 HOME_COURT_BONUS = 0.025         # +2.5% shooting at home
 
 # Base percentages (before player rating modifiers)
-BASE_TWO_PT_PCT = 0.50
-BASE_THREE_PT_PCT = 0.34
-BASE_FT_PCT = 0.75
+BASE_TWO_PT_PCT = 0.53
+BASE_THREE_PT_PCT = 0.37
+BASE_FT_PCT = 0.78
 
 # Possession outcome weights (before player adjustments)
 BASE_TWO_PT_RATE = 0.40          # % of possessions that are 2pt attempts
@@ -33,8 +33,8 @@ BENCH_MINUTES_POOL = 240.0 - (5 * STARTER_MINUTES)  # 75 min split among bench
 
 # Stat generation modifiers
 REBOUND_CHANCE_OFFENSIVE = 0.25  # 25% of missed shots are offensive rebounds
-REBOUND_RECOVERY_RATE = 0.72     # only ~72% of misses become tracked rebounds (rest out of bounds etc.)
-STEAL_CHANCE_PER_TO = 0.28       # what fraction of turnovers are steals
+REBOUND_RECOVERY_RATE = 0.60     # only ~60% of misses become tracked rebounds (rest out of bounds etc.)
+STEAL_CHANCE_PER_TO = 0.24       # what fraction of turnovers are steals
 BLOCK_CHANCE_PER_MISS = 0.17     # base block rate on missed 2pt attempts
 
 
@@ -334,22 +334,27 @@ def _simulate_possessions(
         p = offense_players[pid]
         raw = (p.ratings["passing"] * 0.55 + p.ratings["basketball_iq"] * 0.25
                + p.ratings["shooting"] * 0.20)
-        tendency = _player_tendency(pid, "playmaking", 0.3, 2.0)
-        usage = offense_minutes[pid] * (raw ** 2.0) * tendency
+        tendency = _player_tendency(pid, "playmaking", 0.35, 1.7)
+        usage = offense_minutes[pid] * (raw ** 1.8) * tendency
         usage_weights.append(usage)
 
-    # Scoring weights: shooting + athleticism, power-scaled.
-    # Each player also has a "scoring tendency" (0.5-1.7) that represents
-    # their usage rate — some stars are high-volume (1.5+), others efficient
-    # but lower usage. This creates the #1-vs-#10 PPG spread.
-    scoring_weights = []
+    # Scoring weights — two tiers:
+    # 1) "iso_weights" for self-created shots (unassisted): concentrated on stars
+    #    with power 1.8 and wide tendency, creating PPG leaders.
+    # 2) "catch_weights" for assisted shots: flatter, spreads scoring to role
+    #    players so team PPG reaches ~115 without inflating star PPG.
+    iso_weights = []
+    catch_weights = []
     for pid in active_ids:
         p = offense_players[pid]
         score_ability = (p.ratings["shooting"] * 0.6 + p.ratings["athleticism"] * 0.3
                          + p.ratings["basketball_iq"] * 0.1)
-        tendency = _player_tendency(pid, "scoring", 0.3, 2.0)
-        scoring = offense_minutes[pid] * (score_ability ** 2.0) * tendency
-        scoring_weights.append(scoring)
+        tendency = _player_tendency(pid, "scoring", 0.4, 1.6)
+        iso = offense_minutes[pid] * (score_ability ** 1.4) * tendency
+        iso_weights.append(iso)
+        # Catch-and-shoot: flatter than iso, spreads scoring to role players
+        catch = offense_minutes[pid] * (score_ability ** 0.5)
+        catch_weights.append(catch)
 
     home_bonus = HOME_COURT_BONUS if is_home else 0.0
     playoff_variance = 1.05 if playoff else 1.0
@@ -380,10 +385,12 @@ def _simulate_possessions(
         assist_chance = 0.36 + 0.18 * (handler.ratings["passing"] / 100.0)
         is_assisted = r.random() < assist_chance
         if is_assisted:
-            # Pick a different scorer — use scoring weights for star separation
+            # Pick a different scorer — use catch_weights (flatter) so assists
+            # spread scoring to role players, keeping team PPG high without
+            # inflating star PPG leaders.
             other_ids = [pid for pid in active_ids if pid != handler_id]
             if other_ids:
-                other_weights = [scoring_weights[active_ids.index(pid)] for pid in other_ids]
+                other_weights = [catch_weights[active_ids.index(pid)] for pid in other_ids]
                 scorer_id = r.choices(other_ids, weights=other_weights)[0]
             else:
                 scorer_id = handler_id
@@ -595,7 +602,7 @@ def _award_steals_blocks(
     two_pt_misses = int(opponent_misses * 0.6)
 
     # Source 1: Base team blocks (distributed by pool)
-    base_block_rate = 0.03  # ~0.6 blocks per team per game
+    base_block_rate = 0.030  # ~0.6 blocks per team per game
     num_base_blocks = 0
     for _ in range(two_pt_misses):
         if r.random() < base_block_rate:
@@ -623,7 +630,7 @@ def _award_steals_blocks(
         tendency = _player_tendency(pid, "blocks", 0.01, 10.0)
         minutes_frac = def_minutes.get(pid, 0) / 240.0
         # Only high-tendency players generate meaningful extra blocks
-        block_rate = 0.035 * raw * pos_mult * tendency * minutes_frac * 5.0
+        block_rate = 0.028 * raw * pos_mult * tendency * minutes_frac * 5.0
         block_rate = min(block_rate, 0.15)
         for _ in range(two_pt_misses):
             if r.random() < block_rate:
