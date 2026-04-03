@@ -370,6 +370,37 @@ def my_team():
                            total_points=total_points)
 
 
+@app.route('/teams')
+@login_required
+def all_teams():
+    db = get_db()
+    teams = db.execute('''
+        SELECT u.id, u.team_name, u.username
+        FROM users u
+        WHERE u.team_name IS NOT NULL AND u.team_name != ''
+        ORDER BY u.team_name
+    ''').fetchall()
+
+    team_data = []
+    for team in teams:
+        legislators = db.execute('''
+            SELECT l.*, COALESCE(SUM(se.points), 0) as points
+            FROM legislators l
+            LEFT JOIN scoring_events se ON se.legislator_id = l.id
+            WHERE l.team_id = ?
+            GROUP BY l.id
+            ORDER BY l.category, l.name
+        ''', (team['id'],)).fetchall()
+        total_points = sum(leg['points'] for leg in legislators)
+        team_data.append({
+            'team': team,
+            'legislators': legislators,
+            'total_points': total_points,
+        })
+
+    return render_template('teams.html', team_data=team_data)
+
+
 @app.route('/leaderboard')
 @login_required
 def leaderboard():

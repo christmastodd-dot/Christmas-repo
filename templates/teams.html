@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}All Teams — Fantasy Legislature League{% endblock %}
+
+{% block content %}
+<h1>All Teams</h1>
+
+{% set categories = ["A Bracket Committee Chair", "B Bracket Committee Chair", "Minority Party", "Wild Card"] %}
+
+{% for td in team_data %}
+<div class="card mb-2">
+    <div style="display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:0.5rem;">
+        <h2 style="margin-bottom:0;">{{ td.team.team_name }}</h2>
+        <span class="legislator-points" style="font-size:1.1rem;">{{ "{:,}".format(td.total_points) }} pts</span>
+    </div>
+
+    {% for cat in categories %}
+        {% set cat_legs = td.legislators|selectattr("category", "equalto", cat)|list %}
+        {% if cat_legs %}
+        <div class="mt-1">
+            <h3 class="category-header">{{ cat }}</h3>
+            <div class="roster-grid">
+                {% for leg in cat_legs %}
+                <div class="card legislator-card">
+                    <div class="legislator-photo">
+                        {% if leg.headshot_url %}
+                            <img src="{{ leg.headshot_url }}" alt="{{ leg.name }}">
+                        {% else %}
+                            <div class="legislator-photo-placeholder">{{ leg.name[0] }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="legislator-info">
+                        <h3>{{ leg.name }}</h3>
+                        <div class="legislator-points">{{ "{:,}".format(leg.points or 0) }} pts</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    {% endfor %}
+
+    {% if not td.legislators %}
+        <p class="mt-1" style="opacity:0.6;">No legislators drafted yet.</p>
+    {% endif %}
+</div>
+{% endfor %}
+
+{% if not team_data %}
+<div class="card">
+    <p style="opacity:0.6;">No teams created yet.</p>
+</div>
+{% endif %}
+{% endblock %}
