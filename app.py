@@ -33,6 +33,10 @@ DATABASE_URL = os.environ.get('DATABASE_URL')
 DATABASE_PATH = os.environ.get('DATABASE_PATH', 'fantasy_legislature.db')
 USE_POSTGRES = DATABASE_URL is not None
 
+# Render provides postgres:// but psycopg2 requires postgresql://
+if USE_POSTGRES and DATABASE_URL.startswith('postgres://'):
+    DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
+
 if USE_POSTGRES:
     import psycopg2
     import psycopg2.extras
@@ -95,6 +99,9 @@ class PgConnectionWrapper:
     def close(self):
         self._conn.close()
 
+    def rollback(self):
+        self._conn.rollback()
+
     def executescript(self, sql):
         cur = self._conn.cursor()
         cur.execute(sql)
@@ -118,6 +125,8 @@ def get_db():
 def close_db(exc):
     db = g.pop('db', None)
     if db is not None:
+        if exc is not None and USE_POSTGRES:
+            db.rollback()
         db.close()
 
 
