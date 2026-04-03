@@ -1,5 +1,6 @@
 import os
 import sqlite3
+import logging
 from datetime import datetime
 from functools import wraps
 
@@ -12,6 +13,9 @@ from flask_login import (
     login_required, current_user
 )
 from werkzeug.security import generate_password_hash, check_password_hash
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 SCORING_ACTIONS = [
     ('No vote w/ floor remarks', 25),
@@ -52,13 +56,21 @@ login_manager.login_message_category = 'error'
 class PgRowWrapper:
     """Makes psycopg2 DictRow behave like sqlite3.Row for templates."""
     def __init__(self, row):
-        self._row = row
+        self._row = dict(row) if row else {}
     def __getitem__(self, key):
+        if isinstance(key, int):
+            return list(self._row.values())[key]
         return self._row[key]
     def __contains__(self, key):
         return key in self._row
+    def __iter__(self):
+        return iter(self._row.values())
+    def __len__(self):
+        return len(self._row)
     def keys(self):
         return self._row.keys()
+    def get(self, key, default=None):
+        return self._row.get(key, default)
 
 
 class PgCursorWrapper:
@@ -208,17 +220,20 @@ import time as _time
 
 def startup_init():
     """Initialize DB with retries — Render's DB may not be ready immediately."""
+    logger.info(f"Starting app. USE_POSTGRES={USE_POSTGRES}")
+    if USE_POSTGRES:
+        logger.info(f"DATABASE_URL starts with: {DATABASE_URL[:25]}...")
     for attempt in range(5):
         try:
             init_db()
             seed_admin()
+            logger.info("DB initialized successfully.")
             return
         except Exception as e:
+            logger.error(f"DB init attempt {attempt + 1} failed: {e}")
             if attempt < 4:
-                print(f"DB init attempt {attempt + 1} failed: {e}. Retrying in 2s...")
                 _time.sleep(2)
             else:
-                print(f"DB init failed after 5 attempts: {e}")
                 raise
 
 with app.app_context():
@@ -254,6 +269,18 @@ def admin_required(f):
             return redirect(url_for('dashboard'))
         return f(*args, **kwargs)
     return decorated
+
+
+# ── Health check ──────────────────────────────────────────────────
+
+@app.route('/health')
+def health():
+    try:
+        db = get_db()
+        count = db.execute('SELECT COUNT(*) FROM users').fetchone()[0]
+        return f'OK - {count} users, postgres={USE_POSTGRES}', 200
+    except Exception as e:
+        return f'ERROR: {e}', 500
 
 
 # ── Auth routes ───────────────────────────────────────────────────
