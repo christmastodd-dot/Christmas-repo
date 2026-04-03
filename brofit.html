@@ -7898,6 +7898,7 @@
             console.error('Initial fetch failed:', err);
             sharedData = { members: {} };
             setSyncStatus('offline');
+            renderAllLeaderboards();
           });
         }
       } else {
