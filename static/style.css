@@ -459,6 +459,100 @@ table th:last-child { border-radius: 0 6px 0 0; }
     margin-top: 0.3rem;
 }
 
+/* ---- RANK BADGES ---- */
+
+.rank-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 0.8rem;
+    background: var(--cream);
+    color: var(--charcoal);
+    border: 2px solid var(--border-subtle);
+}
+
+.rank-badge.rank-1 {
+    background: var(--gold);
+    color: #fff;
+    border-color: var(--gold);
+}
+
+.rank-badge.rank-2 {
+    background: #a0a0a0;
+    color: #fff;
+    border-color: #a0a0a0;
+}
+
+.rank-badge.rank-3 {
+    background: #b87333;
+    color: #fff;
+    border-color: #b87333;
+}
+
+/* ---- ACTIVITY FEED ---- */
+
+.feed-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.feed-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+}
+
+.feed-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--maroon);
+    flex-shrink: 0;
+}
+
+.feed-avatar-placeholder {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--sand-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: var(--maroon);
+    border: 2px solid var(--maroon);
+    flex-shrink: 0;
+}
+
+.feed-item-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.feed-item-main {
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+
+.feed-item-event {
+    font-size: 0.9rem;
+    color: var(--charcoal);
+    margin-top: 0.15rem;
+}
+
+.feed-item-meta {
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
+}
+
 /* ---- UTILITY ---- */
 
 .text-center { text-align: center; }

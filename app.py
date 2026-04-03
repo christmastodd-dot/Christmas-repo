@@ -225,13 +225,62 @@ def my_team():
 @app.route('/leaderboard')
 @login_required
 def leaderboard():
-    return render_template('leaderboard.html')
+    db = get_db()
+    teams = db.execute('''
+        SELECT u.id, u.team_name, u.username,
+               COALESCE(SUM(se.points), 0) as total_points,
+               COUNT(DISTINCT l.id) as legislator_count
+        FROM users u
+        LEFT JOIN legislators l ON l.team_id = u.id
+        LEFT JOIN scoring_events se ON se.legislator_id = l.id
+        WHERE u.team_name IS NOT NULL AND u.team_name != ''
+        GROUP BY u.id
+        ORDER BY total_points DESC
+    ''').fetchall()
+
+    legislators = db.execute('''
+        SELECT l.id, l.name, l.headshot_url, l.category,
+               u.team_name,
+               COALESCE(SUM(se.points), 0) as total_points
+        FROM legislators l
+        LEFT JOIN users u ON l.team_id = u.id
+        LEFT JOIN scoring_events se ON se.legislator_id = l.id
+        GROUP BY l.id
+        HAVING total_points > 0
+        ORDER BY total_points DESC
+    ''').fetchall()
+
+    return render_template('leaderboard.html', teams=teams, legislators=legislators)
 
 
 @app.route('/feed')
 @login_required
 def feed():
-    return render_template('feed.html')
+    db = get_db()
+    page = request.args.get('page', 1, type=int)
+    per_page = 30
+    offset = (page - 1) * per_page
+
+    total = db.execute('SELECT COUNT(*) FROM scoring_events').fetchone()[0]
+    events = db.execute('''
+        SELECT se.id, se.event_type, se.points, se.created_at,
+               l.name as legislator_name, l.headshot_url,
+               u.team_name
+        FROM scoring_events se
+        JOIN legislators l ON se.legislator_id = l.id
+        LEFT JOIN users u ON l.team_id = u.id
+        ORDER BY se.created_at DESC
+        LIMIT ? OFFSET ?
+    ''', (per_page, offset)).fetchall()
+
+    has_next = offset + per_page < total
+    has_prev = page > 1
+
+    return render_template('feed.html',
+                           events=events,
+                           page=page,
+                           has_next=has_next,
+                           has_prev=has_prev)
 
 
 # ── Admin routes ──────────────────────────────────────────────────
