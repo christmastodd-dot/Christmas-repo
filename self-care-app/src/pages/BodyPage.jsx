@@ -1,4 +1,5 @@
 import HabitTracker from '../components/HabitTracker'
+import ActivityLog from '../components/ActivityLog'
 
 export default function BodyPage() {
   return (
@@ -17,6 +18,10 @@ export default function BodyPage() {
       </div>
 
       <HabitTracker pillar="body" color="var(--color-body)" />
+
+      <div className="mt-6">
+        <ActivityLog pillar="body" color="var(--color-body)" />
+      </div>
     </div>
   )
 }

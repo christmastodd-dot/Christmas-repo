@@ -137,6 +137,33 @@ export function daysSince(dateStr) {
   return Math.floor((now - then) / (1000 * 60 * 60 * 24))
 }
 
+// --- Activity Logs ---
+
+export function addLog(log) {
+  const data = loadData()
+  data.logs.push(log)
+  saveData(data)
+}
+
+export function deleteLog(logId) {
+  const data = loadData()
+  data.logs = data.logs.filter((l) => l.id !== logId)
+  saveData(data)
+}
+
+export function getLogsForPillar(pillar, limit) {
+  const data = loadData()
+  const filtered = data.logs
+    .filter((l) => l.pillar === pillar)
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+  return limit ? filtered.slice(0, limit) : filtered
+}
+
+export function getLogsForDate(date) {
+  const data = loadData()
+  return data.logs.filter((l) => l.date === date)
+}
+
 export function getWeekCompletionCount(habitId) {
   const data = loadData()
   const completions = data.completions || {}

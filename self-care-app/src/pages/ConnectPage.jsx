@@ -1,5 +1,6 @@
 import HabitTracker from '../components/HabitTracker'
 import PeopleTracker from '../components/PeopleTracker'
+import ActivityLog from '../components/ActivityLog'
 
 export default function ConnectPage() {
   return (
@@ -21,6 +22,10 @@ export default function ConnectPage() {
 
       <div className="mt-6">
         <HabitTracker pillar="connect" color="var(--color-connect)" />
+      </div>
+
+      <div className="mt-6">
+        <ActivityLog pillar="connect" color="var(--color-connect)" />
       </div>
     </div>
   )

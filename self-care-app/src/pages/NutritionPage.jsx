@@ -1,4 +1,5 @@
 import HabitTracker from '../components/HabitTracker'
+import ActivityLog from '../components/ActivityLog'
 
 export default function NutritionPage() {
   return (
@@ -17,6 +18,10 @@ export default function NutritionPage() {
       </div>
 
       <HabitTracker pillar="nutrition" color="var(--color-nutrition)" />
+
+      <div className="mt-6">
+        <ActivityLog pillar="nutrition" color="var(--color-nutrition)" />
+      </div>
     </div>
   )
 }
