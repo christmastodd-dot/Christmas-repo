@@ -29,7 +29,13 @@ SCORING_ACTIONS = [
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-change-me')
 
-DATABASE = os.environ.get('DATABASE_PATH', 'fantasy_legislature.db')
+DATABASE_URL = os.environ.get('DATABASE_URL')
+DATABASE_PATH = os.environ.get('DATABASE_PATH', 'fantasy_legislature.db')
+USE_POSTGRES = DATABASE_URL is not None
+
+if USE_POSTGRES:
+    import psycopg2
+    import psycopg2.extras
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -39,11 +45,72 @@ login_manager.login_message_category = 'error'
 
 # ── Database helpers ──────────────────────────────────────────────
 
+class PgRowWrapper:
+    """Makes psycopg2 DictRow behave like sqlite3.Row for templates."""
+    def __init__(self, row):
+        self._row = row
+    def __getitem__(self, key):
+        return self._row[key]
+    def __contains__(self, key):
+        return key in self._row
+    def keys(self):
+        return self._row.keys()
+
+
+class PgCursorWrapper:
+    """Wraps a psycopg2 cursor to use ? placeholders and return Row-like objects."""
+    def __init__(self, conn):
+        self._conn = conn
+        self._cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+    def execute(self, sql, params=None):
+        sql = sql.replace('?', '%s')
+        self._cursor.execute(sql, params)
+        return self
+
+    def fetchone(self):
+        row = self._cursor.fetchone()
+        return PgRowWrapper(row) if row else None
+
+    def fetchall(self):
+        return [PgRowWrapper(r) for r in self._cursor.fetchall()]
+
+    def close(self):
+        self._cursor.close()
+
+
+class PgConnectionWrapper:
+    """Wraps psycopg2 connection to provide sqlite-compatible interface."""
+    def __init__(self, conn):
+        self._conn = conn
+
+    def execute(self, sql, params=None):
+        cur = PgCursorWrapper(self._conn)
+        cur.execute(sql, params)
+        return cur
+
+    def commit(self):
+        self._conn.commit()
+
+    def close(self):
+        self._conn.close()
+
+    def executescript(self, sql):
+        cur = self._conn.cursor()
+        cur.execute(sql)
+        self._conn.commit()
+        cur.close()
+
+
 def get_db():
     if 'db' not in g:
-        g.db = sqlite3.connect(DATABASE)
-        g.db.row_factory = sqlite3.Row
-        g.db.execute('PRAGMA foreign_keys = ON')
+        if USE_POSTGRES:
+            conn = psycopg2.connect(DATABASE_URL)
+            g.db = PgConnectionWrapper(conn)
+        else:
+            g.db = sqlite3.connect(DATABASE_PATH)
+            g.db.row_factory = sqlite3.Row
+            g.db.execute('PRAGMA foreign_keys = ON')
     return g.db
 
 
@@ -56,33 +123,62 @@ def close_db(exc):
 
 def init_db():
     db = get_db()
-    db.executescript('''
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT UNIQUE NOT NULL,
-            password_hash TEXT NOT NULL,
-            is_admin INTEGER NOT NULL DEFAULT 0,
-            team_name TEXT,
-            created_at TEXT NOT NULL DEFAULT (datetime('now'))
-        );
+    if USE_POSTGRES:
+        db.executescript('''
+            CREATE TABLE IF NOT EXISTS users (
+                id SERIAL PRIMARY KEY,
+                username TEXT UNIQUE NOT NULL,
+                password_hash TEXT NOT NULL,
+                is_admin INTEGER NOT NULL DEFAULT 0,
+                team_name TEXT,
+                created_at TIMESTAMP NOT NULL DEFAULT NOW()
+            );
 
-        CREATE TABLE IF NOT EXISTS legislators (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            headshot_url TEXT,
-            team_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
-            category TEXT,
-            created_at TEXT NOT NULL DEFAULT (datetime('now'))
-        );
+            CREATE TABLE IF NOT EXISTS legislators (
+                id SERIAL PRIMARY KEY,
+                name TEXT NOT NULL,
+                headshot_url TEXT,
+                team_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+                category TEXT,
+                created_at TIMESTAMP NOT NULL DEFAULT NOW()
+            );
 
-        CREATE TABLE IF NOT EXISTS scoring_events (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            legislator_id INTEGER NOT NULL REFERENCES legislators(id) ON DELETE CASCADE,
-            event_type TEXT NOT NULL,
-            points INTEGER NOT NULL,
-            created_at TEXT NOT NULL DEFAULT (datetime('now'))
-        );
-    ''')
+            CREATE TABLE IF NOT EXISTS scoring_events (
+                id SERIAL PRIMARY KEY,
+                legislator_id INTEGER NOT NULL REFERENCES legislators(id) ON DELETE CASCADE,
+                event_type TEXT NOT NULL,
+                points INTEGER NOT NULL,
+                created_at TIMESTAMP NOT NULL DEFAULT NOW()
+            );
+        ''')
+    else:
+        db.executescript('''
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT UNIQUE NOT NULL,
+                password_hash TEXT NOT NULL,
+                is_admin INTEGER NOT NULL DEFAULT 0,
+                team_name TEXT,
+                created_at TEXT NOT NULL DEFAULT (datetime('now'))
+            );
+
+            CREATE TABLE IF NOT EXISTS legislators (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                headshot_url TEXT,
+                team_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+                category TEXT,
+                created_at TEXT NOT NULL DEFAULT (datetime('now'))
+            );
+
+            CREATE TABLE IF NOT EXISTS scoring_events (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                legislator_id INTEGER NOT NULL REFERENCES legislators(id) ON DELETE CASCADE,
+                event_type TEXT NOT NULL,
+                points INTEGER NOT NULL,
+                created_at TEXT NOT NULL DEFAULT (datetime('now'))
+            );
+        ''')
     db.commit()
 
 
