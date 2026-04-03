@@ -12,7 +12,7 @@ from basketball_gm.team import Team
 
 # ── Simulation constants ────────────────────────────────────────────
 
-POSSESSIONS_PER_GAME = 110       # per team (~220 total)
+POSSESSIONS_PER_GAME = 100       # per team (~200 total)
 HOME_COURT_BONUS = 0.025         # +2.5% shooting at home
 
 # Base percentages (before player rating modifiers)
@@ -118,34 +118,38 @@ class GameResult:
 
 
 def _allocate_minutes(team: Team, extra_minutes: float = 0.0) -> dict[int, float]:
-    """Allocate minutes to players. Returns {player_id: minutes}."""
+    """Allocate minutes to players. Returns {player_id: minutes}.
+
+    Stars get more minutes (up to 38), bench players get fewer,
+    creating realistic usage separation.
+    """
     starters = team.get_starters()
     bench = team.get_bench()
 
     total_minutes = 240.0 + extra_minutes
-    starter_total = min(5 * 40.0, total_minutes * 0.6875)  # starters get ~68.75%
+    starter_total = min(5 * 40.0, total_minutes * 0.72)  # starters get ~72%
     bench_total = total_minutes - starter_total
 
     minutes = {}
 
-    # Distribute starter minutes weighted by overall
+    # Distribute starter minutes weighted by overall (power-scaled)
     if starters:
-        starter_overalls = [max(p.overall, 40) for p in starters]
+        starter_overalls = [max(p.overall, 40) ** 1.5 for p in starters]
         s_total = sum(starter_overalls)
         for p, ovr in zip(starters, starter_overalls):
             share = ovr / s_total
             mins = starter_total * share
-            minutes[p.id] = max(20.0, min(42.0 + extra_minutes * 0.4, mins))
+            minutes[p.id] = max(24.0, min(38.0 + extra_minutes * 0.4, mins))
 
-    # Distribute bench minutes weighted by overall
+    # Distribute bench minutes weighted by overall (power-scaled)
     active_bench = bench[:8]  # max 8 bench players get minutes
     if active_bench:
-        bench_overalls = [max(p.overall, 30) for p in active_bench]
+        bench_overalls = [max(p.overall, 30) ** 1.5 for p in active_bench]
         b_total = sum(bench_overalls)
         for p, ovr in zip(active_bench, bench_overalls):
             share = ovr / b_total
             mins = bench_total * share
-            minutes[p.id] = max(4.0, min(28.0, mins))
+            minutes[p.id] = max(4.0, min(24.0, mins))
 
     # Deep bench gets 0
     for p in bench[8:]:
@@ -286,21 +290,29 @@ def _simulate_possessions(
 
     minute_weights = [offense_minutes[pid] for pid in active_ids]
 
-    # Usage weights: combine minutes with (passing + basketball_iq) for ball-handling
+    # Usage weights (who handles the ball / initiates possessions).
+    # Heavily favor passing so elite PGs dominate ball-handling → more assists.
+    # Power of 2.0 creates ~4x handle rate for 90-passing vs 45-passing.
     usage_weights = []
     for pid in active_ids:
         p = offense_players[pid]
-        usage = (p.ratings["passing"] * 0.4 + p.ratings["basketball_iq"] * 0.3
-                 + p.ratings["shooting"] * 0.3)
-        usage_weights.append(offense_minutes[pid] * usage)
+        raw = (p.ratings["passing"] * 0.55 + p.ratings["basketball_iq"] * 0.25
+               + p.ratings["shooting"] * 0.20)
+        usage = offense_minutes[pid] * (raw ** 2.0)
+        usage_weights.append(usage)
 
-    # Scoring weights: shooting + athleticism
+    # Scoring weights: shooting + athleticism, power-scaled.
+    # Power of 2.2 creates strong separation: a 90-rated scorer gets
+    # ~3x the shot attempts of a 55-rated role player per minute.
+    # Combined with minutes, this produces realistic 25-33 PPG for stars
+    # and 8-15 PPG for role players.
     scoring_weights = []
     for pid in active_ids:
         p = offense_players[pid]
         score_ability = (p.ratings["shooting"] * 0.6 + p.ratings["athleticism"] * 0.3
                          + p.ratings["basketball_iq"] * 0.1)
-        scoring_weights.append(offense_minutes[pid] * score_ability)
+        scoring = offense_minutes[pid] * (score_ability ** 2.2)
+        scoring_weights.append(scoring)
 
     home_bonus = HOME_COURT_BONUS if is_home else 0.0
     playoff_variance = 1.05 if playoff else 1.0
@@ -319,7 +331,6 @@ def _simulate_possessions(
         to_rate = BASE_TURNOVER_RATE * (1.3 - biq * 0.6) * (defense_rating / 55.0)
         if roll < to_rate:
             handler_stats.turnovers += 1
-            # Steal credit goes to defense (handled elsewhere)
             continue
 
         roll2 = r.random()
@@ -332,7 +343,7 @@ def _simulate_possessions(
         assist_chance = 0.42 + 0.20 * (handler.ratings["passing"] / 100.0)
         is_assisted = r.random() < assist_chance
         if is_assisted:
-            # Pick a different scorer
+            # Pick a different scorer — use scoring weights for star separation
             other_ids = [pid for pid in active_ids if pid != handler_id]
             if other_ids:
                 other_weights = [scoring_weights[active_ids.index(pid)] for pid in other_ids]
@@ -371,11 +382,11 @@ def _simulate_possessions(
         # Three pointer
         if roll2 < BASE_FT_RATE + BASE_THREE_PT_RATE:
             shot_pct = (BASE_THREE_PT_PCT
-                        + (shooter_shooting - 0.5) * 0.25
+                        + (shooter_shooting - 0.5) * 0.32  # wider range for 3PT
                         + (defense_rating - 55) * -0.003
                         + home_bonus)
             shot_pct *= playoff_variance
-            shot_pct = max(0.20, min(0.50, shot_pct))
+            shot_pct = max(0.18, min(0.48, shot_pct))
 
             scorer_stats.fg_attempted += 1
             scorer_stats.three_attempted += 1
@@ -389,12 +400,12 @@ def _simulate_possessions(
 
         # Two pointer (remainder of possessions)
         shot_pct = (BASE_TWO_PT_PCT
-                    + (shooter_shooting - 0.5) * 0.22
-                    + (shooter_ath - 0.5) * 0.12
+                    + (shooter_shooting - 0.5) * 0.28  # wider range for 2PT
+                    + (shooter_ath - 0.5) * 0.15
                     + (defense_rating - 55) * -0.004
                     + home_bonus)
         shot_pct *= playoff_variance
-        shot_pct = max(0.30, min(0.65, shot_pct))
+        shot_pct = max(0.28, min(0.68, shot_pct))
 
         scorer_stats.fg_attempted += 1
         if r.random() < shot_pct:
@@ -452,13 +463,17 @@ def _award_rebounds(
         else:
             def_reb_count += 1
 
-    # Award defensive rebounds
+    # Award defensive rebounds — linear weighting with moderate position bonus.
+    # Target: top rebounder ~12-13 RPG (NBA-realistic). Spreading boards
+    # across the whole team rather than concentrating on one big man.
     def_ids = [pid for pid in def_stats if def_minutes.get(pid, 0) > 0]
     if def_ids and def_reb_count > 0:
         reb_weights = []
         for pid in def_ids:
             p = def_players[pid]
-            w = (p.ratings["rebounding"] * 0.7 + p.ratings["athleticism"] * 0.3) * def_minutes.get(pid, 0)
+            raw = p.ratings["rebounding"] * 0.65 + p.ratings["athleticism"] * 0.35
+            pos_bonus = 1.4 if p.position in ("C", "PF") else (0.9 if p.position == "SF" else 0.45)
+            w = raw * def_minutes.get(pid, 0) * pos_bonus
             reb_weights.append(max(w, 1.0))
         for _ in range(def_reb_count):
             pid = r.choices(def_ids, weights=reb_weights)[0]
@@ -470,7 +485,9 @@ def _award_rebounds(
         reb_weights = []
         for pid in off_ids:
             p = off_players[pid]
-            w = (p.ratings["rebounding"] * 0.7 + p.ratings["athleticism"] * 0.3) * off_minutes.get(pid, 0)
+            raw = p.ratings["rebounding"] * 0.65 + p.ratings["athleticism"] * 0.35
+            pos_bonus = 1.4 if p.position in ("C", "PF") else (0.9 if p.position == "SF" else 0.45)
+            w = raw * off_minutes.get(pid, 0) * pos_bonus
             reb_weights.append(max(w, 1.0))
         for _ in range(off_reb_count):
             pid = r.choices(off_ids, weights=reb_weights)[0]
@@ -510,18 +527,21 @@ def _award_steals_blocks(
     if not def_ids:
         return
 
-    # Defense weights for steals/blocks
-    def_weights = []
+    # Steal weights — power-scaled so elite defenders stand out
+    steal_weights = []
     for pid in def_ids:
         p = def_players[pid]
-        w = (p.ratings["defense"] * 0.6 + p.ratings["athleticism"] * 0.3
-             + p.ratings["basketball_iq"] * 0.1) * def_minutes.get(pid, 0)
-        def_weights.append(max(w, 1.0))
+        raw = (p.ratings["defense"] * 0.5 + p.ratings["athleticism"] * 0.3
+               + p.ratings["basketball_iq"] * 0.2)
+        # Guards get more steals than bigs
+        pos_bonus = 1.5 if p.position in ("PG", "SG") else (1.0 if p.position == "SF" else 0.7)
+        w = (raw ** 2.0) * def_minutes.get(pid, 0) * pos_bonus
+        steal_weights.append(max(w, 1.0))
 
     # Steals
     num_steals = int(opponent_turnovers * STEAL_CHANCE_PER_TO)
     for _ in range(num_steals):
-        pid = r.choices(def_ids, weights=def_weights)[0]
+        pid = r.choices(def_ids, weights=steal_weights)[0]
         def_stats[pid].steals += 1
 
     # Blocks (from missed 2pt attempts, roughly)
@@ -531,12 +551,13 @@ def _award_steals_blocks(
         if r.random() < BLOCK_CHANCE_PER_MISS:
             num_blocks += 1
 
-    # Block weights favor big men
+    # Block weights — power-scaled, heavily favoring bigs
     block_weights = []
     for pid in def_ids:
         p = def_players[pid]
-        pos_bonus = 1.5 if p.position in ("C", "PF") else 0.7
-        w = (p.ratings["defense"] * 0.5 + p.ratings["athleticism"] * 0.5) * def_minutes.get(pid, 0) * pos_bonus
+        pos_bonus = 2.5 if p.position == "C" else (1.8 if p.position == "PF" else (0.8 if p.position == "SF" else 0.3))
+        raw = p.ratings["defense"] * 0.5 + p.ratings["athleticism"] * 0.5
+        w = (raw ** 2.0) * def_minutes.get(pid, 0) * pos_bonus
         block_weights.append(max(w, 1.0))
 
     for _ in range(num_blocks):

@@ -133,17 +133,19 @@ def _populate_roster(team: Team, rng: random.Random) -> None:
     """Fill a team's roster with 15 players following a varied tier distribution."""
     positions_needed = list(POSITIONS)  # PG, SG, SF, PF, C
 
-    # Vary team quality: some teams get more stars, some get fewer
+    # Vary team quality significantly: some teams get 0-1 stars (tanking),
+    # some get 3-4 (superteam). This creates realistic league-wide variance.
     base_tiers = list(TEAM_TIER_DISTRIBUTION)
-    # Randomly upgrade or downgrade 2-4 slots to create team variance
     tiers = list(base_tiers)
     tier_list = ["star", "starter", "rotation", "bench", "scrub"]
-    swaps = rng.randint(2, 5)
+    # More aggressive swaps (3-7) with chance of double-shift
+    swaps = rng.randint(3, 7)
     for _ in range(swaps):
         idx = rng.randint(0, len(tiers) - 1)
         current = tier_list.index(tiers[idx])
-        direction = rng.choice([-1, 1])
-        new_idx = max(0, min(len(tier_list) - 1, current + direction))
+        # Allow double shifts (±2 tiers) 30% of the time
+        shift = rng.choice([-2, -1, -1, 1, 1, 2]) if rng.random() < 0.3 else rng.choice([-1, 1])
+        new_idx = max(0, min(len(tier_list) - 1, current + shift))
         tiers[idx] = tier_list[new_idx]
     rng.shuffle(tiers)
 
