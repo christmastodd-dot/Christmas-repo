@@ -42,6 +42,7 @@
 <div class="card">
     <h2>Event History</h2>
     {% if events %}
+    <div class="table-wrap">
     <table>
         <thead>
             <tr>
@@ -67,6 +68,7 @@
             {% endfor %}
         </tbody>
     </table>
+    </div>
     {% else %}
         <p class="mt-1" style="opacity:0.6;">No scoring events yet for this legislator.</p>
     {% endif %}

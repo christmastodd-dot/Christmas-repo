@@ -31,6 +31,7 @@
 <div class="card">
     <h2>Existing Users</h2>
     {% if users %}
+    <div class="table-wrap">
     <table>
         <thead>
             <tr>
@@ -58,6 +59,7 @@
             {% endfor %}
         </tbody>
     </table>
+    </div>
     {% else %}
         <p class="mt-1" style="opacity:0.6;">No users yet.</p>
     {% endif %}

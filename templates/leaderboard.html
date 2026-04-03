@@ -7,6 +7,7 @@
 <div class="card mb-2">
     <h2>Team Rankings</h2>
     {% if teams %}
+    <div class="table-wrap">
     <table>
         <thead>
             <tr>
@@ -37,6 +38,7 @@
             {% endfor %}
         </tbody>
     </table>
+    </div>
     {% else %}
         <p class="mt-1" style="opacity:0.6;">No teams yet.</p>
     {% endif %}
@@ -45,6 +47,7 @@
 <div class="card">
     <h2>Most Valuable Legislators</h2>
     {% if legislators %}
+    <div class="table-wrap">
     <table>
         <thead>
             <tr>
@@ -81,6 +84,7 @@
             {% endfor %}
         </tbody>
     </table>
+    </div>
     {% else %}
         <p class="mt-1" style="opacity:0.6;">No scores yet.</p>
     {% endif %}
