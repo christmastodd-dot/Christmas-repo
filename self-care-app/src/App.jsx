@@ -5,6 +5,7 @@ import LearnPage from './pages/LearnPage'
 import ConnectPage from './pages/ConnectPage'
 import NutritionPage from './pages/NutritionPage'
 import BodyPage from './pages/BodyPage'
+import CheckInPage from './pages/CheckInPage'
 
 const pages = {
   home: HomePage,
@@ -12,6 +13,7 @@ const pages = {
   connect: ConnectPage,
   nutrition: NutritionPage,
   body: BodyPage,
+  checkin: CheckInPage,
 }
 
 export default function App() {

@@ -1,5 +1,6 @@
+import { useEffect, useState } from 'react'
 import PillarCard from '../components/PillarCard'
-import { getTodayKey } from '../utils/storage'
+import { loadData, getTodayKey } from '../utils/storage'
 
 const pillars = [
   {
@@ -35,6 +36,13 @@ const pillars = [
 export default function HomePage({ onNavigate }) {
   const today = new Date()
   const greeting = getGreeting()
+  const [todayCheckin, setTodayCheckin] = useState(null)
+
+  useEffect(() => {
+    const data = loadData()
+    const existing = data.checkins.find((c) => c.date === getTodayKey())
+    setTodayCheckin(existing || null)
+  }, [])
 
   return (
     <div className="px-5 pt-6 pb-4">
@@ -44,6 +52,31 @@ export default function HomePage({ onNavigate }) {
           {greeting}
         </h1>
       </div>
+
+      {/* Daily check-in CTA */}
+      <button
+        onClick={() => onNavigate('checkin')}
+        className="w-full mb-5 p-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] hover:bg-[var(--color-surface-hover)] active:scale-[0.98] transition-all cursor-pointer text-left"
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">{todayCheckin ? '\u2705' : '\u{1F4DD}'}</span>
+            <div>
+              <p className="text-base font-semibold text-[var(--color-text)] m-0">
+                {todayCheckin ? 'Check-in complete' : 'Daily Check-In'}
+              </p>
+              <p className="text-xs text-[var(--color-text-muted)] m-0 mt-0.5">
+                {todayCheckin
+                  ? `${Object.values(todayCheckin.ratings).filter((r) => r > 0).length}/4 pillars rated — tap to update`
+                  : 'How did today go? Rate each pillar'}
+              </p>
+            </div>
+          </div>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9 18l6-6-6-6" />
+          </svg>
+        </div>
+      </button>
 
       <div className="flex flex-col gap-3">
         {pillars.map((pillar) => (
