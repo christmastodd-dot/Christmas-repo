@@ -1,3 +1,5 @@
+import HabitTracker from '../components/HabitTracker'
+
 export default function LearnPage() {
   return (
     <div className="px-5 pt-6 pb-4">
@@ -14,20 +16,7 @@ export default function LearnPage() {
         </div>
       </div>
 
-      <EmptyState
-        message="No skills tracked yet"
-        sub="Add skills you're learning and log practice sessions"
-      />
-    </div>
-  )
-}
-
-function EmptyState({ message, sub }) {
-  return (
-    <div className="text-center py-16 px-4">
-      <div className="text-4xl mb-3 opacity-40">{'\u{1F3AF}'}</div>
-      <p className="text-[var(--color-text-muted)] font-medium m-0">{message}</p>
-      <p className="text-sm text-[var(--color-text-muted)] opacity-70 mt-1 m-0">{sub}</p>
+      <HabitTracker pillar="learn" color="var(--color-learn)" />
     </div>
   )
 }

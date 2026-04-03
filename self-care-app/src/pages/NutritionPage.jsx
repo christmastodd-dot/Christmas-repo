@@ -1,3 +1,5 @@
+import HabitTracker from '../components/HabitTracker'
+
 export default function NutritionPage() {
   return (
     <div className="px-5 pt-6 pb-4">
@@ -14,20 +16,7 @@ export default function NutritionPage() {
         </div>
       </div>
 
-      <EmptyState
-        message="No meals logged yet"
-        sub="Track your meals and how they make you feel"
-      />
-    </div>
-  )
-}
-
-function EmptyState({ message, sub }) {
-  return (
-    <div className="text-center py-16 px-4">
-      <div className="text-4xl mb-3 opacity-40">{'\u{1F966}'}</div>
-      <p className="text-[var(--color-text-muted)] font-medium m-0">{message}</p>
-      <p className="text-sm text-[var(--color-text-muted)] opacity-70 mt-1 m-0">{sub}</p>
+      <HabitTracker pillar="nutrition" color="var(--color-nutrition)" />
     </div>
   )
 }
