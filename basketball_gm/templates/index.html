@@ -7,5 +7,32 @@
     <form method="post" action="{{ url_for('new_game') }}">
         <button type="submit" class="btn" style="font-size: 1.1rem; padding: 0.9rem 3rem;">New Game</button>
     </form>
+
+    {% if saves %}
+    <div style="margin-top: 2.5rem; max-width: 500px; margin-left: auto; margin-right: auto;">
+        <h2 style="font-size: 1rem; color: #7f8c8d; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 1rem; border-bottom: 1px solid #2c3e50; padding-bottom: 0.5rem;">Load Saved Game</h2>
+        {% for save in saves %}
+        <div style="background: #1a2733; border: 1px solid #2c3e50; border-radius: 6px; padding: 0.8rem 1rem; margin-bottom: 0.6rem; display: flex; justify-content: space-between; align-items: center;">
+            <div style="text-align: left;">
+                <div style="font-weight: 700; font-size: 0.95rem;">{{ save.team }}</div>
+                <div style="font-size: 0.78rem; color: #7f8c8d;">Season {{ save.season }} &middot; {{ save.phase.replace('_', ' ') }} &middot; Slot {{ save.slot }}</div>
+            </div>
+            <form method="post" action="{{ url_for('load_game_route') }}" style="margin: 0;">
+                <input type="hidden" name="slot" value="{{ save.slot }}">
+                <button type="submit" class="btn btn-sm">Load</button>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div style="margin-top: 2rem;">
+        <form method="post" action="{{ url_for('upload_save') }}" enctype="multipart/form-data" style="display: inline-flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; justify-content: center;">
+            <label class="btn btn-outline btn-sm" style="cursor: pointer;">
+                Upload Save File
+                <input type="file" name="savefile" accept=".json" style="display: none;" onchange="this.form.submit();">
+            </label>
+        </form>
+    </div>
 </div>
 {% endblock %}

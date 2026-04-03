@@ -174,7 +174,8 @@ def index():
     game = get_game()
     if game:
         return redirect(url_for("dashboard"))
-    return render_template("index.html")
+    saves = list_saves()
+    return render_template("index.html", saves=saves)
 
 
 @app.route("/new_game", methods=["POST"])
