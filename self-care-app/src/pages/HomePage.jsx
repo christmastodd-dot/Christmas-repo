@@ -78,6 +78,29 @@ export default function HomePage({ onNavigate }) {
         </div>
       </button>
 
+      {/* Weekly review CTA */}
+      <button
+        onClick={() => onNavigate('review')}
+        className="w-full mb-5 p-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] hover:bg-[var(--color-surface-hover)] active:scale-[0.98] transition-all cursor-pointer text-left"
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">{'\u{1F4CA}'}</span>
+            <div>
+              <p className="text-base font-semibold text-[var(--color-text)] m-0">
+                Weekly Review
+              </p>
+              <p className="text-xs text-[var(--color-text-muted)] m-0 mt-0.5">
+                See your trends, streaks, and highlights
+              </p>
+            </div>
+          </div>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9 18l6-6-6-6" />
+          </svg>
+        </div>
+      </button>
+
       <div className="flex flex-col gap-3">
         {pillars.map((pillar) => (
           <PillarCard

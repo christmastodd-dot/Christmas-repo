@@ -164,6 +164,54 @@ export function getLogsForDate(date) {
   return data.logs.filter((l) => l.date === date)
 }
 
+// --- Weekly Review Helpers ---
+
+export function getWeekRange(offset = 0) {
+  const now = new Date()
+  const dayOfWeek = now.getDay()
+  const sunday = new Date(now)
+  sunday.setDate(now.getDate() - dayOfWeek - offset * 7)
+  const saturday = new Date(sunday)
+  saturday.setDate(sunday.getDate() + 6)
+  const dates = []
+  const d = new Date(sunday)
+  for (let i = 0; i < 7; i++) {
+    dates.push(d.toISOString().slice(0, 10))
+    d.setDate(d.getDate() + 1)
+  }
+  return { start: dates[0], end: dates[6], dates }
+}
+
+export function getWeekCheckins(dates) {
+  const data = loadData()
+  return data.checkins.filter((c) => dates.includes(c.date))
+}
+
+export function getWeekLogs(dates, pillar) {
+  const data = loadData()
+  let logs = data.logs.filter((l) => dates.includes(l.date))
+  if (pillar) logs = logs.filter((l) => l.pillar === pillar)
+  return logs
+}
+
+export function getWeekHabitStats(dates) {
+  const data = loadData()
+  const completions = data.completions || {}
+  const habits = data.habits || []
+  return habits.map((habit) => {
+    let completed = 0
+    for (const date of dates) {
+      if (completions[date]?.[habit.id]) completed++
+    }
+    return { ...habit, completed, goal: habit.weeklyGoal }
+  })
+}
+
+export function getWeekInteractions(dates) {
+  const data = loadData()
+  return (data.interactions || []).filter((i) => dates.includes(i.date))
+}
+
 export function getWeekCompletionCount(habitId) {
   const data = loadData()
   const completions = data.completions || {}
