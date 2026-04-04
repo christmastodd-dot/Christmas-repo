@@ -9,6 +9,7 @@ import BodyPage from './pages/BodyPage'
 import CheckInPage from './pages/CheckInPage'
 import WeeklyReviewPage from './pages/WeeklyReviewPage'
 import SettingsPage from './pages/SettingsPage'
+import { initReminders } from './utils/notifications'
 
 const pages = {
   home: HomePage,
@@ -32,6 +33,10 @@ export default function App() {
   const [theme, setTheme] = useState(getInitialTheme)
   const [onboarded, setOnboarded] = useState(() => localStorage.getItem('selfcare_onboarded') === 'true')
   const mainRef = useRef(null)
+
+  useEffect(() => {
+    initReminders()
+  }, [])
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)

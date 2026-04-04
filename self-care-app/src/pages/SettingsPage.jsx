@@ -1,9 +1,31 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { loadData, saveData, getDefaultData } from '../utils/storage'
+import {
+  loadReminders,
+  saveReminders,
+  requestNotificationPermission,
+  getNotificationStatus,
+} from '../utils/notifications'
 
 export default function SettingsPage({ theme, onThemeChange }) {
   const [showConfirmReset, setShowConfirmReset] = useState(false)
   const [exportDone, setExportDone] = useState(false)
+  const [reminders, setReminders] = useState(loadReminders)
+  const [notifStatus, setNotifStatus] = useState(getNotificationStatus)
+
+  function updateReminders(updates) {
+    const next = { ...reminders, ...updates }
+    setReminders(next)
+    saveReminders(next)
+  }
+
+  async function handleEnableReminders() {
+    const status = await requestNotificationPermission()
+    setNotifStatus(status)
+    if (status === 'granted') {
+      updateReminders({ enabled: true })
+    }
+  }
 
   function handleExport() {
     const data = loadData()
@@ -82,6 +104,100 @@ export default function SettingsPage({ theme, onThemeChange }) {
             </button>
           </div>
         </div>
+      </div>
+
+      {/* Reminders */}
+      <div className="p-4 rounded-2xl bg-[var(--color-surface)] border border-[var(--color-border)] mb-4">
+        <div className="flex items-center justify-between mb-1">
+          <p className="text-sm font-medium text-[var(--color-text)] m-0">Reminders</p>
+          {notifStatus === 'unsupported' && (
+            <span className="text-[10px] text-[var(--color-text-muted)]">Not supported</span>
+          )}
+        </div>
+        <p className="text-xs text-[var(--color-text-muted)] m-0 mb-3">
+          Get nudged to check in and reflect
+        </p>
+
+        {notifStatus === 'unsupported' ? (
+          <p className="text-xs text-[var(--color-text-muted)] opacity-60 m-0">
+            Your browser doesn't support notifications.
+          </p>
+        ) : notifStatus === 'denied' ? (
+          <p className="text-xs text-red-400 m-0">
+            Notifications are blocked. Please enable them in your browser settings.
+          </p>
+        ) : !reminders.enabled ? (
+          <button
+            onClick={handleEnableReminders}
+            className="w-full py-2.5 rounded-xl border-none font-medium text-sm text-white cursor-pointer bg-[var(--color-primary)]"
+          >
+            {'\u{1F514}'} Enable Reminders
+          </button>
+        ) : (
+          <div className="flex flex-col gap-3">
+            {/* Morning */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => updateReminders({ morningEnabled: !reminders.morningEnabled })}
+                  className="w-5 h-5 rounded border-2 flex items-center justify-center cursor-pointer bg-transparent"
+                  style={{
+                    borderColor: reminders.morningEnabled ? 'var(--color-primary)' : 'var(--color-border)',
+                    backgroundColor: reminders.morningEnabled ? 'var(--color-primary)' : 'transparent',
+                  }}
+                >
+                  {reminders.morningEnabled && (
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M20 6L9 17l-5-5" />
+                    </svg>
+                  )}
+                </button>
+                <span className="text-xs text-[var(--color-text)]">{'\u2600\uFE0F'} Morning intention</span>
+              </div>
+              <input
+                type="time"
+                value={reminders.morningTime}
+                onChange={(e) => updateReminders({ morningTime: e.target.value })}
+                className="bg-[var(--color-bg)] border border-[var(--color-border)] rounded-lg px-2 py-1 text-xs text-[var(--color-text)] outline-none"
+              />
+            </div>
+
+            {/* Evening */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => updateReminders({ eveningEnabled: !reminders.eveningEnabled })}
+                  className="w-5 h-5 rounded border-2 flex items-center justify-center cursor-pointer bg-transparent"
+                  style={{
+                    borderColor: reminders.eveningEnabled ? 'var(--color-primary)' : 'var(--color-border)',
+                    backgroundColor: reminders.eveningEnabled ? 'var(--color-primary)' : 'transparent',
+                  }}
+                >
+                  {reminders.eveningEnabled && (
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M20 6L9 17l-5-5" />
+                    </svg>
+                  )}
+                </button>
+                <span className="text-xs text-[var(--color-text)]">{'\u{1F319}'} Evening reflection</span>
+              </div>
+              <input
+                type="time"
+                value={reminders.eveningTime}
+                onChange={(e) => updateReminders({ eveningTime: e.target.value })}
+                className="bg-[var(--color-bg)] border border-[var(--color-border)] rounded-lg px-2 py-1 text-xs text-[var(--color-text)] outline-none"
+              />
+            </div>
+
+            {/* Disable */}
+            <button
+              onClick={() => updateReminders({ enabled: false })}
+              className="text-xs text-[var(--color-text-muted)] bg-transparent border-none cursor-pointer p-0 text-left"
+            >
+              Disable reminders
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Data export */}
