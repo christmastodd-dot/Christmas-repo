@@ -4132,8 +4132,7 @@
       // Header streak
       const streakEl = document.getElementById('header-streak');
       if (appState.streak > 0) {
-        const fires = '🔥'.repeat(Math.min(appState.streak, 7));
-        streakEl.textContent = fires + ' ' + appState.streak + 'd';
+        streakEl.textContent = '🔥 ' + appState.streak + 'd';
       } else {
         streakEl.textContent = '';
       }
