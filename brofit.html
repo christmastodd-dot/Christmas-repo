@@ -4637,6 +4637,36 @@
       return div.innerHTML;
     }
 
+    // Clean corrupted UTF-8 sequences (garbled middle-dot separators)
+    function sanitizeText(str) {
+      if (!str) return str;
+      // Replace various garbled Ã/Â sequences that were corrupted middle-dots back to pipe separator
+      return str
+        .replace(/(\s*)[\xC3][\x83][\xC2]*[\xC2\xA0-\xBF]*[\xB7\xC2]*\xB7(\s*)/g, ' | ')
+        .replace(/(\s*)\xC3\x82\xC2\xB7(\s*)/g, ' | ')
+        .replace(/(\s*)\xC3\x82\xB7(\s*)/g, ' | ')
+        .replace(/(\s*)\xC3\xB7(\s*)/g, ' | ')
+        .replace(/(\s*)\xC2\xB7(\s*)/g, ' | ')
+        .replace(/(\s*)\xC3[\x80-\xBF]*\xB7(\s*)/g, ' | ')
+        .replace(/(\s*)[\xC0-\xDF][\x80-\xBF]*\xC2?\xB7(\s*)/g, ' | ')
+        .replace(/(\s*)\u00c3\u0082\u00c2\u00b7(\s*)/g, ' | ')
+        .replace(/(\s*)\u00c3[^\s]*\u00b7(\s*)/g, ' | ')
+        .replace(/(\s*)Ã‚·(\s*)/g, ' | ')
+        .replace(/(\s*)Â·(\s*)/g, ' | ')
+        .replace(/(\s*)·(\s*)/g, ' | ');
+    }
+
+    // Clean all feed posts' workoutSummary fields
+    function sanitizeFeed(feed) {
+      if (!feed) return feed;
+      feed.forEach(function(post) {
+        if (post.workoutSummary) {
+          post.workoutSummary = sanitizeText(post.workoutSummary);
+        }
+      });
+      return feed;
+    }
+
     // ===== Workout Logger =====
 
     // Exercise database: { name, equip, input, muscle }
@@ -6950,7 +6980,10 @@
       return fetch(urls.raw + '?t=' + Date.now()).then(function(res) {
         if (res.status === 404) return { members: {} };
         if (!res.ok) throw new Error('Fetch ' + res.status);
-        return res.json();
+        return res.json().then(function(data) {
+          if (data && data.feed) sanitizeFeed(data.feed);
+          return data;
+        });
       });
     }
 
@@ -6974,7 +7007,7 @@
         if (!res.ok) throw new Error('API ' + res.status);
         return res.json().then(function(file) {
           ghFileSha = file.sha;
-          return JSON.parse(atob(file.content));
+          return JSON.parse(decodeURIComponent(escape(atob(file.content.replace(/\n/g, '')))));
         });
       }).then(function(latest) {
         sharedData = latest || { members: {} };
@@ -6988,7 +7021,7 @@
         });
         // Sort by date descending and cap at 50
         localFeed.sort(function(a, b) { return new Date(b.date) - new Date(a.date); });
-        sharedData.feed = localFeed.slice(0, 50);
+        sharedData.feed = sanitizeFeed(localFeed.slice(0, 50));
 
         // Merge challenges: use local as base, add server-only challenges
         var localChallengeIds = {};
