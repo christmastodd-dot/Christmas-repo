@@ -2578,6 +2578,193 @@
       background: var(--bg-card-hover);
     }
 
+    /* ===== Zombie Survival Mode ===== */
+    .zombie-mode {
+      display: none;
+      flex-direction: column;
+      padding: 0;
+    }
+    .zombie-mode--visible {
+      display: flex;
+    }
+    .zombie-mode__header {
+      text-align: center;
+      padding: 16px 16px 8px;
+    }
+    .zombie-mode__title {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      font-weight: 900;
+      color: var(--color-red);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+    .zombie-mode__subtitle {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .zombie-mode__clock {
+      text-align: center;
+      font-family: var(--font-display);
+      font-size: 2.8rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 2px;
+      padding: 8px 0;
+    }
+    .zombie-mode__clock--danger {
+      color: var(--color-red);
+      animation: pulse 0.8s ease infinite;
+    }
+    .zombie-mode__phase {
+      text-align: center;
+      padding: 16px;
+      margin: 0 16px 8px;
+      background: var(--bg-surface);
+      border-radius: var(--radius-md);
+      border-left: 4px solid var(--color-blue);
+      transition: border-color 0.3s, background 0.3s;
+    }
+    .zombie-mode__phase--sprint {
+      border-left-color: var(--color-red);
+      background: rgba(239, 68, 68, 0.08);
+    }
+    .zombie-mode__phase--jog {
+      border-left-color: var(--color-orange, #f59e0b);
+    }
+    .zombie-mode__phase--walk {
+      border-left-color: var(--color-green);
+    }
+    .zombie-mode__phase--exercise {
+      border-left-color: var(--color-blue);
+    }
+    .zombie-mode__phase-icon {
+      font-size: 2rem;
+      display: block;
+      margin-bottom: 4px;
+    }
+    .zombie-mode__phase-name {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .zombie-mode__phase-desc {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+    .zombie-mode__phase-timer {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--color-blue);
+      margin-top: 6px;
+      font-variant-numeric: tabular-nums;
+    }
+    .zombie-mode__phase--sprint .zombie-mode__phase-timer {
+      color: var(--color-red);
+    }
+    .zombie-mode__progress {
+      height: 4px;
+      background: var(--bg-surface);
+      margin: 0 16px 8px;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .zombie-mode__progress-bar {
+      height: 100%;
+      background: var(--color-green);
+      border-radius: 2px;
+      transition: width 0.5s linear;
+    }
+    .zombie-mode__next {
+      text-align: center;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      padding: 4px 16px 8px;
+    }
+    .zombie-mode__queue {
+      padding: 0 16px 12px;
+      max-height: 120px;
+      overflow-y: auto;
+    }
+    .zombie-mode__queue-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 0;
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .zombie-mode__queue-item:last-child {
+      border-bottom: none;
+    }
+    .zombie-mode__queue-icon {
+      font-size: 0.85rem;
+      width: 20px;
+      text-align: center;
+    }
+    .zombie-mode__queue-dur {
+      margin-left: auto;
+      font-weight: 700;
+      font-size: 0.65rem;
+      color: var(--text-muted);
+    }
+    .zombie-mode__controls {
+      display: flex;
+      gap: 8px;
+      padding: 8px 16px 16px;
+    }
+    .zombie-mode__btn {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .zombie-mode__btn--start {
+      background: var(--color-red);
+      color: #fff;
+    }
+    .zombie-mode__btn--quit {
+      background: var(--bg-surface);
+      color: var(--text-secondary);
+    }
+    .zombie-mode__done {
+      text-align: center;
+      padding: 24px 16px;
+    }
+    .zombie-mode__done-icon {
+      font-size: 3rem;
+      display: block;
+      margin-bottom: 8px;
+    }
+    .zombie-mode__done-title {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--color-green);
+      text-transform: uppercase;
+    }
+    .zombie-mode__done-stats {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-top: 8px;
+      line-height: 1.6;
+    }
+    .workout-chooser__option--zombie {
+      border-color: var(--color-red);
+      background: rgba(239, 68, 68, 0.05);
+    }
+
     /* ===== Exercise Manager (Admin) ===== */
     .exercise-manager {
       display: none;
@@ -3284,7 +3471,13 @@
           <span class="workout-chooser__label">Use Template<span class="workout-chooser__label-sub">Start from a saved template</span></span>
         </button>
         <div class="workout-chooser__templates workout-chooser--hidden" id="workout-template-list"></div>
+        <button class="workout-chooser__option workout-chooser__option--zombie" onclick="startZombieMode()">
+          <span class="workout-chooser__icon">🧟</span>
+          <span class="workout-chooser__label">Zombie Survival<span class="workout-chooser__label-sub">20 min survival run — no equipment needed</span></span>
+        </button>
       </div>
+      <!-- Zombie Survival Mode -->
+      <div class="zombie-mode" id="zombie-mode"></div>
       <!-- Logger form (hidden until choice made) -->
       <div class="workout-logger workout-chooser--hidden" id="workout-logger">
         <div class="workout-logger__meta-row">
@@ -5574,6 +5767,433 @@
       toggleRestTimer(); // Auto-start
     }
 
+    // ===== Zombie Survival Mode =====
+    var zombieState = {
+      phases: [],
+      currentPhase: 0,
+      totalTime: 20 * 60, // 20 minutes
+      elapsed: 0,
+      phaseElapsed: 0,
+      running: false,
+      interval: null,
+      startTimestamp: null,
+      completed: []
+    };
+
+    var ZOMBIE_SCENARIOS = [
+      { text: 'Zombies spotted ahead!', phase: 'sprint' },
+      { text: 'Horde closing in!', phase: 'sprint' },
+      { text: 'They broke through the fence!', phase: 'sprint' },
+      { text: 'RUN! They\'re right behind you!', phase: 'sprint' },
+      { text: 'Break in the horde — move fast!', phase: 'sprint' },
+      { text: 'Safe zone ahead — keep moving', phase: 'jog' },
+      { text: 'Scouts report clear path', phase: 'jog' },
+      { text: 'Supply run — stay at pace', phase: 'jog' },
+      { text: 'Heading to the next checkpoint', phase: 'jog' },
+      { text: 'Regroup — steady pace', phase: 'jog' },
+      { text: 'Coast is clear — catch your breath', phase: 'walk' },
+      { text: 'Scanning the perimeter', phase: 'walk' },
+      { text: 'All clear — recover', phase: 'walk' },
+      { text: 'Quiet zone — stay alert', phase: 'walk' },
+      { text: 'Barricade ahead — climb over', phase: 'exercise', exercise: 'Burpees', reps: 10 },
+      { text: 'Crawl under the wreckage', phase: 'exercise', exercise: 'Bear Crawl', duration: 30 },
+      { text: 'Locked gate — push through', phase: 'exercise', exercise: 'Push-ups', reps: 15 },
+      { text: 'Jump the debris!', phase: 'exercise', exercise: 'Jump Squats', reps: 12 },
+      { text: 'Scale the wall', phase: 'exercise', exercise: 'Mountain Climbers', reps: 20 },
+      { text: 'Dodge and weave!', phase: 'exercise', exercise: 'High Knees', duration: 30 },
+      { text: 'Carry the supplies', phase: 'exercise', exercise: 'Lunges', reps: 16 },
+      { text: 'Hold the door!', phase: 'exercise', exercise: 'Wall Sit', duration: 30 },
+      { text: 'Drag the survivor to safety', phase: 'exercise', exercise: 'Plank', duration: 30 },
+      { text: 'Crawl to cover!', phase: 'exercise', exercise: 'Army Crawl', duration: 20 },
+      { text: 'Climb the fire escape', phase: 'exercise', exercise: 'Step-ups', reps: 20 },
+      { text: 'Kick down the door', phase: 'exercise', exercise: 'Squat Kicks', reps: 12 },
+      { text: 'Leap across the gap', phase: 'exercise', exercise: 'Tuck Jumps', reps: 8 },
+      { text: 'Fight them off!', phase: 'exercise', exercise: 'Shadowboxing', duration: 30 }
+    ];
+
+    var ZOMBIE_PHASE_INFO = {
+      sprint: { icon: '💨', name: 'SPRINT', color: 'sprint' },
+      jog: { icon: '🏃', name: 'JOG', color: 'jog' },
+      walk: { icon: '🚶', name: 'WALK', color: 'walk' },
+      exercise: { icon: '💪', name: 'EXERCISE', color: 'exercise' }
+    };
+
+    function generateZombieWorkout() {
+      var phases = [];
+      var totalSecs = 0;
+      var target = zombieState.totalTime;
+
+      // Structure: warm-up walk, then alternating intensity blocks
+      // Pattern ensures variety and escalating tension
+      var pattern = [
+        { type: 'walk', min: 60, max: 90 },      // warm-up
+        { type: 'jog', min: 45, max: 60 },
+        { type: 'exercise', min: 20, max: 40 },
+        { type: 'jog', min: 45, max: 60 },
+        { type: 'sprint', min: 15, max: 30 },
+        { type: 'walk', min: 30, max: 45 },
+        { type: 'exercise', min: 20, max: 40 },
+        { type: 'jog', min: 45, max: 75 },
+        { type: 'sprint', min: 20, max: 30 },
+        { type: 'exercise', min: 20, max: 40 },
+        { type: 'walk', min: 30, max: 45 },
+        { type: 'jog', min: 45, max: 60 },
+        { type: 'sprint', min: 15, max: 25 },
+        { type: 'exercise', min: 20, max: 40 },
+        { type: 'walk', min: 30, max: 45 },
+        { type: 'jog', min: 45, max: 60 },
+        { type: 'exercise', min: 20, max: 35 },
+        { type: 'sprint', min: 20, max: 30 },
+        { type: 'walk', min: 30, max: 45 },
+        { type: 'sprint', min: 15, max: 25 },
+        { type: 'exercise', min: 20, max: 35 },
+        { type: 'jog', min: 45, max: 60 },
+        { type: 'exercise', min: 20, max: 40 },
+        { type: 'sprint', min: 20, max: 30 },
+        { type: 'walk', min: 30, max: 60 }
+      ];
+
+      var usedScenarios = {};
+      var patternIdx = 0;
+
+      while (totalSecs < target && patternIdx < pattern.length) {
+        var p = pattern[patternIdx];
+        var dur = Math.floor(Math.random() * (p.max - p.min + 1)) + p.min;
+        if (totalSecs + dur > target) dur = target - totalSecs;
+        if (dur <= 0) break;
+
+        // Pick a matching scenario
+        var candidates = ZOMBIE_SCENARIOS.filter(function(s) {
+          return s.phase === p.type && !usedScenarios[s.text];
+        });
+        if (candidates.length === 0) {
+          // Reset used pool for this type
+          ZOMBIE_SCENARIOS.forEach(function(s) {
+            if (s.phase === p.type) delete usedScenarios[s.text];
+          });
+          candidates = ZOMBIE_SCENARIOS.filter(function(s) { return s.phase === p.type; });
+        }
+        var scenario = candidates[Math.floor(Math.random() * candidates.length)];
+        usedScenarios[scenario.text] = true;
+
+        var phase = {
+          type: p.type,
+          duration: dur,
+          scenario: scenario.text,
+          icon: ZOMBIE_PHASE_INFO[p.type].icon,
+          name: ZOMBIE_PHASE_INFO[p.type].name
+        };
+        if (scenario.exercise) phase.exercise = scenario.exercise;
+        if (scenario.reps) phase.reps = scenario.reps;
+
+        phases.push(phase);
+        totalSecs += dur;
+        patternIdx++;
+      }
+
+      // If we haven't hit 20 min, pad with a final walk
+      if (totalSecs < target) {
+        var remaining = target - totalSecs;
+        phases.push({
+          type: 'walk',
+          duration: remaining,
+          scenario: 'You made it — cool down',
+          icon: '🚶',
+          name: 'WALK'
+        });
+      }
+
+      return phases;
+    }
+
+    function startZombieMode() {
+      zombieState.phases = generateZombieWorkout();
+      zombieState.currentPhase = 0;
+      zombieState.elapsed = 0;
+      zombieState.phaseElapsed = 0;
+      zombieState.running = false;
+      zombieState.completed = [];
+      zombieState.startTimestamp = null;
+
+      document.getElementById('workout-chooser').classList.add('workout-chooser--hidden');
+      var container = document.getElementById('zombie-mode');
+      container.classList.add('zombie-mode--visible');
+      renderZombieUI();
+    }
+
+    function renderZombieUI() {
+      var container = document.getElementById('zombie-mode');
+      var phase = zombieState.phases[zombieState.currentPhase];
+      if (!phase) return;
+
+      var totalRemaining = zombieState.totalTime - zombieState.elapsed;
+      var phaseRemaining = phase.duration - zombieState.phaseElapsed;
+      var phasePct = phase.duration > 0 ? ((phase.duration - zombieState.phaseElapsed) / phase.duration) * 100 : 0;
+      var totalPct = zombieState.totalTime > 0 ? (zombieState.elapsed / zombieState.totalTime) * 100 : 0;
+
+      var clockClass = 'zombie-mode__clock';
+      if (totalRemaining <= 60) clockClass += ' zombie-mode__clock--danger';
+
+      var phaseDesc = '';
+      if (phase.exercise) {
+        if (phase.reps) {
+          phaseDesc = phase.exercise + ' — ' + phase.reps + ' reps';
+        } else {
+          phaseDesc = phase.exercise;
+        }
+      }
+
+      // Build upcoming queue (next 3 phases)
+      var queueHtml = '';
+      for (var q = zombieState.currentPhase + 1; q < Math.min(zombieState.currentPhase + 4, zombieState.phases.length); q++) {
+        var np = zombieState.phases[q];
+        var info = ZOMBIE_PHASE_INFO[np.type];
+        queueHtml += '<div class="zombie-mode__queue-item">' +
+          '<span class="zombie-mode__queue-icon">' + info.icon + '</span>' +
+          '<span>' + np.scenario + '</span>' +
+          '<span class="zombie-mode__queue-dur">' + formatRestTime(np.duration) + '</span>' +
+          '</div>';
+      }
+
+      var btnLabel = zombieState.running ? 'Pause' : (zombieState.elapsed > 0 ? 'Resume' : 'Begin Escape');
+
+      container.innerHTML =
+        '<div class="zombie-mode__header">' +
+          '<div class="zombie-mode__title">Zombie Survival</div>' +
+          '<div class="zombie-mode__subtitle">Survive 20 minutes to reach the safe zone</div>' +
+        '</div>' +
+        '<div class="' + clockClass + '">' + formatZombieTime(totalRemaining) + '</div>' +
+        '<div class="zombie-mode__progress">' +
+          '<div class="zombie-mode__progress-bar" style="width:' + totalPct + '%"></div>' +
+        '</div>' +
+        '<div class="zombie-mode__phase zombie-mode__phase--' + phase.type + '">' +
+          '<span class="zombie-mode__phase-icon">' + phase.icon + '</span>' +
+          '<div class="zombie-mode__phase-name">' + phase.name + '</div>' +
+          '<div class="zombie-mode__phase-desc">' + escapeHtml(phase.scenario) + (phaseDesc ? '<br>' + escapeHtml(phaseDesc) : '') + '</div>' +
+          '<div class="zombie-mode__phase-timer">' + formatRestTime(Math.max(0, phaseRemaining)) + '</div>' +
+        '</div>' +
+        (queueHtml ? '<div class="zombie-mode__next">COMING UP</div><div class="zombie-mode__queue">' + queueHtml + '</div>' : '') +
+        '<div class="zombie-mode__controls">' +
+          '<button class="zombie-mode__btn zombie-mode__btn--start" onclick="toggleZombieTimer()">' + btnLabel + '</button>' +
+          '<button class="zombie-mode__btn zombie-mode__btn--quit" onclick="quitZombieMode()">Abandon</button>' +
+        '</div>';
+    }
+
+    function formatZombieTime(secs) {
+      if (secs < 0) secs = 0;
+      var m = Math.floor(secs / 60);
+      var s = secs % 60;
+      return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+    }
+
+    function toggleZombieTimer() {
+      if (zombieState.running) {
+        clearInterval(zombieState.interval);
+        zombieState.interval = null;
+        zombieState.running = false;
+        renderZombieUI();
+      } else {
+        if (!zombieState.startTimestamp) {
+          zombieState.startTimestamp = Date.now();
+        }
+        zombieState.running = true;
+        zombieState.interval = setInterval(zombieTick, 1000);
+        renderZombieUI();
+      }
+    }
+
+    function zombieTick() {
+      zombieState.elapsed++;
+      zombieState.phaseElapsed++;
+
+      var phase = zombieState.phases[zombieState.currentPhase];
+
+      // Check if current phase is done
+      if (phase && zombieState.phaseElapsed >= phase.duration) {
+        zombieState.completed.push({
+          type: phase.type,
+          exercise: phase.exercise || phase.name,
+          duration: phase.duration,
+          reps: phase.reps || null,
+          scenario: phase.scenario
+        });
+
+        zombieState.currentPhase++;
+        zombieState.phaseElapsed = 0;
+
+        // Alert for phase change
+        if (zombieState.currentPhase < zombieState.phases.length) {
+          var nextPhase = zombieState.phases[zombieState.currentPhase];
+          if (nextPhase.type === 'sprint') {
+            zombiePhaseAlert();
+          } else {
+            zombiePhaseBeep();
+          }
+        }
+      }
+
+      // Check if workout is done
+      if (zombieState.elapsed >= zombieState.totalTime || zombieState.currentPhase >= zombieState.phases.length) {
+        clearInterval(zombieState.interval);
+        zombieState.interval = null;
+        zombieState.running = false;
+        zombieComplete();
+        return;
+      }
+
+      renderZombieUI();
+    }
+
+    function zombiePhaseAlert() {
+      if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 200]);
+      try {
+        var ctx = new (window.AudioContext || window.webkitAudioContext)();
+        [0, 0.15, 0.3].forEach(function(delay) {
+          var osc = ctx.createOscillator();
+          var gain = ctx.createGain();
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.frequency.value = 1000;
+          osc.type = 'sawtooth';
+          gain.gain.value = 0.25;
+          osc.start(ctx.currentTime + delay);
+          osc.stop(ctx.currentTime + delay + 0.1);
+        });
+      } catch (e) {}
+    }
+
+    function zombiePhaseBeep() {
+      if (navigator.vibrate) navigator.vibrate(100);
+      try {
+        var ctx = new (window.AudioContext || window.webkitAudioContext)();
+        var osc = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.value = 660;
+        osc.type = 'sine';
+        gain.gain.value = 0.2;
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.15);
+      } catch (e) {}
+    }
+
+    function zombieComplete() {
+      // Save as a workout
+      var history = loadWorkoutHistory();
+      var durationStr = '20:00';
+      var exercises = [];
+
+      // Aggregate completed phases into exercise entries
+      var sprintTime = 0, jogTime = 0, walkTime = 0;
+      var exerciseMap = {};
+
+      zombieState.completed.forEach(function(c) {
+        if (c.type === 'sprint') sprintTime += c.duration;
+        else if (c.type === 'jog') jogTime += c.duration;
+        else if (c.type === 'walk') walkTime += c.duration;
+        else if (c.type === 'exercise') {
+          if (!exerciseMap[c.exercise]) exerciseMap[c.exercise] = { sets: [] };
+          if (c.reps) {
+            exerciseMap[c.exercise].sets.push({ reps: c.reps, weight: 0 });
+          } else {
+            exerciseMap[c.exercise].sets.push({ duration: formatRestTime(c.duration) });
+          }
+        }
+      });
+
+      // Add cardio phases as exercises
+      if (sprintTime > 0) exercises.push({ name: 'Sprints', inputType: 'duration', sets: [{ duration: formatRestTime(sprintTime) }] });
+      if (jogTime > 0) exercises.push({ name: 'Jogging', inputType: 'duration', sets: [{ duration: formatRestTime(jogTime) }] });
+      if (walkTime > 0) exercises.push({ name: 'Walking', inputType: 'duration', sets: [{ duration: formatRestTime(walkTime) }] });
+
+      Object.keys(exerciseMap).forEach(function(name) {
+        var ex = exerciseMap[name];
+        var hasDuration = ex.sets[0] && ex.sets[0].duration;
+        exercises.push({
+          name: name,
+          inputType: hasDuration ? 'duration' : 'bw',
+          sets: ex.sets
+        });
+      });
+
+      var workout = {
+        date: new Date().toISOString().split('T')[0],
+        startTime: zombieState.startTimestamp ? new Date(zombieState.startTimestamp).toTimeString().slice(0, 5) : '',
+        duration: durationStr,
+        exercises: exercises,
+        ts: Date.now(),
+        zombieSurvival: true
+      };
+
+      history.push(workout);
+      saveWorkoutHistory(history);
+
+      // Post to feed
+      postZombieToFeed(workout);
+      renderCrewFeed();
+      pushToRoom();
+
+      // Show completion screen
+      var container = document.getElementById('zombie-mode');
+      var exList = [];
+      zombieState.completed.forEach(function(c) {
+        if (c.type === 'exercise') {
+          exList.push(c.exercise + (c.reps ? ' x' + c.reps : ' ' + formatRestTime(c.duration)));
+        }
+      });
+
+      container.innerHTML =
+        '<div class="zombie-mode__done">' +
+          '<span class="zombie-mode__done-icon">🏆</span>' +
+          '<div class="zombie-mode__done-title">You Survived!</div>' +
+          '<div class="zombie-mode__done-stats">' +
+            '20 minutes of zombie survival<br>' +
+            (sprintTime > 0 ? '💨 Sprints: ' + formatRestTime(sprintTime) + '<br>' : '') +
+            (jogTime > 0 ? '🏃 Jogging: ' + formatRestTime(jogTime) + '<br>' : '') +
+            (walkTime > 0 ? '🚶 Walking: ' + formatRestTime(walkTime) + '<br>' : '') +
+            (exList.length > 0 ? '💪 ' + exList.join(', ') : '') +
+          '</div>' +
+        '</div>' +
+        '<div class="zombie-mode__controls">' +
+          '<button class="zombie-mode__btn zombie-mode__btn--start" onclick="quitZombieMode()">Done</button>' +
+        '</div>';
+
+      renderWorkoutHistory();
+      renderHistoryPanel();
+    }
+
+    function postZombieToFeed(workout) {
+      if (!userId || !sharedData) return;
+      if (!sharedData.feed) sharedData.feed = [];
+
+      var exCount = (workout.exercises || []).length;
+      sharedData.feed.unshift({
+        id: 'feed_z_' + Date.now(),
+        author: userId,
+        date: new Date().toISOString(),
+        type: 'workout',
+        caption: 'Survived a 20-min Zombie Escape! 🧟',
+        workoutSummary: exCount + ' exercise' + (exCount !== 1 ? 's' : '') + ' | 20:00 min | Zombie Survival Mode',
+        workoutData: workout.exercises,
+        reactions: {}
+      });
+
+      if (sharedData.feed.length > 50) sharedData.feed = sharedData.feed.slice(0, 50);
+    }
+
+    function quitZombieMode() {
+      if (zombieState.interval) {
+        clearInterval(zombieState.interval);
+        zombieState.interval = null;
+      }
+      zombieState.running = false;
+      var container = document.getElementById('zombie-mode');
+      container.classList.remove('zombie-mode--visible');
+      container.innerHTML = '';
+      document.getElementById('workout-chooser').classList.remove('workout-chooser--hidden');
+    }
+
     function showAutocomplete(exerciseId) {
       var input = document.getElementById('workout-ex-name-' + exerciseId);
       var ac = document.getElementById('workout-ac-' + exerciseId);
@@ -6143,6 +6763,10 @@
           document.getElementById('workout-timer').style.display = '';
           document.getElementById('workout-duration-row').classList.add('workout-chooser--hidden');
           document.getElementById('workout-save').textContent = 'Save Workout';
+        }
+        // Clean up zombie mode if active
+        if (zombieState.running || document.getElementById('zombie-mode').classList.contains('zombie-mode--visible')) {
+          quitZombieMode();
         }
         resetWorkoutForm();
       }
