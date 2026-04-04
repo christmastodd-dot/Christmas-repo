@@ -4952,7 +4952,7 @@
         if (res.status === 404) return { data: { members: {} }, sha: null };
         if (!res.ok) throw new Error('API ' + res.status);
         return res.json().then(function(file) {
-          return { data: JSON.parse(atob(file.content.replace(/\n/g, ''))), sha: file.sha };
+          return { data: decodeBase64Json(file.content), sha: file.sha };
         });
       }).then(function(result) {
         var latest = result.data;
@@ -7368,6 +7368,15 @@
     var userId = null;
     var previousUserId = null;
 
+    function decodeBase64Json(b64) {
+      var raw = atob(b64.replace(/\n/g, ''));
+      try {
+        return JSON.parse(decodeURIComponent(escape(raw)));
+      } catch(e) {
+        return JSON.parse(raw);
+      }
+    }
+
     function fetchRoom() {
       if (soloMode) return Promise.resolve({ members: {} });
       var urls = buildGHUrls();
@@ -7379,7 +7388,7 @@
         if (!res.ok) throw new Error('API fetch ' + res.status);
         return res.json().then(function(file) {
           ghFileSha = file.sha;
-          return JSON.parse(atob(file.content.replace(/\n/g, '')));
+          return decodeBase64Json(file.content);
         });
       });
     }
@@ -7413,7 +7422,7 @@
         if (!res.ok) throw new Error('API ' + res.status);
         return res.json().then(function(file) {
           ghFileSha = file.sha;
-          return JSON.parse(atob(file.content.replace(/\n/g, '')));
+          return decodeBase64Json(file.content);
         });
       }).then(function(latest) {
         sharedData = latest || { members: {} };
