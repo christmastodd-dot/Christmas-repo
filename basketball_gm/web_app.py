@@ -211,10 +211,17 @@ def select_team():
     if request.method == "POST":
         team_id = int(request.form["team_id"])
         league.user_team_id = team_id
-        league.phase = "preseason"
+        # Start directly in regular season — no preseason pause
+        rng = game["rng"]
+        season_obj = Season(league=league)
+        season_obj.initialize(seed=rng.randint(0, 999999))
+        game["season_obj"] = season_obj
+        league.phase = "regular_season"
+        if not game.get("draft_class"):
+            game["draft_class"] = generate_draft_class(rng=rng)
+            game["scouting_strategy"] = game.get("scouting_strategy", "balanced")
+        game["messages"].append(f"Season {league.season} has begun! You are the {league.user_team.full_name}.")
         persist_current_game()
-        # Render dashboard directly instead of redirecting.
-        # Avoids mobile browsers dropping session cookie on 302.
         return _render_dashboard(game)
 
     teams_data = []
@@ -245,8 +252,10 @@ def _render_dashboard(game):
 
     season_obj = game.get("season_obj")
     if season_obj:
-        ctx["games_played"] = season_obj.games_played
-        ctx["total_games"] = len(season_obj.schedule)
+        user_id = league.user_team_id
+        user_schedule = season_obj.get_team_schedule(user_id)
+        ctx["games_played"] = sum(1 for g in user_schedule if g.played)
+        ctx["total_games"] = len(user_schedule)  # 82 for the user's team
         ctx["current_day"] = season_obj.current_day
         ctx["season_complete"] = season_obj.season_complete
 
