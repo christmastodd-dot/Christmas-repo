@@ -1973,6 +1973,126 @@
       animation: pulse 1.5s ease infinite;
     }
 
+    /* ===== Rest Timer ===== */
+    .rest-timer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      background: var(--bg-card);
+      border-top: 2px solid var(--color-blue);
+      padding: 12px 16px;
+      transform: translateY(100%);
+      transition: transform 0.25s ease;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
+    }
+    .rest-timer--visible {
+      transform: translateY(0);
+    }
+    .rest-timer__top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .rest-timer__label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+    }
+    .rest-timer__close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 0 4px;
+      line-height: 1;
+    }
+    .rest-timer__display {
+      text-align: center;
+      font-family: var(--font-display);
+      font-size: 2.4rem;
+      font-weight: 700;
+      color: var(--color-blue);
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 2px;
+      margin-bottom: 10px;
+      transition: color 0.3s;
+    }
+    .rest-timer__display--warning {
+      color: var(--color-orange, #f59e0b);
+    }
+    .rest-timer__display--done {
+      color: var(--color-green);
+    }
+    .rest-timer__presets {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      margin-bottom: 8px;
+    }
+    .rest-timer__preset {
+      flex: 1;
+      max-width: 64px;
+      padding: 6px 0;
+      border: 1.5px solid var(--text-muted);
+      border-radius: var(--radius-sm);
+      background: none;
+      color: var(--text-secondary);
+      font-family: var(--font-body);
+      font-size: 0.72rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+    }
+    .rest-timer__preset--active {
+      border-color: var(--color-blue);
+      background: var(--color-blue);
+      color: #fff;
+    }
+    .rest-timer__controls {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+    }
+    .rest-timer__btn {
+      flex: 1;
+      max-width: 120px;
+      padding: 8px 0;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-body);
+      font-size: 0.75rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+    }
+    .rest-timer__btn--start {
+      background: var(--color-blue);
+      color: #fff;
+    }
+    .rest-timer__btn--skip {
+      background: var(--bg-surface);
+      color: var(--text-secondary);
+    }
+    .rest-timer__progress {
+      height: 3px;
+      background: var(--bg-surface);
+      border-radius: 2px;
+      margin-top: 8px;
+      overflow: hidden;
+    }
+    .rest-timer__progress-bar {
+      height: 100%;
+      background: var(--color-blue);
+      border-radius: 2px;
+      transition: width 0.25s linear;
+    }
+
     /* ===== Workout Logger ===== */
     .workout-logger {
       margin-bottom: 16px;
@@ -3196,6 +3316,29 @@
       </div>
       <div class="section-title">Workout History</div>
       <div id="workout-history"></div>
+    </div>
+
+    <!-- Rest Timer (fixed bottom bar) -->
+    <div class="rest-timer" id="rest-timer">
+      <div class="rest-timer__top">
+        <span class="rest-timer__label">Rest Timer</span>
+        <button class="rest-timer__close" onclick="dismissRestTimer()">&times;</button>
+      </div>
+      <div class="rest-timer__display" id="rest-timer-display">1:00</div>
+      <div class="rest-timer__presets" id="rest-timer-presets">
+        <button class="rest-timer__preset" onclick="setRestDuration(30)">0:30</button>
+        <button class="rest-timer__preset rest-timer__preset--active" onclick="setRestDuration(60)">1:00</button>
+        <button class="rest-timer__preset" onclick="setRestDuration(90)">1:30</button>
+        <button class="rest-timer__preset" onclick="setRestDuration(120)">2:00</button>
+        <button class="rest-timer__preset" onclick="setRestDuration(180)">3:00</button>
+      </div>
+      <div class="rest-timer__controls">
+        <button class="rest-timer__btn rest-timer__btn--start" id="rest-timer-start" onclick="toggleRestTimer()">Start</button>
+        <button class="rest-timer__btn rest-timer__btn--skip" onclick="dismissRestTimer()">Skip</button>
+      </div>
+      <div class="rest-timer__progress">
+        <div class="rest-timer__progress-bar" id="rest-timer-progress" style="width:100%"></div>
+      </div>
     </div>
 
     <!-- Crew Challenges -->
@@ -5256,6 +5399,16 @@
           revealAddSetBtn(exerciseId);
         });
       });
+
+      // Trigger rest timer when user finishes the last field in a set
+      var lastInput = inputs[inputs.length - 1];
+      if (lastInput) {
+        lastInput.addEventListener('blur', function() {
+          if (lastInput.value.trim() !== '' && editingWorkoutIdx === null) {
+            triggerRestTimer();
+          }
+        });
+      }
     }
 
     function revealAddSetBtn(exerciseId) {
@@ -5278,6 +5431,147 @@
           addWorkoutSet(exerciseId);
         }
       }
+    }
+
+    // ===== Rest Timer =====
+    var restTimerState = {
+      duration: 60,
+      remaining: 60,
+      running: false,
+      interval: null,
+      autoShow: true
+    };
+
+    // Load saved rest duration preference
+    (function() {
+      var saved = localStorage.getItem('brofit_rest_duration');
+      if (saved) {
+        restTimerState.duration = parseInt(saved) || 60;
+        restTimerState.remaining = restTimerState.duration;
+      }
+    })();
+
+    function formatRestTime(secs) {
+      var m = Math.floor(secs / 60);
+      var s = secs % 60;
+      return m + ':' + (s < 10 ? '0' : '') + s;
+    }
+
+    function setRestDuration(secs) {
+      restTimerState.duration = secs;
+      restTimerState.remaining = secs;
+      localStorage.setItem('brofit_rest_duration', secs);
+      updateRestDisplay();
+      // Update active preset button
+      var btns = document.querySelectorAll('.rest-timer__preset');
+      btns.forEach(function(btn) {
+        btn.classList.remove('rest-timer__preset--active');
+        if (btn.textContent === formatRestTime(secs)) {
+          btn.classList.add('rest-timer__preset--active');
+        }
+      });
+      // If timer was done, reset it
+      if (!restTimerState.running) {
+        var display = document.getElementById('rest-timer-display');
+        display.className = 'rest-timer__display';
+        document.getElementById('rest-timer-start').textContent = 'Start';
+      }
+    }
+
+    function updateRestDisplay() {
+      var display = document.getElementById('rest-timer-display');
+      display.textContent = formatRestTime(restTimerState.remaining);
+      var pct = restTimerState.duration > 0 ? (restTimerState.remaining / restTimerState.duration) * 100 : 0;
+      document.getElementById('rest-timer-progress').style.width = pct + '%';
+    }
+
+    function showRestTimer() {
+      var el = document.getElementById('rest-timer');
+      restTimerState.remaining = restTimerState.duration;
+      updateRestDisplay();
+      var display = document.getElementById('rest-timer-display');
+      display.className = 'rest-timer__display';
+      document.getElementById('rest-timer-start').textContent = 'Start';
+      el.classList.add('rest-timer--visible');
+    }
+
+    function dismissRestTimer() {
+      var el = document.getElementById('rest-timer');
+      el.classList.remove('rest-timer--visible');
+      if (restTimerState.interval) {
+        clearInterval(restTimerState.interval);
+        restTimerState.interval = null;
+      }
+      restTimerState.running = false;
+    }
+
+    function toggleRestTimer() {
+      if (restTimerState.running) {
+        // Pause
+        clearInterval(restTimerState.interval);
+        restTimerState.interval = null;
+        restTimerState.running = false;
+        document.getElementById('rest-timer-start').textContent = 'Resume';
+      } else {
+        // Start / resume
+        if (restTimerState.remaining <= 0) {
+          restTimerState.remaining = restTimerState.duration;
+        }
+        restTimerState.running = true;
+        document.getElementById('rest-timer-start').textContent = 'Pause';
+        restTimerState.interval = setInterval(function() {
+          restTimerState.remaining--;
+          updateRestDisplay();
+          var display = document.getElementById('rest-timer-display');
+          if (restTimerState.remaining <= 5 && restTimerState.remaining > 0) {
+            display.className = 'rest-timer__display rest-timer__display--warning';
+          }
+          if (restTimerState.remaining <= 0) {
+            clearInterval(restTimerState.interval);
+            restTimerState.interval = null;
+            restTimerState.running = false;
+            display.className = 'rest-timer__display rest-timer__display--done';
+            display.textContent = 'GO!';
+            document.getElementById('rest-timer-start').textContent = 'Restart';
+            document.getElementById('rest-timer-progress').style.width = '0%';
+            restTimerAlert();
+          }
+        }, 1000);
+      }
+    }
+
+    function restTimerAlert() {
+      // Vibrate if supported
+      if (navigator.vibrate) {
+        navigator.vibrate([200, 100, 200, 100, 200]);
+      }
+      // Play a short beep using Web Audio API
+      try {
+        var ctx = new (window.AudioContext || window.webkitAudioContext)();
+        [0, 0.25, 0.5].forEach(function(delay) {
+          var osc = ctx.createOscillator();
+          var gain = ctx.createGain();
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.frequency.value = 880;
+          osc.type = 'sine';
+          gain.gain.value = 0.3;
+          osc.start(ctx.currentTime + delay);
+          osc.stop(ctx.currentTime + delay + 0.15);
+        });
+      } catch (e) {}
+    }
+
+    // Auto-show rest timer when user completes a set (enters data and moves to next field)
+    function triggerRestTimer() {
+      if (!restTimerState.autoShow) return;
+      // Only trigger if workout panel is open
+      var panel = document.getElementById('section-workout');
+      if (!panel || panel.style.display === 'none') return;
+      // Don't re-trigger if already visible and running
+      if (restTimerState.running) return;
+      showRestTimer();
+      toggleRestTimer(); // Auto-start
     }
 
     function showAutocomplete(exerciseId) {
@@ -5863,6 +6157,7 @@
       setCounters = {};
       exerciseInputTypes = {};
       stopWorkoutTimer();
+      dismissRestTimer();
     }
 
     function initWorkoutForm() {
@@ -7411,6 +7706,9 @@
 
       // Greeting
       document.getElementById('greeting-time').textContent = getTimeGreeting();
+
+      // Init rest timer display with saved preference
+      updateRestDisplay();
 
       // Refresh all UI from state
       refreshUI();
