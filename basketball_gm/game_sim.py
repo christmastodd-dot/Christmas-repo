@@ -164,7 +164,7 @@ def _allocate_minutes(team: Team, extra_minutes: float = 0.0) -> dict[int, float
     bench = team.get_bench()
 
     total_minutes = 240.0 + extra_minutes
-    starter_total = min(5 * 40.0, total_minutes * 0.72)  # starters get ~72%
+    starter_total = min(5 * 35.0, total_minutes * 0.65)  # starters get ~65%
     bench_total = total_minutes - starter_total
 
     minutes = {}
@@ -176,7 +176,7 @@ def _allocate_minutes(team: Team, extra_minutes: float = 0.0) -> dict[int, float
         for p, ovr in zip(starters, starter_overalls):
             share = ovr / s_total
             mins = starter_total * share
-            minutes[p.id] = max(24.0, min(38.0 + extra_minutes * 0.4, mins))
+            minutes[p.id] = max(22.0, min(34.0 + extra_minutes * 0.4, mins))
 
     # Distribute bench minutes weighted by overall (power-scaled)
     active_bench = bench[:8]  # max 8 bench players get minutes
@@ -349,11 +349,11 @@ def _simulate_possessions(
         p = offense_players[pid]
         score_ability = (p.ratings["shooting"] * 0.6 + p.ratings["athleticism"] * 0.3
                          + p.ratings["basketball_iq"] * 0.1)
-        tendency = _player_tendency(pid, "scoring", 0.4, 1.6)
-        iso = offense_minutes[pid] * (score_ability ** 1.4) * tendency
+        tendency = _player_tendency(pid, "scoring", 0.2, 2.5)
+        iso = offense_minutes[pid] * (score_ability ** 1.8) * tendency
         iso_weights.append(iso)
-        # Catch-and-shoot: flatter than iso, spreads scoring to role players
-        catch = offense_minutes[pid] * (score_ability ** 0.5)
+        # Stars get more catch-and-shoot too (plays designed for them) but flatter
+        catch = offense_minutes[pid] * score_ability * (tendency ** 0.5)
         catch_weights.append(catch)
 
     home_bonus = HOME_COURT_BONUS if is_home else 0.0
@@ -382,7 +382,7 @@ def _simulate_possessions(
         athleticism = handler.ratings["athleticism"] / 100.0
 
         # Assist chance: targets ~70% of FGM being assisted (NBA-like)
-        assist_chance = 0.32 + 0.16 * (handler.ratings["passing"] / 100.0)
+        assist_chance = 0.42 + 0.18 * (handler.ratings["passing"] / 100.0)
         is_assisted = r.random() < assist_chance
         if is_assisted:
             # Pick a different scorer — use catch_weights (flatter) so assists
@@ -603,7 +603,7 @@ def _award_steals_blocks(
     two_pt_misses = int(opponent_misses * 0.6)
 
     # Source 1: Base team blocks (distributed by pool)
-    base_block_rate = 0.020  # ~0.5 blocks per team per game
+    base_block_rate = 0.025  # ~0.6 blocks per team per game
     num_base_blocks = 0
     for _ in range(two_pt_misses):
         if r.random() < base_block_rate:
@@ -631,7 +631,7 @@ def _award_steals_blocks(
         tendency = _player_tendency(pid, "blocks", 0.01, 10.0)
         minutes_frac = def_minutes.get(pid, 0) / 240.0
         # Only high-tendency players generate meaningful extra blocks
-        block_rate = 0.020 * raw * pos_mult * tendency * minutes_frac * 5.0
+        block_rate = 0.025 * raw * pos_mult * tendency * minutes_frac * 5.0
         block_rate = min(block_rate, 0.15)
         for _ in range(two_pt_misses):
             if r.random() < block_rate:
