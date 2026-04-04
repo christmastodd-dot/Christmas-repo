@@ -4945,14 +4945,18 @@
       if (attempt > 3) { alert('Gift failed to send after retries'); return; }
       var urls = buildGHUrls();
 
-      // Fetch latest file + SHA in one call
+      // Get SHA from API, then read data from raw URL
       fetch(urls.api + '?ref=' + GH_BRANCH, {
         headers: { 'Authorization': 'token ' + ghToken, 'Accept': 'application/vnd.github.v3+json' }
       }).then(function(res) {
-        if (res.status === 404) return { data: { members: {} }, sha: null };
+        if (res.status === 404) return { sha: null };
         if (!res.ok) throw new Error('API ' + res.status);
         return res.json().then(function(file) {
-          return { data: decodeBase64Json(file.content), sha: file.sha };
+          return { sha: file.sha };
+        });
+      }).then(function(shaResult) {
+        return fetchRoom().then(function(data) {
+          return { data: data, sha: shaResult.sha };
         });
       }).then(function(result) {
         var latest = result.data;
@@ -7406,19 +7410,22 @@
       var localChallenges = sharedData && sharedData.challenges ? sharedData.challenges.slice() : [];
       var localGifts = sharedData && sharedData.gifts ? sharedData.gifts.slice() : [];
 
-      // Get latest file SHA first (needed for updates)
+      // Get latest SHA, then read data from raw URL (reliable JSON)
       return fetch(urls.api + '?ref=' + GH_BRANCH, {
         headers: { 'Authorization': 'token ' + ghToken, 'Accept': 'application/vnd.github.v3+json' }
       }).then(function(res) {
         if (res.status === 404) {
           ghFileSha = null;
-          return fetchRoom();
+          return null;
         }
         if (!res.ok) throw new Error('API ' + res.status);
         return res.json().then(function(file) {
           ghFileSha = file.sha;
-          return decodeBase64Json(file.content);
+          return null;
         });
+      }).then(function() {
+        // Read actual data from raw URL (plain JSON, no base64)
+        return fetchRoom();
       }).then(function(latest) {
         sharedData = latest || { members: {} };
         if (!sharedData.members) sharedData.members = {};
@@ -7891,7 +7898,12 @@
           sharedData = { members: {} };
           renderAllLeaderboards();
         } else {
+          setSyncStatus('syncing');
           fetchRoom().then(function(data) {
+            if (!data || !data.members) {
+              console.error('fetchRoom returned bad data:', data);
+              data = { members: {} };
+            }
             sharedData = data;
             setSyncStatus('online');
             renderAllLeaderboards();
@@ -7900,6 +7912,9 @@
             syncInterval = setInterval(pullFromRoom, 30000);
           }).catch(function(err) {
             console.error('Initial fetch failed:', err);
+            // Show the actual error so user can report it
+            var label = document.getElementById('sync-label');
+            if (label) label.textContent = 'Sync error: ' + err.message;
             sharedData = { members: {} };
             setSyncStatus('offline');
             renderAllLeaderboards();
