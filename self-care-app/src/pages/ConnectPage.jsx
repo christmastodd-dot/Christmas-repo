@@ -1,6 +1,7 @@
 import HabitTracker from '../components/HabitTracker'
 import PeopleTracker from '../components/PeopleTracker'
 import ActivityLog from '../components/ActivityLog'
+import PillarInsights from '../components/PillarInsights'
 
 export default function ConnectPage() {
   return (
@@ -18,6 +19,7 @@ export default function ConnectPage() {
         </div>
       </div>
 
+      <PillarInsights pillar="connect" color="var(--color-connect)" />
       <PeopleTracker />
 
       <div className="mt-6">

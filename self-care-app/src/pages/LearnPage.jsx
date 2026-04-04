@@ -1,5 +1,6 @@
 import HabitTracker from '../components/HabitTracker'
 import ActivityLog from '../components/ActivityLog'
+import PillarInsights from '../components/PillarInsights'
 
 export default function LearnPage() {
   return (
@@ -17,6 +18,7 @@ export default function LearnPage() {
         </div>
       </div>
 
+      <PillarInsights pillar="learn" color="var(--color-learn)" />
       <HabitTracker pillar="learn" color="var(--color-learn)" />
 
       <div className="mt-6">
