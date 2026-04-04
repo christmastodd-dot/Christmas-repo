@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Score {{ legislator.name }} — Admin{% endblock %}
+
+{% block content %}
+<div style="margin-bottom:1rem;">
+    <a href="{{ url_for('admin_scoring') }}" style="color:var(--maroon); font-size:0.9rem;">&larr; Back to Scoring</a>
+</div>
+
+<div class="card mb-2" style="display:flex; align-items:center; gap:1.5rem;">
+    <div class="legislator-photo">
+        {% if legislator.headshot_url %}
+            <img src="{{ legislator.headshot_url }}" alt="{{ legislator.name }}">
+        {% else %}
+            <div class="legislator-photo-placeholder">{{ legislator.name[0] }}</div>
+        {% endif %}
+    </div>
+    <div>
+        <h1 style="border-bottom:none; margin-bottom:0.25rem;">{{ legislator.name }}</h1>
+        {% if legislator.team_name %}
+            <div style="font-size:0.9rem; opacity:0.7;">{{ legislator.team_name }} &middot; {{ legislator.category }}</div>
+        {% endif %}
+        <div class="stat-value mt-1">{{ "{:,}".format(legislator.total_points) }} pts</div>
+    </div>
+</div>
+
+<div class="card mb-2">
+    <h2>Award Points</h2>
+    <div class="scoring-buttons">
+        {% for action_name, points in scoring_actions %}
+        <form method="POST" action="{{ url_for('admin_add_score', legislator_id=legislator.id) }}" style="display:inline;">
+            <input type="hidden" name="event_type" value="{{ action_name }}">
+            <input type="hidden" name="points" value="{{ points }}">
+            <button type="submit" class="btn scoring-btn" onclick="return confirm('Award {{ "{:,}".format(points) }} pts for \'{{ action_name }}\'?')">
+                <span class="scoring-btn-label">{{ action_name }}</span>
+                <span class="scoring-btn-points">+{{ "{:,}".format(points) }}</span>
+            </button>
+        </form>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="card">
+    <h2>Event History</h2>
+    {% if events %}
+    <table>
+        <thead>
+            <tr>
+                <th>Event</th>
+                <th>Points</th>
+                <th>Time</th>
+                <th style="width:80px;">Undo</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for event in events %}
+            <tr>
+                <td>{{ event.event_type }}</td>
+                <td class="text-gold">+{{ "{:,}".format(event.points) }}</td>
+                <td>{{ event.created_at }}</td>
+                <td>
+                    <form method="POST" action="{{ url_for('admin_undo_score', event_id=event.id) }}"
+                          onsubmit="return confirm('Undo this event?')">
+                        <button type="submit" class="btn btn-danger btn-small">Undo</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p class="mt-1" style="opacity:0.6;">No scoring events yet for this legislator.</p>
+    {% endif %}
+</div>
+{% endblock %}

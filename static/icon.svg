@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3A2E2A"/>
+      <stop offset="100%" stop-color="#6B1D2A"/>
+    </linearGradient>
+  </defs>
+  <!-- Background -->
+  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
+  <!-- Capitol dome -->
+  <ellipse cx="256" cy="220" rx="120" ry="60" fill="none" stroke="#D4A574" stroke-width="8"/>
+  <path d="M136 220 L136 320 L376 320 L376 220" fill="none" stroke="#D4A574" stroke-width="8"/>
+  <!-- Columns -->
+  <line x1="170" y1="240" x2="170" y2="320" stroke="#E4C49A" stroke-width="10" stroke-linecap="round"/>
+  <line x1="220" y1="240" x2="220" y2="320" stroke="#E4C49A" stroke-width="10" stroke-linecap="round"/>
+  <line x1="292" y1="240" x2="292" y2="320" stroke="#E4C49A" stroke-width="10" stroke-linecap="round"/>
+  <line x1="342" y1="240" x2="342" y2="320" stroke="#E4C49A" stroke-width="10" stroke-linecap="round"/>
+  <!-- Base -->
+  <rect x="120" y="320" width="272" height="16" rx="4" fill="#D4A574"/>
+  <!-- Cupola -->
+  <path d="M220 164 Q256 100 292 164" fill="none" stroke="#D4A574" stroke-width="8" stroke-linecap="round"/>
+  <line x1="256" y1="100" x2="256" y2="80" stroke="#D4A574" stroke-width="6" stroke-linecap="round"/>
+  <!-- Star on top -->
+  <polygon points="256,62 260,72 271,72 262,78 265,88 256,82 247,88 250,78 241,72 252,72" fill="#B8860B"/>
+  <!-- FAIL text -->
+  <text x="256" y="400" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="72" font-weight="800" letter-spacing="8" fill="#D4A574">FAIL</text>
+  <!-- Subtitle -->
+  <text x="256" y="440" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="28" font-weight="600" letter-spacing="3" fill="#E4C49A" opacity="0.7">HAWAII</text>
+</svg>

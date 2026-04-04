@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — Fantasy Legislature League{% endblock %}
+
+{% block content %}
+<h1>Dashboard</h1>
+
+<div class="stats-grid">
+    <div class="card stat-card">
+        <div class="stat-value">{{ team_count }}</div>
+        <div class="stat-label">Teams</div>
+    </div>
+    <div class="card stat-card">
+        <div class="stat-value">{{ legislator_count }}</div>
+        <div class="stat-label">Legislators Drafted</div>
+    </div>
+    <div class="card stat-card">
+        <div class="stat-value">{{ total_events }}</div>
+        <div class="stat-label">Scoring Events</div>
+    </div>
+</div>
+
+{% if current_user.is_admin %}
+<div class="card mb-2">
+    <h2>Admin Quick Links</h2>
+    <div class="mt-1">
+        <a href="{{ url_for('admin_manage_users') }}" class="btn btn-primary btn-small">Manage Users</a>
+        <a href="{{ url_for('admin_manage_legislators') }}" class="btn btn-secondary btn-small">Manage Legislators</a>
+        <a href="{{ url_for('admin_scoring') }}" class="btn btn-gold btn-small">Award Points</a>
+    </div>
+</div>
+{% endif %}
+
+<div class="card">
+    <h2>Recent Activity</h2>
+    {% if recent_events %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Legislator</th>
+                    <th>Event</th>
+                    <th>Points</th>
+                    <th>Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for event in recent_events %}
+                <tr>
+                    <td>{{ event.legislator_name }}</td>
+                    <td>{{ event.event_type }}</td>
+                    <td class="text-gold">+{{ event.points }}</td>
+                    <td>{{ event.created_at }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="mt-1" style="opacity:0.6;">No scoring events yet.</p>
+    {% endif %}
+</div>
+{% endblock %}
