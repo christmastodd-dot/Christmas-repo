@@ -9,6 +9,7 @@ import BodyPage from './pages/BodyPage'
 import CheckInPage from './pages/CheckInPage'
 import WeeklyReviewPage from './pages/WeeklyReviewPage'
 import SettingsPage from './pages/SettingsPage'
+import QuickAdd from './components/QuickAdd'
 import { initReminders } from './utils/notifications'
 
 const pages = {
@@ -65,6 +66,7 @@ export default function App() {
       <main ref={mainRef} className="flex-1 pb-20 overflow-y-auto">
         <Page {...pageProps} />
       </main>
+      <QuickAdd onNavigate={handleNavigate} />
       <BottomNav activeTab={activeTab} onTabChange={handleNavigate} />
     </div>
   )
