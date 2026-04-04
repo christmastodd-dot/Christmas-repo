@@ -1571,6 +1571,40 @@
       "workouts": [],
       "templates": [],
       "lastSync": "2026-04-03T15:19:42.512Z"
+    },
+    "CT": {
+      "xp": 60,
+      "streak": 1,
+      "prs": {
+        "bench": {
+          "history": [],
+          "best": null,
+          "best2026": null
+        },
+        "squat": {
+          "history": [],
+          "best": null,
+          "best2026": null
+        },
+        "deadlift": {
+          "history": [],
+          "best": null,
+          "best2026": null
+        },
+        "mile": {
+          "history": [],
+          "best": null,
+          "best2026": null
+        }
+      },
+      "weight": {
+        "history": [],
+        "start": null,
+        "current": null
+      },
+      "workouts": [],
+      "templates": [],
+      "lastSync": "2026-04-04T08:00:52.065Z"
     }
   },
   "feed": [
