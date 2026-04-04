@@ -35,6 +35,7 @@
         </form>
 
         {% elif phase == "regular_season" %}
+        <a href="{{ url_for('scouting_view') }}" class="btn btn-outline">Scouting / Draft Board</a>
         <form method="post" action="{{ url_for('do_action', action='sim_day') }}">
             <button type="submit" class="btn">Sim Day</button>
         </form>
