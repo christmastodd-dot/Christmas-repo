@@ -718,204 +718,6 @@
       padding: 20px;
     }
 
-    /* Gift Feature */
-    .gift-btn {
-      background: transparent;
-      color: var(--color-gold);
-      font-family: var(--font-body);
-      font-size: 0.7rem;
-      font-weight: 700;
-      padding: 3px 10px;
-      border: 1.5px solid var(--color-gold);
-      border-radius: 20px;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-
-    .gift-btn:active {
-      transform: scale(0.95);
-    }
-
-    .gift-modal {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.85);
-      z-index: 1100;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-
-    .gift-modal--hidden { display: none; }
-
-    .gift-modal__box {
-      background: var(--bg-card);
-      border-radius: var(--radius-md);
-      padding: 24px 20px;
-      max-width: 340px;
-      width: 100%;
-      text-align: center;
-    }
-
-    .gift-modal__title {
-      font-family: var(--font-display);
-      font-size: 1.1rem;
-      margin-bottom: 14px;
-    }
-
-    .gift-modal__members {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      margin-bottom: 16px;
-      text-align: left;
-    }
-
-    .gift-modal__member {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 8px 12px;
-      background: var(--bg-surface);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: var(--radius-sm);
-      cursor: pointer;
-      font-size: 0.85rem;
-      transition: all 0.15s;
-    }
-
-    .gift-modal__member--selected {
-      border-color: var(--color-gold);
-      background: rgba(255, 215, 0, 0.08);
-    }
-
-    .gift-modal__member-check {
-      width: 18px;
-      height: 18px;
-      border: 2px solid rgba(255,255,255,0.2);
-      border-radius: 4px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.7rem;
-      flex-shrink: 0;
-    }
-
-    .gift-modal__member--selected .gift-modal__member-check {
-      border-color: var(--color-gold);
-      background: var(--color-gold);
-      color: var(--bg-primary);
-    }
-
-    .gift-modal__preview {
-      margin-bottom: 12px;
-    }
-
-    .gift-modal__preview img {
-      max-width: 100%;
-      max-height: 200px;
-      border-radius: var(--radius-sm);
-      border: 1px solid rgba(255,255,255,0.1);
-    }
-
-    .gift-modal__actions {
-      display: flex;
-      gap: 8px;
-    }
-
-    .gift-modal__actions button {
-      flex: 1;
-      padding: 10px;
-      border-radius: var(--radius-sm);
-      font-family: var(--font-body);
-      font-size: 0.85rem;
-      font-weight: 700;
-      border: none;
-      cursor: pointer;
-    }
-
-    .gift-modal__cancel {
-      background: var(--bg-surface);
-      color: var(--text-secondary);
-    }
-
-    .gift-modal__send {
-      background: var(--color-gold);
-      color: var(--bg-primary);
-    }
-
-    .gift-modal__send:active {
-      transform: scale(0.97);
-    }
-
-    .gift-modal__file-btn {
-      background: var(--bg-surface);
-      color: var(--text-secondary);
-      border: 1px dashed rgba(255,255,255,0.25);
-      border-radius: var(--radius-sm);
-      padding: 14px;
-      font-size: 0.85rem;
-      font-family: var(--font-body);
-      cursor: pointer;
-      width: 100%;
-      margin-bottom: 12px;
-    }
-
-    .gift-overlay {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.92);
-      z-index: 2000;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      animation: giftFadeIn 0.4s ease;
-    }
-
-    @keyframes giftFadeIn {
-      from { opacity: 0; transform: scale(0.9); }
-      to { opacity: 1; transform: scale(1); }
-    }
-
-    .gift-overlay__from {
-      font-family: var(--font-display);
-      font-size: 1rem;
-      color: var(--color-gold);
-      margin-bottom: 12px;
-    }
-
-    .gift-overlay__image {
-      max-width: 90%;
-      max-height: 60vh;
-      border-radius: var(--radius-md);
-      box-shadow: 0 0 40px rgba(255, 215, 0, 0.2);
-      margin-bottom: 16px;
-    }
-
-    .gift-overlay__timer {
-      font-size: 0.8rem;
-      color: var(--text-secondary);
-    }
-
-    .gift-overlay__timer-bar {
-      width: 120px;
-      height: 3px;
-      background: rgba(255,255,255,0.1);
-      border-radius: 2px;
-      margin-top: 6px;
-      overflow: hidden;
-    }
-
-    .gift-overlay__timer-fill {
-      height: 100%;
-      background: var(--color-gold);
-      border-radius: 2px;
-      transition: width 1s linear;
-    }
-
     /* ===== Leaderboard ===== */
 
     /* ===== Macrocycle / Training Program ===== */
@@ -3283,25 +3085,7 @@
         <div class="sync-bar__dot" id="sync-dot"></div>
         <span id="sync-label">Connecting...</span>
       </div>
-      <div style="display:flex;gap:6px">
-        <button class="gift-btn" onclick="openGiftModal()">Leave a Gift</button>
-        <button class="sync-bar__share" onclick="shareRoom()">Share Link</button>
-      </div>
-    </div>
-
-    <!-- Gift Modal -->
-    <div class="gift-modal gift-modal--hidden" id="gift-modal">
-      <div class="gift-modal__box">
-        <div class="gift-modal__title">Leave a Gift</div>
-        <div class="gift-modal__members" id="gift-members"></div>
-        <button class="gift-modal__file-btn" id="gift-file-btn" onclick="document.getElementById('gift-file-input').click()">+ Choose a Photo</button>
-        <input type="file" id="gift-file-input" accept="image/*" style="display:none" onchange="handleGiftImage(this)">
-        <div class="gift-modal__preview" id="gift-preview"></div>
-        <div class="gift-modal__actions">
-          <button class="gift-modal__cancel" onclick="closeGiftModal()">Cancel</button>
-          <button class="gift-modal__send" onclick="sendGift()">Send Gift</button>
-        </div>
-      </div>
+      <button class="sync-bar__share" onclick="shareRoom()">Share Link</button>
     </div>
 
     <!-- PR Log (appears near top when opened) -->
@@ -4847,221 +4631,6 @@
       return html;
     }
 
-    // ===== Gift Feature =====
-
-    var giftPendingImage = null;
-    var giftSelectedMembers = {};
-
-    function openGiftModal() {
-      giftPendingImage = null;
-      giftSelectedMembers = {};
-      document.getElementById('gift-preview').innerHTML = '';
-      document.getElementById('gift-file-btn').textContent = '+ Choose a Photo';
-
-      // Build member list
-      var members = [];
-      if (sharedData && sharedData.members) {
-        Object.keys(sharedData.members).forEach(function(name) {
-          if (name !== userId) members.push(name);
-        });
-      }
-
-      var container = document.getElementById('gift-members');
-      if (members.length === 0) {
-        container.innerHTML = '<div style="color:var(--text-muted);font-size:0.8rem;padding:8px">No crew members to gift</div>';
-      } else {
-        container.innerHTML = '';
-        members.forEach(function(name) {
-          var div = document.createElement('div');
-          div.className = 'gift-modal__member';
-          div.innerHTML = '<div class="gift-modal__member-check"></div><span>' + name + '</span>';
-          div.addEventListener('click', function() {
-            giftSelectedMembers[name] = !giftSelectedMembers[name];
-            div.classList.toggle('gift-modal__member--selected', giftSelectedMembers[name]);
-            div.querySelector('.gift-modal__member-check').textContent = giftSelectedMembers[name] ? '✓' : '';
-          });
-          container.appendChild(div);
-        });
-      }
-
-      document.getElementById('gift-modal').classList.remove('gift-modal--hidden');
-    }
-
-    function closeGiftModal() {
-      document.getElementById('gift-modal').classList.add('gift-modal--hidden');
-      giftPendingImage = null;
-      giftSelectedMembers = {};
-    }
-
-    function handleGiftImage(input) {
-      var file = input.files && input.files[0];
-      if (!file) return;
-      var reader = new FileReader();
-      reader.onload = function(e) {
-        var img = new Image();
-        img.onload = function() {
-          var maxW = 400, maxH = 400;
-          var w = img.width, h = img.height;
-          if (w > maxW || h > maxH) {
-            var ratio = Math.min(maxW / w, maxH / h);
-            w = Math.round(w * ratio);
-            h = Math.round(h * ratio);
-          }
-          var canvas = document.createElement('canvas');
-          canvas.width = w;
-          canvas.height = h;
-          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-          giftPendingImage = canvas.toDataURL('image/jpeg', 0.5);
-          document.getElementById('gift-preview').innerHTML = '<img src="' + giftPendingImage + '">';
-          document.getElementById('gift-file-btn').textContent = 'Change Photo';
-        };
-        img.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
-      input.value = '';
-    }
-
-    function sendGift() {
-      if (!giftPendingImage) { alert('Choose a photo first'); return; }
-      var recipients = Object.keys(giftSelectedMembers).filter(function(k) { return giftSelectedMembers[k]; });
-      if (recipients.length === 0) { alert('Select at least one crew member'); return; }
-
-      var newGifts = [];
-      recipients.forEach(function(name) {
-        newGifts.push({
-          id: 'gift_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
-          from: userId,
-          to: name,
-          image: giftPendingImage,
-          date: new Date().toISOString()
-        });
-      });
-
-      closeGiftModal();
-      sendGiftWithRetry(newGifts, 0);
-    }
-
-    function sendGiftWithRetry(newGifts, attempt) {
-      if (attempt > 3) { alert('Gift failed to send after retries'); return; }
-      var urls = buildGHUrls();
-
-      // Get SHA from API, then read data from raw URL
-      fetch(urls.api + '?ref=' + GH_BRANCH, {
-        headers: { 'Authorization': 'token ' + ghToken, 'Accept': 'application/vnd.github.v3+json' }
-      }).then(function(res) {
-        if (res.status === 404) return { sha: null };
-        if (!res.ok) throw new Error('API ' + res.status);
-        return res.json().then(function(file) {
-          return { sha: file.sha };
-        });
-      }).then(function(shaResult) {
-        return fetchRoom().then(function(data) {
-          return { data: data, sha: shaResult.sha };
-        });
-      }).then(function(result) {
-        var latest = result.data;
-        if (!latest.gifts) latest.gifts = [];
-
-        // Add new gifts to latest server data
-        newGifts.forEach(function(g) { latest.gifts.push(g); });
-
-        // Also update our member data
-        if (!latest.members) latest.members = {};
-        latest.members[userId] = buildMyData();
-
-        var body = {
-          message: 'BroFit gift from ' + userId,
-          content: btoa(unescape(encodeURIComponent(JSON.stringify(latest, null, 2)))),
-          branch: GH_BRANCH
-        };
-        if (result.sha) body.sha = result.sha;
-
-        return fetch(urls.api, {
-          method: 'PUT',
-          headers: { 'Authorization': 'token ' + ghToken, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
-          body: JSON.stringify(body)
-        });
-      }).then(function(res) {
-        if (res.status === 409) {
-          // SHA conflict — retry with fresh data
-          var delay = (attempt + 1) * 1000;
-          setTimeout(function() { sendGiftWithRetry(newGifts, attempt + 1); }, delay);
-          return;
-        }
-        if (!res.ok) {
-          return res.json().then(function(j) { throw new Error('Push ' + res.status + ': ' + (j.message || '')); });
-        }
-        return res.json().then(function(result) {
-          if (result.content) ghFileSha = result.content.sha;
-          // Update local sharedData to match what we just pushed
-          if (!sharedData) sharedData = { members: {} };
-          if (!sharedData.gifts) sharedData.gifts = [];
-          newGifts.forEach(function(g) { sharedData.gifts.push(g); });
-          setSyncStatus('online');
-        });
-      }).catch(function(err) {
-        console.error('Gift send failed:', err);
-        alert('Gift failed to send: ' + err.message);
-      });
-    }
-
-    var giftShowing = false;
-
-    function checkForGifts() {
-      if (giftShowing) return; // Don't stack gift overlays
-      if (!userId || !sharedData || !sharedData.gifts) return;
-      var myGifts = sharedData.gifts.filter(function(g) { return g.to === userId; });
-      if (myGifts.length === 0) return;
-
-      giftShowing = true;
-      showGift(myGifts, 0);
-    }
-
-    function showGift(gifts, idx) {
-      if (idx >= gifts.length) { giftShowing = false; return; }
-      var gift = gifts[idx];
-
-      var overlay = document.createElement('div');
-      overlay.className = 'gift-overlay';
-      overlay.innerHTML =
-        '<div class="gift-overlay__from">A gift from ' + escapeHtml(gift.from) + '</div>' +
-        '<img class="gift-overlay__image" src="' + gift.image + '">' +
-        '<div class="gift-overlay__timer">' +
-          '<span id="gift-timer-text">Disappears in 5s</span>' +
-          '<div class="gift-overlay__timer-bar"><div class="gift-overlay__timer-fill" id="gift-timer-fill" style="width:100%"></div></div>' +
-        '</div>';
-      document.body.appendChild(overlay);
-
-      var seconds = 5;
-      var fill = document.getElementById('gift-timer-fill');
-      var timerText = document.getElementById('gift-timer-text');
-
-      // Start countdown
-      var interval = setInterval(function() {
-        seconds--;
-        if (fill) fill.style.width = (seconds / 5 * 100) + '%';
-        if (timerText) timerText.textContent = 'Disappears in ' + seconds + 's';
-        if (seconds <= 0) {
-          clearInterval(interval);
-          overlay.style.opacity = '0';
-          overlay.style.transition = 'opacity 0.4s';
-          setTimeout(function() {
-            overlay.remove();
-            // Remove this gift from sharedData
-            removeGift(gift.id);
-            // Show next gift
-            showGift(gifts, idx + 1);
-          }, 400);
-        }
-      }, 1000);
-    }
-
-    function removeGift(giftId) {
-      if (!sharedData || !sharedData.gifts) return;
-      sharedData.gifts = sharedData.gifts.filter(function(g) { return g.id !== giftId; });
-      pushToRoom();
-    }
-
     function escapeHtml(str) {
       var div = document.createElement('div');
       div.textContent = str;
@@ -6138,6 +5707,21 @@
       }
     }
 
+    function buildEditHeader(iType) {
+      var h = '<div class="workout-edit-hdr"><span class="hdr-spacer"></span>';
+      if (iType === 'cardio') {
+        h += '<span>Duration</span><span>Distance</span>';
+      } else if (iType === 'duration') {
+        h += '<span>Duration</span>';
+      } else if (iType === 'bw') {
+        h += '<span>+/- lbs</span><span>Reps</span><span style="flex:0.6">Mode</span>';
+      } else {
+        h += '<span>Weight</span><span>Reps</span>';
+      }
+      h += '<span class="hdr-del-spacer"></span></div>';
+      return h;
+    }
+
 
     function editWorkout(idx) {
       var history = loadWorkoutHistory();
@@ -6146,7 +5730,6 @@
 
       editingWorkoutIdx = idx;
 
-      // Open the workout panel and logger
       var panel = document.getElementById('workout-panel');
       var btn = document.getElementById('workout-toggle');
       panel.classList.add('workout-panel--open');
@@ -6155,30 +5738,23 @@
 
       resetWorkoutForm();
 
-      // Set date/time from the workout being edited
       document.getElementById('workout-date').value = w.date || '';
       document.getElementById('workout-time').value = w.startTime || '';
 
-      // Hide chooser, show logger
       document.getElementById('workout-chooser').classList.add('workout-chooser--hidden');
       document.getElementById('workout-logger').classList.remove('workout-chooser--hidden');
 
-      // Hide timer for edits, show duration field instead
-      var timerEl = document.getElementById('workout-timer');
-      timerEl.style.display = 'none';
+      // Hide timer, show duration field
+      document.getElementById('workout-timer').style.display = 'none';
       var durationRow = document.getElementById('workout-duration-row');
       durationRow.classList.remove('workout-chooser--hidden');
       document.getElementById('workout-edit-duration').value = w.duration || '';
 
-      // Change save button
-      var saveBtn = document.getElementById('workout-save');
-      saveBtn.textContent = 'Save Changes';
+      document.getElementById('workout-save').textContent = 'Save Changes';
 
-      // Populate exercises
       (w.exercises || []).forEach(function(ex) {
         addWorkoutExercise(ex.name);
         var exId = workoutExerciseCounter;
-
         if (ex.sets && ex.sets.length > 0) {
           var setsContainer = document.getElementById('workout-sets-' + exId);
           setsContainer.innerHTML = '';
@@ -6209,12 +5785,13 @@
         }
       });
 
-      // Scroll to workout panel
       setTimeout(function() {
         var top = panel.getBoundingClientRect().top + window.scrollY - document.querySelector('.header').offsetHeight - 8;
         window.scrollTo({ top: top, behavior: 'smooth' });
       }, 10);
     }
+
+    var editingWorkoutIdx = null;
 
     function toggleWorkout() {
       var panel = document.getElementById('workout-panel');
@@ -6224,14 +5801,11 @@
 
       if (isOpen) {
         btn.querySelector('.workout-start-btn__text').textContent = 'Close Workout';
-        // Close history panel if open
         var hp = document.getElementById('workout-history-panel');
         hp.classList.remove('workout-history-panel--open');
         document.getElementById('history-toggle').classList.remove('workout-history-btn--active');
-        // Show chooser, hide logger form
         document.getElementById('workout-chooser').classList.remove('workout-chooser--hidden');
         document.getElementById('workout-logger').classList.add('workout-chooser--hidden');
-        // Reset sub-lists
         document.getElementById('workout-prior-list').classList.add('workout-chooser--hidden');
         document.getElementById('workout-template-list').classList.add('workout-chooser--hidden');
         renderWorkoutHistory();
@@ -6241,7 +5815,6 @@
         }, 10);
       } else {
         btn.querySelector('.workout-start-btn__text').textContent = 'Start a New Workout';
-        // Reset form and edit state
         if (editingWorkoutIdx !== null) {
           editingWorkoutIdx = null;
           document.getElementById('workout-timer').style.display = '';
@@ -6252,7 +5825,6 @@
       }
     }
 
-    var editingWorkoutIdx = null; // non-null when editing a past workout
     var workoutStartTime = null;
     var workoutTimerInterval = null;
 
@@ -7372,19 +6944,9 @@
     var userId = null;
     var previousUserId = null;
 
-    function decodeBase64Json(b64) {
-      var raw = atob(b64.replace(/\n/g, ''));
-      try {
-        return JSON.parse(decodeURIComponent(escape(raw)));
-      } catch(e) {
-        return JSON.parse(raw);
-      }
-    }
-
     function fetchRoom() {
       if (soloMode) return Promise.resolve({ members: {} });
       var urls = buildGHUrls();
-      // Use raw URL (returns plain JSON, no base64 decoding needed)
       return fetch(urls.raw + '?t=' + Date.now()).then(function(res) {
         if (res.status === 404) return { members: {} };
         if (!res.ok) throw new Error('Fetch ' + res.status);
@@ -7394,38 +6956,26 @@
 
     function pushToRoom() {
       if (!userId || !ghToken || soloMode) return Promise.resolve();
-      return pushToRoomWithRetry(0);
-    }
-
-    function pushToRoomWithRetry(attempt) {
-      if (attempt > 2) {
-        console.error('Push failed after retries');
-        return Promise.resolve();
-      }
 
       var urls = buildGHUrls();
 
-      // Preserve local feed, challenges, and gifts before fetching latest
+      // Preserve local feed and challenges before fetching latest
       var localFeed = sharedData && sharedData.feed ? sharedData.feed.slice() : [];
       var localChallenges = sharedData && sharedData.challenges ? sharedData.challenges.slice() : [];
-      var localGifts = sharedData && sharedData.gifts ? sharedData.gifts.slice() : [];
 
-      // Get latest SHA, then read data from raw URL (reliable JSON)
+      // Get latest file SHA first (needed for updates)
       return fetch(urls.api + '?ref=' + GH_BRANCH, {
         headers: { 'Authorization': 'token ' + ghToken, 'Accept': 'application/vnd.github.v3+json' }
       }).then(function(res) {
         if (res.status === 404) {
           ghFileSha = null;
-          return null;
+          return fetchRoom();
         }
         if (!res.ok) throw new Error('API ' + res.status);
         return res.json().then(function(file) {
           ghFileSha = file.sha;
-          return null;
+          return JSON.parse(atob(file.content));
         });
-      }).then(function() {
-        // Read actual data from raw URL (plain JSON, no base64)
-        return fetchRoom();
       }).then(function(latest) {
         sharedData = latest || { members: {} };
         if (!sharedData.members) sharedData.members = {};
@@ -7459,14 +7009,6 @@
         });
         sharedData.challenges = localChallenges;
 
-        // Merge gifts: use local as base, add server-only gifts
-        var localGiftIds = {};
-        localGifts.forEach(function(g) { localGiftIds[g.id] = true; });
-        (sharedData.gifts || []).forEach(function(g) {
-          if (!localGiftIds[g.id]) localGifts.push(g);
-        });
-        sharedData.gifts = localGifts;
-
         // If user renamed, delete old name from server data
         if (previousUserId && previousUserId !== userId && sharedData.members[previousUserId]) {
           delete sharedData.members[previousUserId];
@@ -7489,24 +7031,17 @@
           body: JSON.stringify(body)
         });
       }).then(function(res) {
-        if (res.status === 409) {
-          // SHA conflict — retry with fresh data
-          console.warn('Push 409, retrying (attempt ' + (attempt + 1) + ')...');
-          return new Promise(function(resolve) {
-            setTimeout(function() { resolve(pushToRoomWithRetry(attempt + 1)); }, (attempt + 1) * 1000);
-          });
-        }
         if (!res.ok) {
           return res.json().then(function(j) { throw new Error('Push ' + res.status + ': ' + (j.message || '')); });
         }
-        return res.json().then(function(result) {
-          if (result.content) ghFileSha = result.content.sha;
-          setSyncStatus('online');
-          renderAllLeaderboards();
-        });
+        return res.json();
+      }).then(function(result) {
+        if (result.content) ghFileSha = result.content.sha;
+        setSyncStatus('online');
+        renderAllLeaderboards();
       }).catch(function(err) {
         console.error('Push failed:', err);
-        // Don't mark offline on push failure — we can still read data
+        setSyncStatus('offline');
       });
     }
 
@@ -7515,7 +7050,6 @@
         sharedData = data;
         setSyncStatus('online');
         renderAllLeaderboards();
-        checkForGifts();
       }).catch(function(err) {
         console.error('Pull failed:', err);
         setSyncStatus('offline');
@@ -7779,7 +7313,6 @@
       // Render everything
       refreshUI();
       renderAllLeaderboards();
-      checkForGifts();
     }
 
     function updateCrewDisplay() {
@@ -7898,23 +7431,13 @@
           sharedData = { members: {} };
           renderAllLeaderboards();
         } else {
-          setSyncStatus('syncing');
           fetchRoom().then(function(data) {
-            if (!data || !data.members) {
-              console.error('fetchRoom returned bad data:', data);
-              data = { members: {} };
-            }
             sharedData = data;
-            setSyncStatus('online');
-            renderAllLeaderboards();
-            checkForGifts();
             pushToRoom();
             syncInterval = setInterval(pullFromRoom, 30000);
+            renderAllLeaderboards();
           }).catch(function(err) {
             console.error('Initial fetch failed:', err);
-            // Show the actual error so user can report it
-            var label = document.getElementById('sync-label');
-            if (label) label.textContent = 'Sync error: ' + err.message;
             sharedData = { members: {} };
             setSyncStatus('offline');
             renderAllLeaderboards();
