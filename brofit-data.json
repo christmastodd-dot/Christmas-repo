@@ -977,6 +977,239 @@
             }
           ],
           "ts": 1774823126746
+        },
+        {
+          "date": "2026-04-04",
+          "startTime": "19:01",
+          "duration": "49:35",
+          "exercises": [
+            {
+              "name": "Seated Row Machine",
+              "sets": [
+                {
+                  "reps": 15,
+                  "weight": 55
+                },
+                {
+                  "reps": 12,
+                  "weight": 75
+                },
+                {
+                  "reps": 10,
+                  "weight": 85
+                }
+              ],
+              "inputType": "weight"
+            },
+            {
+              "name": "Single Leg Hamstring Curls with 10 second iso holds",
+              "sets": [
+                {
+                  "reps": 10,
+                  "weight": 30
+                },
+                {
+                  "reps": 10,
+                  "weight": 30
+                }
+              ],
+              "inputType": "weight"
+            },
+            {
+              "name": "Bench Press",
+              "sets": [
+                {
+                  "reps": 15,
+                  "weight": 135
+                },
+                {
+                  "reps": 15,
+                  "weight": 135
+                },
+                {
+                  "reps": 10,
+                  "weight": 135
+                }
+              ],
+              "inputType": "weight"
+            },
+            {
+              "name": "Single Leg Seated Calf Raise",
+              "sets": [
+                {
+                  "reps": 10,
+                  "weight": 50
+                },
+                {
+                  "reps": 10,
+                  "weight": 70
+                },
+                {
+                  "reps": 10,
+                  "weight": 90
+                }
+              ],
+              "inputType": "weight"
+            },
+            {
+              "name": "Overhead Press",
+              "sets": [
+                {
+                  "reps": 15,
+                  "weight": 45
+                },
+                {
+                  "reps": 5,
+                  "weight": 95
+                },
+                {
+                  "reps": 15,
+                  "weight": 45
+                }
+              ],
+              "inputType": "weight"
+            },
+            {
+              "name": "Leg Extension",
+              "sets": [
+                {
+                  "reps": 10,
+                  "weight": 30
+                },
+                {
+                  "reps": 10,
+                  "weight": 45
+                },
+                {
+                  "reps": 10,
+                  "weight": 60
+                }
+              ],
+              "inputType": "weight"
+            },
+            {
+              "name": "Barbell Curl",
+              "sets": [
+                {
+                  "reps": 15,
+                  "weight": 30
+                },
+                {
+                  "reps": 15,
+                  "weight": 30
+                },
+                {
+                  "reps": 18,
+                  "weight": 30
+                }
+              ],
+              "inputType": "weight"
+            },
+            {
+              "name": "Tricep Pushdown",
+              "sets": [
+                {
+                  "reps": 10,
+                  "weight": 40
+                },
+                {
+                  "reps": 10,
+                  "weight": 50
+                },
+                {
+                  "reps": 10,
+                  "weight": 40
+                }
+              ],
+              "inputType": "weight"
+            },
+            {
+              "name": "Back Extensions",
+              "sets": [
+                {
+                  "reps": 10,
+                  "weight": 0
+                },
+                {
+                  "reps": 10,
+                  "weight": 0
+                },
+                {
+                  "reps": 10,
+                  "weight": 0
+                }
+              ],
+              "inputType": "weight"
+            },
+            {
+              "name": "Lateral Raise",
+              "sets": [
+                {
+                  "reps": 15,
+                  "weight": 15
+                },
+                {
+                  "reps": 15,
+                  "weight": 15
+                },
+                {
+                  "reps": 15,
+                  "weight": 15
+                }
+              ],
+              "inputType": "weight"
+            },
+            {
+              "name": "Front Raise",
+              "sets": [
+                {
+                  "reps": 15,
+                  "weight": 15
+                },
+                {
+                  "reps": 15,
+                  "weight": 15
+                },
+                {
+                  "reps": 15,
+                  "weight": 15
+                }
+              ],
+              "inputType": "weight"
+            },
+            {
+              "name": "TRX Reverse Flyes",
+              "sets": [
+                {
+                  "reps": 15,
+                  "weight": 0,
+                  "bwMode": "bodyweight"
+                },
+                {
+                  "reps": 15,
+                  "weight": 0,
+                  "bwMode": "bodyweight"
+                },
+                {
+                  "reps": 15,
+                  "weight": 0,
+                  "bwMode": "bodyweight"
+                }
+              ],
+              "inputType": "bw"
+            },
+            {
+              "name": "Stationary Bike",
+              "sets": [
+                {
+                  "duration": "0:20",
+                  "distance": 0
+                }
+              ],
+              "inputType": "cardio"
+            }
+          ],
+          "ts": 1775281862233
         }
       ],
       "templates": [
@@ -1086,9 +1319,224 @@
             }
           ],
           "author": "Riyodiyo"
+        },
+        {
+          "id": "tmpl_1775281876799",
+          "name": "Friday Night Total Body",
+          "exercises": [
+            {
+              "name": "Seated Row Machine",
+              "setData": [
+                {
+                  "reps": 15,
+                  "weight": 55
+                },
+                {
+                  "reps": 12,
+                  "weight": 75
+                },
+                {
+                  "reps": 10,
+                  "weight": 85
+                }
+              ]
+            },
+            {
+              "name": "Single Leg Hamstring Curls with 10 second iso holds",
+              "setData": [
+                {
+                  "reps": 10,
+                  "weight": 30
+                },
+                {
+                  "reps": 10,
+                  "weight": 30
+                }
+              ]
+            },
+            {
+              "name": "Bench Press",
+              "setData": [
+                {
+                  "reps": 15,
+                  "weight": 135
+                },
+                {
+                  "reps": 15,
+                  "weight": 135
+                },
+                {
+                  "reps": 10,
+                  "weight": 135
+                }
+              ]
+            },
+            {
+              "name": "Single Leg Seated Calf Raise",
+              "setData": [
+                {
+                  "reps": 10,
+                  "weight": 50
+                },
+                {
+                  "reps": 10,
+                  "weight": 70
+                },
+                {
+                  "reps": 10,
+                  "weight": 90
+                }
+              ]
+            },
+            {
+              "name": "Overhead Press",
+              "setData": [
+                {
+                  "reps": 15,
+                  "weight": 45
+                },
+                {
+                  "reps": 5,
+                  "weight": 95
+                },
+                {
+                  "reps": 15,
+                  "weight": 45
+                }
+              ]
+            },
+            {
+              "name": "Leg Extension",
+              "setData": [
+                {
+                  "reps": 10,
+                  "weight": 30
+                },
+                {
+                  "reps": 10,
+                  "weight": 45
+                },
+                {
+                  "reps": 10,
+                  "weight": 60
+                }
+              ]
+            },
+            {
+              "name": "Barbell Curl",
+              "setData": [
+                {
+                  "reps": 15,
+                  "weight": 30
+                },
+                {
+                  "reps": 15,
+                  "weight": 30
+                },
+                {
+                  "reps": 18,
+                  "weight": 30
+                }
+              ]
+            },
+            {
+              "name": "Tricep Pushdown",
+              "setData": [
+                {
+                  "reps": 10,
+                  "weight": 40
+                },
+                {
+                  "reps": 10,
+                  "weight": 50
+                },
+                {
+                  "reps": 10,
+                  "weight": 40
+                }
+              ]
+            },
+            {
+              "name": "Back Extensions",
+              "setData": [
+                {
+                  "reps": 10,
+                  "weight": 0
+                },
+                {
+                  "reps": 10,
+                  "weight": 0
+                },
+                {
+                  "reps": 10,
+                  "weight": 0
+                }
+              ]
+            },
+            {
+              "name": "Lateral Raise",
+              "setData": [
+                {
+                  "reps": 15,
+                  "weight": 15
+                },
+                {
+                  "reps": 15,
+                  "weight": 15
+                },
+                {
+                  "reps": 15,
+                  "weight": 15
+                }
+              ]
+            },
+            {
+              "name": "Front Raise",
+              "setData": [
+                {
+                  "reps": 15,
+                  "weight": 15
+                },
+                {
+                  "reps": 15,
+                  "weight": 15
+                },
+                {
+                  "reps": 15,
+                  "weight": 15
+                }
+              ]
+            },
+            {
+              "name": "TRX Reverse Flyes",
+              "setData": [
+                {
+                  "reps": 15,
+                  "weight": 0
+                },
+                {
+                  "reps": 15,
+                  "weight": 0
+                },
+                {
+                  "reps": 15,
+                  "weight": 0
+                }
+              ]
+            },
+            {
+              "name": "Stationary Bike",
+              "setData": [
+                {
+                  "duration": "0:20"
+                }
+              ]
+            }
+          ],
+          "author": "Riyodiyo"
         }
       ],
-      "lastSync": "2026-04-04T05:01:23.314Z"
+      "lastSync": "2026-04-04T05:51:16.818Z"
     },
     "Vinncent": {
       "xp": 40,
@@ -1126,6 +1574,242 @@
     }
   },
   "feed": [
+    {
+      "id": "feed_w_1775281862236",
+      "author": "Riyodiyo",
+      "date": "2026-04-04T05:51:02.236Z",
+      "type": "workout",
+      "caption": "Completed a workout!",
+      "workoutSummary": "13 exercises · 36 sets · 17,940 lbs vol · 49:35 min",
+      "workoutData": [
+        {
+          "name": "Seated Row Machine",
+          "sets": [
+            {
+              "reps": 15,
+              "weight": 55
+            },
+            {
+              "reps": 12,
+              "weight": 75
+            },
+            {
+              "reps": 10,
+              "weight": 85
+            }
+          ],
+          "inputType": "weight"
+        },
+        {
+          "name": "Single Leg Hamstring Curls with 10 second iso holds",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 30
+            },
+            {
+              "reps": 10,
+              "weight": 30
+            }
+          ],
+          "inputType": "weight"
+        },
+        {
+          "name": "Bench Press",
+          "sets": [
+            {
+              "reps": 15,
+              "weight": 135
+            },
+            {
+              "reps": 15,
+              "weight": 135
+            },
+            {
+              "reps": 10,
+              "weight": 135
+            }
+          ],
+          "inputType": "weight"
+        },
+        {
+          "name": "Single Leg Seated Calf Raise",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 50
+            },
+            {
+              "reps": 10,
+              "weight": 70
+            },
+            {
+              "reps": 10,
+              "weight": 90
+            }
+          ],
+          "inputType": "weight"
+        },
+        {
+          "name": "Overhead Press",
+          "sets": [
+            {
+              "reps": 15,
+              "weight": 45
+            },
+            {
+              "reps": 5,
+              "weight": 95
+            },
+            {
+              "reps": 15,
+              "weight": 45
+            }
+          ],
+          "inputType": "weight"
+        },
+        {
+          "name": "Leg Extension",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 30
+            },
+            {
+              "reps": 10,
+              "weight": 45
+            },
+            {
+              "reps": 10,
+              "weight": 60
+            }
+          ],
+          "inputType": "weight"
+        },
+        {
+          "name": "Barbell Curl",
+          "sets": [
+            {
+              "reps": 15,
+              "weight": 30
+            },
+            {
+              "reps": 15,
+              "weight": 30
+            },
+            {
+              "reps": 18,
+              "weight": 30
+            }
+          ],
+          "inputType": "weight"
+        },
+        {
+          "name": "Tricep Pushdown",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 40
+            },
+            {
+              "reps": 10,
+              "weight": 50
+            },
+            {
+              "reps": 10,
+              "weight": 40
+            }
+          ],
+          "inputType": "weight"
+        },
+        {
+          "name": "Back Extensions",
+          "sets": [
+            {
+              "reps": 10,
+              "weight": 0
+            },
+            {
+              "reps": 10,
+              "weight": 0
+            },
+            {
+              "reps": 10,
+              "weight": 0
+            }
+          ],
+          "inputType": "weight"
+        },
+        {
+          "name": "Lateral Raise",
+          "sets": [
+            {
+              "reps": 15,
+              "weight": 15
+            },
+            {
+              "reps": 15,
+              "weight": 15
+            },
+            {
+              "reps": 15,
+              "weight": 15
+            }
+          ],
+          "inputType": "weight"
+        },
+        {
+          "name": "Front Raise",
+          "sets": [
+            {
+              "reps": 15,
+              "weight": 15
+            },
+            {
+              "reps": 15,
+              "weight": 15
+            },
+            {
+              "reps": 15,
+              "weight": 15
+            }
+          ],
+          "inputType": "weight"
+        },
+        {
+          "name": "TRX Reverse Flyes",
+          "sets": [
+            {
+              "reps": 15,
+              "weight": 0,
+              "bwMode": "bodyweight"
+            },
+            {
+              "reps": 15,
+              "weight": 0,
+              "bwMode": "bodyweight"
+            },
+            {
+              "reps": 15,
+              "weight": 0,
+              "bwMode": "bodyweight"
+            }
+          ],
+          "inputType": "bw"
+        },
+        {
+          "name": "Stationary Bike",
+          "sets": [
+            {
+              "duration": "0:20",
+              "distance": 0
+            }
+          ],
+          "inputType": "cardio"
+        }
+      ],
+      "reactions": {}
+    },
     {
       "id": "feed_1775229581498",
       "author": "Vinncent",
