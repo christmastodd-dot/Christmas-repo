@@ -275,6 +275,7 @@ def run_draft_lottery(
 
     # Build lottery results for display
     lottery_order = top_picks + rest_lottery
+    total_odds = sum(LOTTERY_ODDS)
     lottery_results = []
     for post_pick, tid in enumerate(lottery_order, 1):
         pre_pick = pre_lottery[tid]
@@ -287,6 +288,7 @@ def run_draft_lottery(
             "pre_pick": pre_pick,
             "post_pick": post_pick,
             "movement": pre_pick - post_pick,  # positive = moved up
+            "odds_pct": round(LOTTERY_ODDS[pre_pick - 1] / total_odds * 100, 1),
         })
 
     return first_round, lottery_results
