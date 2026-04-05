@@ -831,35 +831,45 @@ function drawFallingSnow(dt) {
 
 function drawIceObstacle(sx, sy) {
   const c = ctx;
-  // Icy boulder
-  c.fillStyle = 'rgb(180,210,230)';
-  c.beginPath();
-  c.moveTo(sx - 18, sy);
-  c.lineTo(sx - 14, sy - 22);
-  c.lineTo(sx + 2, sy - 28);
-  c.lineTo(sx + 16, sy - 20);
-  c.lineTo(sx + 18, sy);
-  c.closePath(); c.fill();
-  // Highlight facets
-  c.fillStyle = 'rgba(255,255,255,0.35)';
-  c.beginPath();
-  c.moveTo(sx - 12, sy - 18);
-  c.lineTo(sx + 2, sy - 28);
-  c.lineTo(sx + 6, sy - 14);
-  c.closePath(); c.fill();
-  // Darker edge
-  c.fillStyle = 'rgba(100,140,170,0.4)';
-  c.beginPath();
-  c.moveTo(sx + 6, sy - 14);
-  c.lineTo(sx + 16, sy - 20);
-  c.lineTo(sx + 18, sy);
-  c.lineTo(sx + 4, sy);
-  c.closePath(); c.fill();
-  // Snow on top
-  c.fillStyle = 'rgba(255,255,255,0.7)';
-  c.beginPath();
-  c.ellipse(sx, sy - 24, 14, 4, 0, Math.PI, 0);
-  c.fill();
+  // Tall icicle spikes sticking up from the ground — clearly a hazard
+  const spikes = [
+    { dx: -10, h: 38 },
+    { dx: 0, h: 48 },
+    { dx: 10, h: 35 },
+  ];
+  for (const sp of spikes) {
+    const bx = sx + sp.dx;
+    // Icicle spike shape — pointed top, wider base
+    c.fillStyle = 'rgb(140,200,240)';
+    c.beginPath();
+    c.moveTo(bx, sy - sp.h);         // sharp point
+    c.lineTo(bx - 7, sy);            // base left
+    c.lineTo(bx + 7, sy);            // base right
+    c.closePath(); c.fill();
+    // Shiny highlight streak
+    c.fillStyle = 'rgba(255,255,255,0.5)';
+    c.beginPath();
+    c.moveTo(bx - 1, sy - sp.h + 4);
+    c.lineTo(bx - 3, sy - 6);
+    c.lineTo(bx + 1, sy - 6);
+    c.closePath(); c.fill();
+    // Darker edge
+    c.fillStyle = 'rgba(80,140,180,0.3)';
+    c.beginPath();
+    c.moveTo(bx, sy - sp.h);
+    c.lineTo(bx + 7, sy);
+    c.lineTo(bx + 2, sy);
+    c.closePath(); c.fill();
+  }
+  // Danger glow at base
+  c.fillStyle = 'rgba(255,100,100,0.15)';
+  c.beginPath(); c.ellipse(sx, sy + 2, 20, 5, 0, 0, Math.PI*2); c.fill();
+  // Warning symbol above
+  const bobY = Math.sin(performance.now() / 300) * 3;
+  c.fillStyle = 'rgba(255,60,60,0.8)';
+  c.font = 'bold 18px Arial'; c.textAlign = 'center';
+  c.fillText('!', sx, sy - 55 + bobY);
+  c.textAlign = 'left';
 }
 
 function drawL2Obstacles(camWX, camWY) {
