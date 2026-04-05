@@ -105,16 +105,16 @@
   }
   #touch-controls.visible { display: flex; justify-content: space-between; align-items: center; }
   .touch-btn {
-    pointer-events: auto; width: 64px; height: 64px; border-radius: 50%;
-    background: rgba(255,255,255,0.18); border: 2px solid rgba(255,255,255,0.35);
-    color: #fff; font-size: 28px; display: flex; align-items: center; justify-content: center;
+    pointer-events: auto; width: 80px; height: 80px; border-radius: 50%;
+    background: rgba(255,255,255,0.22); border: 3px solid rgba(255,255,255,0.4);
+    color: #fff; font-size: 34px; display: flex; align-items: center; justify-content: center;
     user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent;
   }
-  .touch-btn:active { background: rgba(255,255,255,0.35); }
-  .touch-group { display: flex; gap: 12px; pointer-events: auto; }
+  .touch-btn:active { background: rgba(255,255,255,0.4); }
+  .touch-group { display: flex; gap: 14px; pointer-events: auto; }
   @media (max-width: 600px) {
-    canvas { border-radius: 0; max-height: 60vh; }
-    .touch-btn { width: 56px; height: 56px; font-size: 24px; }
+    canvas { border-radius: 0; max-height: 58vh; }
+    .touch-btn { width: 74px; height: 74px; font-size: 30px; }
   }
   /* Landscape on mobile: overlay controls on top of full-screen game */
   @media (orientation: landscape) and (max-height: 500px) {
@@ -124,10 +124,10 @@
       align-items: flex-end; padding-bottom: 16px;
     }
     .touch-btn {
-      background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.25);
-      width: 58px; height: 58px; font-size: 24px;
+      background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.3);
+      width: 72px; height: 72px; font-size: 30px;
     }
-    .touch-btn:active { background: rgba(255,255,255,0.3); }
+    .touch-btn:active { background: rgba(255,255,255,0.35); }
   }
 </style>
 </head>
@@ -952,113 +952,113 @@ function drawDroppedFish(camWX, camWY) {
 
 function drawSnowLeopard(sx, sy, lpState, eatTimer) {
   const c = ctx;
-  // Body — long, low, spotted grey-white
   const eating = lpState === 'eating';
   const sitting = lpState === 'sitting';
 
   c.save();
   if (sitting) {
-    // Sitting pose: body more upright
     c.translate(sx, sy);
-    c.scale(1, 0.85);
+    c.scale(1, 0.88);
     c.translate(-sx, -sy);
   }
 
-  // Tail — long and curvy, behind body
-  c.strokeStyle = 'rgb(180,180,175)';
-  c.lineWidth = 5;
+  // Thick fluffy tail — sweeping up and curling
+  c.strokeStyle = 'rgb(190,190,185)';
+  c.lineWidth = 8;
   c.lineCap = 'round';
-  const tailWag = Math.sin(performance.now() / 300) * 0.15;
+  const tailWag = Math.sin(performance.now() / 400) * 0.12;
   c.beginPath();
-  c.moveTo(sx + 32, sy - 14);
-  c.bezierCurveTo(sx + 50, sy - 24 + tailWag * 20, sx + 60, sy - 40, sx + 55, sy - 50 + tailWag * 10);
+  c.moveTo(sx + 30, sy - 18);
+  c.bezierCurveTo(sx + 48, sy - 30 + tailWag * 15, sx + 56, sy - 48, sx + 50, sy - 58 + tailWag * 10);
   c.stroke();
-  // Tail tip
-  c.lineWidth = 4;
-  c.strokeStyle = 'rgb(60,60,58)';
+  c.lineWidth = 6; c.strokeStyle = 'rgb(170,170,165)';
   c.beginPath();
-  c.moveTo(sx + 55, sy - 50 + tailWag * 10);
-  c.lineTo(sx + 52, sy - 56 + tailWag * 10);
+  c.moveTo(sx + 50, sy - 58 + tailWag * 10);
+  c.lineTo(sx + 46, sy - 64 + tailWag * 8);
   c.stroke();
   c.lineCap = 'butt';
 
-  // Body
-  c.fillStyle = 'rgb(195,195,190)';
+  // Body — stocky, thick, muscular cat
+  c.fillStyle = 'rgb(200,200,195)';
   c.beginPath();
-  c.ellipse(sx, sy - 16, 34, 14, 0, 0, Math.PI*2);
+  c.ellipse(sx, sy - 20, 32, 18, 0, 0, Math.PI*2);
+  c.fill();
+  // Lighter belly
+  c.fillStyle = 'rgb(220,220,218)';
+  c.beginPath();
+  c.ellipse(sx, sy - 14, 22, 10, 0, 0, Math.PI*2);
   c.fill();
 
-  // Spots
-  c.fillStyle = 'rgba(100,100,95,0.35)';
-  const spots = [[-18,-18],[- 8,-22],[6,-20],[16,-16],[24,-14],[-12,-10],[0,-12],[14,-10],[22,-8]];
+  // Rosette spots (ring-shaped like real snow leopards)
+  c.strokeStyle = 'rgba(110,105,100,0.4)'; c.lineWidth = 1.5;
+  const spots = [[-16,-24],[-4,-28],[10,-26],[20,-20],[-10,-14],[4,-16],[16,-12]];
   for (const [dx, dy] of spots) {
-    c.beginPath(); c.ellipse(sx + dx, sy + dy, 3.5, 2.5, dx*0.05, 0, Math.PI*2); c.fill();
+    c.beginPath(); c.ellipse(sx + dx, sy + dy, 4, 3, dx*0.03, 0, Math.PI*2); c.stroke();
   }
 
-  // Legs
-  c.fillStyle = 'rgb(180,180,175)';
-  if (sitting) {
-    // Front legs tucked
-    c.fillRect(sx - 22, sy - 6, 8, 10);
-    c.fillRect(sx - 12, sy - 6, 8, 10);
-    // Back legs folded under
-    c.fillRect(sx + 14, sy - 6, 10, 8);
-  } else {
-    // Walking/standing legs
-    for (const lx of [-22, -12, 14, 24]) {
-      c.fillRect(sx + lx, sy - 6, 8, 14);
-    }
-    // Paws
-    c.fillStyle = 'rgb(170,170,165)';
-    for (const lx of [-22, -12, 14, 24]) {
-      c.beginPath(); c.ellipse(sx + lx + 4, sy + 8, 5, 3, 0, 0, Math.PI*2); c.fill();
-    }
-  }
-
-  // Head
-  const headDip = eating ? 12 : 0; // head dips down when eating
-  const hx = sx - 30, hy = sy - 22 + headDip;
-  c.fillStyle = 'rgb(200,200,195)';
-  c.beginPath(); c.ellipse(hx, hy, 14, 12, 0, 0, Math.PI*2); c.fill();
-
-  // Ears
+  // Legs — thick, powerful
   c.fillStyle = 'rgb(190,190,185)';
-  c.beginPath(); c.ellipse(hx - 8, hy - 12, 5, 7, -0.3, 0, Math.PI*2); c.fill();
-  c.beginPath(); c.ellipse(hx + 6, hy - 12, 5, 7, 0.3, 0, Math.PI*2); c.fill();
-  // Inner ears
-  c.fillStyle = 'rgb(210,180,175)';
-  c.beginPath(); c.ellipse(hx - 8, hy - 12, 3, 4, -0.3, 0, Math.PI*2); c.fill();
-  c.beginPath(); c.ellipse(hx + 6, hy - 12, 3, 4, 0.3, 0, Math.PI*2); c.fill();
-
-  // Snout
-  c.fillStyle = 'rgb(210,205,200)';
-  c.beginPath(); c.ellipse(hx - 10, hy + 2, 8, 6, 0, 0, Math.PI*2); c.fill();
-  // Nose
-  c.fillStyle = 'rgb(150,120,115)';
-  c.beginPath(); c.ellipse(hx - 16, hy + 1, 3, 2.5, 0, 0, Math.PI*2); c.fill();
-
-  // Eyes — piercing pale green
-  if (!eating) {
-    for (const ey of [-4, 4]) {
-      c.fillStyle = 'rgb(180,210,160)';
-      c.beginPath(); c.ellipse(hx - 6 + ey, hy - 4, 4, 4, 0, 0, Math.PI*2); c.fill();
-      c.fillStyle = 'rgb(30,30,25)';
-      c.beginPath(); c.ellipse(hx - 6 + ey, hy - 4, 2, 3, 0, 0, Math.PI*2); c.fill();
-      c.fillStyle = 'rgba(255,255,255,0.4)';
-      c.beginPath(); c.arc(hx - 7 + ey, hy - 6, 1.5, 0, Math.PI*2); c.fill();
-    }
+  if (sitting) {
+    c.beginPath(); c.roundRect(sx - 22, sy - 8, 12, 12, 3); c.fill();
+    c.beginPath(); c.roundRect(sx - 8, sy - 8, 12, 12, 3); c.fill();
+    c.beginPath(); c.roundRect(sx + 12, sy - 6, 14, 10, 3); c.fill();
   } else {
-    // Eyes closed when eating
-    c.strokeStyle = 'rgb(80,80,75)'; c.lineWidth = 1.5;
-    c.beginPath(); c.arc(hx - 10, hy - 4, 3, 0.2, Math.PI - 0.2); c.stroke();
-    c.beginPath(); c.arc(hx - 2, hy - 4, 3, 0.2, Math.PI - 0.2); c.stroke();
+    for (const lx of [-22, -10, 12, 24]) {
+      c.beginPath(); c.roundRect(sx + lx, sy - 6, 10, 14, 3); c.fill();
+    }
+    // Big fluffy paws
+    c.fillStyle = 'rgb(210,210,208)';
+    for (const lx of [-22, -10, 12, 24]) {
+      c.beginPath(); c.ellipse(sx + lx + 5, sy + 8, 7, 4, 0, 0, Math.PI*2); c.fill();
+    }
   }
 
-  // Whiskers
-  c.strokeStyle = 'rgba(255,255,255,0.5)'; c.lineWidth = 0.8;
-  for (const [dy, angle] of [[-1, -0.15], [1, 0.15], [0, 0]]) {
-    c.beginPath(); c.moveTo(hx - 14, hy + 2 + dy);
-    c.lineTo(hx - 28, hy + dy * 3 + angle * 20); c.stroke();
+  // Head — large, round, very cat-like
+  const headDip = eating ? 14 : 0;
+  const hx = sx - 28, hy = sy - 28 + headDip;
+  // Neck fur/ruff
+  c.fillStyle = 'rgb(210,210,208)';
+  c.beginPath(); c.ellipse(sx - 18, sy - 24 + headDip * 0.5, 14, 12, -0.2, 0, Math.PI*2); c.fill();
+  // Head
+  c.fillStyle = 'rgb(205,205,200)';
+  c.beginPath(); c.ellipse(hx, hy, 18, 16, 0, 0, Math.PI*2); c.fill();
+
+  // Small rounded ears (not pointy — cat ears, not rat ears)
+  c.fillStyle = 'rgb(195,195,190)';
+  c.beginPath(); c.ellipse(hx - 12, hy - 14, 6, 5, -0.4, 0, Math.PI*2); c.fill();
+  c.beginPath(); c.ellipse(hx + 8, hy - 14, 6, 5, 0.4, 0, Math.PI*2); c.fill();
+  c.fillStyle = 'rgb(215,190,185)';
+  c.beginPath(); c.ellipse(hx - 12, hy - 14, 3.5, 3, -0.4, 0, Math.PI*2); c.fill();
+  c.beginPath(); c.ellipse(hx + 8, hy - 14, 3.5, 3, 0.4, 0, Math.PI*2); c.fill();
+
+  // Short muzzle (not long like a rat)
+  c.fillStyle = 'rgb(215,212,208)';
+  c.beginPath(); c.ellipse(hx - 12, hy + 3, 9, 7, 0, 0, Math.PI*2); c.fill();
+  // Nose — wide, pink
+  c.fillStyle = 'rgb(180,140,140)';
+  c.beginPath(); c.ellipse(hx - 18, hy + 2, 4, 3, 0, 0, Math.PI*2); c.fill();
+
+  // Eyes — large, piercing grey-green (big cat eyes)
+  if (!eating) {
+    for (const ey of [-5, 5]) {
+      c.fillStyle = 'rgb(170,200,155)';
+      c.beginPath(); c.ellipse(hx - 5 + ey, hy - 4, 5, 5, 0, 0, Math.PI*2); c.fill();
+      c.fillStyle = 'rgb(25,25,20)';
+      c.beginPath(); c.ellipse(hx - 5 + ey, hy - 4, 2.5, 4, 0, 0, Math.PI*2); c.fill();
+      c.fillStyle = 'rgba(255,255,255,0.45)';
+      c.beginPath(); c.arc(hx - 6 + ey, hy - 6, 2, 0, Math.PI*2); c.fill();
+    }
+  } else {
+    c.strokeStyle = 'rgb(80,80,75)'; c.lineWidth = 1.5;
+    c.beginPath(); c.arc(hx - 10, hy - 4, 4, 0.2, Math.PI - 0.2); c.stroke();
+    c.beginPath(); c.arc(hx, hy - 4, 4, 0.2, Math.PI - 0.2); c.stroke();
+  }
+
+  // Whiskers — shorter, thicker
+  c.strokeStyle = 'rgba(255,255,255,0.6)'; c.lineWidth = 1;
+  for (const [dy, angle] of [[-2, -0.1], [2, 0.1], [0, 0]]) {
+    c.beginPath(); c.moveTo(hx - 16, hy + 3 + dy);
+    c.lineTo(hx - 30, hy + dy * 2 + angle * 15); c.stroke();
   }
 
   c.restore();
@@ -1167,7 +1167,8 @@ function drawL3Crevasses(camWX, camWY) {
     const wy = trailY(cr.wx);
     const [sx, sy] = worldToScreen(cr.wx, wy, camWX, camWY);
     if (sx < -60 || sx > W + 60) continue;
-    drawCrevasse(Math.round(sx), Math.round(sy), cr.width);
+    // Reuse icicle spikes from Level 2
+    drawIceObstacle(Math.round(sx), Math.round(sy));
   }
 }
 
@@ -2302,6 +2303,11 @@ function update(dt) {
     hasFish = false;
     droppedFishWX = playerWX;
   }
+  // Pick fish back up — walk over it when not holding it
+  if (currentLevel === 2 && !hasFish && droppedFishWX > 0 && Math.abs(playerWX - droppedFishWX) < 25) {
+    hasFish = true;
+    droppedFishWX = -1;
+  }
 
   // Goats
   for (const g of goats) {
@@ -2431,16 +2437,16 @@ function update(dt) {
 
   // ── Level 3: crevasses + snowballs ────────────────────────────────────
   if (currentLevel === 3) {
-    // Crevasse collision — fall in if on ground and overlapping
-    if (onGround) {
+    // Icicle collision — same as Level 2 ice obstacles, jump over to avoid
+    if (onGround && invincibleTimer <= 0) {
       for (const cr of l3Crevasses) {
-        const crLeft = cr.wx - cr.width/2 + 8; // slight forgiveness on edges
-        const crRight = cr.wx + cr.width/2 - 8;
-        if (playerWX > crLeft && playerWX < crRight) {
+        const oRect = { x: cr.wx - 14, y: trailY(cr.wx) - 22, w: 28, h: 22 };
+        if (rectsOverlap(pRect, oRect)) {
           lives--;
           if (lives <= 0) { onGameOver(); return; }
           kbX = playerWX; kbY = playerWY;
-          kbVX = 0; kbVY = 200; // fall downward
+          kbVX = -(facingRight ? 1 : -1) * 200;
+          kbVY = -400;
           kbTimer = 1.5;
           invincibleTimer = INVINCIBILITY_TIME;
           state = 'knockback';
@@ -2453,7 +2459,7 @@ function update(dt) {
     if (yeti && yeti.state === 'throwing') {
       yeti.throwTimer -= dt;
       if (yeti.throwTimer <= 0) {
-        yeti.throwTimer = 1.8 + Math.random() * 1.2; // throw every 1.8-3s
+        yeti.throwTimer = 3.0 + Math.random() * 2.0; // throw every 3-5s
         // Throw a snowball toward the player (uphill = leftward)
         const throwSpeed = 250 + Math.random() * 80;
         const dx = playerWX - yeti.wx;
