@@ -209,7 +209,9 @@ def select_team():
     league = game["league"]
 
     # If team already selected, go to dashboard — no going back
-    if league.user_team_id is not None:
+    # Check user_team (resolved object), not just user_team_id, to avoid
+    # redirect loops when the ID is set but the team can't be found.
+    if league.user_team is not None:
         return redirect(url_for("dashboard"))
 
     if request.method == "POST":
@@ -279,7 +281,8 @@ def dashboard():
     league = game["league"]
     team = league.user_team
     if not team:
-        return redirect(url_for("select_team"))
+        # No valid team — go to index (not select_team) to avoid redirect loops
+        return redirect(url_for("index"))
 
     return _render_dashboard(game)
 
