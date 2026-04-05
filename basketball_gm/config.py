@@ -49,16 +49,22 @@ ROOKIE_SALARY = {
 }
 
 # Player attributes
-ATTRIBUTES = ["shooting", "defense", "rebounding", "passing", "athleticism", "basketball_iq"]
+ATTRIBUTES = [
+    "inside_scoring",    # finishing at rim, post moves, mid-range
+    "outside_scoring",   # 3PT shooting, catch-and-shoot, FT touch
+    "interior_defense",  # rim protection, post defense, shot blocking
+    "perimeter_defense", # on-ball defense, closeouts, steals
+    "rebounding", "passing", "athleticism", "basketball_iq",
+]
 
 # Position weights for overall calculation
 # Each position values attributes differently
 POSITION_WEIGHTS = {
-    "PG": {"shooting": 0.18, "defense": 0.10, "rebounding": 0.05, "passing": 0.27, "athleticism": 0.18, "basketball_iq": 0.22},
-    "SG": {"shooting": 0.27, "defense": 0.12, "rebounding": 0.05, "passing": 0.15, "athleticism": 0.22, "basketball_iq": 0.19},
-    "SF": {"shooting": 0.20, "defense": 0.17, "rebounding": 0.12, "passing": 0.13, "athleticism": 0.20, "basketball_iq": 0.18},
-    "PF": {"shooting": 0.13, "defense": 0.20, "rebounding": 0.22, "passing": 0.08, "athleticism": 0.18, "basketball_iq": 0.19},
-    "C":  {"shooting": 0.08, "defense": 0.22, "rebounding": 0.27, "passing": 0.05, "athleticism": 0.15, "basketball_iq": 0.23},
+    "PG": {"inside_scoring": 0.06, "outside_scoring": 0.12, "interior_defense": 0.02, "perimeter_defense": 0.08, "rebounding": 0.05, "passing": 0.27, "athleticism": 0.18, "basketball_iq": 0.22},
+    "SG": {"inside_scoring": 0.08, "outside_scoring": 0.19, "interior_defense": 0.03, "perimeter_defense": 0.09, "rebounding": 0.05, "passing": 0.15, "athleticism": 0.22, "basketball_iq": 0.19},
+    "SF": {"inside_scoring": 0.10, "outside_scoring": 0.10, "interior_defense": 0.07, "perimeter_defense": 0.10, "rebounding": 0.12, "passing": 0.13, "athleticism": 0.20, "basketball_iq": 0.18},
+    "PF": {"inside_scoring": 0.10, "outside_scoring": 0.03, "interior_defense": 0.13, "perimeter_defense": 0.07, "rebounding": 0.22, "passing": 0.08, "athleticism": 0.18, "basketball_iq": 0.19},
+    "C":  {"inside_scoring": 0.07, "outside_scoring": 0.01, "interior_defense": 0.17, "perimeter_defense": 0.05, "rebounding": 0.27, "passing": 0.05, "athleticism": 0.15, "basketball_iq": 0.23},
 }
 
 # Player generation tiers (min, max for attribute ranges)

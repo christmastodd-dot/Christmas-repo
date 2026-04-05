@@ -163,7 +163,8 @@ def compute_awards(league: League) -> dict:
             p.season_stats.spg * 2.0
             + p.season_stats.bpg * 2.5
             + p.season_stats.rpg * 0.5
-            + p.ratings["defense"] * 0.02
+            + p.ratings["interior_defense"] * 0.01
+            + p.ratings["perimeter_defense"] * 0.01
         ), reverse=True)
         dpoy = dpoy_candidates[0]
         awards["DPOY"] = {

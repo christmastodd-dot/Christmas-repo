@@ -157,9 +157,10 @@ def print_player_detail(player: Player) -> None:
     print(f"  Contract: {player.salary_str()} x {player.contract.years} yr(s)")
     print(f"  {'=' * 50}")
     print(f"  Ratings:")
-    for attr in ["shooting", "defense", "rebounding", "passing", "athleticism", "basketball_iq"]:
+    for attr in ["inside_scoring", "outside_scoring", "interior_defense", "perimeter_defense",
+                  "rebounding", "passing", "athleticism", "basketball_iq"]:
         bar = "#" * (player.ratings[attr] // 5)
-        print(f"    {attr:<15s} {player.ratings[attr]:3d}  {bar}")
+        print(f"    {attr:<20s} {player.ratings[attr]:3d}  {bar}")
 
     s = player.season_stats
     if s.games > 0:

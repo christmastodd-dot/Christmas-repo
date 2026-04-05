@@ -233,19 +233,21 @@ def simulate_game(
     home_players = {p.id: p for p in home_team.roster}
     away_players = {p.id: p for p in away_team.roster}
 
-    # Compute team defense ratings
-    home_def = _team_defense(home_team, home_minutes)
-    away_def = _team_defense(away_team, away_minutes)
+    # Compute team defense ratings (interior, perimeter)
+    home_int_def, home_per_def = _team_defense(home_team, home_minutes)
+    away_int_def, away_per_def = _team_defense(away_team, away_minutes)
 
     # Simulate regulation
     _simulate_possessions(
         r, POSSESSIONS_PER_GAME,
-        home_team, home_players, home_stats, home_minutes, away_def,
+        home_team, home_players, home_stats, home_minutes,
+        away_int_def, away_per_def,
         is_home=True, playoff=playoff,
     )
     _simulate_possessions(
         r, POSSESSIONS_PER_GAME,
-        away_team, away_players, away_stats, away_minutes, home_def,
+        away_team, away_players, away_stats, away_minutes,
+        home_int_def, home_per_def,
         is_home=False, playoff=playoff,
     )
 
@@ -266,12 +268,14 @@ def simulate_game(
 
         _simulate_possessions(
             r, ot_possessions,
-            home_team, home_players, home_stats, home_minutes, away_def,
+            home_team, home_players, home_stats, home_minutes,
+            away_int_def, away_per_def,
             is_home=True, playoff=playoff,
         )
         _simulate_possessions(
             r, ot_possessions,
-            away_team, away_players, away_stats, away_minutes, home_def,
+            away_team, away_players, away_stats, away_minutes,
+            home_int_def, home_per_def,
             is_home=False, playoff=playoff,
         )
 
@@ -295,16 +299,23 @@ def simulate_game(
     return result
 
 
-def _team_defense(team: Team, minutes: dict[int, float]) -> float:
-    """Weighted average defense rating for a team."""
-    total_def = 0.0
+def _team_defense(team: Team, minutes: dict[int, float]) -> tuple[float, float]:
+    """Weighted average defense ratings for a team.
+
+    Returns (interior_defense, perimeter_defense) as separate values.
+    """
+    total_int = 0.0
+    total_per = 0.0
     total_min = 0.0
     for p in team.roster:
         mins = minutes.get(p.id, 0)
         if mins > 0:
-            total_def += p.ratings["defense"] * mins
+            total_int += p.ratings["interior_defense"] * mins
+            total_per += p.ratings["perimeter_defense"] * mins
             total_min += mins
-    return total_def / total_min if total_min > 0 else 50.0
+    if total_min == 0:
+        return 50.0, 50.0
+    return total_int / total_min, total_per / total_min
 
 
 def _simulate_possessions(
@@ -314,7 +325,8 @@ def _simulate_possessions(
     offense_players: dict[int, Player],
     offense_stats: dict[int, PlayerGameStats],
     offense_minutes: dict[int, float],
-    defense_rating: float,
+    def_interior: float,
+    def_perimeter: float,
     is_home: bool,
     playoff: bool,
 ) -> None:
@@ -333,7 +345,7 @@ def _simulate_possessions(
     for pid in active_ids:
         p = offense_players[pid]
         raw = (p.ratings["passing"] * 0.55 + p.ratings["basketball_iq"] * 0.25
-               + p.ratings["shooting"] * 0.20)
+               + p.ratings["outside_scoring"] * 0.10 + p.ratings["inside_scoring"] * 0.10)
         tendency = _player_tendency(pid, "playmaking", 0.4, 1.4)
         usage = offense_minutes[pid] * (raw ** 1.5) * tendency
         usage_weights.append(usage)
@@ -347,8 +359,11 @@ def _simulate_possessions(
     catch_weights = []
     for pid in active_ids:
         p = offense_players[pid]
-        score_ability = (p.ratings["shooting"] * 0.6 + p.ratings["athleticism"] * 0.3
-                         + p.ratings["basketball_iq"] * 0.1)
+        # Blend inside + outside scoring; outside weighted slightly more for iso
+        score_ability = (p.ratings["outside_scoring"] * 0.35
+                         + p.ratings["inside_scoring"] * 0.25
+                         + p.ratings["athleticism"] * 0.30
+                         + p.ratings["basketball_iq"] * 0.10)
         tendency = _player_tendency(pid, "scoring", 0.2, 2.5)
         iso = offense_minutes[pid] * (score_ability ** 1.8) * tendency
         iso_weights.append(iso)
@@ -369,16 +384,17 @@ def _simulate_possessions(
         biq = handler.ratings["basketball_iq"] / 100.0
         roll = r.random()
 
-        # Turnover check
-        to_rate = BASE_TURNOVER_RATE * (1.3 - biq * 0.6) * (defense_rating / 52.0)
+        # Turnover check — perimeter defense drives turnovers (on-ball pressure)
+        to_rate = BASE_TURNOVER_RATE * (1.3 - biq * 0.6) * (def_perimeter / 52.0)
         if roll < to_rate:
             handler_stats.turnovers += 1
             continue
 
         roll2 = r.random()
 
-        # Determine shot type
-        shooting = handler.ratings["shooting"] / 100.0
+        # Determine shot type — separate inside/outside shooting ratings
+        inside_scoring = handler.ratings["inside_scoring"] / 100.0
+        outside_scoring = handler.ratings["outside_scoring"] / 100.0
         athleticism = handler.ratings["athleticism"] / 100.0
 
         # Assist chance: targets ~70% of FGM being assisted (NBA-like)
@@ -397,18 +413,20 @@ def _simulate_possessions(
                 is_assisted = False
             scorer = offense_players[scorer_id]
             scorer_stats = offense_stats[scorer_id]
-            shooter_shooting = scorer.ratings["shooting"] / 100.0
+            shooter_inside = scorer.ratings["inside_scoring"] / 100.0
+            shooter_outside = scorer.ratings["outside_scoring"] / 100.0
             shooter_ath = scorer.ratings["athleticism"] / 100.0
         else:
             scorer_id = handler_id
             scorer = handler
             scorer_stats = handler_stats
-            shooter_shooting = shooting
+            shooter_inside = inside_scoring
+            shooter_outside = outside_scoring
             shooter_ath = athleticism
 
-        # Free throw trip
+        # Free throw trip — outside_scoring governs FT touch
         if roll2 < BASE_FT_RATE:
-            ft_pct = BASE_FT_PCT + (shooter_shooting - 0.5) * 0.20 + home_bonus * 0.5
+            ft_pct = BASE_FT_PCT + (shooter_outside - 0.5) * 0.20 + home_bonus * 0.5
             ft_pct = max(0.40, min(0.93, ft_pct))
             # 2 or 3 free throws
             num_fts = r.choices([2, 3], weights=[75, 25])[0]
@@ -423,11 +441,11 @@ def _simulate_possessions(
                 handler_stats.assists += 1
             continue
 
-        # Three pointer
+        # Three pointer — outside_scoring is the primary driver
         if roll2 < BASE_FT_RATE + BASE_THREE_PT_RATE:
             shot_pct = (BASE_THREE_PT_PCT
-                        + (shooter_shooting - 0.5) * 0.32
-                        + (defense_rating - 55) * -0.005  # stronger defense impact
+                        + (shooter_outside - 0.5) * 0.32
+                        + (def_perimeter - 55) * -0.005  # perimeter defense impact
                         + home_bonus)
             shot_pct *= playoff_variance
             shot_pct = max(0.18, min(0.48, shot_pct))
@@ -442,11 +460,11 @@ def _simulate_possessions(
                     handler_stats.assists += 1
             continue
 
-        # Two pointer (remainder of possessions)
+        # Two pointer (remainder of possessions) — inside_scoring + athleticism
         shot_pct = (BASE_TWO_PT_PCT
-                    + (shooter_shooting - 0.5) * 0.30
+                    + (shooter_inside - 0.5) * 0.30
                     + (shooter_ath - 0.5) * 0.18
-                    + (defense_rating - 55) * -0.005  # defense impact
+                    + (def_interior - 55) * -0.005  # interior defense impact
                     + home_bonus)
         shot_pct *= playoff_variance
         shot_pct = max(0.28, min(0.68, shot_pct))
@@ -576,13 +594,14 @@ def _award_steals_blocks(
     if not def_ids:
         return
 
-    # Steal weights — wide tendency (0.1-5.0) creates steal specialists.
+    # Steal weights — perimeter_defense is primary driver for steals.
+    # Wide tendency (0.1-5.0) creates steal specialists.
     # Target: #1 ~2.0 SPG, #10 ~1.5 SPG.
     steal_weights = []
     for pid in def_ids:
         p = def_players[pid]
-        raw = (p.ratings["defense"] * 0.5 + p.ratings["athleticism"] * 0.3
-               + p.ratings["basketball_iq"] * 0.2)
+        raw = (p.ratings["perimeter_defense"] * 0.55 + p.ratings["athleticism"] * 0.25
+               + p.ratings["basketball_iq"] * 0.20)
         pos_bonus = 1.5 if p.position in ("PG", "SG") else (1.0 if p.position == "SF" else 0.7)
         tendency = _player_tendency(pid, "steals", 0.1, 5.0)
         w = (raw ** 2.0) * def_minutes.get(pid, 0) * pos_bonus * (tendency ** 2)
@@ -613,7 +632,7 @@ def _award_steals_blocks(
     for pid in def_ids:
         p = def_players[pid]
         pos_mult = 3.0 if p.position == "C" else (0.6 if p.position == "PF" else (0.04 if p.position == "SF" else 0.005))
-        raw = (p.ratings["defense"] * 0.5 + p.ratings["athleticism"] * 0.5) / 100.0
+        raw = (p.ratings["interior_defense"] * 0.6 + p.ratings["athleticism"] * 0.4) / 100.0
         w = (raw ** 1.5) * def_minutes.get(pid, 0) * pos_mult
         block_weights.append(max(w, 0.01))
 
@@ -627,7 +646,7 @@ def _award_steals_blocks(
         pos_mult = 1.0 if p.position == "C" else (0.15 if p.position == "PF" else 0.0)
         if pos_mult == 0.0:
             continue
-        raw = (p.ratings["defense"] * 0.5 + p.ratings["athleticism"] * 0.5) / 100.0
+        raw = (p.ratings["interior_defense"] * 0.6 + p.ratings["athleticism"] * 0.4) / 100.0
         tendency = _player_tendency(pid, "blocks", 0.01, 10.0)
         minutes_frac = def_minutes.get(pid, 0) / 240.0
         # Only high-tendency players generate meaningful extra blocks
