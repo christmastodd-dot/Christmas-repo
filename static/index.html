@@ -182,7 +182,10 @@ let droppedFishWX = -1;    // world X where fish was dropped (-1 = not dropped)
 let leopardAlertTimer = 0; // countdown for "Drop the fish!" prompt
 // Level 3: avalanche descent
 let l3Crevasses = [];      // gaps in the ground to jump over
-let l3Snowballs = [];      // rolling snowballs from above
+let l3Snowballs = [];      // snowballs thrown by yeti
+let yeti = null;           // { wx, wy, state, throwTimer, hits, defeated }
+let hasSnowball = false;   // player caught a snowball
+let thrownBall = null;     // player's thrown snowball in flight
 let keys = {};
 let lastTime = 0;
 
@@ -272,13 +275,26 @@ function resetLevel() {
   // Level 3 setup
   l3Crevasses = [];
   l3Snowballs = [];
+  yeti = null;
+  hasSnowball = false;
+  thrownBall = null;
   if (currentLevel === 3) {
-    // Crevasses — gaps in the trail to jump over
-    const crevPositions = [800, 1800, 2900, 3800, 4900, 6200, 7200];
+    // Crevasses — gaps in the trail to jump over (fewer, in first 2/3)
+    const crevPositions = [800, 1800, 2900, 3800, 4900];
     for (const wx of crevPositions) {
       l3Crevasses.push({ wx, width: 50 + Math.random() * 30 });
     }
-    // Snowballs spawn during gameplay (see update)
+    // Yeti at the bottom of the descent, before the village
+    const yetiWX = levelCfg.length - 400;
+    yeti = {
+      wx: yetiWX,
+      wy: trailY(yetiWX),
+      state: 'throwing',  // throwing | stunned | defeated
+      throwTimer: 2.0,    // seconds between throws
+      hits: 0,            // need 1 hit to defeat
+      width: 80,
+      height: 70
+    };
     // Init falling snow for level 3 too
     snowParticles = [];
     for (let i = 0; i < 80; i++) {
@@ -1180,6 +1196,140 @@ function drawL3Snowballs(camWX, camWY) {
   }
 }
 
+function drawYeti(sx, sy, yetiState) {
+  const c = ctx;
+  const defeated = yetiState === 'defeated';
+  const stunned = yetiState === 'stunned';
+
+  // Shadow
+  c.fillStyle = 'rgba(0,0,0,0.15)';
+  c.beginPath(); c.ellipse(sx, sy + 3, 30, 8, 0, 0, Math.PI*2); c.fill();
+
+  // Body — large, white, furry
+  c.fillStyle = defeated ? 'rgb(180,180,180)' : 'rgb(240,245,250)';
+  c.beginPath(); c.ellipse(sx, sy - 35, 30, 38, 0, 0, Math.PI*2); c.fill();
+  // Belly lighter patch
+  c.fillStyle = defeated ? 'rgb(195,195,195)' : 'rgb(250,252,255)';
+  c.beginPath(); c.ellipse(sx, sy - 25, 18, 22, 0, 0, Math.PI*2); c.fill();
+
+  // Legs — thick, short
+  c.fillStyle = defeated ? 'rgb(170,170,170)' : 'rgb(235,240,248)';
+  c.fillRect(sx - 18, sy - 8, 14, 14);
+  c.fillRect(sx + 4, sy - 8, 14, 14);
+  // Feet
+  c.fillStyle = 'rgb(160,165,175)';
+  c.beginPath(); c.ellipse(sx - 11, sy + 6, 10, 5, 0, 0, Math.PI*2); c.fill();
+  c.beginPath(); c.ellipse(sx + 11, sy + 6, 10, 5, 0, 0, Math.PI*2); c.fill();
+
+  // Arms
+  if (defeated) {
+    // Arms hanging limp at sides
+    c.fillStyle = 'rgb(180,180,180)';
+    c.fillRect(sx - 34, sy - 40, 12, 28);
+    c.fillRect(sx + 22, sy - 40, 12, 28);
+  } else if (stunned) {
+    // Arms up in surprise
+    c.fillStyle = 'rgb(235,240,248)';
+    c.save(); c.translate(sx - 30, sy - 50); c.rotate(-0.8);
+    c.fillRect(0, 0, 12, 24); c.restore();
+    c.save(); c.translate(sx + 30, sy - 50); c.rotate(0.8);
+    c.fillRect(-12, 0, 12, 24); c.restore();
+  } else {
+    // Throwing pose — left arm back, right arm forward
+    const throwPhase = Math.sin(performance.now() / 200) * 0.3;
+    c.fillStyle = 'rgb(235,240,248)';
+    c.save(); c.translate(sx - 30, sy - 50); c.rotate(-0.5 + throwPhase);
+    c.fillRect(0, 0, 12, 26); c.restore();
+    c.save(); c.translate(sx + 30, sy - 50); c.rotate(0.5 - throwPhase);
+    c.fillRect(-12, 0, 12, 26); c.restore();
+  }
+
+  // Head
+  c.fillStyle = defeated ? 'rgb(180,180,180)' : 'rgb(240,245,250)';
+  c.beginPath(); c.arc(sx, sy - 62, 20, 0, Math.PI*2); c.fill();
+
+  // Horns/ice crown
+  c.fillStyle = 'rgb(160,200,230)';
+  c.beginPath(); c.moveTo(sx - 14, sy - 78); c.lineTo(sx - 10, sy - 92); c.lineTo(sx - 6, sy - 78); c.closePath(); c.fill();
+  c.beginPath(); c.moveTo(sx + 6, sy - 78); c.lineTo(sx + 10, sy - 92); c.lineTo(sx + 14, sy - 78); c.closePath(); c.fill();
+
+  // Face
+  if (defeated) {
+    // X eyes (defeated)
+    c.strokeStyle = 'rgb(100,100,100)'; c.lineWidth = 2.5;
+    c.beginPath(); c.moveTo(sx - 12, sy - 68); c.lineTo(sx - 6, sy - 62); c.stroke();
+    c.beginPath(); c.moveTo(sx - 6, sy - 68); c.lineTo(sx - 12, sy - 62); c.stroke();
+    c.beginPath(); c.moveTo(sx + 6, sy - 68); c.lineTo(sx + 12, sy - 62); c.stroke();
+    c.beginPath(); c.moveTo(sx + 12, sy - 68); c.lineTo(sx + 6, sy - 62); c.stroke();
+    // Dizzy mouth
+    c.beginPath(); c.arc(sx, sy - 52, 5, 0, Math.PI); c.stroke();
+  } else if (stunned) {
+    // Dazed spirals for eyes
+    c.strokeStyle = 'rgb(60,60,180)'; c.lineWidth = 2;
+    for (const ex of [-9, 9]) {
+      c.beginPath(); c.arc(sx + ex, sy - 65, 4, 0, Math.PI*3); c.stroke();
+    }
+    c.fillStyle = 'rgb(100,100,120)';
+    c.beginPath(); c.arc(sx, sy - 52, 4, 0, Math.PI*2); c.fill();
+  } else {
+    // Angry eyes — red
+    c.fillStyle = 'rgb(255,60,40)';
+    c.beginPath(); c.ellipse(sx - 9, sy - 65, 6, 5, 0, 0, Math.PI*2); c.fill();
+    c.beginPath(); c.ellipse(sx + 9, sy - 65, 6, 5, 0, 0, Math.PI*2); c.fill();
+    // Pupils
+    c.fillStyle = 'rgb(20,0,0)';
+    c.beginPath(); c.arc(sx - 9, sy - 65, 3, 0, Math.PI*2); c.fill();
+    c.beginPath(); c.arc(sx + 9, sy - 65, 3, 0, Math.PI*2); c.fill();
+    // Angry eyebrows
+    c.strokeStyle = 'rgb(200,200,210)'; c.lineWidth = 3; c.lineCap = 'round';
+    c.beginPath(); c.moveTo(sx - 16, sy - 72); c.lineTo(sx - 4, sy - 75); c.stroke();
+    c.beginPath(); c.moveTo(sx + 16, sy - 72); c.lineTo(sx + 4, sy - 75); c.stroke();
+    c.lineCap = 'butt';
+    // Mouth — snarling
+    c.fillStyle = 'rgb(80,30,30)';
+    c.beginPath(); c.ellipse(sx, sy - 52, 8, 5, 0, 0, Math.PI*2); c.fill();
+    // Fangs
+    c.fillStyle = 'rgb(250,250,255)';
+    c.beginPath(); c.moveTo(sx - 5, sy - 54); c.lineTo(sx - 3, sy - 48); c.lineTo(sx - 7, sy - 48); c.closePath(); c.fill();
+    c.beginPath(); c.moveTo(sx + 5, sy - 54); c.lineTo(sx + 7, sy - 48); c.lineTo(sx + 3, sy - 48); c.closePath(); c.fill();
+  }
+}
+
+function drawYetiAlert() {
+  if (!yeti || currentLevel !== 3) return;
+  ctx.textAlign = 'center';
+
+  if (yeti.state === 'throwing' && Math.abs(playerWX - yeti.wx) < 800) {
+    ctx.fillStyle = 'rgba(120,40,40,0.75)';
+    ctx.beginPath(); ctx.roundRect(W/2 - 200, 15, 400, 45, 10); ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.font = 'bold 18px Arial';
+    if (hasSnowball) {
+      ctx.fillText('Press DOWN to throw the snowball at the yeti!', W/2, 44);
+    } else {
+      ctx.fillText('Dodge snowballs! Catch a slow one to throw back!', W/2, 44);
+    }
+  }
+
+  if (yeti.state === 'defeated') {
+    ctx.fillStyle = 'rgba(40,100,40,0.75)';
+    ctx.beginPath(); ctx.roundRect(W/2 - 140, 15, 280, 40, 10); ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.font = 'bold 20px Arial';
+    ctx.fillText('Yeti defeated! Run to the village!', W/2, 42);
+  }
+
+  ctx.textAlign = 'left';
+}
+
+function drawThrownBall(camWX, camWY) {
+  if (!thrownBall || !thrownBall.active) return;
+  const [sx, sy] = worldToScreen(thrownBall.wx, thrownBall.wy, camWX, camWY);
+  // Spinning snowball with trail
+  const c = ctx;
+  c.fillStyle = 'rgba(200,220,240,0.4)';
+  c.beginPath(); c.arc(sx - 8, sy, 8, 0, Math.PI*2); c.fill();
+  drawSnowball(Math.round(sx), Math.round(sy), thrownBall.radius);
+}
+
 function drawVillage(camWX, camWY) {
   const [sx, sy] = worldToScreen(levelCfg.length, trailY(levelCfg.length), camWX, camWY);
   const c = ctx;
@@ -1255,7 +1405,7 @@ function drawSummitFlag(camWX, camWY) {
   ctx.closePath(); ctx.fill();
 }
 
-function drawArm(c, shoulderX, shoulderY, angle, flip, carryFish) {
+function drawArm(c, shoulderX, shoulderY, angle, flip, carryFish, carrySnowball) {
   c.save();
   c.translate(shoulderX, shoulderY);
   c.rotate(angle);
@@ -1269,8 +1419,13 @@ function drawArm(c, shoulderX, shoulderY, angle, flip, carryFish) {
   c.fillStyle = 'rgb(245,205,170)';
   c.beginPath(); c.ellipse(0, 24, 4, 4, 0, 0, Math.PI*2); c.fill();
   // Fish held in hand
-  if (carryFish) {
-    drawFish(c, 0, 22);
+  if (carryFish) { drawFish(c, 0, 22); }
+  // Snowball held in hand
+  if (carrySnowball) {
+    c.fillStyle = 'rgb(230,240,250)';
+    c.beginPath(); c.arc(0, 20, 8, 0, Math.PI*2); c.fill();
+    c.fillStyle = 'rgba(255,255,255,0.5)';
+    c.beginPath(); c.arc(-2, 18, 3, 0, Math.PI*2); c.fill();
   }
   c.restore();
 }
@@ -1422,7 +1577,7 @@ function drawPlayer(sx, sy, right, flash, moving, walkOffset) {
   c.beginPath(); c.ellipse(sx, by - 42, 10, 4, 0, 0, Math.PI*2); c.stroke();
 
   // ── 6. Near arm (closest to viewer, in front) ───────────────────────────
-  drawArm(c, sx - f*10, by - 32, nearArmAngle, f, hasFish);
+  drawArm(c, sx - f*10, by - 32, nearArmAngle, f, hasFish, hasSnowball);
 
   // ── 7. Head from behind (no face — simple circle) ────────────────────────
   // Neck
@@ -2294,60 +2449,142 @@ function update(dt) {
       }
     }
 
-    // Spawn snowballs periodically from the right side
-    if (Math.random() < dt * 0.8) { // ~0.8 per second
-      const spawnWX = playerWX + W * 0.7 + Math.random() * 300;
-      l3Snowballs.push({
-        wx: spawnWX,
-        wy: trailY(spawnWX) - 40 - Math.random() * 80,
-        vx: -120 - Math.random() * 100,
-        vy: 0,
-        radius: 12 + Math.random() * 10,
-        active: true
-      });
+    // ── Yeti throws snowballs at the player ──────────────────────────────
+    if (yeti && yeti.state === 'throwing') {
+      yeti.throwTimer -= dt;
+      if (yeti.throwTimer <= 0) {
+        yeti.throwTimer = 1.8 + Math.random() * 1.2; // throw every 1.8-3s
+        // Throw a snowball toward the player (uphill = leftward)
+        const throwSpeed = 250 + Math.random() * 80;
+        const dx = playerWX - yeti.wx;
+        const dy = (playerWY - 30) - yeti.wy;
+        const dist = Math.sqrt(dx*dx + dy*dy) || 1;
+        l3Snowballs.push({
+          wx: yeti.wx - 30,
+          wy: yeti.wy - 40,
+          vx: (dx / dist) * throwSpeed,
+          vy: (dy / dist) * throwSpeed - 150, // arc upward
+          radius: 14,
+          active: true,
+          catchable: false // becomes catchable when it's close and slowing
+        });
+      }
     }
 
-    // Update snowballs — roll downhill, bounce on trail
+    // Yeti stunned timer
+    if (yeti && yeti.state === 'stunned') {
+      yeti.throwTimer -= dt;
+      if (yeti.throwTimer <= 0) {
+        yeti.state = 'throwing';
+        yeti.throwTimer = 2.0;
+      }
+    }
+
+    // Update snowballs
     for (const sb of l3Snowballs) {
       if (!sb.active) continue;
-      sb.vx -= 30 * dt; // accelerate downhill (leftward from player perspective)
-      sb.vy += GRAVITY * 0.4 * dt;
+      sb.vy += GRAVITY * 0.35 * dt;
       sb.wx += sb.vx * dt;
       sb.wy += sb.vy * dt;
       const groundY = trailY(sb.wx);
       if (sb.wy > groundY) {
         sb.wy = groundY;
-        sb.vy = -Math.abs(sb.vy) * 0.3; // bounce
-        if (Math.abs(sb.vy) < 20) sb.vy = 0;
+        sb.vy = -Math.abs(sb.vy) * 0.25;
+        if (Math.abs(sb.vy) < 15) { sb.vy = 0; sb.vx *= 0.9; }
+        // Once a snowball is on the ground and slow, it's catchable
+        if (Math.abs(sb.vx) < 80) sb.catchable = true;
       }
-      // Remove if far behind player
-      if (sb.wx < playerWX - 500) sb.active = false;
+      // Remove if far from player
+      if (Math.abs(sb.wx - playerWX) > 800) sb.active = false;
 
-      // Collision with player
-      if (sb.active && invincibleTimer <= 0) {
-        const dx = sb.wx - playerWX;
-        const dy = (sb.wy - sb.radius) - (playerWY - 25);
-        const dist = Math.sqrt(dx*dx + dy*dy);
-        if (dist < sb.radius + 16) {
-          lives--;
-          sb.active = false;
-          if (lives <= 0) { onGameOver(); return; }
-          kbX = playerWX; kbY = playerWY;
-          kbVX = -200;
-          kbVY = -350;
-          kbTimer = 1.5;
-          invincibleTimer = INVINCIBILITY_TIME;
-          state = 'knockback';
-          return;
+      // Collision with player — damage if fast, catchable if slow
+      if (sb.active && invincibleTimer <= 0 && !hasSnowball) {
+        const pdx = sb.wx - playerWX;
+        const pdy = (sb.wy - sb.radius) - (playerWY - 25);
+        const pdist = Math.sqrt(pdx*pdx + pdy*pdy);
+        if (pdist < sb.radius + 16) {
+          if (sb.catchable) {
+            // Catch it!
+            hasSnowball = true;
+            sb.active = false;
+          } else {
+            // Hit by fast snowball
+            lives--;
+            sb.active = false;
+            if (lives <= 0) { onGameOver(); return; }
+            kbX = playerWX; kbY = playerWY;
+            kbVX = -200;
+            kbVY = -350;
+            kbTimer = 1.5;
+            invincibleTimer = INVINCIBILITY_TIME;
+            state = 'knockback';
+            return;
+          }
         }
       }
     }
-    // Clean up inactive snowballs
     l3Snowballs = l3Snowballs.filter(sb => sb.active);
+
+    // Player throws snowball back at yeti (press DOWN when holding snowball)
+    if (hasSnowball && (keys['ArrowDown'] || keys['KeyS'])) {
+      hasSnowball = false;
+      thrownBall = {
+        wx: playerWX + 20,
+        wy: playerWY - 30,
+        vx: 350,
+        vy: -120,
+        radius: 14,
+        active: true
+      };
+    }
+
+    // Update thrown ball
+    if (thrownBall && thrownBall.active) {
+      thrownBall.vy += GRAVITY * 0.3 * dt;
+      thrownBall.wx += thrownBall.vx * dt;
+      thrownBall.wy += thrownBall.vy * dt;
+      // Hit yeti?
+      if (yeti && yeti.state !== 'defeated') {
+        const ydx = thrownBall.wx - yeti.wx;
+        const ydy = thrownBall.wy - (yeti.wy - 35);
+        if (Math.sqrt(ydx*ydx + ydy*ydy) < 50) {
+          yeti.hits++;
+          thrownBall.active = false;
+          if (yeti.hits >= 1) {
+            yeti.state = 'defeated';
+          } else {
+            yeti.state = 'stunned';
+            yeti.throwTimer = 3.0;
+          }
+        }
+      }
+      // Off screen
+      if (thrownBall.wx > yeti.wx + 200 || thrownBall.wy > trailY(thrownBall.wx) + 50) {
+        thrownBall.active = false;
+      }
+    }
+
+    // Yeti body collision (don't walk into him!)
+    if (yeti && yeti.state !== 'defeated' && invincibleTimer <= 0 && onGround) {
+      const yRect = { x: yeti.wx - 40, y: yeti.wy - 70, w: 80, h: 70 };
+      if (rectsOverlap(pRect, yRect)) {
+        lives--;
+        if (lives <= 0) { onGameOver(); return; }
+        kbX = playerWX; kbY = playerWY;
+        kbVX = -300; kbVY = -400; kbTimer = 1.5;
+        invincibleTimer = INVINCIBILITY_TIME;
+        state = 'knockback';
+        return;
+      }
+    }
   }
 
   if (playerWX >= levelCfg.length) {
     if (currentLevel < 3) { state = 'levelcomplete'; }
+    else if (currentLevel === 3 && yeti && yeti.state !== 'defeated') {
+      // Can't win until yeti is defeated — block at yeti position
+      playerWX = Math.min(playerWX, yeti.wx - 60);
+    }
     else { state = 'win'; initConfetti(); }
   }
 }
@@ -2427,8 +2664,14 @@ function draw(dt) {
   } else if (currentLevel === 3) {
     drawTrees(camWX, camWY, 1.0);
     drawL3Crevasses(camWX, camWY);
-    drawL3Snowballs(camWX, camWY);
     drawVillage(camWX, camWY);
+    // Yeti
+    if (yeti) {
+      const [ysx, ysy] = worldToScreen(yeti.wx, yeti.wy, camWX, camWY);
+      if (ysx > -80 && ysx < W + 80) drawYeti(Math.round(ysx), Math.round(ysy), yeti.state);
+    }
+    drawL3Snowballs(camWX, camWY);
+    drawThrownBall(camWX, camWY);
   }
 
   for (const g of goats) {
@@ -2455,6 +2698,7 @@ function draw(dt) {
   // Falling snow (Levels 2 & 3) — drawn over everything for atmosphere
   if (currentLevel >= 2) drawFallingSnow(dt);
   if (currentLevel === 2) drawLeopardAlert();
+  if (currentLevel === 3) drawYetiAlert();
 
   // Show/hide DROP button on mobile for Level 2
   const dropBtn = document.getElementById('drop-btn');
@@ -2473,7 +2717,7 @@ function draw(dt) {
     ctx.fillStyle = '#fff'; ctx.font = 'bold 20px Arial'; ctx.textAlign = 'center';
     let tutText;
     if (currentLevel === 3) {
-      tutText = 'Jump over crevasses! Dodge the snowballs! Reach the village!';
+      tutText = 'Jump crevasses! Dodge yeti snowballs! Catch one and throw it back!';
     } else if (currentLevel === 2) {
       tutText = isTouchDevice
         ? 'Jump over ice! Watch for the snow leopard!'
