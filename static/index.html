@@ -140,6 +140,7 @@
   </div>
   <div class="touch-group">
     <button class="touch-btn" id="drop-btn" data-key="ArrowDown" style="display:none;font-size:16px;">DROP</button>
+    <button class="touch-btn" id="catch-btn" data-key="ArrowDown" style="display:none;font-size:14px;">CATCH</button>
     <button class="touch-btn" data-key="Space">&#9650;</button>
   </div>
 </div>
@@ -2695,9 +2696,18 @@ function draw(dt) {
   if (currentLevel === 2) drawLeopardAlert();
   if (currentLevel === 3) drawYetiAlert();
 
-  // Show/hide DROP button on mobile for Level 2
+  // Show/hide action buttons on mobile
   const dropBtn = document.getElementById('drop-btn');
   if (dropBtn) dropBtn.style.display = (currentLevel === 2 && hasFish) ? 'flex' : 'none';
+  const catchBtn = document.getElementById('catch-btn');
+  if (catchBtn) {
+    if (currentLevel === 3 && yeti && yeti.state !== 'defeated') {
+      catchBtn.style.display = 'flex';
+      catchBtn.textContent = hasSnowball ? 'THROW' : 'CATCH';
+    } else {
+      catchBtn.style.display = 'none';
+    }
+  }
 
   drawHearts(lives);
   drawProgressBar(progress);
