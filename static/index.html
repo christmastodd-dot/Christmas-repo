@@ -239,10 +239,10 @@ function resetLevel() {
   droppedFishWX = -1;
   leopardAlertTimer = 0;
   if (currentLevel === 2) {
-    // Ice rocks/boulders to jump over in the first half
-    const obsPositions = [600, 1200, 1900, 2600];
+    // Ice rocks/boulders to jump over in the first half (forgiving hitboxes)
+    const obsPositions = [700, 1400, 2100, 2800];
     for (const wx of obsPositions) {
-      l2Obstacles.push({ wx, wy: trailY(wx), width: 36, height: 30, type: 'ice' });
+      l2Obstacles.push({ wx, wy: trailY(wx), width: 24, height: 22, type: 'ice' });
     }
     // Snow leopard at ~60% through the level
     const leopWX = levelCfg.length * 0.6;
@@ -1049,24 +1049,60 @@ function drawSnowLeopard(sx, sy, lpState, eatTimer) {
 }
 
 function drawLeopardAlert() {
-  if (leopardAlertTimer <= 0 || !leopard || leopard.state !== 'stalking') return;
-  const alpha = Math.min(1, leopardAlertTimer);
-  ctx.globalAlpha = alpha;
+  // Show fish hint at top of screen before leopard encounter
+  if (currentLevel === 2 && hasFish && (!leopard || leopard.state === 'waiting')) {
+    ctx.fillStyle = 'rgba(0,0,0,0.35)';
+    ctx.beginPath(); ctx.roundRect(W/2 - 150, 60, 300, 30, 8); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.8)'; ctx.font = '15px Arial'; ctx.textAlign = 'center';
+    ctx.fillText('You are carrying a fish... keep going!', W/2, 80);
+    ctx.textAlign = 'left';
+  }
 
-  // Warning panel
-  ctx.fillStyle = 'rgba(180,30,30,0.7)';
-  ctx.beginPath(); ctx.roundRect(W/2 - 180, 20, 360, 50, 10); ctx.fill();
+  if (!leopard || (leopard.state !== 'stalking' && leopard.state !== 'eating' && leopard.state !== 'sitting')) return;
 
-  // Flashing exclamation
-  const flash = Math.sin(performance.now() / 150) > 0;
-  ctx.fillStyle = flash ? '#fff' : '#ffcc00';
-  ctx.font = 'bold 24px Arial'; ctx.textAlign = 'center';
-  const msg = hasFish
-    ? (isTouchDevice ? 'Snow Leopard! Press DOWN to drop fish!' : 'Snow Leopard! Press DOWN to drop fish!')
-    : 'RUN LEFT! Then jump over it!';
-  ctx.fillText(msg, W/2, 52);
-  ctx.textAlign = 'left';
-  ctx.globalAlpha = 1;
+  // Big warning during stalking
+  if (leopard.state === 'stalking') {
+    const flash = Math.sin(performance.now() / 150) > 0;
+
+    // Large red warning banner
+    ctx.fillStyle = 'rgba(180,20,20,0.85)';
+    ctx.beginPath(); ctx.roundRect(W/2 - 250, 10, 500, 70, 12); ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,100,0.6)'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.roundRect(W/2 - 250, 10, 500, 70, 12); ctx.stroke();
+
+    ctx.textAlign = 'center';
+    ctx.fillStyle = flash ? '#fff' : '#ffcc00';
+    ctx.font = 'bold 28px Arial';
+    if (hasFish) {
+      ctx.fillText('SNOW LEOPARD!', W/2, 40);
+      ctx.fillStyle = '#fff'; ctx.font = 'bold 20px Arial';
+      const dropText = isTouchDevice ? 'Press DROP button to drop the fish!' : 'Press DOWN ARROW to drop the fish!';
+      ctx.fillText(dropText, W/2, 68);
+    } else {
+      ctx.fillText('RUN LEFT!', W/2, 40);
+      ctx.fillStyle = '#fff'; ctx.font = 'bold 20px Arial';
+      ctx.fillText('Then jump over the leopard to escape!', W/2, 68);
+    }
+    ctx.textAlign = 'left';
+  }
+
+  // Status during eating
+  if (leopard.state === 'eating') {
+    ctx.fillStyle = 'rgba(40,80,40,0.75)';
+    ctx.beginPath(); ctx.roundRect(W/2 - 200, 15, 400, 45, 10); ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.font = 'bold 20px Arial'; ctx.textAlign = 'center';
+    ctx.fillText('Leopard is eating! Run left, then jump over it!', W/2, 44);
+    ctx.textAlign = 'left';
+  }
+
+  // Status when sitting
+  if (leopard.state === 'sitting') {
+    ctx.fillStyle = 'rgba(40,60,100,0.75)';
+    ctx.beginPath(); ctx.roundRect(W/2 - 160, 15, 320, 40, 10); ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.font = 'bold 18px Arial'; ctx.textAlign = 'center';
+    ctx.fillText('Jump over the leopard to reach safety!', W/2, 42);
+    ctx.textAlign = 'left';
+  }
 }
 
 // ── Level 3 drawing ──────────────────────────────────────────────────────
@@ -2163,16 +2199,16 @@ function update(dt) {
     const distToPlayer = lp.wx - playerWX;
 
     if (lp.state === 'waiting') {
-      // Trigger when player gets within 500px — gives time to see it
-      if (distToPlayer > 0 && distToPlayer < 500 && hasFish) {
+      // Trigger when player gets within 600px — gives time to see it and react
+      if (distToPlayer > 0 && distToPlayer < 600 && hasFish) {
         lp.state = 'stalking';
-        leopardAlertTimer = 5.0; // 5 seconds of alert
+        leopardAlertTimer = 6.0;
       }
     }
 
     if (lp.state === 'stalking') {
-      // Leopard creeps toward the player slowly
-      lp.wx -= 80 * dt;
+      // Leopard creeps toward the player very slowly — gives lots of time to react
+      lp.wx -= 50 * dt;
       lp.wy = trailY(lp.wx);
       leopardAlertTimer -= dt;
 
@@ -2409,6 +2445,10 @@ function draw(dt) {
   // Falling snow (Levels 2 & 3) — drawn over everything for atmosphere
   if (currentLevel >= 2) drawFallingSnow(dt);
   if (currentLevel === 2) drawLeopardAlert();
+
+  // Show/hide DROP button on mobile for Level 2
+  const dropBtn = document.getElementById('drop-btn');
+  if (dropBtn) dropBtn.style.display = (currentLevel === 2 && hasFish) ? 'flex' : 'none';
 
   drawHearts(lives);
   drawProgressBar(progress);
