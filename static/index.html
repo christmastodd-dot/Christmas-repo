@@ -1760,9 +1760,37 @@ function drawStartScreen() {
   // Controls hint
   ctx.fillStyle = 'rgba(200,220,255,0.6)'; ctx.font = '15px Arial';
   const hint = isTouchDevice ? 'Use on-screen controls' : 'Arrow keys to move, SPACE to jump';
-  ctx.fillText(hint, W/2, 480);
+  ctx.fillText(hint, W/2, 475);
+
+  // Level select buttons
+  const btnW = 145, btnH = 44, btnY = 500, gap = 20;
+  const btn1X = W/2 - btnW - gap/2, btn2X = W/2 + gap/2;
+
+  // Level 1 button
+  ctx.fillStyle = 'rgba(60,160,80,0.7)';
+  ctx.beginPath(); ctx.roundRect(btn1X, btnY, btnW, btnH, 10); ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.roundRect(btn1X, btnY, btnW, btnH, 10); ctx.stroke();
+  ctx.fillStyle = '#fff'; ctx.font = 'bold 18px Arial';
+  ctx.fillText('Level 1: Mountain', btn1X + btnW/2, btnY + 28);
+
+  // Level 2 button
+  ctx.fillStyle = 'rgba(80,140,200,0.7)';
+  ctx.beginPath(); ctx.roundRect(btn2X, btnY, btnW, btnH, 10); ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.roundRect(btn2X, btnY, btnW, btnH, 10); ctx.stroke();
+  ctx.fillStyle = '#fff'; ctx.font = 'bold 18px Arial';
+  ctx.fillText('Level 2: Leopard', btn2X + btnW/2, btnY + 28);
+
+  // Key hint
+  ctx.fillStyle = 'rgba(200,220,255,0.45)'; ctx.font = '13px Arial';
+  ctx.fillText('Press 1 or 2 to select level', W/2, btnY + btnH + 20);
 
   ctx.textAlign = 'left';
+
+  // Store button positions for touch hit testing
+  drawStartScreen._btn1 = { x: btn1X, y: btnY, w: btnW, h: btnH };
+  drawStartScreen._btn2 = { x: btn2X, y: btnY, w: btnW, h: btnH };
 }
 
 function drawLevelComplete() {
@@ -2283,8 +2311,13 @@ document.addEventListener('keydown', e => {
   keys[e.code] = true;
   if (state === 'start' && (e.code === 'Space' || e.code === 'Enter')) {
     currentLevel = 1; resetLevel();
-    state = 'playing';
-    startMusic();
+    state = 'playing'; startMusic();
+  } else if (state === 'start' && (e.code === 'Digit1' || e.code === 'Numpad1')) {
+    currentLevel = 1; resetLevel();
+    state = 'playing'; startMusic();
+  } else if (state === 'start' && (e.code === 'Digit2' || e.code === 'Numpad2')) {
+    currentLevel = 2; resetLevel();
+    state = 'playing'; startMusic();
   } else if (state === 'levelcomplete' && (e.code === 'Space' || e.code === 'Enter')) {
     currentLevel = 2; resetLevel();
     state = 'playing';
@@ -2323,7 +2356,21 @@ document.querySelectorAll('.touch-btn').forEach(btn => {
 // Tap canvas to start/restart on mobile
 canvas.addEventListener('touchstart', e => {
   e.preventDefault();
-  if (state === 'start') { currentLevel = 1; resetLevel(); state = 'playing'; startMusic(); }
+  if (state === 'start') {
+    // Check if tap is on a level select button
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = W / rect.width, scaleY = H / rect.height;
+    const tx = (e.touches[0].clientX - rect.left) * scaleX;
+    const ty = (e.touches[0].clientY - rect.top) * scaleY;
+    const b1 = drawStartScreen._btn1, b2 = drawStartScreen._btn2;
+    if (b1 && tx >= b1.x && tx <= b1.x+b1.w && ty >= b1.y && ty <= b1.y+b1.h) {
+      currentLevel = 1; resetLevel(); state = 'playing'; startMusic();
+    } else if (b2 && tx >= b2.x && tx <= b2.x+b2.w && ty >= b2.y && ty <= b2.y+b2.h) {
+      currentLevel = 2; resetLevel(); state = 'playing'; startMusic();
+    } else {
+      currentLevel = 1; resetLevel(); state = 'playing'; startMusic();
+    }
+  }
   else if (state === 'levelcomplete') { currentLevel = 2; resetLevel(); state = 'playing'; }
   else if (state === 'gameover' || state === 'win') { stopMusic(); currentLevel = 1; state = 'start'; }
 });
