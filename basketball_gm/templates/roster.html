@@ -38,7 +38,7 @@
             <tr class="{{ 'starter' if p.is_starter else '' }}">
                 <td>{{ "★" if p.is_starter else "" }}</td>
                 <td>{{ p.position }}</td>
-                <td><strong>{{ p.name }}</strong></td>
+                <td><a href="{{ url_for('player_detail', player_id=p.id) }}"><strong>{{ p.name }}</strong></a></td>
                 <td class="num">{{ p.overall }}</td>
                 <td class="num">{{ p.potential }}</td>
                 <td class="num">{{ p.age }}</td>
@@ -69,7 +69,7 @@
         <div class="player-card {{ 'player-card-starter' if p.is_starter else '' }}">
             <div class="player-card-top">
                 <div>
-                    <span class="player-card-name">{{ "★ " if p.is_starter else "" }}{{ p.name }}</span>
+                    <a href="{{ url_for('player_detail', player_id=p.id) }}" class="player-card-name">{{ "★ " if p.is_starter else "" }}{{ p.name }}</a>
                     <span class="player-card-pos">{{ p.position }}</span>
                 </div>
                 <div class="player-card-ovr">{{ p.overall }}</div>

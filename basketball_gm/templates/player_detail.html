@@ -1,0 +1,293 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- ── Bio Card ─────────────────────────────────────────────── -->
+<div class="card pd-bio">
+    <div class="pd-bio-top">
+        <div>
+            <h2 style="border:none; margin:0; padding:0; font-size:1.3rem;">{{ player.name }}</h2>
+            <div class="pd-bio-meta">
+                {{ player.position }}
+                &middot; {{ player.height_str }} / {{ player.weight }} lbs
+                &middot; Age {{ player.age }}
+                {% if team %}&middot; <a href="{{ url_for('roster', team_id=team.id) }}">{{ team.abbr }}</a>{% else %}&middot; Free Agent{% endif %}
+            </div>
+            {% if player.draft_pick > 0 %}
+            <div class="pd-bio-draft">Drafted #{{ player.draft_pick }} ({{ player.draft_year }}) &middot; {{ player.years_pro }} yr{{ 's' if player.years_pro != 1 }} pro</div>
+            {% elif player.years_pro > 0 %}
+            <div class="pd-bio-draft">Undrafted &middot; {{ player.years_pro }} yr{{ 's' if player.years_pro != 1 }} pro</div>
+            {% endif %}
+        </div>
+        <div class="pd-badges">
+            <div class="pd-badge pd-badge-ovr">
+                <span class="pd-badge-label">OVR</span>
+                <span class="pd-badge-value">{{ player.overall }}</span>
+            </div>
+            <div class="pd-badge pd-badge-pot">
+                <span class="pd-badge-label">POT</span>
+                <span class="pd-badge-value">{{ player.potential }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Ratings ──────────────────────────────────────────────── -->
+<div class="card">
+    <h2>Ratings</h2>
+    <div class="pd-ratings">
+        {% for r in ratings %}
+        <div class="pd-rating-row">
+            <span class="pd-rating-label">{{ r.label }}</span>
+            <div class="pd-rating-bar-track">
+                <div class="pd-rating-bar pd-bar-{{ r.tier }}" style="width: {{ r.value }}%;"></div>
+            </div>
+            <span class="pd-rating-val pd-val-{{ r.tier }}">{{ r.value }}</span>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- ── Season Stats ────────────────────────────────────────── -->
+<div class="card">
+    <h2>Season {{ current_season }} Stats{% if season.gp > 0 %} <span style="font-weight:400; font-size:0.8rem; color:#7f8c8d;">({{ season.gp }} GP)</span>{% endif %}</h2>
+    {% if season.gp|int > 0 %}
+    <div class="pd-stats-grid">
+        <div class="pd-stat">
+            <div class="pd-stat-val">{{ season.ppg }}</div>
+            <div class="pd-stat-label">PPG</div>
+        </div>
+        <div class="pd-stat">
+            <div class="pd-stat-val">{{ season.rpg }}</div>
+            <div class="pd-stat-label">RPG</div>
+        </div>
+        <div class="pd-stat">
+            <div class="pd-stat-val">{{ season.apg }}</div>
+            <div class="pd-stat-label">APG</div>
+        </div>
+        <div class="pd-stat">
+            <div class="pd-stat-val">{{ season.spg }}</div>
+            <div class="pd-stat-label">SPG</div>
+        </div>
+        <div class="pd-stat">
+            <div class="pd-stat-val">{{ season.bpg }}</div>
+            <div class="pd-stat-label">BPG</div>
+        </div>
+        <div class="pd-stat">
+            <div class="pd-stat-val">{{ season.mpg }}</div>
+            <div class="pd-stat-label">MPG</div>
+        </div>
+    </div>
+    <div class="pd-splits">
+        <div class="pd-split">
+            <span class="pd-split-pct">{{ season.fg_pct }}%</span>
+            <span class="pd-split-label">FG</span>
+            <span class="pd-split-detail">{{ season.fg }}</span>
+        </div>
+        <div class="pd-split">
+            <span class="pd-split-pct">{{ season.three_pct }}%</span>
+            <span class="pd-split-label">3PT</span>
+            <span class="pd-split-detail">{{ season.three }}</span>
+        </div>
+        <div class="pd-split">
+            <span class="pd-split-pct">{{ season.ft_pct }}%</span>
+            <span class="pd-split-label">FT</span>
+            <span class="pd-split-detail">{{ season.ft }}</span>
+        </div>
+        <div class="pd-split">
+            <span class="pd-split-pct">{{ season.topg }}</span>
+            <span class="pd-split-label">TOPG</span>
+        </div>
+    </div>
+    {% else %}
+    <p style="color:#7f8c8d; font-size:0.85rem;">No games played this season.</p>
+    {% endif %}
+</div>
+
+<!-- ── Contract ─────────────────────────────────────────────── -->
+<div class="card">
+    <h2>Contract</h2>
+    <div class="pd-contract">
+        <div class="pd-contract-item">
+            <span class="pd-contract-val">{{ player.salary_str() }}</span>
+            <span class="pd-contract-label">Salary</span>
+        </div>
+        <div class="pd-contract-item">
+            <span class="pd-contract-val">{{ player.contract.years }} yr{{ 's' if player.contract.years != 1 }}</span>
+            <span class="pd-contract-label">Remaining</span>
+        </div>
+    </div>
+</div>
+
+<!-- ── Career History ──────────────────────────────────────── -->
+{% if career %}
+<div class="card">
+    <h2>Career History</h2>
+    <div class="table-wrap">
+    <table>
+        <thead>
+            <tr>
+                <th>Year</th><th class="num">GP</th>
+                <th class="num">PPG</th><th class="num">RPG</th><th class="num">APG</th>
+                <th class="num">SPG</th><th class="num">BPG</th>
+                <th class="num">FG%</th><th class="num">3P%</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in career %}
+            <tr>
+                <td>{{ c.year }}</td>
+                <td class="num">{{ c.gp }}</td>
+                <td class="num">{{ c.ppg }}</td>
+                <td class="num">{{ c.rpg }}</td>
+                <td class="num">{{ c.apg }}</td>
+                <td class="num">{{ c.spg }}</td>
+                <td class="num">{{ c.bpg }}</td>
+                <td class="num">{{ c.fg_pct }}</td>
+                <td class="num">{{ c.three_pct }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+</div>
+{% endif %}
+
+<div style="text-align:center; margin-top:0.5rem; margin-bottom:1rem;">
+    {% if team %}
+    <a href="{{ url_for('roster', team_id=team.id) }}" class="btn btn-secondary btn-sm">Back to Roster</a>
+    {% endif %}
+    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary btn-sm">Dashboard</a>
+</div>
+
+<style>
+/* ── Bio ───────────────────────────────── */
+.pd-bio { padding-bottom: 0.8rem; }
+.pd-bio-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+}
+.pd-bio-meta { font-size: 0.85rem; color: #aab7c4; margin-top: 0.3rem; }
+.pd-bio-draft { font-size: 0.78rem; color: #7f8c8d; margin-top: 0.2rem; }
+.pd-badges { display: flex; gap: 0.5rem; flex-shrink: 0; }
+.pd-badge {
+    text-align: center;
+    border-radius: 6px;
+    padding: 0.35rem 0.6rem;
+    min-width: 48px;
+}
+.pd-badge-ovr { background: #e67e22; }
+.pd-badge-pot { background: #2c3e50; }
+.pd-badge-label {
+    display: block;
+    font-size: 0.55rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: rgba(255,255,255,0.75);
+}
+.pd-badge-value {
+    display: block;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.2;
+}
+
+/* ── Ratings ───────────────────────────── */
+.pd-ratings { display: flex; flex-direction: column; gap: 0.45rem; }
+.pd-rating-row {
+    display: grid;
+    grid-template-columns: 130px 1fr 32px;
+    align-items: center;
+    gap: 0.6rem;
+}
+.pd-rating-label {
+    font-size: 0.78rem;
+    color: #aab7c4;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    font-weight: 500;
+}
+.pd-rating-bar-track {
+    height: 10px;
+    background: #0f1923;
+    border-radius: 5px;
+    overflow: hidden;
+}
+.pd-rating-bar {
+    height: 100%;
+    border-radius: 5px;
+    transition: width 0.4s ease;
+}
+.pd-bar-elite  { background: linear-gradient(90deg, #27ae60, #2ecc71); }
+.pd-bar-high   { background: linear-gradient(90deg, #1a8a4a, #7ddf7d); }
+.pd-bar-mid    { background: linear-gradient(90deg, #c87e20, #e67e22); }
+.pd-bar-low    { background: linear-gradient(90deg, #b44a2a, #e74c3c); }
+.pd-bar-poor   { background: linear-gradient(90deg, #5a5a5a, #7f8c8d); }
+.pd-rating-val {
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+.pd-val-elite  { color: #2ecc71; }
+.pd-val-high   { color: #7ddf7d; }
+.pd-val-mid    { color: #e67e22; }
+.pd-val-low    { color: #e74c3c; }
+.pd-val-poor   { color: #7f8c8d; }
+
+/* ── Stats Grid ────────────────────────── */
+.pd-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+.pd-stat {
+    text-align: center;
+    background: #0f1923;
+    border-radius: 6px;
+    padding: 0.6rem 0.3rem;
+}
+.pd-stat-val { font-size: 1.15rem; font-weight: 700; color: #e0e6ed; }
+.pd-stat-label { font-size: 0.62rem; color: #7f8c8d; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 0.15rem; }
+
+/* ── Shooting Splits ───────────────────── */
+.pd-splits {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+}
+.pd-split {
+    text-align: center;
+    background: #0f1923;
+    border-radius: 6px;
+    padding: 0.5rem 0.3rem;
+}
+.pd-split-pct { display: block; font-size: 1rem; font-weight: 700; color: #5dade2; }
+.pd-split-label { display: block; font-size: 0.6rem; color: #7f8c8d; text-transform: uppercase; letter-spacing: 0.5px; }
+.pd-split-detail { display: block; font-size: 0.68rem; color: #556573; margin-top: 0.1rem; }
+
+/* ── Contract ──────────────────────────── */
+.pd-contract { display: flex; gap: 2rem; }
+.pd-contract-item { text-align: center; }
+.pd-contract-val { display: block; font-size: 1.15rem; font-weight: 700; color: #e0e6ed; }
+.pd-contract-label { display: block; font-size: 0.65rem; color: #7f8c8d; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 0.1rem; }
+
+/* ── Mobile ────────────────────────────── */
+@media (max-width: 768px) {
+    .pd-bio-top { flex-direction: column; gap: 0.6rem; }
+    .pd-badges { align-self: flex-start; }
+    .pd-rating-row { grid-template-columns: 110px 1fr 30px; gap: 0.4rem; }
+    .pd-rating-label { font-size: 0.7rem; }
+    .pd-stats-grid { grid-template-columns: repeat(3, 1fr); }
+    .pd-splits { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+    .pd-rating-row { grid-template-columns: 95px 1fr 28px; gap: 0.3rem; }
+    .pd-rating-label { font-size: 0.65rem; }
+}
+</style>
+{% endblock %}

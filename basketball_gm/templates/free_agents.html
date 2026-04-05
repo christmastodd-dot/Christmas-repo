@@ -12,7 +12,7 @@
         <div class="fa-card">
             <div class="fa-card-top">
                 <div>
-                    <span class="fa-card-name">{{ p.name }}</span>
+                    <a href="{{ url_for('player_detail', player_id=p.id) }}" class="fa-card-name">{{ p.name }}</a>
                     <span class="fa-card-pos">{{ p.position }}</span>
                 </div>
                 <div class="fa-card-ovr">{{ p.overall }}</div>

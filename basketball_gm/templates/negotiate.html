@@ -15,7 +15,7 @@
     <div class="nego-player">
         <div class="nego-player-top">
             <div>
-                <span class="nego-player-name">{{ player.name }}</span>
+                <a href="{{ url_for('player_detail', player_id=player.id) }}" class="nego-player-name">{{ player.name }}</a>
                 <span class="nego-player-pos">{{ player.position }}</span>
             </div>
             <div class="nego-player-ovr">{{ player.overall }}</div>

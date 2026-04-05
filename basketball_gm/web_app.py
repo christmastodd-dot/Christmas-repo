@@ -26,7 +26,7 @@ from basketball_gm.free_agency import (
     release_player, ai_free_agency, expire_contracts,
     proposed_contract, negotiate_counter,
 )
-from basketball_gm.config import ROSTER_SIZE, SALARY_CAP, MID_LEVEL_EXCEPTION, DRAFT_ROUNDS, POSITIONS
+from basketball_gm.config import ATTRIBUTES, ROSTER_SIZE, SALARY_CAP, MID_LEVEL_EXCEPTION, DRAFT_ROUNDS, POSITIONS
 from basketball_gm.trade import (
     TradeProposal, validate_trade, ai_accepts_trade,
     execute_trade, player_trade_value,
@@ -709,7 +709,7 @@ def _player_leaders(league):
     for cat in ["ppg", "rpg", "apg", "spg", "bpg"]:
         top = get_league_leaders(all_players, cat, top_n=10, min_games=3)
         categories[cat] = [
-            {"name": p.name, "team": team_lookup.get(p.id, "???"),
+            {"id": p.id, "name": p.name, "team": team_lookup.get(p.id, "???"),
              "position": p.position, "gp": p.season_stats.games,
              "value": f"{val:.1f}"}
             for p, val in top
@@ -1432,6 +1432,106 @@ def _player_dict(p, is_starter):
         "is_starter": is_starter,
         "value": f"{player_trade_value(p):.0f}",
     }
+
+
+# ── Player Detail ──────────────────────────────────────────────────
+
+# Human-readable labels for the 8 attributes
+_ATTR_LABELS = {
+    "inside_scoring": "Inside Scoring",
+    "outside_scoring": "Outside Scoring",
+    "interior_defense": "Interior Defense",
+    "perimeter_defense": "Perimeter Defense",
+    "rebounding": "Rebounding",
+    "passing": "Passing",
+    "athleticism": "Athleticism",
+    "basketball_iq": "Basketball IQ",
+}
+
+
+@app.route("/player/<int:player_id>")
+def player_detail(player_id):
+    """Full player card: bio, ratings, stats, contract, career history."""
+    game = get_game()
+    if not game:
+        return redirect(url_for("index"))
+    league = game["league"]
+
+    # Find the player across all rosters + free agents
+    player = None
+    team = None
+    for t in league.teams:
+        for p in t.roster:
+            if p.id == player_id:
+                player = p
+                team = t
+                break
+        if player:
+            break
+    if not player:
+        for p in league.free_agents:
+            if p.id == player_id:
+                player = p
+                break
+    if not player:
+        return redirect(url_for("dashboard"))
+
+    # Build ratings list with labels and tier
+    ratings = []
+    for attr in ATTRIBUTES:
+        val = player.ratings[attr]
+        if val >= 85:
+            tier = "elite"
+        elif val >= 70:
+            tier = "high"
+        elif val >= 55:
+            tier = "mid"
+        elif val >= 40:
+            tier = "low"
+        else:
+            tier = "poor"
+        ratings.append({
+            "key": attr,
+            "label": _ATTR_LABELS.get(attr, attr),
+            "value": val,
+            "tier": tier,
+        })
+
+    # Season stats
+    s = player.season_stats
+    season = {
+        "gp": s.games, "mpg": f"{s.mpg:.1f}",
+        "ppg": f"{s.ppg:.1f}", "rpg": f"{s.rpg:.1f}", "apg": f"{s.apg:.1f}",
+        "spg": f"{s.spg:.1f}", "bpg": f"{s.bpg:.1f}", "topg": f"{s.turnovers / s.games:.1f}" if s.games else "0.0",
+        "fg_pct": f"{s.fg_pct * 100:.1f}", "three_pct": f"{s.three_pct * 100:.1f}", "ft_pct": f"{s.ft_pct * 100:.1f}",
+        "fg": f"{s.fg_made}/{s.fg_attempted}" if s.games else "0/0",
+        "three": f"{s.three_made}/{s.three_attempted}" if s.games else "0/0",
+        "ft": f"{s.ft_made}/{s.ft_attempted}" if s.games else "0/0",
+    }
+
+    # Career history
+    career = []
+    for year_str in sorted(player.career_stats.keys()):
+        cs = player.career_stats[year_str]
+        gp = cs.get("games", 0)
+        if gp == 0:
+            continue
+        career.append({
+            "year": year_str,
+            "gp": gp,
+            "ppg": f"{cs['points'] / gp:.1f}",
+            "rpg": f"{cs['rebounds'] / gp:.1f}",
+            "apg": f"{cs['assists'] / gp:.1f}",
+            "spg": f"{cs['steals'] / gp:.1f}",
+            "bpg": f"{cs['blocks'] / gp:.1f}",
+            "fg_pct": f"{cs['fg_made'] / cs['fg_attempted'] * 100:.1f}" if cs.get("fg_attempted") else "0.0",
+            "three_pct": f"{cs['three_made'] / cs['three_attempted'] * 100:.1f}" if cs.get("three_attempted") else "0.0",
+        })
+
+    return render_template("player_detail.html",
+                           player=player, team=team, league=league,
+                           ratings=ratings, season=season, career=career,
+                           current_season=league.season)
 
 
 if __name__ == "__main__":

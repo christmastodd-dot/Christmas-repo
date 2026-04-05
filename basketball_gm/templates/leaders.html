@@ -32,7 +32,7 @@
                 <td><strong>{{ e.abbr }}</strong><span class="desktop-only"> {{ e.name }}</span></td>
                 <td class="desktop-only">{{ e.record }}</td>
                 {% else %}
-                <td><strong>{{ e.name }}</strong></td>
+                <td><a href="{{ url_for('player_detail', player_id=e.id) }}"><strong>{{ e.name }}</strong></a></td>
                 <td>{{ e.team }}</td>
                 <td class="desktop-only">{{ e.position }}</td>
                 <td class="num desktop-only">{{ e.gp }}</td>
