@@ -93,6 +93,25 @@
     </div>
 </div>
 
+<!-- Playoff status card -->
+{% if playoff_seed is defined and playoff_seed %}
+<div class="card playoff-status playoff-in">
+    <div class="ps-icon">&#127941;</div>
+    <div>
+        <div class="ps-headline">Playoff Bound!</div>
+        <div class="ps-detail">#{{ playoff_seed }} seed in the {{ conference }} Conference</div>
+    </div>
+</div>
+{% elif playoff_seed is defined and not playoff_seed and phase == "playoffs" %}
+<div class="card playoff-status playoff-out">
+    <div class="ps-icon" style="opacity:0.5;">&#128683;</div>
+    <div>
+        <div class="ps-headline" style="color:#e74c3c;">Season Over</div>
+        <div class="ps-detail">Missed the playoffs &mdash; finished {{ team.record }}</div>
+    </div>
+</div>
+{% endif %}
+
 <!-- Quick standings -->
 <div class="two-col">
     {% for conf in ["Eastern", "Western"] %}
@@ -123,4 +142,18 @@
         <button type="submit" class="btn btn-danger btn-sm">Quit Game</button>
     </form>
 </div>
+
+<style>
+.playoff-status {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.2rem;
+}
+.playoff-in { border: 2px solid #27ae60; background: linear-gradient(135deg, #1a2733, #1a3a2a); }
+.playoff-out { border: 2px solid #c0392b; background: linear-gradient(135deg, #1a2733, #3a1a1a); }
+.ps-icon { font-size: 2rem; line-height: 1; }
+.ps-headline { font-size: 1.15rem; font-weight: 700; color: #2ecc71; }
+.ps-detail { font-size: 0.85rem; color: #aab7c4; margin-top: 0.15rem; }
+</style>
 {% endblock %}

@@ -271,6 +271,17 @@ def _render_dashboard(game):
         ctx["bracket"] = bracket
         ctx["playoffs_complete"] = bracket.playoffs_complete
 
+    # Playoff status for user team (shown when season just ended)
+    if phase == "playoffs" and team:
+        conf_standings = league.standings(team.conference)
+        seed = None
+        for i, t in enumerate(conf_standings[:8]):
+            if t.id == team.id:
+                seed = i + 1
+                break
+        ctx["playoff_seed"] = seed  # None = missed playoffs
+        ctx["conference"] = team.conference
+
     return render_template("dashboard.html", **ctx)
 
 
