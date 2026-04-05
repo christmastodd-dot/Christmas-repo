@@ -227,8 +227,9 @@ def select_team():
             game["draft_class"] = generate_draft_class(rng=rng)
             game["scouting_strategy"] = game.get("scouting_strategy", "balanced")
         game["messages"].append(f"Season {league.season} has begun! You are the {league.user_team.full_name}.")
+        game["messages"].append("Set your scouting strategy for the upcoming draft.")
         persist_current_game()
-        return _render_dashboard(game)
+        return redirect(url_for("scouting_view"))
 
     teams_data = []
     for t in league.teams:
@@ -305,6 +306,9 @@ def do_action(action):
             game["draft_class"] = generate_draft_class(rng=rng)
             game["scouting_strategy"] = game.get("scouting_strategy", "balanced")
         game["messages"].append(f"Season {league.season} has begun!")
+        game["messages"].append("Set your scouting strategy for the upcoming draft.")
+        persist_current_game()
+        return redirect(url_for("scouting_view"))
 
     elif action == "sim_day":
         season_obj = game.get("season_obj")
@@ -340,8 +344,14 @@ def do_action(action):
             results = season_obj.sim_days(30)
             team = league.user_team
             game["messages"].append(f"Month simulated: {team.record}")
-            _advance_scouting(game)
+            scout_updates = _advance_scouting(game, generate_report=True)
+            for u in scout_updates:
+                game["messages"].append(u)
             _check_season_end(game)
+            # If still in regular season, redirect to scouting for strategy review
+            if league.phase == "regular_season":
+                persist_current_game()
+                return redirect(url_for("scouting_view"))
 
     elif action == "sim_rest":
         season_obj = game.get("season_obj")
@@ -409,12 +419,16 @@ def do_action(action):
     return redirect(url_for("dashboard"))
 
 
-def _advance_scouting(game):
-    """Update scouting progress based on games played so far."""
+def _advance_scouting(game, generate_report: bool = False) -> list[str]:
+    """Update scouting progress based on games played so far.
+
+    If *generate_report* is True, return a list of scouting-update strings
+    describing notable changes (new intel, ranking shifts, confidence bumps).
+    """
     draft_class = game.get("draft_class")
     season_obj = game.get("season_obj")
     if not draft_class or not season_obj:
-        return
+        return []
     league = game["league"]
     team = league.user_team
     # Determine weakest position for position_need strategy
@@ -424,6 +438,13 @@ def _advance_scouting(game):
             pos_strength[p.position] = max(pos_strength[p.position], p.overall)
     weakest = game.get("scouting_position") or min(pos_strength, key=pos_strength.get)
 
+    # Snapshot pre-scouting state for report
+    old_top5 = []
+    old_levels = {}
+    if generate_report and draft_class:
+        old_top5 = [p.player.name for p in draft_class[:5]]
+        old_levels = {p.player.name: p.scouting_level for p in draft_class}
+
     advance_scouting(
         draft_class,
         game.get("scouting_strategy", "balanced"),
@@ -432,6 +453,30 @@ def _advance_scouting(game):
         team_weakest_pos=weakest,
         rng=game["rng"],
     )
+
+    if not generate_report:
+        return []
+
+    # Build scouting report
+    updates: list[str] = []
+    new_top5 = [p.player.name for p in draft_class[:5]]
+
+    # Report ranking changes in the top 5
+    risers = [name for name in new_top5 if name not in old_top5]
+    for name in risers:
+        rank = new_top5.index(name) + 1
+        updates.append(f"\U0001F4C8 {name} rises to #{rank} on your draft board")
+
+    # Report notable confidence upgrades
+    thresholds = [(90, "Very High"), (70, "High"), (45, "Medium"), (30, "Report unlocked")]
+    for p in draft_class[:15]:
+        old_lvl = old_levels.get(p.player.name, 0)
+        for thresh, label in thresholds:
+            if old_lvl < thresh <= p.scouting_level:
+                updates.append(f"\U0001F50D {p.player.name}: confidence now {label}")
+                break
+
+    return updates
 
 
 def _check_season_end(game):
@@ -1074,6 +1119,10 @@ def scouting_view():
     games_played = season_obj.games_played if season_obj else 0
     total_games = len(season_obj.schedule) if season_obj else 0
 
+    messages = game.get("messages", [])
+    game["messages"] = []  # clear after display
+    persist_current_game()
+
     return render_template("scouting.html",
                            league=league, team=team,
                            prospects=prospects,
@@ -1084,7 +1133,7 @@ def scouting_view():
                            phase=league.phase,
                            games_played=games_played,
                            total_games=total_games,
-                           messages=game.get("messages", []))
+                           messages=messages)
 
 
 @app.route("/draft")
