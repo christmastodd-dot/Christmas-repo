@@ -208,6 +208,10 @@ def select_team():
         return redirect(url_for("index"))
     league = game["league"]
 
+    # If team already selected, go to dashboard — no going back
+    if league.user_team_id is not None:
+        return redirect(url_for("dashboard"))
+
     if request.method == "POST":
         team_id = int(request.form["team_id"])
         league.user_team_id = team_id
