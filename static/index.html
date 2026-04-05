@@ -1307,7 +1307,7 @@ function drawYetiAlert() {
     if (hasSnowball) {
       ctx.fillText('Press DOWN to throw the snowball at the yeti!', W/2, 44);
     } else {
-      ctx.fillText('Dodge snowballs! Catch a slow one to throw back!', W/2, 44);
+      ctx.fillText('Hold DOWN to catch a snowball, then throw it back!', W/2, 44);
     }
   }
 
@@ -2460,19 +2460,17 @@ function update(dt) {
       yeti.throwTimer -= dt;
       if (yeti.throwTimer <= 0) {
         yeti.throwTimer = 3.0 + Math.random() * 2.0; // throw every 3-5s
-        // Throw a snowball toward the player (uphill = leftward)
-        const throwSpeed = 250 + Math.random() * 80;
-        const dx = playerWX - yeti.wx;
-        const dy = (playerWY - 30) - yeti.wy;
-        const dist = Math.sqrt(dx*dx + dy*dy) || 1;
+        // Snowball travels parallel to ground, just above the trail surface
+        const speed = 180 + Math.random() * 60;
+        // Direction from yeti toward player (always leftward/uphill)
+        const dir = playerWX < yeti.wx ? -1 : 1;
         l3Snowballs.push({
-          wx: yeti.wx - 30,
-          wy: yeti.wy - 40,
-          vx: (dx / dist) * throwSpeed,
-          vy: (dy / dist) * throwSpeed - 150, // arc upward
+          wx: yeti.wx + dir * 30,
+          wy: trailY(yeti.wx) - 20, // slightly above ground
+          vx: dir * speed,
+          vy: 0,
           radius: 14,
-          active: true,
-          catchable: false // becomes catchable when it's close and slowing
+          active: true
         });
       }
     }
@@ -2486,40 +2484,32 @@ function update(dt) {
       }
     }
 
-    // Update snowballs
+    // Update snowballs — travel parallel to ground (follow the slope)
     for (const sb of l3Snowballs) {
       if (!sb.active) continue;
-      sb.vy += GRAVITY * 0.35 * dt;
       sb.wx += sb.vx * dt;
-      sb.wy += sb.vy * dt;
-      const groundY = trailY(sb.wx);
-      if (sb.wy > groundY) {
-        sb.wy = groundY;
-        sb.vy = -Math.abs(sb.vy) * 0.25;
-        if (Math.abs(sb.vy) < 15) { sb.vy = 0; sb.vx *= 0.9; }
-        // Once a snowball is on the ground and slow, it's catchable
-        if (Math.abs(sb.vx) < 80) sb.catchable = true;
-      }
+      // Lock Y to just above the trail surface (parallel to ground)
+      sb.wy = trailY(sb.wx) - 20;
       // Remove if far from player
-      if (Math.abs(sb.wx - playerWX) > 800) sb.active = false;
+      if (Math.abs(sb.wx - playerWX) > 900) sb.active = false;
 
-      // Collision with player — damage if fast, catchable if slow
-      if (sb.active && invincibleTimer <= 0 && !hasSnowball) {
+      // Collision with player — always catchable! Jump to dodge, or catch with DOWN
+      if (sb.active && !hasSnowball) {
         const pdx = sb.wx - playerWX;
-        const pdy = (sb.wy - sb.radius) - (playerWY - 25);
+        const pdy = (sb.wy) - (playerWY - 20);
         const pdist = Math.sqrt(pdx*pdx + pdy*pdy);
-        if (pdist < sb.radius + 16) {
-          if (sb.catchable) {
+        if (pdist < sb.radius + 18) {
+          if (keys['ArrowDown'] || keys['KeyS']) {
             // Catch it!
             hasSnowball = true;
             sb.active = false;
-          } else {
-            // Hit by fast snowball
+          } else if (invincibleTimer <= 0) {
+            // Hit by snowball — knockback
             lives--;
             sb.active = false;
             if (lives <= 0) { onGameOver(); return; }
             kbX = playerWX; kbY = playerWY;
-            kbVX = -200;
+            kbVX = -(sb.vx > 0 ? -1 : 1) * 200;
             kbVY = -350;
             kbTimer = 1.5;
             invincibleTimer = INVINCIBILITY_TIME;
@@ -2531,24 +2521,23 @@ function update(dt) {
     }
     l3Snowballs = l3Snowballs.filter(sb => sb.active);
 
-    // Player throws snowball back at yeti (press DOWN when holding snowball)
-    if (hasSnowball && (keys['ArrowDown'] || keys['KeyS'])) {
+    // Player throws snowball back at yeti (press DOWN when holding snowball and facing right)
+    if (hasSnowball && (keys['ArrowDown'] || keys['KeyS']) && facingRight) {
       hasSnowball = false;
       thrownBall = {
         wx: playerWX + 20,
-        wy: playerWY - 30,
+        wy: trailY(playerWX) - 20,
         vx: 350,
-        vy: -120,
+        vy: 0,  // parallel to ground
         radius: 14,
         active: true
       };
     }
 
-    // Update thrown ball
+    // Update thrown ball — travels parallel to ground
     if (thrownBall && thrownBall.active) {
-      thrownBall.vy += GRAVITY * 0.3 * dt;
       thrownBall.wx += thrownBall.vx * dt;
-      thrownBall.wy += thrownBall.vy * dt;
+      thrownBall.wy = trailY(thrownBall.wx) - 20; // follow slope
       // Hit yeti?
       if (yeti && yeti.state !== 'defeated') {
         const ydx = thrownBall.wx - yeti.wx;
@@ -2564,8 +2553,8 @@ function update(dt) {
           }
         }
       }
-      // Off screen
-      if (thrownBall.wx > yeti.wx + 200 || thrownBall.wy > trailY(thrownBall.wx) + 50) {
+      // Off screen or past yeti
+      if (thrownBall.wx > yeti.wx + 200 || Math.abs(thrownBall.wx - playerWX) > 1000) {
         thrownBall.active = false;
       }
     }
