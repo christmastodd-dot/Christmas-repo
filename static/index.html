@@ -243,10 +243,10 @@ function resetLevel() {
     // Snow leopard at ~60% through the level
     const leopWX = levelCfg.length * 0.6;
     leopard = {
-      wx: leopWX + 300, // starts off-screen to the right, stalks in
+      wx: leopWX,            // starts at its home position (visible when player approaches)
       homeWX: leopWX,
       wy: trailY(leopWX),
-      state: 'waiting',  // waiting | stalking | eating | sitting
+      state: 'waiting',      // waiting | stalking | eating | sitting
       eatTimer: 0,
       width: 70,
       height: 40
@@ -2000,16 +2000,16 @@ function update(dt) {
     const distToPlayer = lp.wx - playerWX;
 
     if (lp.state === 'waiting') {
-      // Trigger when player gets within 350px
-      if (distToPlayer > 0 && distToPlayer < 350 && hasFish) {
+      // Trigger when player gets within 500px — gives time to see it
+      if (distToPlayer > 0 && distToPlayer < 500 && hasFish) {
         lp.state = 'stalking';
-        leopardAlertTimer = 3.0; // 3 seconds to drop the fish
+        leopardAlertTimer = 5.0; // 5 seconds of alert
       }
     }
 
     if (lp.state === 'stalking') {
-      // Leopard creeps toward the player
-      lp.wx -= 120 * dt;
+      // Leopard creeps toward the player slowly
+      lp.wx -= 80 * dt;
       lp.wy = trailY(lp.wx);
       leopardAlertTimer -= dt;
 
@@ -2018,9 +2018,20 @@ function update(dt) {
         lp.state = 'eating';
         lp.eatTimer = 4.0;
       }
-      // If leopard reaches the player without fish dropped → game over
-      if (lp.wx - playerWX < 30 && hasFish) {
-        onGameOver(); return;
+      // If leopard reaches the player without fish dropped → knockback first, then death
+      if (distToPlayer < 40 && hasFish) {
+        lives--;
+        if (lives <= 0) { onGameOver(); return; }
+        // Knockback away from leopard
+        kbX = playerWX; kbY = playerWY;
+        kbVX = -250;
+        kbVY = -400;
+        kbTimer = 1.5;
+        invincibleTimer = INVINCIBILITY_TIME;
+        state = 'knockback';
+        // Push leopard back too so player has another chance
+        lp.wx = playerWX + 200;
+        return;
       }
     }
 
@@ -2037,11 +2048,19 @@ function update(dt) {
       }
     }
 
-    // Collision: touching leopard while not eating = death
-    if (lp.state === 'stalking' || lp.state === 'sitting') {
+    // Collision: touching leopard while sitting (must jump over) = knockback
+    if (lp.state === 'sitting' && invincibleTimer <= 0) {
       const lRect = { x: lp.wx - lp.width/2, y: lp.wy - lp.height, w: lp.width, h: lp.height };
       if (onGround && rectsOverlap(pRect, lRect)) {
-        onGameOver(); return;
+        lives--;
+        if (lives <= 0) { onGameOver(); return; }
+        kbX = playerWX; kbY = playerWY;
+        kbVX = -(facingRight ? 1 : -1) * 250;
+        kbVY = -400;
+        kbTimer = 1.5;
+        invincibleTimer = INVINCIBILITY_TIME;
+        state = 'knockback';
+        return;
       }
     }
   }
@@ -2111,8 +2130,8 @@ function draw(dt) {
     drawL2Obstacles(camWX, camWY);
     drawDroppedFish(camWX, camWY);
     drawEndShelter(camWX, camWY);
-    // Snow leopard
-    if (leopard && leopard.state !== 'waiting') {
+    // Snow leopard — always visible so player can see it approaching
+    if (leopard) {
       const [lsx, lsy] = worldToScreen(leopard.wx, leopard.wy, camWX, camWY);
       if (lsx > -80 && lsx < W + 80) {
         drawSnowLeopard(Math.round(lsx), Math.round(lsy), leopard.state, leopard.eatTimer);
