@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card lottery-banner">
+    <h2 style="border:none; font-size:1.3rem; margin:0; text-align:center;">Draft Lottery Results</h2>
+    <p style="color:#aab7c4; font-size:0.85rem; text-align:center; margin-top:0.3rem;">
+        The top 4 picks are drawn by lottery. Remaining lottery teams slot by record.
+    </p>
+</div>
+
+{% if user_pick %}
+<div class="card lottery-user-pick">
+    <div class="lup-label">Your Pick</div>
+    <div class="lup-number">#{{ user_pick }}</div>
+    <div class="lup-detail">{{ league.user_team.full_name }}</div>
+</div>
+{% endif %}
+
+<div class="card">
+    <h2>Lottery Order (14 Teams)</h2>
+    <table>
+        <thead>
+            <tr>
+                <th class="num">Pick</th>
+                <th>Team</th>
+                <th class="desktop-only">Record</th>
+                <th class="num desktop-only">Pre-Lottery</th>
+                <th class="num">Movement</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for e in lottery_results %}
+            <tr class="{{ 'user-team' if e.team_id == user_team_id else '' }}{{ ' lottery-top4' if e.post_pick <= 4 else '' }}">
+                <td class="num"><strong>{{ e.post_pick }}</strong></td>
+                <td>
+                    <strong>{{ e.abbr }}</strong>
+                    <span class="desktop-only"> {{ e.full_name }}</span>
+                    {% if e.team_id == user_team_id %}<span class="lottery-you"> (YOU)</span>{% endif %}
+                </td>
+                <td class="desktop-only">{{ e.record }}</td>
+                <td class="num desktop-only">#{{ e.pre_pick }}</td>
+                <td class="num">
+                    {% if e.movement > 0 %}
+                    <span class="lottery-up">&#9650; {{ e.movement }}</span>
+                    {% elif e.movement < 0 %}
+                    <span class="lottery-down">&#9660; {{ e.movement|abs }}</span>
+                    {% else %}
+                    <span class="lottery-same">&mdash;</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div style="text-align:center; margin-top:1rem; margin-bottom:1rem;">
+    <form method="post" action="{{ url_for('do_action', action='begin_draft_picks') }}">
+        <button type="submit" class="btn" style="padding:0.8rem 2.5rem; font-size:1rem;">Proceed to Draft</button>
+    </form>
+</div>
+
+<style>
+.lottery-banner {
+    background: linear-gradient(135deg, #1a2733, #2a1a33);
+    border-color: #e67e22;
+    border-width: 2px;
+}
+.lottery-user-pick {
+    text-align: center;
+    padding: 1.2rem;
+    background: linear-gradient(135deg, #1a2733, #1a3a2a);
+    border: 2px solid #27ae60;
+}
+.lup-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #7f8c8d;
+    margin-bottom: 0.2rem;
+}
+.lup-number {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #2ecc71;
+    line-height: 1.1;
+}
+.lup-detail {
+    font-size: 0.9rem;
+    color: #aab7c4;
+    margin-top: 0.2rem;
+}
+.lottery-top4 td { font-weight: 600; }
+.lottery-top4 td:first-child { color: #e67e22; }
+.lottery-you { color: #2ecc71; font-size: 0.72rem; font-weight: 600; }
+.lottery-up { color: #2ecc71; font-weight: 600; }
+.lottery-down { color: #e74c3c; font-weight: 600; }
+.lottery-same { color: #7f8c8d; }
+</style>
+{% endblock %}

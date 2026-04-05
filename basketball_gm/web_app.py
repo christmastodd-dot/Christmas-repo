@@ -402,9 +402,14 @@ def do_action(action):
 
     elif action == "start_draft":
         _setup_draft(game)
+        # Show lottery results before starting picks
+        persist_current_game()
+        return redirect(url_for("lottery_view"))
+
+    elif action == "begin_draft_picks":
+        # Called after user sees lottery results — start the actual draft
         draft_done = _auto_pick_until_user(game)
         if not draft_done:
-            # User's turn — redirect to draft page
             persist_current_game()
             return redirect(url_for("draft_view"))
         else:
@@ -557,8 +562,9 @@ def _setup_draft(game):
     if not game.get("draft_class"):
         game["draft_class"] = generate_draft_class(rng=rng)
 
-    draft_order = run_draft_lottery(league, rng)
+    draft_order, lottery_results = run_draft_lottery(league, rng)
     game["draft_order"] = draft_order
+    game["lottery_results"] = lottery_results
     game["draft_picks"] = []  # list of completed pick dicts
     game["draft_current_pick"] = 0  # index into the full pick sequence
     game["draft_available"] = list(range(len(game["draft_class"])))  # indices of available prospects
@@ -1080,6 +1086,40 @@ def trade_view():
                            partner=partner, partner_players=partner_players,
                            my_players=my_players, league=league,
                            messages=game.get("messages", []))
+
+
+@app.route("/lottery")
+def lottery_view():
+    """Display draft lottery results before the draft begins."""
+    game = get_game()
+    if not game:
+        return redirect(url_for("index"))
+    league = game["league"]
+    lottery_results = game.get("lottery_results", [])
+    if not lottery_results:
+        return redirect(url_for("dashboard"))
+
+    user_team_id = league.user_team_id
+
+    # Find user team's pick
+    user_pick = None
+    for entry in lottery_results:
+        if entry["team_id"] == user_team_id:
+            user_pick = entry["post_pick"]
+            break
+    # If user team didn't make the lottery, find them in the full draft order
+    if user_pick is None:
+        draft_order = game.get("draft_order", [])
+        for i, tid in enumerate(draft_order):
+            if tid == user_team_id:
+                user_pick = i + 1
+                break
+
+    return render_template("lottery.html",
+                           league=league,
+                           lottery_results=lottery_results,
+                           user_team_id=user_team_id,
+                           user_pick=user_pick)
 
 
 @app.route("/scouting", methods=["GET", "POST"])

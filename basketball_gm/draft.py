@@ -231,8 +231,14 @@ def get_confidence_label(scouting_level: int) -> str:
 def run_draft_lottery(
     league: League,
     rng: Optional[random.Random] = None,
-) -> list[int]:
-    """Determine draft order via lottery. Returns list of team_ids."""
+) -> tuple[list[int], list[dict]]:
+    """Determine draft order via lottery.
+
+    Returns (draft_order, lottery_results) where:
+    - draft_order: list of team_ids for first round pick order
+    - lottery_results: list of dicts for the 14 lottery teams with
+      pre/post-lottery pick positions and movement info
+    """
     r = rng or random.Random()
 
     # Sort teams by record (worst to best)
@@ -241,6 +247,9 @@ def run_draft_lottery(
     # Bottom 14 teams enter lottery
     lottery_teams = all_teams[:14]
     non_lottery = all_teams[14:]
+
+    # Pre-lottery order: {team_id: standing_rank (1 = worst record)}
+    pre_lottery = {t.id: i + 1 for i, t in enumerate(lottery_teams)}
 
     # Simulate lottery for top 4 picks
     remaining = list(range(14))
@@ -264,7 +273,23 @@ def run_draft_lottery(
     # First round order
     first_round = top_picks + rest_lottery + non_lottery_ids
 
-    return first_round
+    # Build lottery results for display
+    lottery_order = top_picks + rest_lottery
+    lottery_results = []
+    for post_pick, tid in enumerate(lottery_order, 1):
+        pre_pick = pre_lottery[tid]
+        team = league.get_team(tid)
+        lottery_results.append({
+            "team_id": tid,
+            "abbr": team.abbr,
+            "full_name": team.full_name,
+            "record": team.record,
+            "pre_pick": pre_pick,
+            "post_pick": post_pick,
+            "movement": pre_pick - post_pick,  # positive = moved up
+        })
+
+    return first_round, lottery_results
 
 
 def run_draft(

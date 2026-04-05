@@ -377,14 +377,15 @@ class GameEngine:
         print(f"  {'=' * 50}")
 
         draft_class = generate_draft_class(rng=self.rng)
-        draft_order = run_draft_lottery(self.league, self.rng)
+        draft_order, lottery_results = run_draft_lottery(self.league, self.rng)
 
         # Show lottery results
         print("\n  Draft Lottery Results:")
-        for i in range(min(14, len(draft_order))):
-            team = self.league.get_team(draft_order[i])
-            marker = " <-- YOUR PICK" if team.id == self.league.user_team_id else ""
-            print(f"  #{i+1:2d}: {team.full_name}{marker}")
+        for entry in lottery_results:
+            marker = " <-- YOUR PICK" if entry["team_id"] == self.league.user_team_id else ""
+            move = entry["movement"]
+            arrow = f" (+{move})" if move > 0 else (f" ({move})" if move < 0 else "")
+            print(f"  #{entry['post_pick']:2d}: {entry['full_name']}{arrow}{marker}")
 
         ui.press_enter()
         print("\n  The draft begins!\n")
