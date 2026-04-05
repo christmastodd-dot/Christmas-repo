@@ -31,6 +31,20 @@
     </div>
 </div>
 
+<!-- ── Awards ───────────────────────────────────────────────── -->
+{% if player.awards %}
+<div class="card">
+    <h2>Awards</h2>
+    <div class="pd-awards">
+        {% for a in player.awards %}
+        <span class="pd-award {{ 'pd-award-mvp' if a.award == 'MVP' else ('pd-award-roty' if a.award == 'ROTY' else 'pd-award-team') }}">
+            {{ a.award }} <span class="pd-award-yr">'{{ a.year|string|truncate(4, true, '') }}</span>
+        </span>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
 <!-- ── Ratings ──────────────────────────────────────────────── -->
 <div class="card">
     <h2>Ratings</h2>
@@ -160,6 +174,21 @@
 </div>
 
 <style>
+/* ── Awards ────────────────────────────── */
+.pd-awards { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.pd-award {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.25rem 0.6rem;
+    border-radius: 12px;
+    letter-spacing: 0.3px;
+}
+.pd-award-mvp { background: #4a3a10; color: #f0c040; border: 1px solid #8a7a30; }
+.pd-award-roty { background: #1a3a2a; color: #5ddf8d; border: 1px solid #2a6a4a; }
+.pd-award-team { background: #1a2a3a; color: #70b0f0; border: 1px solid #2a4a6a; }
+.pd-award-yr { font-weight: 400; color: inherit; opacity: 0.7; font-size: 0.7rem; }
+
 /* ── Bio ───────────────────────────────── */
 .pd-bio { padding-bottom: 0.8rem; }
 .pd-bio-top {

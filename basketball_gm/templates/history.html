@@ -1,25 +1,93 @@
 {% extends "base.html" %}
 {% block content %}
+
+{% if history %}
+{% for h in history|reverse %}
 <div class="card">
-    <h2>Championship History</h2>
-    {% if history %}
-    <table>
-        <thead>
-            <tr><th>Yr</th><th>Champion</th><th class="desktop-only">Record</th><th>FMVP</th></tr>
-        </thead>
-        <tbody>
-            {% for h in history|reverse %}
-            <tr>
-                <td>{{ h.season }}</td>
-                <td><strong>{{ h.champion }}</strong></td>
-                <td class="desktop-only">{{ h.champion_record }}</td>
-                <td>{{ h.finals_mvp }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    {% else %}
-    <p style="color:#7f8c8d;">No championships yet. Play through a season to see history.</p>
+    <h2 style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.3rem;">
+        <span>Season {{ h.season }}</span>
+        <span style="font-size:0.8rem; font-weight:400; color:#7f8c8d;">{{ h.champion_record }}</span>
+    </h2>
+
+    <div class="hist-champ">
+        <span class="hist-trophy">&#127942;</span>
+        <div>
+            <div class="hist-champ-name">{{ h.champion }}</div>
+            <div class="hist-champ-sub">Finals MVP: {{ h.finals_mvp }}</div>
+        </div>
+    </div>
+
+    {% set awards = h.get('awards', {}) %}
+    {% if awards %}
+    <div class="hist-awards">
+        {% if awards.get('MVP') %}
+        <div class="hist-award-row">
+            <span class="hist-award-badge hist-badge-mvp">MVP</span>
+            <span>{{ awards.MVP.name }} ({{ awards.MVP.team }}) — {{ awards.MVP.stats }}</span>
+        </div>
+        {% endif %}
+        {% if awards.get('ROTY') %}
+        <div class="hist-award-row">
+            <span class="hist-award-badge hist-badge-roty">ROTY</span>
+            <span>{{ awards.ROTY.name }} ({{ awards.ROTY.team }}) — {{ awards.ROTY.stats }}</span>
+        </div>
+        {% endif %}
+        {% for team_name in ['1st Team All-World', '2nd Team All-World', '3rd Team All-World'] %}
+        {% set team = awards.get(team_name, []) %}
+        {% if team %}
+        <div class="hist-award-row">
+            <span class="hist-award-badge hist-badge-team">{{ team_name }}</span>
+            <span class="hist-team-list">
+                {% for p in team %}{{ p.name }} ({{ p.position }}){% if not loop.last %}, {% endif %}{% endfor %}
+            </span>
+        </div>
+        {% endif %}
+        {% endfor %}
+    </div>
     {% endif %}
 </div>
+{% endfor %}
+{% else %}
+<div class="card">
+    <p style="color:#7f8c8d;">No championships yet. Play through a season to see history.</p>
+</div>
+{% endif %}
+
+<style>
+.hist-champ {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    margin-bottom: 0.8rem;
+}
+.hist-trophy { font-size: 1.5rem; }
+.hist-champ-name { font-size: 1.05rem; font-weight: 700; color: #e67e22; }
+.hist-champ-sub { font-size: 0.8rem; color: #aab7c4; }
+.hist-awards { display: flex; flex-direction: column; gap: 0.4rem; }
+.hist-award-row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    font-size: 0.82rem;
+    color: #aab7c4;
+    line-height: 1.4;
+}
+.hist-award-badge {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 0.15rem 0.5rem;
+    border-radius: 10px;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.hist-badge-mvp { background: #4a3a10; color: #f0c040; }
+.hist-badge-roty { background: #1a3a2a; color: #5ddf8d; }
+.hist-badge-team { background: #1a2a3a; color: #70b0f0; }
+.hist-team-list { font-size: 0.78rem; color: #7f8c8d; }
+@media (max-width: 768px) {
+    .hist-award-row { flex-direction: column; gap: 0.15rem; }
+}
+</style>
 {% endblock %}

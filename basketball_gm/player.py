@@ -129,6 +129,7 @@ class Player:
     contract: Contract = field(default_factory=Contract)
     season_stats: SeasonStats = field(default_factory=SeasonStats)
     career_stats: dict = field(default_factory=dict)  # year -> SeasonStats dict
+    awards: list = field(default_factory=list)  # e.g. [{"year": 2026, "award": "MVP"}, ...]
     draft_year: int = 0
     draft_pick: int = 0
     years_pro: int = 0
@@ -174,6 +175,7 @@ class Player:
             "contract": self.contract.to_dict(),
             "season_stats": self.season_stats.to_dict(),
             "career_stats": self.career_stats,
+            "awards": self.awards,
             "draft_year": self.draft_year,
             "draft_pick": self.draft_pick,
             "years_pro": self.years_pro,
@@ -194,6 +196,7 @@ class Player:
             contract=Contract.from_dict(d["contract"]),
             season_stats=SeasonStats.from_dict(d["season_stats"]),
             career_stats=d.get("career_stats", {}),
+            awards=d.get("awards", []),
             draft_year=d.get("draft_year", 0),
             draft_pick=d.get("draft_pick", 0),
             years_pro=d.get("years_pro", 0),

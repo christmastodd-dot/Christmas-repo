@@ -358,8 +358,8 @@ def do_action(action):
         if season_obj and not season_obj.season_complete:
             season_obj.sim_rest_of_season()
             _advance_scouting(game)
-            game["messages"].append(f"Regular season complete! {league.user_team.record}")
-            league.phase = "playoffs"
+            game["messages"].append(f"Season record: {league.user_team.record}")
+            _check_season_end(game)
 
     elif action == "start_playoffs":
         bracket = create_playoff_bracket(league)
@@ -483,6 +483,15 @@ def _check_season_end(game):
     season_obj = game.get("season_obj")
     league = game["league"]
     if season_obj and season_obj.season_complete:
+        # Compute awards at end of regular season (before playoffs)
+        awards = compute_awards(league)
+        game["season_awards"] = awards
+        for award, data in awards.items():
+            if isinstance(data, list):
+                names = ", ".join(e["name"] for e in data)
+                game["messages"].append(f"{award}: {names}")
+            else:
+                game["messages"].append(f"{award}: {data['name']} ({data['team']}) — {data['stats']}")
         game["messages"].append("Regular season complete!")
         league.phase = "playoffs"
 
@@ -496,11 +505,13 @@ def _check_playoffs_end(game):
         game["messages"].append(f"CHAMPION: {champ.full_name}!")
         if mvp_player:
             game["messages"].append(f"Finals MVP: {mvp_player.name}")
+        season_awards = game.get("season_awards", {})
         league.history.append({
             "season": league.season,
             "champion": champ.full_name,
             "champion_record": champ.record,
             "finals_mvp": mvp_player.name if mvp_player else "Unknown",
+            "awards": season_awards,
         })
         league.phase = "offseason"
 
@@ -509,11 +520,7 @@ def _run_offseason(game):
     league = game["league"]
     rng = game["rng"]
 
-    awards = compute_awards(league)
     msgs = []
-    for award, data in awards.items():
-        if award != "All-NBA First Team":
-            msgs.append(f"{award}: {data['name']} ({data['team']}) - {data['stats']}")
 
     for t in league.teams:
         for p in t.roster:
