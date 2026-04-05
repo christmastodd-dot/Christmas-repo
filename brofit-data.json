@@ -459,7 +459,7 @@
         {
           "date": "2026-04-04",
           "startTime": "13:24",
-          "duration": "23:05",
+          "duration": "31",
           "exercises": [
             {
               "name": "Walking",
@@ -674,7 +674,7 @@
           "author": "Coach"
         }
       ],
-      "lastSync": "2026-04-04T23:55:29.683Z"
+      "lastSync": "2026-04-05T04:09:21.944Z"
     },
     "Manny Fresh": {
       "xp": 10,
