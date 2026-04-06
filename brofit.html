@@ -1004,6 +1004,292 @@
       display: block;
     }
 
+    /* ===== Calorie Tracker ===== */
+    .cal-panel {
+      display: none;
+      margin-bottom: 8px;
+    }
+    .cal-panel--open {
+      display: block;
+    }
+    .cal-toggle {
+      background: transparent;
+      color: var(--color-orange);
+      font-family: var(--font-body);
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border: 1.5px solid var(--color-orange);
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+    .cal-toggle:active {
+      transform: scale(0.95);
+    }
+    .cal-toggle--open {
+      background: var(--color-orange);
+      color: var(--bg-primary);
+    }
+    .cal-summary {
+      background: var(--bg-card);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: var(--shadow-card);
+    }
+    .cal-summary__ring {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 12px;
+    }
+    .cal-summary__ring-svg {
+      width: 110px;
+      height: 110px;
+      transform: rotate(-90deg);
+    }
+    .cal-summary__ring-bg {
+      fill: none;
+      stroke: var(--bg-surface);
+      stroke-width: 8;
+    }
+    .cal-summary__ring-fill {
+      fill: none;
+      stroke: var(--color-orange);
+      stroke-width: 8;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 0.5s ease;
+    }
+    .cal-summary__ring-fill--over {
+      stroke: var(--color-red);
+    }
+    .cal-summary__ring-text {
+      position: absolute;
+      text-align: center;
+    }
+    .cal-summary__ring-cals {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+    .cal-summary__ring-label {
+      font-size: 0.6rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+    .cal-summary__ring-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .cal-summary__macros {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .cal-summary__macro {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.75rem;
+    }
+    .cal-summary__macro-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .cal-summary__macro-dot--protein { background: var(--color-blue); }
+    .cal-summary__macro-dot--carbs { background: var(--color-green); }
+    .cal-summary__macro-dot--fat { background: var(--color-purple); }
+    .cal-summary__macro-label {
+      color: var(--text-secondary);
+      min-width: 36px;
+    }
+    .cal-summary__macro-val {
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .cal-goal-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .cal-goal-row__label {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .cal-goal-row__input {
+      width: 80px;
+      background: var(--bg-surface);
+      border: 1px solid var(--text-muted);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 5px 8px;
+      text-align: center;
+      outline: none;
+    }
+    .cal-goal-row__input:focus {
+      border-color: var(--color-orange);
+    }
+    .cal-add {
+      background: var(--bg-card);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      box-shadow: var(--shadow-card);
+    }
+    .cal-add__title {
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .cal-add__row {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+    .cal-add__input {
+      flex: 1;
+      min-width: 0;
+      background: var(--bg-surface);
+      border: 1px solid var(--text-muted);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      padding: 8px 10px;
+      outline: none;
+    }
+    .cal-add__input:focus {
+      border-color: var(--color-orange);
+    }
+    .cal-add__input--sm {
+      max-width: 65px;
+      text-align: center;
+    }
+    .cal-add__btn {
+      background: var(--color-orange);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-body);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 8px 14px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .cal-add__btn:active {
+      opacity: 0.8;
+    }
+    .cal-quick {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+    .cal-quick__btn {
+      background: var(--bg-surface);
+      border: 1px solid var(--text-muted);
+      border-radius: 20px;
+      color: var(--text-secondary);
+      font-family: var(--font-body);
+      font-size: 0.68rem;
+      font-weight: 600;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+    .cal-quick__btn:active {
+      background: var(--bg-card-hover);
+    }
+    .cal-log {
+      margin-top: 8px;
+    }
+    .cal-log__title {
+      font-family: var(--font-display);
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--text-secondary);
+    }
+    .cal-log__item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      font-size: 0.78rem;
+    }
+    .cal-log__item:last-child {
+      border-bottom: none;
+    }
+    .cal-log__name {
+      flex: 1;
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+    .cal-log__macros {
+      color: var(--text-muted);
+      font-size: 0.65rem;
+    }
+    .cal-log__cals {
+      font-weight: 700;
+      color: var(--color-orange);
+      min-width: 45px;
+      text-align: right;
+    }
+    .cal-log__del {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      cursor: pointer;
+      padding: 0 2px;
+      line-height: 1;
+    }
+    .cal-log__empty {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      text-align: center;
+      padding: 16px 0;
+    }
+    .cal-date-nav {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .cal-date-nav__btn {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+      cursor: pointer;
+      padding: 4px 8px;
+    }
+    .cal-date-nav__label {
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      min-width: 100px;
+      text-align: center;
+    }
+
     .pr-log {
       display: none;
       margin-bottom: 8px;
@@ -3435,6 +3721,7 @@
     <header class="header">
       <div class="header__logo">BROFIT</div>
       <div class="header__stats">
+        <button class="cal-toggle" id="cal-toggle" onclick="toggleCalPanel()">Calories</button>
         <button class="pr-log-toggle" id="pr-log-toggle" onclick="togglePRLog()">PR Log</button>
         <button class="weighin-toggle" id="weighin-toggle" onclick="toggleWeighIn()">Weigh-In</button>
         <div class="header__streak" id="header-streak"></div>
@@ -3475,6 +3762,32 @@
         <div class="weight-lb__tabs" id="weight-lb-tabs"></div>
         <div class="weight-lb__table" id="weight-lb-table"></div>
       </div>
+    </div>
+
+    <!-- Calorie Tracker -->
+    <div class="cal-panel" id="cal-panel">
+      <div class="section-title">Calorie Tracker</div>
+      <div class="cal-date-nav">
+        <button class="cal-date-nav__btn" onclick="calNavDay(-1)">&larr;</button>
+        <span class="cal-date-nav__label" id="cal-date-label">Today</span>
+        <button class="cal-date-nav__btn" onclick="calNavDay(1)">&rarr;</button>
+      </div>
+      <div class="cal-summary" id="cal-summary"></div>
+      <div class="cal-add">
+        <div class="cal-add__title">Log Food</div>
+        <div class="cal-add__row">
+          <input class="cal-add__input" id="cal-food-name" type="text" placeholder="Food name">
+        </div>
+        <div class="cal-add__row">
+          <input class="cal-add__input cal-add__input--sm" id="cal-food-cals" type="number" placeholder="Cal" inputmode="numeric">
+          <input class="cal-add__input cal-add__input--sm" id="cal-food-protein" type="number" placeholder="P (g)" inputmode="decimal">
+          <input class="cal-add__input cal-add__input--sm" id="cal-food-carbs" type="number" placeholder="C (g)" inputmode="decimal">
+          <input class="cal-add__input cal-add__input--sm" id="cal-food-fat" type="number" placeholder="F (g)" inputmode="decimal">
+          <button class="cal-add__btn" onclick="addCalEntry()">Add</button>
+        </div>
+        <div class="cal-quick" id="cal-quick"></div>
+      </div>
+      <div class="cal-log" id="cal-log"></div>
     </div>
 
     <!-- Greeting -->
@@ -3784,6 +4097,12 @@
 
     // ===== Weigh-In Toggle =====
 
+    function closeCalPanel() {
+      document.getElementById('cal-panel').classList.remove('cal-panel--open');
+      document.getElementById('cal-toggle').classList.remove('cal-toggle--open');
+      document.getElementById('cal-toggle').textContent = 'Calories';
+    }
+
     function toggleWeighIn() {
       var panel = document.getElementById('weighin-panel');
       var btn = document.getElementById('weighin-toggle');
@@ -3794,6 +4113,7 @@
         document.getElementById('pr-log-toggle').classList.remove('pr-log-toggle--open');
         document.getElementById('pr-log-toggle').textContent = 'PR Log';
       }
+      closeCalPanel();
       var isOpen = panel.classList.toggle('weighin-panel--open');
       btn.classList.toggle('weighin-toggle--open', isOpen);
       btn.textContent = isOpen ? 'Close' : 'Weigh-In';
@@ -3815,6 +4135,7 @@
         document.getElementById('weighin-toggle').classList.remove('weighin-toggle--open');
         document.getElementById('weighin-toggle').textContent = 'Weigh-In';
       }
+      closeCalPanel();
       var isOpen = log.classList.toggle('pr-log--open');
       btn.classList.toggle('pr-log-toggle--open', isOpen);
       btn.textContent = isOpen ? 'Close' : 'PR Log';
@@ -3822,6 +4143,257 @@
         var top = log.getBoundingClientRect().top + window.scrollY - document.querySelector('.header').offsetHeight - 8;
         window.scrollTo({ top: top, behavior: 'smooth' });
       }, 10);
+    }
+
+    // ===== Calorie Tracker =====
+
+    var calViewDate = new Date().toISOString().split('T')[0];
+
+    var QUICK_FOODS = [
+      { name: 'Chicken Breast (6oz)', cals: 280, protein: 53, carbs: 0, fat: 6 },
+      { name: 'Rice (1 cup)', cals: 205, protein: 4, carbs: 45, fat: 0 },
+      { name: 'Eggs (2 large)', cals: 140, protein: 12, carbs: 1, fat: 10 },
+      { name: 'Banana', cals: 105, protein: 1, carbs: 27, fat: 0 },
+      { name: 'Protein Shake', cals: 160, protein: 30, carbs: 5, fat: 2 },
+      { name: 'Greek Yogurt', cals: 130, protein: 17, carbs: 8, fat: 3 },
+      { name: 'Oatmeal (1 cup)', cals: 150, protein: 5, carbs: 27, fat: 3 },
+      { name: 'Almonds (1oz)', cals: 160, protein: 6, carbs: 6, fat: 14 },
+      { name: 'Salmon (6oz)', cals: 350, protein: 38, carbs: 0, fat: 22 },
+      { name: 'Sweet Potato', cals: 115, protein: 2, carbs: 27, fat: 0 },
+      { name: 'Avocado (half)', cals: 120, protein: 1, carbs: 6, fat: 11 },
+      { name: 'Turkey Sandwich', cals: 350, protein: 28, carbs: 35, fat: 10 },
+      { name: 'Steak (6oz)', cals: 360, protein: 42, carbs: 0, fat: 20 },
+      { name: 'Broccoli (1 cup)', cals: 55, protein: 4, carbs: 11, fat: 0 },
+      { name: 'Peanut Butter (2 tbsp)', cals: 190, protein: 7, carbs: 7, fat: 16 },
+      { name: 'Pasta (1 cup)', cals: 220, protein: 8, carbs: 43, fat: 1 }
+    ];
+
+    function loadCalData() {
+      try { return JSON.parse(localStorage.getItem('brofit_calories') || '{}'); }
+      catch (e) { return {}; }
+    }
+
+    function saveCalData(data) {
+      localStorage.setItem('brofit_calories', JSON.stringify(data));
+    }
+
+    function getCalGoal() {
+      return parseInt(localStorage.getItem('brofit_cal_goal') || '2000', 10);
+    }
+
+    function setCalGoal(val) {
+      localStorage.setItem('brofit_cal_goal', val.toString());
+    }
+
+    function getCalDayEntries(dateStr) {
+      var data = loadCalData();
+      return data[dateStr] || [];
+    }
+
+    function saveCalDayEntries(dateStr, entries) {
+      var data = loadCalData();
+      data[dateStr] = entries;
+      saveCalData(data);
+    }
+
+    function toggleCalPanel() {
+      var panel = document.getElementById('cal-panel');
+      var btn = document.getElementById('cal-toggle');
+      // Close other panels
+      var prLog = document.getElementById('pr-log');
+      if (prLog.classList.contains('pr-log--open')) {
+        prLog.classList.remove('pr-log--open');
+        document.getElementById('pr-log-toggle').classList.remove('pr-log-toggle--open');
+        document.getElementById('pr-log-toggle').textContent = 'PR Log';
+      }
+      var weighin = document.getElementById('weighin-panel');
+      if (weighin.classList.contains('weighin-panel--open')) {
+        weighin.classList.remove('weighin-panel--open');
+        document.getElementById('weighin-toggle').classList.remove('weighin-toggle--open');
+        document.getElementById('weighin-toggle').textContent = 'Weigh-In';
+      }
+      var isOpen = panel.classList.toggle('cal-panel--open');
+      btn.classList.toggle('cal-toggle--open', isOpen);
+      btn.textContent = isOpen ? 'Close' : 'Calories';
+      if (isOpen) {
+        calViewDate = new Date().toISOString().split('T')[0];
+        renderCalTracker();
+        setTimeout(function() {
+          var top = panel.getBoundingClientRect().top + window.scrollY - document.querySelector('.header').offsetHeight - 8;
+          window.scrollTo({ top: top, behavior: 'smooth' });
+        }, 10);
+      }
+    }
+
+    function calNavDay(offset) {
+      var d = new Date(calViewDate + 'T12:00:00');
+      d.setDate(d.getDate() + offset);
+      calViewDate = d.toISOString().split('T')[0];
+      renderCalTracker();
+    }
+
+    function calDateLabel(dateStr) {
+      var today = new Date().toISOString().split('T')[0];
+      var yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+      if (dateStr === today) return 'Today';
+      if (dateStr === yesterday) return 'Yesterday';
+      var d = new Date(dateStr + 'T12:00:00');
+      var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      var days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+      return days[d.getDay()] + ', ' + months[d.getMonth()] + ' ' + d.getDate();
+    }
+
+    function renderCalTracker() {
+      var entries = getCalDayEntries(calViewDate);
+      var goal = getCalGoal();
+
+      // Date nav
+      document.getElementById('cal-date-label').textContent = calDateLabel(calViewDate);
+
+      // Calculate totals
+      var totals = { cals: 0, protein: 0, carbs: 0, fat: 0 };
+      entries.forEach(function(e) {
+        totals.cals += e.cals || 0;
+        totals.protein += e.protein || 0;
+        totals.carbs += e.carbs || 0;
+        totals.fat += e.fat || 0;
+      });
+
+      // Ring SVG
+      var radius = 45;
+      var circumference = 2 * Math.PI * radius;
+      var pct = goal > 0 ? Math.min(totals.cals / goal, 1.5) : 0;
+      var offset = circumference - (Math.min(pct, 1) * circumference);
+      var isOver = totals.cals > goal;
+      var remaining = goal - totals.cals;
+
+      var summaryHtml =
+        '<div class="cal-goal-row">' +
+          '<span class="cal-goal-row__label">Daily Goal</span>' +
+          '<input class="cal-goal-row__input" id="cal-goal-input" type="number" value="' + goal + '" inputmode="numeric" onchange="updateCalGoal(this.value)">' +
+        '</div>' +
+        '<div class="cal-summary__ring">' +
+          '<div class="cal-summary__ring-wrap">' +
+            '<svg class="cal-summary__ring-svg" viewBox="0 0 110 110">' +
+              '<circle class="cal-summary__ring-bg" cx="55" cy="55" r="' + radius + '"/>' +
+              '<circle class="cal-summary__ring-fill' + (isOver ? ' cal-summary__ring-fill--over' : '') + '" cx="55" cy="55" r="' + radius + '" ' +
+                'stroke-dasharray="' + circumference + '" stroke-dashoffset="' + offset + '"/>' +
+            '</svg>' +
+            '<div class="cal-summary__ring-text">' +
+              '<div class="cal-summary__ring-cals">' + totals.cals + '</div>' +
+              '<div class="cal-summary__ring-label">' + (isOver ? 'over by ' + Math.abs(remaining) : remaining + ' left') + '</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="cal-summary__macros">' +
+            '<div class="cal-summary__macro">' +
+              '<span class="cal-summary__macro-dot cal-summary__macro-dot--protein"></span>' +
+              '<span class="cal-summary__macro-label">Protein</span>' +
+              '<span class="cal-summary__macro-val">' + Math.round(totals.protein) + 'g</span>' +
+            '</div>' +
+            '<div class="cal-summary__macro">' +
+              '<span class="cal-summary__macro-dot cal-summary__macro-dot--carbs"></span>' +
+              '<span class="cal-summary__macro-label">Carbs</span>' +
+              '<span class="cal-summary__macro-val">' + Math.round(totals.carbs) + 'g</span>' +
+            '</div>' +
+            '<div class="cal-summary__macro">' +
+              '<span class="cal-summary__macro-dot cal-summary__macro-dot--fat"></span>' +
+              '<span class="cal-summary__macro-label">Fat</span>' +
+              '<span class="cal-summary__macro-val">' + Math.round(totals.fat) + 'g</span>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+
+      document.getElementById('cal-summary').innerHTML = summaryHtml;
+
+      // Quick-add buttons
+      var quickHtml = '';
+      QUICK_FOODS.forEach(function(food, idx) {
+        quickHtml += '<button class="cal-quick__btn" onclick="quickAddCal(' + idx + ')">' + food.name + '</button>';
+      });
+      document.getElementById('cal-quick').innerHTML = quickHtml;
+
+      // Food log
+      var logHtml = '<div class="cal-log__title">Food Log</div>';
+      if (entries.length === 0) {
+        logHtml += '<div class="cal-log__empty">No food logged yet</div>';
+      } else {
+        entries.forEach(function(e, idx) {
+          var macroStr = [];
+          if (e.protein) macroStr.push('P:' + Math.round(e.protein));
+          if (e.carbs) macroStr.push('C:' + Math.round(e.carbs));
+          if (e.fat) macroStr.push('F:' + Math.round(e.fat));
+          logHtml += '<div class="cal-log__item">' +
+            '<span class="cal-log__name">' + escapeHtml(e.name) + '</span>' +
+            (macroStr.length ? '<span class="cal-log__macros">' + macroStr.join(' ') + '</span>' : '') +
+            '<span class="cal-log__cals">' + e.cals + '</span>' +
+            '<button class="cal-log__del" onclick="deleteCalEntry(' + idx + ')">&times;</button>' +
+          '</div>';
+        });
+      }
+      document.getElementById('cal-log').innerHTML = logHtml;
+    }
+
+    function addCalEntry() {
+      var nameInput = document.getElementById('cal-food-name');
+      var calsInput = document.getElementById('cal-food-cals');
+      var proteinInput = document.getElementById('cal-food-protein');
+      var carbsInput = document.getElementById('cal-food-carbs');
+      var fatInput = document.getElementById('cal-food-fat');
+
+      var name = nameInput.value.trim();
+      var cals = parseInt(calsInput.value) || 0;
+      if (!name || cals <= 0) return;
+
+      var entry = {
+        name: name,
+        cals: cals,
+        protein: parseFloat(proteinInput.value) || 0,
+        carbs: parseFloat(carbsInput.value) || 0,
+        fat: parseFloat(fatInput.value) || 0,
+        time: new Date().toTimeString().slice(0, 5)
+      };
+
+      var entries = getCalDayEntries(calViewDate);
+      entries.push(entry);
+      saveCalDayEntries(calViewDate, entries);
+
+      // Clear inputs
+      nameInput.value = '';
+      calsInput.value = '';
+      proteinInput.value = '';
+      carbsInput.value = '';
+      fatInput.value = '';
+
+      renderCalTracker();
+    }
+
+    function quickAddCal(idx) {
+      var food = QUICK_FOODS[idx];
+      if (!food) return;
+      var entries = getCalDayEntries(calViewDate);
+      entries.push({
+        name: food.name,
+        cals: food.cals,
+        protein: food.protein,
+        carbs: food.carbs,
+        fat: food.fat,
+        time: new Date().toTimeString().slice(0, 5)
+      });
+      saveCalDayEntries(calViewDate, entries);
+      renderCalTracker();
+    }
+
+    function deleteCalEntry(idx) {
+      var entries = getCalDayEntries(calViewDate);
+      entries.splice(idx, 1);
+      saveCalDayEntries(calViewDate, entries);
+      renderCalTracker();
+    }
+
+    function updateCalGoal(val) {
+      var g = parseInt(val) || 2000;
+      setCalGoal(g);
+      renderCalTracker();
     }
 
     // ===== PR Tracker =====
@@ -8400,6 +8972,20 @@
 
       // Init rest timer display with saved preference
       updateRestDisplay();
+
+      // Calorie tracker: Enter key to add
+      var calNameInput = document.getElementById('cal-food-name');
+      if (calNameInput) {
+        calNameInput.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter') addCalEntry();
+        });
+      }
+      var calCalsInput = document.getElementById('cal-food-cals');
+      if (calCalsInput) {
+        calCalsInput.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter') addCalEntry();
+        });
+      }
 
       // Refresh all UI from state
       refreshUI();
