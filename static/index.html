@@ -180,6 +180,7 @@ let snowParticles = [];    // Level 2: falling snow effect
 // Snow leopard state
 let leopard = null;        // { wx, wy, state: 'waiting'|'stalking'|'eating'|'sitting', eatTimer, fishWX }
 let droppedFishWX = -1;    // world X where fish was dropped (-1 = not dropped)
+let fishDropCooldown = 0;  // prevents instant re-pickup after dropping
 let leopardAlertTimer = 0; // countdown for "Drop the fish!" prompt
 // Level 3: avalanche descent
 let l3Crevasses = [];      // gaps in the ground to jump over
@@ -241,9 +242,20 @@ function resetLevel() {
   l2Obstacles = [];
   leopard = null;
   droppedFishWX = -1;
+  fishDropCooldown = 0;
   leopardAlertTimer = 0;
   if (currentLevel === 2) {
-    // Ice rocks/boulders to jump over in the first half (forgiving hitboxes)
+    // A couple of charging goats in the first section
+    const goatPositions = [900, 2000];
+    for (const wx of goatPositions) {
+      goats.push({
+        homeWX: wx, wx, wy: trailY(wx),
+        charging: false, windupTimer: 0,
+        active: true, angry: false,
+        width: 44, height: 36
+      });
+    }
+    // Ice icicles to jump over (forgiving hitboxes)
     const obsPositions = [700, 1400, 2100, 2800];
     for (const wx of obsPositions) {
       l2Obstacles.push({ wx, wy: trailY(wx), width: 24, height: 22, type: 'ice' });
@@ -1335,40 +1347,70 @@ function drawThrownBall(camWX, camWY) {
 function drawVillage(camWX, camWY) {
   const [sx, sy] = worldToScreen(levelCfg.length, trailY(levelCfg.length), camWX, camWY);
   const c = ctx;
-  // Several small houses
-  for (let i = 0; i < 3; i++) {
-    const hx = sx + i * 45 - 40, hy = sy - 30;
-    const hw = 30 + i * 5, hh = 25 + i * 3;
+
+  // Warm ground patch under village
+  c.fillStyle = 'rgb(140,120,90)';
+  c.beginPath(); c.ellipse(sx + 20, sy + 4, 80, 14, 0, 0, Math.PI*2); c.fill();
+
+  // 4 colorful houses — bigger, brighter, clearly foreground
+  const houses = [
+    { dx: -50, w: 40, h: 35, wallColor: 'rgb(200,160,90)', roofColor: 'rgb(180,60,40)' },
+    { dx: -5, w: 45, h: 38, wallColor: 'rgb(220,180,100)', roofColor: 'rgb(60,120,60)' },
+    { dx: 45, w: 38, h: 32, wallColor: 'rgb(190,150,85)', roofColor: 'rgb(160,70,50)' },
+    { dx: 85, w: 35, h: 30, wallColor: 'rgb(210,170,95)', roofColor: 'rgb(80,100,140)' },
+  ];
+  for (const h of houses) {
+    const hx = sx + h.dx, hy = sy - h.h;
     // Walls
-    c.fillStyle = `rgb(${160+i*15},${120+i*10},${70+i*10})`;
-    c.fillRect(hx, hy, hw, hh);
+    c.fillStyle = h.wallColor;
+    c.fillRect(hx, hy, h.w, h.h);
+    // Wall outline
+    c.strokeStyle = 'rgba(0,0,0,0.15)'; c.lineWidth = 1;
+    c.strokeRect(hx, hy, h.w, h.h);
     // Roof
-    c.fillStyle = `rgb(${140+i*10},${50+i*10},${35+i*5})`;
-    c.beginPath(); c.moveTo(hx - 4, hy); c.lineTo(hx + hw/2, hy - 16); c.lineTo(hx + hw + 4, hy); c.closePath(); c.fill();
+    c.fillStyle = h.roofColor;
+    c.beginPath(); c.moveTo(hx - 6, hy); c.lineTo(hx + h.w/2, hy - 20); c.lineTo(hx + h.w + 6, hy); c.closePath(); c.fill();
     // Snow on roof
-    c.fillStyle = 'rgba(255,255,255,0.6)';
-    c.beginPath(); c.moveTo(hx - 2, hy + 2); c.lineTo(hx + hw/2, hy - 14); c.lineTo(hx + hw + 2, hy + 2);
-    c.quadraticCurveTo(hx + hw/2, hy - 8, hx - 2, hy + 2); c.closePath(); c.fill();
+    c.fillStyle = 'rgba(255,255,255,0.7)';
+    c.beginPath(); c.moveTo(hx - 3, hy + 2); c.lineTo(hx + h.w/2, hy - 17); c.lineTo(hx + h.w + 3, hy + 2);
+    c.quadraticCurveTo(hx + h.w/2, hy - 10, hx - 3, hy + 2); c.closePath(); c.fill();
     // Door
-    c.fillStyle = 'rgb(80,50,25)';
-    c.fillRect(hx + hw/2 - 5, hy + hh - 14, 10, 14);
-    // Window glow
-    c.fillStyle = 'rgba(255,220,120,0.4)';
-    c.fillRect(hx + 4, hy + 5, 8, 7);
+    c.fillStyle = 'rgb(90,55,25)';
+    c.fillRect(hx + h.w/2 - 6, hy + h.h - 18, 12, 18);
+    c.fillStyle = 'rgb(200,170,60)';
+    c.beginPath(); c.arc(hx + h.w/2 + 3, hy + h.h - 9, 1.5, 0, Math.PI*2); c.fill();
+    // Windows with bright warm glow
+    c.fillStyle = 'rgb(255,230,140)';
+    c.fillRect(hx + 4, hy + 6, 10, 9);
+    if (h.w > 38) c.fillRect(hx + h.w - 14, hy + 6, 10, 9);
+    // Window cross
+    c.strokeStyle = 'rgba(80,50,20,0.5)'; c.lineWidth = 1;
+    c.beginPath(); c.moveTo(hx + 9, hy + 6); c.lineTo(hx + 9, hy + 15); c.stroke();
+    c.beginPath(); c.moveTo(hx + 4, hy + 10.5); c.lineTo(hx + 14, hy + 10.5); c.stroke();
   }
-  // "VILLAGE" sign
-  c.fillStyle = 'rgb(180,140,80)';
-  c.beginPath(); c.roundRect(sx - 30, sy - 55, 60, 14, 3); c.fill();
-  c.fillStyle = 'rgb(60,40,20)'; c.font = 'bold 10px Arial'; c.textAlign = 'center';
-  c.fillText('VILLAGE', sx, sy - 45);
-  c.textAlign = 'left';
-  // Chimney smoke from first house
+
+  // Chimney on first house
+  c.fillStyle = 'rgb(140,100,70)';
+  c.fillRect(sx - 40, sy - houses[0].h - 18, 8, 18);
   const now = performance.now() / 1000;
-  c.fillStyle = 'rgba(200,200,210,0.3)';
+  c.fillStyle = 'rgba(200,200,210,0.4)';
   for (let p = 0; p < 3; p++) {
     const t = ((now * 18 + p * 10) % 30) / 30;
-    c.beginPath(); c.arc(sx - 30 + Math.sin(t*Math.PI*2)*4, sy - 48 - t*35, 3 + t*4, 0, Math.PI*2); c.fill();
+    c.beginPath(); c.arc(sx - 36 + Math.sin(t*Math.PI*2)*4, sy - houses[0].h - 20 - t*35, 3 + t*5, 0, Math.PI*2); c.fill();
   }
+
+  // Big "VILLAGE" sign — prominent, clearly foreground
+  c.fillStyle = 'rgb(160,110,50)';
+  // Sign post
+  c.fillRect(sx - 60, sy - 50, 5, 50);
+  // Sign board
+  c.fillStyle = 'rgb(200,160,80)';
+  c.beginPath(); c.roundRect(sx - 78, sy - 58, 70, 22, 4); c.fill();
+  c.strokeStyle = 'rgb(140,100,50)'; c.lineWidth = 2;
+  c.beginPath(); c.roundRect(sx - 78, sy - 58, 70, 22, 4); c.stroke();
+  c.fillStyle = 'rgb(60,35,15)'; c.font = 'bold 14px Arial'; c.textAlign = 'center';
+  c.fillText('VILLAGE', sx - 43, sy - 42);
+  c.textAlign = 'left';
 }
 
 function drawSummitFlag(camWX, camWY) {
@@ -2303,9 +2345,11 @@ function update(dt) {
   if (currentLevel === 2 && hasFish && (keys['ArrowDown'] || keys['KeyS'])) {
     hasFish = false;
     droppedFishWX = playerWX;
+    fishDropCooldown = 0.5; // prevent instant re-pickup
   }
-  // Pick fish back up — walk over it when not holding it
-  if (currentLevel === 2 && !hasFish && droppedFishWX > 0 && Math.abs(playerWX - droppedFishWX) < 25) {
+  if (fishDropCooldown > 0) fishDropCooldown -= dt;
+  // Pick fish back up — walk over it when not holding it (after cooldown)
+  if (currentLevel === 2 && !hasFish && droppedFishWX > 0 && fishDropCooldown <= 0 && Math.abs(playerWX - droppedFishWX) < 25) {
     hasFish = true;
     droppedFishWX = -1;
   }
