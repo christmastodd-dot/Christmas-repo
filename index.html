@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hawaii Football Recruits</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div>
+        <a href="index.html" class="site-title">Hawaii <span>Football Recruits</span></a>
+        <div class="header-subtitle">Showcasing Island Talent</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Filters -->
+  <div class="filters">
+    <input type="text" class="search-input" id="searchInput" placeholder="Search by name or school...">
+    <select class="filter-select" id="classFilter">
+      <option value="">All Classes</option>
+      <option value="2025">Class of 2025</option>
+      <option value="2026">Class of 2026</option>
+      <option value="2027">Class of 2027</option>
+      <option value="2028">Class of 2028</option>
+    </select>
+    <select class="filter-select" id="positionFilter">
+      <option value="">All Positions</option>
+      <option value="QB">QB</option>
+      <option value="RB">RB</option>
+      <option value="WR">WR</option>
+      <option value="TE">TE</option>
+      <option value="OL">OL</option>
+      <option value="DL">DL</option>
+      <option value="LB">LB</option>
+      <option value="DB">DB</option>
+      <option value="ATH">ATH</option>
+      <option value="K/P">K/P</option>
+    </select>
+    <div class="results-count" id="resultsCount"></div>
+  </div>
+
+  <!-- Player Grid -->
+  <div class="player-grid" id="playerGrid"></div>
+
+  <!-- Player Modal -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal" id="modal">
+      <button class="modal-close" id="modalClose">&times;</button>
+      <img class="modal-photo" id="modalPhoto" src="" alt="">
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    Hawaii Football Recruits &mdash; Connecting island athletes with opportunity.
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

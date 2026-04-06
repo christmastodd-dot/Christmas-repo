@@ -1,0 +1,95 @@
+[
+  {
+    "id": "koa-makoa",
+    "name": "Koa Makoa",
+    "classYear": 2026,
+    "position": "LB",
+    "school": "Kahuku HS",
+    "height": "6-2",
+    "weight": 215,
+    "gpa": "3.5",
+    "photo": "photos/default.svg",
+    "measurables": {
+      "fortyYard": "4.55",
+      "shuttle": "4.21",
+      "vertical": "34.5",
+      "broadJump": "9-8",
+      "bench": "225x12"
+    },
+    "awards": ["All-State 2025", "OIA First Team LB"],
+    "links": {
+      "hudl": "https://www.hudl.com/",
+      "twitter": "https://twitter.com/",
+      "rivals": "",
+      "twoFourSeven": "",
+      "youtube": ""
+    },
+    "contact": {
+      "email": "coach@kahuku.k12.hi.us",
+      "phone": "808-555-1234",
+      "coachName": "Coach Carvalho"
+    }
+  },
+  {
+    "id": "kai-tanaka",
+    "name": "Kai Tanaka",
+    "classYear": 2027,
+    "position": "QB",
+    "school": "Saint Louis HS",
+    "height": "6-1",
+    "weight": 195,
+    "gpa": "3.8",
+    "photo": "photos/default.svg",
+    "measurables": {
+      "fortyYard": "4.65",
+      "shuttle": "4.10",
+      "vertical": "32.0",
+      "broadJump": "9-4",
+      "bench": ""
+    },
+    "awards": ["ILH Offensive MVP 2025"],
+    "links": {
+      "hudl": "https://www.hudl.com/",
+      "twitter": "",
+      "rivals": "https://www.rivals.com/",
+      "twoFourSeven": "https://247sports.com/",
+      "youtube": ""
+    },
+    "contact": {
+      "email": "coach@saintlouis.edu",
+      "phone": "808-555-5678",
+      "coachName": "Coach Matlin"
+    }
+  },
+  {
+    "id": "mana-kealoha",
+    "name": "Mana Kealoha",
+    "classYear": 2026,
+    "position": "DB",
+    "school": "Punahou School",
+    "height": "5-11",
+    "weight": 180,
+    "gpa": "3.6",
+    "photo": "photos/default.svg",
+    "measurables": {
+      "fortyYard": "4.42",
+      "shuttle": "3.98",
+      "vertical": "37.0",
+      "broadJump": "10-1",
+      "bench": "185x8"
+    },
+    "awards": ["All-State 2025", "ILH First Team DB", "Opening Regional Invite"],
+    "links": {
+      "hudl": "https://www.hudl.com/",
+      "twitter": "https://twitter.com/",
+      "rivals": "",
+      "twoFourSeven": "https://247sports.com/",
+      "youtube": "https://youtube.com/"
+    },
+    "contact": {
+      "email": "recruiting@punahou.edu",
+      "phone": "808-555-9012",
+      "coachName": "Coach Aiona"
+    }
+  }
+]
