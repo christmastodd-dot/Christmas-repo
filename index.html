@@ -209,8 +209,19 @@ let audioCtx = null;
 let musicPlaying = false;
 
 function startMusic() {
+  // restart if AudioContext died or was closed
+  if (audioCtx && audioCtx.state === 'closed') {
+    audioCtx = null;
+    musicPlaying = false;
+  }
+  // resume suspended AudioContext (mobile background tab)
+  if (audioCtx && audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
   if (musicPlaying) return;
-  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  try {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  } catch(e) { return; }
   musicPlaying = true;
   playJig();
 }
