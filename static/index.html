@@ -2500,19 +2500,18 @@ function update(dt) {
       }
     }
 
-    // ── Yeti throws snowballs at the player ──────────────────────────────
-    if (yeti && yeti.state === 'throwing') {
+    // ── Snowballs throughout the level (from off-screen right) ────────────
+    // Spawn every 5-6 seconds, coming from downhill toward the player
+    if (!yeti || yeti.state !== 'defeated') {
       yeti.throwTimer -= dt;
       if (yeti.throwTimer <= 0) {
-        yeti.throwTimer = 3.0 + Math.random() * 2.0; // throw every 3-5s
-        // Snowball travels parallel to ground, just above the trail surface
-        const speed = 180 + Math.random() * 60;
-        // Direction from yeti toward player (always leftward/uphill)
-        const dir = playerWX < yeti.wx ? -1 : 1;
+        yeti.throwTimer = 5.0 + Math.random() * 1.0; // every 5-6s
+        const speed = 160 + Math.random() * 60;
+        const spawnWX = playerWX + W * 0.8 + Math.random() * 200;
         l3Snowballs.push({
-          wx: yeti.wx + dir * 30,
-          wy: trailY(yeti.wx) - 20, // slightly above ground
-          vx: dir * speed,
+          wx: spawnWX,
+          wy: trailY(spawnWX) - 20,
+          vx: -speed, // coming from the right (downhill)
           vy: 0,
           radius: 14,
           active: true
@@ -2525,7 +2524,7 @@ function update(dt) {
       yeti.throwTimer -= dt;
       if (yeti.throwTimer <= 0) {
         yeti.state = 'throwing';
-        yeti.throwTimer = 2.0;
+        yeti.throwTimer = 5.0;
       }
     }
 
@@ -2604,14 +2603,16 @@ function update(dt) {
       }
     }
 
-    // Yeti body collision (don't walk into him!)
+    // Yeti body collision — only when on ground, only shorter hitbox so jumping works
+    // Player can pass freely through a defeated yeti
     if (yeti && yeti.state !== 'defeated' && invincibleTimer <= 0 && onGround) {
-      const yRect = { x: yeti.wx - 40, y: yeti.wy - 70, w: 80, h: 70 };
+      // Short hitbox (30px tall) so the jump arc clears it
+      const yRect = { x: yeti.wx - 30, y: yeti.wy - 30, w: 60, h: 30 };
       if (rectsOverlap(pRect, yRect)) {
         lives--;
         if (lives <= 0) { onGameOver(); return; }
         kbX = playerWX; kbY = playerWY;
-        kbVX = -300; kbVY = -400; kbTimer = 1.5;
+        kbVX = -250; kbVY = -400; kbTimer = 1.5;
         invincibleTimer = INVINCIBILITY_TIME;
         state = 'knockback';
         return;
@@ -2705,8 +2706,8 @@ function draw(dt) {
     drawTrees(camWX, camWY, 1.0);
     drawL3Crevasses(camWX, camWY);
     drawVillage(camWX, camWY);
-    // Yeti
-    if (yeti) {
+    // Yeti — only visible when player is near the end of the level
+    if (yeti && playerWX > yeti.wx - 600) {
       const [ysx, ysy] = worldToScreen(yeti.wx, yeti.wy, camWX, camWY);
       if (ysx > -80 && ysx < W + 80) drawYeti(Math.round(ysx), Math.round(ysy), yeti.state);
     }
