@@ -96,7 +96,7 @@
              onerror="this.src='photos/default.svg'">
         <div class="admin-player-info">
           <div class="admin-player-name">${esc(p.name)}</div>
-          <div class="admin-player-meta">${esc(p.position)} &bull; ${p.classYear} &bull; ${esc(p.school)}</div>
+          <div class="admin-player-meta">${esc(Array.isArray(p.position) ? p.position.join(' / ') : p.position)} &bull; ${p.classYear} &bull; ${esc(p.school)}</div>
         </div>
         <div class="admin-player-actions">
           <button class="btn btn-outline btn-sm edit-btn" data-id="${p.id}">Edit</button>
@@ -137,7 +137,11 @@
       formTitle.textContent = 'Edit Player';
       editIdField.value = p.id;
       document.getElementById('fName').value = p.name;
-      document.getElementById('fPosition').value = p.position;
+      // Set position checkboxes
+      const positions = Array.isArray(p.position) ? p.position : [p.position];
+      document.querySelectorAll('#fPosition input[type="checkbox"]').forEach(cb => {
+        cb.checked = positions.includes(cb.value);
+      });
       document.getElementById('fSchool').value = p.school;
       document.getElementById('fClassYear').value = p.classYear;
       document.getElementById('fHeight').value = p.height || '';
@@ -192,7 +196,7 @@
       id: id,
       name: name,
       classYear: parseInt(document.getElementById('fClassYear').value, 10),
-      position: document.getElementById('fPosition').value,
+      position: Array.from(document.querySelectorAll('#fPosition input:checked')).map(cb => cb.value),
       school: document.getElementById('fSchool').value.trim(),
       height: document.getElementById('fHeight').value.trim(),
       weight: parseInt(document.getElementById('fWeight').value, 10) || 0,
