@@ -60,14 +60,19 @@
                 <input type="text" id="fName" required>
               </div>
               <div class="form-group">
-                <label>Position *</label>
-                <select id="fPosition" required>
-                  <option value="">Select</option>
-                  <option>QB</option><option>RB</option><option>WR</option>
-                  <option>TE</option><option>OL</option><option>DL</option>
-                  <option>LB</option><option>DB</option><option>ATH</option>
-                  <option>K/P</option>
-                </select>
+                <label>Position(s) *</label>
+                <div class="checkbox-group" id="fPosition">
+                  <label class="cb"><input type="checkbox" value="QB"> QB</label>
+                  <label class="cb"><input type="checkbox" value="RB"> RB</label>
+                  <label class="cb"><input type="checkbox" value="WR"> WR</label>
+                  <label class="cb"><input type="checkbox" value="TE"> TE</label>
+                  <label class="cb"><input type="checkbox" value="OL"> OL</label>
+                  <label class="cb"><input type="checkbox" value="DL"> DL</label>
+                  <label class="cb"><input type="checkbox" value="LB"> LB</label>
+                  <label class="cb"><input type="checkbox" value="DB"> DB</label>
+                  <label class="cb"><input type="checkbox" value="ATH"> ATH</label>
+                  <label class="cb"><input type="checkbox" value="K/P"> K/P</label>
+                </div>
               </div>
             </div>
 
@@ -80,8 +85,8 @@
                 <label>Class Year *</label>
                 <select id="fClassYear" required>
                   <option value="">Select</option>
-                  <option>2025</option><option>2026</option>
                   <option>2027</option><option>2028</option>
+                  <option>2029</option><option>2030</option>
                 </select>
               </div>
             </div>

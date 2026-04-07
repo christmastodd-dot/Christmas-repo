@@ -48,7 +48,8 @@
 
     return players.filter(p => {
       if (cls && String(p.classYear) !== cls) return false;
-      if (pos && p.position !== pos) return false;
+      const positions = Array.isArray(p.position) ? p.position : [p.position];
+      if (pos && !positions.includes(pos)) return false;
       if (q && !p.name.toLowerCase().includes(q) && !p.school.toLowerCase().includes(q)) return false;
       return true;
     });
@@ -70,7 +71,7 @@
         <div class="card-body">
           <div class="card-name">${esc(p.name)}</div>
           <div class="card-meta">
-            <span class="card-tag">${esc(p.position)}</span>
+            ${(Array.isArray(p.position) ? p.position : [p.position]).map(pos => `<span class="card-tag">${esc(pos)}</span>`).join('')}
             <span class="card-tag year">${p.classYear}</span>
             <span>${esc(p.school)}</span>
           </div>
@@ -101,7 +102,7 @@
     modalBody.innerHTML = `
       <div class="modal-name">${esc(p.name)}</div>
       <div class="modal-info">
-        ${esc(p.position)} &bull; Class of ${p.classYear} &bull; ${esc(p.school)}
+        ${esc(Array.isArray(p.position) ? p.position.join(' / ') : p.position)} &bull; Class of ${p.classYear} &bull; ${esc(p.school)}
         &bull; ${esc(p.height)} / ${p.weight} lbs
         ${p.gpa ? '&bull; GPA: ' + esc(p.gpa) : ''}
       </div>
