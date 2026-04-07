@@ -14,16 +14,27 @@
   const modalPhoto = document.getElementById('modalPhoto');
   const modalBody = document.getElementById('modalBody');
 
-  // Load player data
-  fetch('data/players.json')
-    .then(r => r.json())
-    .then(data => {
-      players = data;
+  // Load player data — prefer localStorage (set by admin panel), fall back to JSON file
+  const stored = localStorage.getItem('hfr_players');
+  if (stored) {
+    try {
+      players = JSON.parse(stored);
       render();
-    })
-    .catch(() => {
-      grid.innerHTML = '<div class="no-results">Unable to load player data.</div>';
-    });
+    } catch (e) {
+      players = [];
+      render();
+    }
+  } else {
+    fetch('data/players.json')
+      .then(r => r.json())
+      .then(data => {
+        players = data;
+        render();
+      })
+      .catch(() => {
+        grid.innerHTML = '<div class="no-results">Unable to load player data.</div>';
+      });
+  }
 
   // Filters
   searchInput.addEventListener('input', render);
