@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 340" fill="none">
-  <rect width="300" height="340" rx="8" fill="#1a2744"/>
-  <circle cx="150" cy="120" r="60" fill="#2d8a7e" opacity="0.4"/>
-  <path d="M150 190c-50 0-90 30-90 70v40h180v-40c0-40-40-70-90-70z" fill="#2d8a7e" opacity="0.4"/>
-  <text x="150" y="330" text-anchor="middle" fill="#c9a96e" font-family="system-ui" font-size="14">No Photo</text>
+  <rect width="300" height="340" rx="8" fill="#141820"/>
+  <circle cx="150" cy="115" r="55" fill="#1C2030"/>
+  <path d="M150 180c-48 0-85 28-85 65v50h170v-50c0-37-37-65-85-65z" fill="#1C2030"/>
+  <text x="150" y="330" text-anchor="middle" fill="#6B7384" font-family="system-ui" font-size="13" letter-spacing="0.1em">NO PHOTO</text>
 </svg>
