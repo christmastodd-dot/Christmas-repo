@@ -1,8 +1,8 @@
 {
   "members": {
     "Coach": {
-      "xp": 195,
-      "streak": 1,
+      "xp": 205,
+      "streak": 2,
       "prs": {
         "bench": {
           "history": [
@@ -674,7 +674,7 @@
           "author": "Coach"
         }
       ],
-      "lastSync": "2026-04-06T20:03:26.524Z"
+      "lastSync": "2026-04-08T09:08:08.909Z"
     },
     "Manny Fresh": {
       "xp": 10,
