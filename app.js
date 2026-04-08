@@ -66,18 +66,18 @@
 
     grid.innerHTML = filtered.map(p => `
       <div class="player-card" data-id="${p.id}">
-        <img class="card-photo" src="${p.photo}" alt="${p.name}" loading="lazy"
-             onerror="this.src='photos/default.svg'">
+        <div class="card-photo-wrap">
+          <img class="card-photo" src="${p.photo}" alt="${p.name}" loading="lazy"
+               onerror="this.src='photos/default.svg'">
+        </div>
         <div class="card-body">
           <div class="card-name">${esc(p.name)}</div>
           <div class="card-meta">
             ${(Array.isArray(p.position) ? p.position : [p.position]).map(pos => `<span class="card-tag">${esc(pos)}</span>`).join('')}
             <span class="card-tag year">${p.classYear}</span>
-            <span>${esc(p.school)}</span>
+            <span class="card-school">${esc(p.school)}</span>
           </div>
-          <div class="card-meta" style="margin-top:0.4rem">
-            <span>${esc(p.height)} / ${p.weight} lbs</span>
-          </div>
+          <div class="card-size">${esc(p.height)} / ${p.weight} lbs</div>
         </div>
       </div>
     `).join('');
@@ -227,8 +227,8 @@
       container.innerHTML = `
         <div class="contact-info">
           ${contact.coachName ? `<div class="contact-row"><span>Coach</span><span>${esc(contact.coachName)}</span></div>` : ''}
-          ${contact.email ? `<div class="contact-row"><span>Email</span><span><a href="mailto:${esc(contact.email)}" style="color:var(--teal)">${esc(contact.email)}</a></span></div>` : ''}
-          ${contact.phone ? `<div class="contact-row"><span>Phone</span><span><a href="tel:${esc(contact.phone)}" style="color:var(--teal)">${esc(contact.phone)}</a></span></div>` : ''}
+          ${contact.email ? `<div class="contact-row"><span>Email</span><span><a href="mailto:${esc(contact.email)}" style="color:var(--ocean)">${esc(contact.email)}</a></span></div>` : ''}
+          ${contact.phone ? `<div class="contact-row"><span>Phone</span><span><a href="tel:${esc(contact.phone)}" style="color:var(--ocean)">${esc(contact.phone)}</a></span></div>` : ''}
         </div>
       `;
       btn.closest('.contact-gate').style.display = 'none';
