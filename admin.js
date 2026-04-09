@@ -26,6 +26,43 @@
   const editIdField = document.getElementById('editId');
 
   let players = [];
+  let saveCount = parseInt(sessionStorage.getItem('hfr_save_count') || '0', 10);
+
+  // --- Save notification toast ---
+  function showSaveToast(message, isBackup) {
+    let toast = document.getElementById('saveToast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'saveToast';
+      toast.style.cssText = 'position:fixed;bottom:1.5rem;right:1.5rem;padding:0.75rem 1.25rem;border-radius:8px;font-size:0.85rem;font-weight:600;font-family:inherit;z-index:999;opacity:0;transition:opacity 0.3s;pointer-events:none;max-width:340px;line-height:1.4;';
+      document.body.appendChild(toast);
+    }
+    toast.style.background = isBackup ? 'linear-gradient(135deg, #0EA5A5, #0B7A7A)' : 'var(--basalt)';
+    toast.style.color = isBackup ? 'white' : 'var(--sand)';
+    toast.style.border = isBackup ? 'none' : '1px solid rgba(107,115,132,0.2)';
+    toast.textContent = message;
+    toast.style.opacity = '1';
+    clearTimeout(toast._timer);
+    toast._timer = setTimeout(() => { toast.style.opacity = '0'; }, isBackup ? 4000 : 3000);
+  }
+
+  // Auto-backup: download JSON every 5 saves
+  function autoBackup() {
+    saveCount++;
+    sessionStorage.setItem('hfr_save_count', String(saveCount));
+    if (saveCount % 5 === 0) {
+      const blob = new Blob([JSON.stringify(players, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'players-backup-' + new Date().toISOString().slice(0, 10) + '.json';
+      a.click();
+      URL.revokeObjectURL(url);
+      showSaveToast('Auto-backup downloaded! (' + players.length + ' players)', true);
+    } else {
+      showSaveToast('Saved. Remember to Export JSON to keep a backup.', false);
+    }
+  }
 
   // --- Position tri-state buttons ---
   document.querySelectorAll('#fPosition .pos-btn').forEach(btn => {
@@ -178,6 +215,7 @@
     if (!confirm('Delete ' + p.name + '? This cannot be undone.')) return;
     players = players.filter(x => x.id !== id);
     savePlayers();
+    autoBackup();
     renderList();
   }
 
@@ -290,6 +328,7 @@
     }
 
     savePlayers();
+    autoBackup();
     renderList();
     closeForm();
   });
