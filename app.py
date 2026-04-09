@@ -238,8 +238,8 @@ def ensure_db_initialized():
         _db_initialized = True
         logger.info("DB initialized successfully.")
     except Exception as e:
-        logger.error(f"DB init failed: {e}")
-        raise
+        import traceback
+        logger.error(f"DB init failed: {e}\n{traceback.format_exc()}")
 
 
 @app.before_request
@@ -282,13 +282,21 @@ def admin_required(f):
 
 @app.errorhandler(500)
 def internal_error(e):
-    logger.error(f"500 error: {e}")
-    return render_template('error.html', message='Something went wrong. Please try again.'), 500
+    import traceback
+    logger.error(f"500 error: {e}\n{traceback.format_exc()}")
+    return f'''<html><body style="font-family:sans-serif;padding:2rem;background:#F5F0E8;color:#3A2E2A;">
+    <h1 style="color:#6B1D2A;">Something went wrong</h1>
+    <p>Please try again in a moment.</p>
+    <a href="/" style="color:#6B1D2A;">Back to Dashboard</a>
+    </body></html>''', 500
 
 @app.errorhandler(502)
 def bad_gateway(e):
     logger.error(f"502 error: {e}")
-    return render_template('error.html', message='The server is starting up. Please refresh in a few seconds.'), 502
+    return f'''<html><body style="font-family:sans-serif;padding:2rem;background:#F5F0E8;color:#3A2E2A;">
+    <h1 style="color:#6B1D2A;">Starting up...</h1>
+    <p>Please refresh in a few seconds.</p>
+    </body></html>''', 502
 
 
 # ── Health check ──────────────────────────────────────────────────
