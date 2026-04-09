@@ -225,28 +225,26 @@ def seed_admin():
         db.commit()
 
 
-import time as _time
+_db_initialized = False
 
-def startup_init():
-    """Initialize DB with retries — Render's DB may not be ready immediately."""
-    logger.info(f"Starting app. USE_POSTGRES={USE_POSTGRES}")
-    if USE_POSTGRES:
-        logger.info(f"DATABASE_URL starts with: {DATABASE_URL[:25]}...")
-    for attempt in range(5):
-        try:
-            init_db()
-            seed_admin()
-            logger.info("DB initialized successfully.")
-            return
-        except Exception as e:
-            logger.error(f"DB init attempt {attempt + 1} failed: {e}")
-            if attempt < 4:
-                _time.sleep(2)
-            else:
-                raise
+def ensure_db_initialized():
+    """Initialize DB tables and admin user on first use."""
+    global _db_initialized
+    if _db_initialized:
+        return
+    try:
+        init_db()
+        seed_admin()
+        _db_initialized = True
+        logger.info("DB initialized successfully.")
+    except Exception as e:
+        logger.error(f"DB init failed: {e}")
+        raise
 
-with app.app_context():
-    startup_init()
+
+@app.before_request
+def before_req():
+    ensure_db_initialized()
 
 
 # ── User model for Flask-Login ────────────────────────────────────
