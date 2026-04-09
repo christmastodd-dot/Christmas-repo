@@ -124,9 +124,13 @@ class PgConnectionWrapper:
 def get_db():
     if 'db' not in g:
         if USE_POSTGRES:
-            conn = psycopg2.connect(DATABASE_URL, connect_timeout=10)
-            conn.set_session(autocommit=False)
-            g.db = PgConnectionWrapper(conn)
+            try:
+                conn = psycopg2.connect(DATABASE_URL, connect_timeout=10)
+                conn.set_session(autocommit=False)
+                g.db = PgConnectionWrapper(conn)
+            except Exception as e:
+                logger.error(f"DB connection failed: {e}")
+                raise
         else:
             g.db = sqlite3.connect(DATABASE_PATH)
             g.db.row_factory = sqlite3.Row
@@ -134,23 +138,16 @@ def get_db():
     return g.db
 
 
-@app.before_request
-def check_db_connection():
-    """Reconnect if PostgreSQL connection was lost (e.g. after Render idle sleep)."""
-    if USE_POSTGRES and 'db' in g:
-        try:
-            g.db.execute('SELECT 1')
-        except Exception:
-            g.pop('db', None)
-            logger.info("DB connection lost, will reconnect.")
-
-
 @app.teardown_appcontext
 def close_db(exc):
     db = g.pop('db', None)
     if db is not None:
-        if exc is not None and USE_POSTGRES:
-            db.rollback()
+        try:
+            if exc is not None and USE_POSTGRES:
+                db.rollback()
+            db.close()
+        except Exception:
+            pass
         db.close()
 
 
@@ -281,6 +278,19 @@ def admin_required(f):
             return redirect(url_for('dashboard'))
         return f(*args, **kwargs)
     return decorated
+
+
+# ── Error handlers ────────────────────────────────────────────────
+
+@app.errorhandler(500)
+def internal_error(e):
+    logger.error(f"500 error: {e}")
+    return render_template('error.html', message='Something went wrong. Please try again.'), 500
+
+@app.errorhandler(502)
+def bad_gateway(e):
+    logger.error(f"502 error: {e}")
+    return render_template('error.html', message='The server is starting up. Please refresh in a few seconds.'), 502
 
 
 # ── Health check ──────────────────────────────────────────────────
