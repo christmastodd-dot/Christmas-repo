@@ -1,82 +1,19 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hawaii Football Recruits</title>
-  <link rel="stylesheet" href="styles.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Teko:wght@400;500;600;700&family=Nunito+Sans:ital,opsz,wght@0,6..12,400;0,6..12,600;0,6..12,700;1,6..12,400&display=swap" rel="stylesheet">
-</head>
-<body>
-
-  <!-- Ambient background -->
-  <div class="ambient-bg" aria-hidden="true"></div>
-
-  <!-- Header -->
-  <header class="site-header">
-    <div class="header-inner">
-      <a href="index.html" class="brand">
-        <span class="brand-hi">HI</span>
-        <span class="brand-text">Football Recruits</span>
-      </a>
-      <div class="header-tagline">Island-Grown Talent</div>
-    </div>
-  </header>
-
-  <!-- Filters -->
-  <div class="filters">
-    <div class="filter-bar">
-      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="text" class="search-input" id="searchInput" placeholder="Search name or school...">
-    </div>
-    <select class="filter-select" id="classFilter">
-      <option value="">All Classes</option>
-      <option value="2027">2027</option>
-      <option value="2028">2028</option>
-      <option value="2029">2029</option>
-      <option value="2030">2030</option>
-    </select>
-    <select class="filter-select" id="positionFilter">
-      <option value="">All Positions</option>
-      <option value="QB">QB</option>
-      <option value="RB">RB</option>
-      <option value="WR">WR</option>
-      <option value="TE">TE</option>
-      <option value="OL">OL</option>
-      <option value="DL">DL</option>
-      <option value="LB">LB</option>
-      <option value="DB">DB</option>
-      <option value="ATH">ATH</option>
-      <option value="K/P">K/P</option>
-    </select>
-    <div class="results-count" id="resultsCount"></div>
-  </div>
-
-  <!-- Player Grid -->
-  <div class="player-grid" id="playerGrid"></div>
-
-  <!-- Player Modal -->
-  <div class="modal-overlay" id="modalOverlay">
-    <div class="modal" id="modal">
-      <button class="modal-close" id="modalClose">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-      <img class="modal-photo" id="modalPhoto" src="" alt="">
-      <div class="modal-body" id="modalBody"></div>
-    </div>
-  </div>
-
-  <!-- Footer -->
-  <footer class="site-footer">
-    <div class="footer-inner">
-      <span class="footer-brand">HI Football Recruits</span>
-      <span class="footer-sep">&mdash;</span>
-      <span>Connecting island athletes with opportunity</span>
-    </div>
-  </footer>
-
-  <script src="app.js"></script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/Christmas-repo/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+    <meta name="theme-color" content="#0f172a" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="description" content="Track your self-care habits across learning, connections, nutrition, and body" />
+    <link rel="apple-touch-icon" href="/pwa-192x192.png" />
+    <title>Self-Care Tracker</title>
+    <script type="module" crossorigin src="/Christmas-repo/assets/index-uUwRMQ_Q.js"></script>
+    <link rel="stylesheet" crossorigin href="/Christmas-repo/assets/index-Ro4oaT11.css">
+  <link rel="manifest" href="/Christmas-repo/manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="/Christmas-repo/registerSW.js"></script></head>
+  <body>
+    <div id="root"></div>
+  </body>
 </html>
