@@ -36,6 +36,21 @@
       });
   }
 
+  // Normalize all position formats to {primary: [], secondary: []}
+  function normalizePosition(position) {
+    if (position && typeof position === 'object' && !Array.isArray(position)) {
+      return { primary: position.primary || [], secondary: position.secondary || [] };
+    }
+    const arr = Array.isArray(position) ? position : (position ? [position] : []);
+    return { primary: arr, secondary: [] };
+  }
+
+  // Get all positions (primary + secondary) as flat array
+  function allPositions(position) {
+    const n = normalizePosition(position);
+    return [...n.primary, ...n.secondary];
+  }
+
   // Filters
   searchInput.addEventListener('input', render);
   classFilter.addEventListener('change', render);
@@ -48,8 +63,7 @@
 
     return players.filter(p => {
       if (cls && String(p.classYear) !== cls) return false;
-      const positions = Array.isArray(p.position) ? p.position : [p.position];
-      if (pos && !positions.includes(pos)) return false;
+      if (pos && !allPositions(p.position).includes(pos)) return false;
       if (q && !p.name.toLowerCase().includes(q) && !p.school.toLowerCase().includes(q)) return false;
       return true;
     });
@@ -73,7 +87,8 @@
         <div class="card-body">
           <div class="card-name">${esc(p.name)}</div>
           <div class="card-meta">
-            ${(Array.isArray(p.position) ? p.position : [p.position]).map(pos => `<span class="card-tag">${esc(pos)}</span>`).join('')}
+            ${normalizePosition(p.position).primary.map(pos => `<span class="card-tag">${esc(pos)}</span>`).join('')}
+            ${normalizePosition(p.position).secondary.map(pos => `<span class="card-tag secondary">${esc(pos)}</span>`).join('')}
             <span class="card-tag year">${p.classYear}</span>
             <span class="card-school">${esc(p.school)}</span>
           </div>
@@ -86,6 +101,14 @@
     grid.querySelectorAll('.player-card').forEach(card => {
       card.addEventListener('click', () => openProfile(card.dataset.id));
     });
+  }
+
+  function formatModalPositions(position) {
+    const n = normalizePosition(position);
+    const parts = [];
+    if (n.primary.length) parts.push(n.primary.map(p => esc(p)).join(' / '));
+    if (n.secondary.length) parts.push(n.secondary.map(p => esc(p)).join(' / ') + ' (2nd)');
+    return parts.join(' &bull; ') || 'N/A';
   }
 
   // Profile modal
@@ -102,7 +125,7 @@
     modalBody.innerHTML = `
       <div class="modal-name">${esc(p.name)}</div>
       <div class="modal-info">
-        ${esc(Array.isArray(p.position) ? p.position.join(' / ') : p.position)} &bull; Class of ${p.classYear} &bull; ${esc(p.school)}
+        ${formatModalPositions(p.position)} &bull; Class of ${p.classYear} &bull; ${esc(p.school)}
         &bull; ${esc(p.height)} / ${p.weight} lbs
         ${p.gpa ? '&bull; GPA: ' + esc(p.gpa) : ''}
       </div>

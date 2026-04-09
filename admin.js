@@ -27,6 +27,51 @@
 
   let players = [];
 
+  // --- Position tri-state buttons ---
+  document.querySelectorAll('#fPosition .pos-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const current = btn.getAttribute('data-state') || 'off';
+      const next = current === 'off' ? 'primary' : current === 'primary' ? 'secondary' : 'off';
+      if (next === 'off') {
+        btn.removeAttribute('data-state');
+      } else {
+        btn.setAttribute('data-state', next);
+      }
+    });
+  });
+
+  // Read position states from buttons
+  function getPositionFromForm() {
+    const primary = [];
+    const secondary = [];
+    document.querySelectorAll('#fPosition .pos-btn').forEach(btn => {
+      const state = btn.getAttribute('data-state');
+      if (state === 'primary') primary.push(btn.dataset.pos);
+      else if (state === 'secondary') secondary.push(btn.dataset.pos);
+    });
+    return { primary, secondary };
+  }
+
+  // Set position button states from player data
+  function setPositionButtons(position) {
+    // Reset all
+    document.querySelectorAll('#fPosition .pos-btn').forEach(btn => {
+      btn.removeAttribute('data-state');
+    });
+    // Normalize: support old string, old array, and new {primary, secondary} object
+    let primary = [], secondary = [];
+    if (position && typeof position === 'object' && !Array.isArray(position)) {
+      primary = position.primary || [];
+      secondary = position.secondary || [];
+    } else {
+      primary = Array.isArray(position) ? position : (position ? [position] : []);
+    }
+    document.querySelectorAll('#fPosition .pos-btn').forEach(btn => {
+      if (primary.includes(btn.dataset.pos)) btn.setAttribute('data-state', 'primary');
+      else if (secondary.includes(btn.dataset.pos)) btn.setAttribute('data-state', 'secondary');
+    });
+  }
+
   // --- Auth ---
   function checkAuth() {
     if (sessionStorage.getItem('hfr_admin') === 'true') {
@@ -80,6 +125,18 @@
     localStorage.setItem(STORAGE_KEY, JSON.stringify(players));
   }
 
+  // Format position for display in admin list
+  function formatPositionDisplay(position) {
+    if (position && typeof position === 'object' && !Array.isArray(position)) {
+      const parts = [];
+      if (position.primary) parts.push(...position.primary.map(p => esc(p)));
+      if (position.secondary) parts.push(...position.secondary.map(p => esc(p) + ' (2nd)'));
+      return parts.join(' / ') || 'None';
+    }
+    const arr = Array.isArray(position) ? position : (position ? [position] : []);
+    return arr.map(p => esc(p)).join(' / ') || 'None';
+  }
+
   // --- List ---
   function renderList() {
     if (players.length === 0) {
@@ -96,7 +153,7 @@
              onerror="this.src='photos/default.svg'">
         <div class="admin-player-info">
           <div class="admin-player-name">${esc(p.name)}</div>
-          <div class="admin-player-meta">${esc(Array.isArray(p.position) ? p.position.join(' / ') : p.position)} &bull; ${p.classYear} &bull; ${esc(p.school)}</div>
+          <div class="admin-player-meta">${formatPositionDisplay(p.position)} &bull; ${p.classYear} &bull; ${esc(p.school)}</div>
         </div>
         <div class="admin-player-actions">
           <button class="btn btn-outline btn-sm edit-btn" data-id="${p.id}">Edit</button>
@@ -130,6 +187,7 @@
   function openForm(id) {
     playerForm.reset();
     editIdField.value = '';
+    setPositionButtons(null); // Clear all position buttons
 
     if (id) {
       const p = players.find(x => x.id === id);
@@ -137,11 +195,7 @@
       formTitle.textContent = 'Edit Player';
       editIdField.value = p.id;
       document.getElementById('fName').value = p.name;
-      // Set position checkboxes
-      const positions = Array.isArray(p.position) ? p.position : [p.position];
-      document.querySelectorAll('#fPosition input[type="checkbox"]').forEach(cb => {
-        cb.checked = positions.includes(cb.value);
-      });
+      setPositionButtons(p.position);
       document.getElementById('fSchool').value = p.school;
       document.getElementById('fClassYear').value = p.classYear;
       document.getElementById('fHeight').value = p.height || '';
@@ -196,7 +250,7 @@
       id: id,
       name: name,
       classYear: parseInt(document.getElementById('fClassYear').value, 10),
-      position: Array.from(document.querySelectorAll('#fPosition input:checked')).map(cb => cb.value),
+      position: getPositionFromForm(),
       school: document.getElementById('fSchool').value.trim(),
       height: document.getElementById('fHeight').value.trim(),
       weight: parseInt(document.getElementById('fWeight').value, 10) || 0,

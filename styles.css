@@ -353,6 +353,12 @@ body {
   line-height: 1.4;
 }
 
+.card-tag.secondary {
+  background: var(--ocean-glow);
+  color: var(--ocean);
+  opacity: 0.85;
+}
+
 .card-tag.year {
   background: var(--ocean-glow);
   color: var(--ocean);

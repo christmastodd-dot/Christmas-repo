@@ -210,16 +210,22 @@
 
 .form-group textarea { resize: vertical; }
 
-.checkbox-group {
+.pos-hint {
+  font-size: 0.65rem;
+  color: var(--stone);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  margin-left: 0.4rem;
+}
+
+.position-selector {
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem;
 }
 
-.checkbox-group .cb {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
+.pos-btn {
   background: var(--void);
   padding: 0.35rem 0.65rem;
   border-radius: 5px;
@@ -227,22 +233,27 @@
   font-family: 'Teko', sans-serif;
   font-weight: 500;
   letter-spacing: 0.04em;
-  color: var(--sand);
+  color: var(--stone);
   cursor: pointer;
   text-transform: uppercase;
   border: 1px solid rgba(107, 115, 132, 0.15);
-  transition: border-color 0.2s, background 0.2s;
+  transition: border-color 0.2s, background 0.2s, color 0.2s;
 }
 
-.checkbox-group .cb:has(input:checked) {
+.pos-btn:hover {
+  border-color: rgba(107, 115, 132, 0.4);
+}
+
+.pos-btn[data-state="primary"] {
   border-color: var(--ember);
   background: var(--ember-glow);
   color: var(--ember);
 }
 
-.checkbox-group .cb input {
-  width: auto;
-  margin: 0;
+.pos-btn[data-state="secondary"] {
+  border-color: var(--ocean);
+  background: var(--ocean-glow);
+  color: var(--ocean);
 }
 
 .form-section-title {
@@ -298,7 +309,7 @@
     padding: 0.6rem 0.8rem;
   }
 
-  .checkbox-group .cb {
+  .pos-btn {
     padding: 0.4rem 0.6rem;
     font-size: 0.85rem;
   }
