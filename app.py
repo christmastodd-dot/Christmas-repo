@@ -124,13 +124,25 @@ class PgConnectionWrapper:
 def get_db():
     if 'db' not in g:
         if USE_POSTGRES:
-            conn = psycopg2.connect(DATABASE_URL)
+            conn = psycopg2.connect(DATABASE_URL, connect_timeout=10)
+            conn.set_session(autocommit=False)
             g.db = PgConnectionWrapper(conn)
         else:
             g.db = sqlite3.connect(DATABASE_PATH)
             g.db.row_factory = sqlite3.Row
             g.db.execute('PRAGMA foreign_keys = ON')
     return g.db
+
+
+@app.before_request
+def check_db_connection():
+    """Reconnect if PostgreSQL connection was lost (e.g. after Render idle sleep)."""
+    if USE_POSTGRES and 'db' in g:
+        try:
+            g.db.execute('SELECT 1')
+        except Exception:
+            g.pop('db', None)
+            logger.info("DB connection lost, will reconnect.")
 
 
 @app.teardown_appcontext
