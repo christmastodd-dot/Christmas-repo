@@ -1,5 +1,36 @@
 [
   {
+    "id": "esaiah-wong",
+    "name": "Esaiah Wong",
+    "classYear": 2028,
+    "position": ["ATH"],
+    "school": "",
+    "height": "",
+    "weight": 0,
+    "gpa": "",
+    "photo": "photos/EsaiahWong2028.jpg",
+    "measurables": {
+      "fortyYard": "",
+      "shuttle": "",
+      "vertical": "",
+      "broadJump": "",
+      "bench": ""
+    },
+    "awards": [],
+    "links": {
+      "hudl": "",
+      "twitter": "",
+      "rivals": "",
+      "twoFourSeven": "",
+      "youtube": ""
+    },
+    "contact": {
+      "email": "kadrummo@ksbe.edu",
+      "phone": "808-384-0668",
+      "coachName": "Kaeo Drummondo"
+    }
+  },
+  {
     "id": "koa-makoa",
     "name": "Koa Makoa",
     "classYear": 2027,
