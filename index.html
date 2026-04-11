@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Help Grandpa Find His Glasses</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="game">
+      <header id="title-bar">
+        <h1>Help Grandpa Find His Glasses</h1>
+      </header>
+
+      <!-- The room scene: background + hotspots + Ruby get rendered into here -->
+      <div id="scene" aria-label="Game scene"></div>
+
+      <!-- Dialogue box overlay (hidden until something has to say it) -->
+      <div id="dialogue" class="hidden" role="dialog" aria-live="polite">
+        <p id="dialogue-text"></p>
+        <button id="dialogue-next" type="button">Next</button>
+      </div>
+
+      <!-- Inventory bar at the bottom -->
+      <footer id="inventory-bar">
+        <span class="inventory-label">Pocket:</span>
+        <ul id="inventory-list"></ul>
+      </footer>
+    </div>
+
+    <script src="data/scenes.js"></script>
+    <script src="game.js"></script>
+  </body>
+</html>
