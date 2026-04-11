@@ -28,6 +28,16 @@
  * player tries to use them somewhere they don't fit.
  */
 
+// Lines Grandpa says when Ruby returns with the glasses. Game.js triggers
+// this automatically once the player arrives back in the living room with
+// glassesPickedUp set, then shows the win screen when the dialogue ends.
+const WIN_LINES = [
+  "Ruby! You found them!",
+  "Oh, thank you, thank you, thank you!",
+  "I must have set them down by the sunflowers when I was watering this morning. Silly old Grandpa.",
+  "What would I do without you, kiddo?",
+];
+
 const ITEMS = {
   flashlight: {
     emoji: "🔦",
@@ -74,13 +84,70 @@ const SCENES = {
         size: 64,
         onClick: {
           type: "talk",
+          setsFlag: "grandpaTalked",
+          // First matching entry wins; falls back to `lines` below.
+          // Order matters - more specific (later in the puzzle) goes first.
+          linesByState: [
+            {
+              requireFlags: ["sunflowerWatered"],
+              forbidFlags: ["glassesPickedUp"],
+              lines: [
+                "You watered the sunflowers? Good kid!",
+                "Look very carefully around the base of the big one — that's where I was kneeling earlier.",
+              ],
+            },
+            {
+              requireFlags: ["wateringCanFilled"],
+              forbidFlags: ["sunflowerWatered"],
+              lines: [
+                "Don't waste that water now — give my poor sunflowers a good drink!",
+              ],
+            },
+            {
+              requireFlags: ["wateringCanTaken"],
+              forbidFlags: ["wateringCanFilled"],
+              lines: [
+                "An empty watering can isn't much use, is it?",
+                "Try filling it up at the bird bath.",
+              ],
+            },
+            {
+              requireFlags: ["gardenUnlocked"],
+              forbidFlags: ["wateringCanTaken"],
+              lines: [
+                "I think I left my old watering can out on the garden path.",
+              ],
+            },
+            {
+              requireFlags: ["keyTaken"],
+              forbidFlags: ["gardenUnlocked"],
+              lines: [
+                "That little brass key... I bet it opens the garden gate.",
+              ],
+            },
+            {
+              requireFlags: ["fridgeRevealed"],
+              forbidFlags: ["keyTaken"],
+              lines: [
+                "You found something behind the fridge? Reach back and grab it!",
+              ],
+            },
+            {
+              requireFlags: ["flashlightTaken"],
+              forbidFlags: ["fridgeRevealed"],
+              lines: [
+                "Good thinking grabbing that flashlight.",
+                "Try shining it in the dark corners — behind big appliances, maybe?",
+              ],
+            },
+          ],
+          // Default lines (first time, or no state match)
           lines: [
             "Oh hi, Ruby! I'm in a pickle...",
             "I can't find my glasses anywhere!",
             "I had them this morning when I started in the kitchen.",
             "Could you help me look around the house?",
           ],
-          setsFlag: "grandpaTalked",
         },
       },
       {
@@ -105,6 +172,7 @@ const SCENES = {
         onClick: {
           type: "pickup",
           item: "flashlight",
+          setsFlag: "flashlightTaken",
           removeHotspot: true,
           message: "You found a flashlight tucked between the books!",
         },
@@ -208,6 +276,7 @@ const SCENES = {
         onClick: {
           type: "pickup",
           item: "key",
+          setsFlag: "keyTaken",
           removeHotspot: true,
           message: "You squeeze your arm behind the fridge and grab the brass key.",
         },
@@ -295,6 +364,7 @@ const SCENES = {
           "watering-can": {
             message: "You dip the watering can into the bird bath until it's full.",
             swapItem: "watering-can-full",
+            setsFlag: "wateringCanFilled",
           },
         },
       },
@@ -336,6 +406,7 @@ const SCENES = {
         onClick: {
           type: "pickup",
           item: "watering-can",
+          setsFlag: "wateringCanTaken",
           removeHotspot: true,
           message: "You pick up the empty watering can.",
         },
@@ -351,9 +422,13 @@ const SCENES = {
         onClick: {
           type: "pickup",
           item: "glasses",
+          setsFlag: "glassesPickedUp",
           removeHotspot: true,
           message:
-            "You did it! Grandpa's glasses were buried in the dirt by the sunflower the whole time. Better get these back to him!",
+            "You did it! Grandpa's glasses were buried in the dirt by the sunflower the whole time. Quick — let's get these back to him!",
+          // After the message, automatically transition Ruby back to the
+          // living room. The win sequence is triggered on arrival there.
+          thenGoto: "living-room",
         },
       },
     ],

@@ -216,3 +216,105 @@ body {
   background: #4a4a66;
   box-shadow: 0 0 10px #ffd76a;
 }
+
+/* ----- Overlays (title screen, win screen) ----- */
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(160deg, rgba(27, 27, 42, 0.97) 0%, rgba(43, 43, 61, 0.97) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  transition: opacity 0.3s ease;
+  opacity: 1;
+  overflow: hidden;
+}
+
+.overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.overlay-content {
+  text-align: center;
+  position: relative;
+  z-index: 2;
+  padding: 24px;
+}
+
+.overlay-title {
+  font-size: 38px;
+  color: #ffd76a;
+  margin: 0 0 12px 0;
+  line-height: 1.2;
+  text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.4);
+}
+
+.overlay-subtitle {
+  font-size: 20px;
+  color: #fff;
+  margin: 0 0 8px 0;
+}
+
+.overlay-cast {
+  font-size: 56px;
+  margin: 0 0 24px 0;
+}
+
+#start-button,
+#play-again-button {
+  background: #ffd76a;
+  color: #2b2b3d;
+  border: none;
+  border-radius: 10px;
+  padding: 14px 32px;
+  font-size: 22px;
+  font-family: inherit;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 6px 0 #b39140, 0 8px 16px rgba(0, 0, 0, 0.4);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+#start-button:hover,
+#play-again-button:hover {
+  background: #ffe69a;
+  transform: translateY(-2px);
+}
+
+#start-button:active,
+#play-again-button:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #b39140, 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* ----- Confetti shower on the win screen ----- */
+.confetti {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.confetti span {
+  position: absolute;
+  top: -40px;
+  font-size: 28px;
+  animation: confetti-fall linear infinite;
+  will-change: transform;
+}
+
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-40px) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(560px) rotate(360deg);
+    opacity: 1;
+  }
+}

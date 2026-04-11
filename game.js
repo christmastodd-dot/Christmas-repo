@@ -10,16 +10,22 @@
   "use strict";
 
   // ----- Game state -------------------------------------------------------
-  const state = {
-    currentRoom: "living-room",
-    lastRoom: null, // the room Ruby just came from (used to position her on entry)
-    inventory: [], // array of item ids, e.g. ["flashlight"]
-    selectedItem: null, // currently selected inventory item id, if any
-    flags: {}, // e.g. { grandpaTalked: true }
-    removedHotspots: {}, // { roomId: Set of hotspot ids that have been removed }
-    dialogueQueue: [], // remaining lines to show in the dialogue box
-    transitioning: false, // true while a fade between rooms is in progress
-  };
+  // initialState() returns a fresh state. resetGame() uses Object.assign so
+  // closures keep their reference to `state`.
+  function initialState() {
+    return {
+      currentRoom: "living-room",
+      lastRoom: null, // the room Ruby just came from (used for entry positioning)
+      inventory: [],
+      selectedItem: null, // currently selected inventory item id, if any
+      flags: {}, // e.g. { grandpaTalked: true }
+      removedHotspots: {}, // { roomId: Set of removed hotspot ids }
+      dialogueQueue: [],
+      dialogueOnComplete: null, // optional callback fired when the queue empties
+      transitioning: false, // true while a fade between rooms is in progress
+    };
+  }
+  const state = initialState();
 
   const FADE_MS = 180;
 
@@ -29,6 +35,11 @@
   const dialogueTextEl = document.getElementById("dialogue-text");
   const dialogueNextEl = document.getElementById("dialogue-next");
   const inventoryListEl = document.getElementById("inventory-list");
+  const titleScreenEl = document.getElementById("title-screen");
+  const startButtonEl = document.getElementById("start-button");
+  const winScreenEl = document.getElementById("win-screen");
+  const playAgainButtonEl = document.getElementById("play-again-button");
+  const confettiEl = winScreenEl ? winScreenEl.querySelector(".confetti") : null;
 
   // ----- Helpers ----------------------------------------------------------
   function isHotspotRemoved(roomId, hotspotId) {
@@ -139,14 +150,20 @@
   }
 
   // ----- Dialogue ---------------------------------------------------------
-  function showDialogue(lines) {
+  // showDialogue can take a single string or an array of lines, plus an
+  // optional callback that fires once the player has dismissed the last line.
+  function showDialogue(lines, onComplete) {
     state.dialogueQueue = Array.isArray(lines) ? lines.slice() : [String(lines)];
+    state.dialogueOnComplete = onComplete || null;
     advanceDialogue();
   }
 
   function advanceDialogue() {
     if (state.dialogueQueue.length === 0) {
       dialogueEl.classList.add("hidden");
+      const cb = state.dialogueOnComplete;
+      state.dialogueOnComplete = null;
+      if (cb) cb();
       return;
     }
     const next = state.dialogueQueue.shift();
@@ -156,13 +173,30 @@
 
   dialogueNextEl.addEventListener("click", advanceDialogue);
 
+  // Pick the right talk lines based on flags. linesByState entries are
+  // checked in order; the first whose requireFlags are all set AND
+  // forbidFlags are all unset wins. Falls back to action.lines.
+  function talkLines(action) {
+    if (action.linesByState) {
+      for (const entry of action.linesByState) {
+        const reqOk = (entry.requireFlags || []).every((f) => state.flags[f]);
+        const forbidOk = (entry.forbidFlags || []).every((f) => !state.flags[f]);
+        if (reqOk && forbidOk) return entry.lines;
+      }
+    }
+    return action.lines;
+  }
+
   // ----- Room transitions ------------------------------------------------
   function gotoRoom(roomId) {
     if (state.transitioning || state.currentRoom === roomId) return;
     state.transitioning = true;
 
-    // Hide any active dialogue so it doesn't bleed across rooms.
+    // Hide any active dialogue so it doesn't bleed across rooms. We also
+    // clear the dialogue completion callback because the player won't be
+    // able to dismiss the dialogue normally any more.
     state.dialogueQueue = [];
+    state.dialogueOnComplete = null;
     dialogueEl.classList.add("hidden");
 
     sceneEl.classList.add("fading");
@@ -175,8 +209,22 @@
       requestAnimationFrame(() => {
         sceneEl.classList.remove("fading");
         state.transitioning = false;
+        maybeTriggerWin();
       });
     }, FADE_MS);
+  }
+
+  // If Ruby has just walked back into the living room with the glasses,
+  // automatically fire Grandpa's win dialogue and then show the win screen.
+  function maybeTriggerWin() {
+    if (
+      state.currentRoom === "living-room" &&
+      state.flags.glassesPickedUp &&
+      !state.flags.winShown
+    ) {
+      state.flags.winShown = true;
+      showDialogue(WIN_LINES, showWinScreen);
+    }
   }
 
   // ----- Action dispatch --------------------------------------------------
@@ -213,26 +261,41 @@
     if (!action) return;
 
     switch (action.type) {
-      case "talk":
-        if (action.lines) showDialogue(action.lines);
+      case "talk": {
+        const lines = talkLines(action);
+        if (lines) showDialogue(lines);
         if (action.setsFlag) {
           state.flags[action.setsFlag] = true;
           // Re-render so any newly-enabled hotspots reflect the change.
           renderScene();
         }
         break;
+      }
 
-      case "pickup":
+      case "pickup": {
         if (action.item && !state.inventory.includes(action.item)) {
           state.inventory.push(action.item);
-          renderInventory();
         }
         if (action.removeHotspot) {
           removeHotspot(state.currentRoom, hotspot.id);
         }
-        if (action.message) showDialogue(action.message);
+        if (action.setsFlag) {
+          state.flags[action.setsFlag] = true;
+        }
+        renderInventory();
         renderScene();
+        // If the pickup chains into a room transition, fire it once the
+        // player has dismissed the pickup message.
+        const onComplete = action.thenGoto
+          ? () => gotoRoom(action.thenGoto)
+          : null;
+        if (action.message) {
+          showDialogue(action.message, onComplete);
+        } else if (onComplete) {
+          onComplete();
+        }
         break;
+      }
 
       case "look": {
         const msg = lookMessage(action);
@@ -268,16 +331,69 @@
     renderScene();
   }
 
-  // ----- Boot -------------------------------------------------------------
-  function start() {
+  // ----- Title screen, win screen, reset ---------------------------------
+  function hideTitleScreen() {
+    if (titleScreenEl) titleScreenEl.classList.add("hidden");
+  }
+
+  function showTitleScreen() {
+    if (titleScreenEl) titleScreenEl.classList.remove("hidden");
+  }
+
+  function showWinScreen() {
+    if (!winScreenEl) return;
+    spawnConfetti();
+    winScreenEl.classList.remove("hidden");
+  }
+
+  function hideWinScreen() {
+    if (winScreenEl) winScreenEl.classList.add("hidden");
+    if (confettiEl) confettiEl.innerHTML = "";
+  }
+
+  // Build a shower of falling emoji confetti for the win screen.
+  function spawnConfetti() {
+    if (!confettiEl) return;
+    confettiEl.innerHTML = "";
+    const symbols = ["🎉", "✨", "🌟", "👓", "🌻", "💛"];
+    const count = 32;
+    for (let i = 0; i < count; i++) {
+      const span = document.createElement("span");
+      span.textContent = symbols[i % symbols.length];
+      span.style.left = Math.random() * 100 + "%";
+      span.style.animationDuration = 2.4 + Math.random() * 2.6 + "s";
+      span.style.animationDelay = Math.random() * 1.5 + "s";
+      confettiEl.appendChild(span);
+    }
+  }
+
+  // Wipe game state in place (so closures keep their reference) and restart.
+  function resetGame() {
+    Object.assign(state, initialState());
+    hideWinScreen();
     renderScene();
     renderInventory();
   }
 
+  // ----- Boot -------------------------------------------------------------
+  function boot() {
+    // Render the scene behind the title screen so the fade-in looks nice.
+    renderScene();
+    renderInventory();
+    showTitleScreen();
+  }
+
+  if (startButtonEl) {
+    startButtonEl.addEventListener("click", hideTitleScreen);
+  }
+  if (playAgainButtonEl) {
+    playAgainButtonEl.addEventListener("click", resetGame);
+  }
+
   // Wait for the DOM to be ready before booting.
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", start);
+    document.addEventListener("DOMContentLoaded", boot);
   } else {
-    start();
+    boot();
   }
 })();

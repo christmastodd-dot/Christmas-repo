@@ -26,6 +26,26 @@
         <span class="inventory-label">Pocket:</span>
         <ul id="inventory-list"></ul>
       </footer>
+
+      <!-- Title screen overlay shown on boot -->
+      <div id="title-screen" class="overlay">
+        <div class="overlay-content">
+          <h2 class="overlay-title">Help Grandpa<br />Find His Glasses</h2>
+          <p class="overlay-subtitle">A Ruby Adventure</p>
+          <p class="overlay-cast">🧓 + 👧</p>
+          <button id="start-button" type="button">Start the Adventure</button>
+        </div>
+      </div>
+
+      <!-- Win screen overlay shown after Ruby returns the glasses -->
+      <div id="win-screen" class="overlay hidden">
+        <div class="confetti" aria-hidden="true"></div>
+        <div class="overlay-content">
+          <h2 class="overlay-title">You did it, Ruby!</h2>
+          <p class="overlay-subtitle">👓 Grandpa can see again 👓</p>
+          <button id="play-again-button" type="button">Play Again</button>
+        </div>
+      </div>
     </div>
 
     <script src="data/scenes.js"></script>
