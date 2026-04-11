@@ -2,7 +2,11 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no"
+    />
+    <meta name="theme-color" content="#1b1b2a" />
     <title>Help Grandpa Find His Glasses</title>
     <link rel="stylesheet" href="style.css" />
   </head>
@@ -12,13 +16,19 @@
         <h1>Help Grandpa Find His Glasses</h1>
       </header>
 
-      <!-- The room scene: background + hotspots + Ruby get rendered into here -->
-      <div id="scene" aria-label="Game scene"></div>
+      <!-- The play area wraps the scene + dialogue. It flexes to fill the
+           space between the title bar and the inventory bar so the layout
+           works in landscape and portrait. The dialogue is positioned at
+           the bottom of this region rather than the bottom of #game. -->
+      <div id="play-area">
+        <!-- The room scene: background + hotspots + Ruby get rendered here -->
+        <div id="scene" aria-label="Game scene"></div>
 
-      <!-- Dialogue box overlay (hidden until something has to say it) -->
-      <div id="dialogue" class="hidden" role="dialog" aria-live="polite">
-        <p id="dialogue-text"></p>
-        <button id="dialogue-next" type="button">Next</button>
+        <!-- Dialogue box overlay (hidden until something has to say it) -->
+        <div id="dialogue" class="hidden" role="dialog" aria-live="polite">
+          <p id="dialogue-text"></p>
+          <button id="dialogue-next" type="button">Next</button>
+        </div>
       </div>
 
       <!-- Inventory bar at the bottom -->
@@ -32,7 +42,7 @@
         <div class="overlay-content">
           <h2 class="overlay-title">Help Grandpa<br />Find His Glasses</h2>
           <p class="overlay-subtitle">A Ruby Adventure</p>
-          <p class="overlay-cast">🧓 + 👧</p>
+          <p class="overlay-cast">👨‍🦳 + 👧</p>
           <button id="start-button" type="button">Start the Adventure</button>
         </div>
       </div>

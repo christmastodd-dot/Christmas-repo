@@ -7,28 +7,45 @@ html,
 body {
   margin: 0;
   padding: 0;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+  touch-action: manipulation;
+}
+
+body {
   font-family: "Comic Sans MS", "Trebuchet MS", system-ui, sans-serif;
   background: #1b1b2a;
   color: #fff;
-  min-height: 100vh;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh; /* dynamic viewport, accounts for mobile address bars */
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
 /* ----- Game container ----- */
+/* The game is a flex column that fills the viewport (capped on big screens).
+   Title bar + inventory bar are fixed-height; play-area flexes to fill the
+   rest. This works the same in portrait and landscape on any screen. */
 #game {
-  width: 900px;
-  max-width: 100%;
+  width: 100%;
+  max-width: 900px;
+  height: 100%;
+  max-height: 640px;
   background: #2b2b3d;
   border: 4px solid #ffd76a;
   border-radius: 16px;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
   overflow: hidden;
   position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
 #title-bar {
+  flex: 0 0 auto;
   background: #ffd76a;
   color: #2b2b3d;
   text-align: center;
@@ -41,11 +58,19 @@ body {
   letter-spacing: 0.5px;
 }
 
+/* ----- Play area: holds the scene + dialogue ----- */
+#play-area {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0; /* let the scene shrink within the flex container */
+  overflow: hidden;
+}
+
 /* ----- Scene (the room) ----- */
 #scene {
   position: relative;
   width: 100%;
-  height: 500px;
+  height: 100%;
   background: #87b9d6; /* default sky color, scenes will override */
   overflow: hidden;
   user-select: none;
@@ -73,10 +98,15 @@ body {
 /* ----- Hotspots (clickable things in a room) ----- */
 /* The outer .hotspot does positioning + hover scale; the inner .hotspot-art
    holds the emoji and is the only thing that gets per-element animations.
-   This split keeps animation transforms from clobbering the hover scale. */
+   This split keeps animation transforms from clobbering the hover scale.
+   min-width/height enforce a 44px touch target even when the art is smaller. */
 .hotspot {
   position: absolute;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
   cursor: pointer;
   transition: transform 0.1s ease-in-out, filter 0.1s ease-in-out;
   text-align: center;
@@ -172,15 +202,17 @@ body {
 }
 
 /* ----- Dialogue box ----- */
+/* Positioned relative to #play-area so it always sits at the bottom of the
+   visible scene, no matter how tall the inventory bar happens to be. */
 #dialogue {
   position: absolute;
-  left: 5%;
-  right: 5%;
-  bottom: 70px;
+  left: 4%;
+  right: 4%;
+  bottom: 14px;
   background: rgba(20, 20, 30, 0.95);
   border: 3px solid #ffd76a;
   border-radius: 12px;
-  padding: 16px 20px;
+  padding: 14px 18px;
   font-size: 18px;
   line-height: 1.4;
   z-index: 10;
@@ -192,7 +224,7 @@ body {
 }
 
 #dialogue-text {
-  margin: 0 0 12px 0;
+  margin: 0 0 10px 0;
 }
 
 #dialogue-next {
@@ -200,11 +232,13 @@ body {
   color: #2b2b3d;
   border: none;
   border-radius: 6px;
-  padding: 6px 18px;
+  padding: 8px 22px;
   font-size: 16px;
   font-family: inherit;
   font-weight: bold;
   cursor: pointer;
+  min-width: 64px;
+  min-height: 36px;
 }
 
 #dialogue-next:hover {
@@ -213,6 +247,7 @@ body {
 
 /* ----- Inventory bar ----- */
 #inventory-bar {
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -362,22 +397,161 @@ body {
 
 .confetti span {
   position: absolute;
-  top: -40px;
   font-size: 28px;
   animation: confetti-fall linear infinite;
-  will-change: transform;
+  will-change: top, transform;
 }
 
+/* top is animated as a percentage of the container so the shower scales to
+   any screen size — landscape phone, portrait tablet, or full desktop. */
 @keyframes confetti-fall {
   0% {
-    transform: translateY(-40px) rotate(0deg);
+    top: -10%;
+    transform: rotate(0deg);
     opacity: 0;
   }
   10% {
     opacity: 1;
   }
   100% {
-    transform: translateY(560px) rotate(360deg);
+    top: 110%;
+    transform: rotate(360deg);
     opacity: 1;
+  }
+}
+
+/* ===========================================================================
+   Responsive tweaks for small screens and short landscape phones.
+   The flex layout already handles the structural sizing; these media queries
+   just dial down padding, font sizes, and tap targets so the game feels
+   right on phones in both orientations.
+   ========================================================================= */
+
+/* On any narrow viewport: trim down chrome so the play area gets more space */
+@media (max-width: 720px) {
+  body {
+    padding: 0;
+  }
+  #game {
+    border-width: 3px;
+    border-radius: 10px;
+  }
+  #title-bar {
+    padding: 6px 10px;
+  }
+  #title-bar h1 {
+    font-size: 17px;
+  }
+  #inventory-bar {
+    gap: 8px;
+    padding: 8px 12px;
+    min-height: 48px;
+  }
+  .inventory-label {
+    font-size: 11px;
+  }
+  #inventory-list li {
+    width: 38px;
+    height: 38px;
+    font-size: 26px;
+    border-radius: 6px;
+  }
+  #dialogue {
+    font-size: 15px;
+    padding: 11px 14px;
+    bottom: 10px;
+  }
+  #dialogue-text {
+    margin-bottom: 8px;
+  }
+  #dialogue-next {
+    padding: 6px 18px;
+    font-size: 15px;
+  }
+  .overlay-title {
+    font-size: 30px;
+  }
+  .overlay-subtitle {
+    font-size: 17px;
+  }
+  .overlay-cast {
+    font-size: 44px;
+    margin-bottom: 18px;
+  }
+  #start-button,
+  #play-again-button {
+    padding: 12px 26px;
+    font-size: 19px;
+  }
+}
+
+/* On short viewports (landscape phones), shrink chrome aggressively so the
+   play area gets as much vertical space as possible. */
+@media (max-height: 480px) {
+  #game {
+    border-width: 2px;
+    border-radius: 8px;
+  }
+  #title-bar {
+    padding: 4px 10px;
+  }
+  #title-bar h1 {
+    font-size: 14px;
+    letter-spacing: 0;
+  }
+  #inventory-bar {
+    padding: 6px 10px;
+    min-height: 44px;
+    gap: 6px;
+  }
+  #inventory-list li {
+    width: 34px;
+    height: 34px;
+    font-size: 22px;
+  }
+  #dialogue {
+    font-size: 14px;
+    padding: 9px 12px;
+    bottom: 8px;
+  }
+  #dialogue-text {
+    margin-bottom: 6px;
+  }
+  /* Title screen needs to fit in a short landscape window */
+  .overlay-title {
+    font-size: 22px;
+  }
+  .overlay-subtitle {
+    font-size: 14px;
+  }
+  .overlay-cast {
+    font-size: 36px;
+    margin-bottom: 12px;
+  }
+  #start-button,
+  #play-again-button {
+    padding: 9px 20px;
+    font-size: 16px;
+  }
+  /* The hotspots already scale via percentage positions; their min 44px
+     touch targets stay enforced regardless of viewport. */
+}
+
+/* Tiny viewports (very small phones in landscape): every pixel counts */
+@media (max-height: 360px) {
+  #title-bar {
+    padding: 2px 8px;
+  }
+  #title-bar h1 {
+    font-size: 12px;
+  }
+  #inventory-bar {
+    padding: 4px 8px;
+    min-height: 38px;
+  }
+  #inventory-list li {
+    width: 30px;
+    height: 30px;
+    font-size: 20px;
   }
 }

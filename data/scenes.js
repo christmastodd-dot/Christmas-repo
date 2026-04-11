@@ -78,7 +78,11 @@ const SCENES = {
       {
         id: "grandpa",
         label: "Grandpa",
-        emoji: "🧓",
+        // Deliberately NOT 🧓 / 👴 — those render with wire-rim glasses on
+        // some platforms, which is silly when the whole game is about him
+        // losing his glasses. 👨‍🦳 (man, white hair) reads as "old" without
+        // ever having glasses on the face.
+        emoji: "👨‍🦳",
         x: 22,
         y: 55,
         size: 64,
