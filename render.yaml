@@ -1,0 +1,16 @@
+# Render blueprint for "Help Grandpa Find His Glasses".
+# Deploys the game as a Render Static Site straight from the repo root.
+# https://render.com/docs/blueprint-spec
+#
+# Setup: in the Render dashboard go to New -> Blueprint, connect this
+# GitHub repo, and select the branch you want to deploy. Render will
+# read this file and create the static site automatically. Subsequent
+# pushes to the connected branch will trigger a redeploy.
+
+services:
+  - type: web
+    name: grandpa-glasses-game
+    runtime: static
+    buildCommand: echo "static site, no build step needed"
+    staticPublishPath: ./
+    pullRequestPreviewsEnabled: false
