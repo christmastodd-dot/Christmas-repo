@@ -5,26 +5,55 @@
  * walks in, and the list of clickable hotspots.
  *
  * A hotspot has:
- *   id      - unique within the scene
- *   label   - tooltip shown on hover
- *   emoji   - what's drawn for it
- *   x, y    - position as a percentage of the scene (0-100)
- *   size    - optional font-size in pixels (default 48)
- *   requires - optional list of flag names that must be set for it to be enabled
- *   onClick - an action object: { type: "talk" | "pickup" | "goto" | "look", ... }
+ *   id          - unique within the scene
+ *   label       - tooltip shown on hover
+ *   emoji       - what's drawn for it
+ *   x, y        - position as a percentage of the scene (0-100)
+ *   size        - optional font-size in pixels (default 48)
+ *   requires    - optional list of flag names. If unmet, hotspot renders DISABLED.
+ *   hiddenUntil - optional list of flag names. If unmet, hotspot is NOT rendered.
+ *   onClick     - an action that fires when no inventory item is selected
+ *   onUse       - { itemId: useAction } map; fires when that item is selected
  *
- * Action types (Milestone 1):
- *   { type: "talk",   lines: ["...", "..."], setsFlag: "grandpaTalked" }
- *   { type: "pickup", item: "flashlight",  removeHotspot: true, message: "..." }
- *   { type: "look",   message: "..." }
- *   { type: "goto",   room: "kitchen", disabledMessage: "..." }
+ * onClick action types:
+ *   { type: "talk",   lines: ["...", "..."], setsFlag?: "grandpaTalked" }
+ *   { type: "pickup", item: "flashlight",  removeHotspot?: true, message?: "..." }
+ *   { type: "look",   message: "...", messageWhen?: [{ flag, message }] }
+ *   { type: "goto",   room: "kitchen", disabledMessage?: "..." }
  *
- * Items (Milestone 1):
- *   flashlight  - 🔦
+ * onUse useAction shape:
+ *   { message: "...", setsFlag?: "...", swapItem?: "newId", consumesItem?: true }
+ *
+ * Items have an `emoji`, a `name`, and a `rejection` message used when the
+ * player tries to use them somewhere they don't fit.
  */
 
 const ITEMS = {
-  flashlight: { emoji: "🔦", name: "Flashlight" },
+  flashlight: {
+    emoji: "🔦",
+    name: "Flashlight",
+    rejection: "The flashlight isn't useful here.",
+  },
+  key: {
+    emoji: "🗝️",
+    name: "Brass Key",
+    rejection: "There's nothing to unlock here.",
+  },
+  "watering-can": {
+    emoji: "🪣",
+    name: "Empty Watering Can",
+    rejection: "The watering can is empty — you'd better fill it first.",
+  },
+  "watering-can-full": {
+    emoji: "💧",
+    name: "Full Watering Can",
+    rejection: "Best not to pour water on that.",
+  },
+  glasses: {
+    emoji: "👓",
+    name: "Grandpa's Glasses",
+    rejection: "You should give these straight to Grandpa.",
+  },
 };
 
 const SCENES = {
@@ -152,6 +181,35 @@ const SCENES = {
           type: "look",
           message:
             "An old humming fridge. There's a gap between it and the wall — too dark to see what's back there.",
+          messageWhen: [
+            {
+              flag: "fridgeRevealed",
+              message:
+                "The gap behind the fridge is bright now from your flashlight beam. You can clearly see the brass key glinting back there.",
+            },
+          ],
+        },
+        onUse: {
+          flashlight: {
+            message:
+              "You shine the flashlight into the dark gap behind the fridge. A glint of metal — there's a brass key back there!",
+            setsFlag: "fridgeRevealed",
+          },
+        },
+      },
+      {
+        id: "fridge-key",
+        label: "Brass key",
+        emoji: "🗝️",
+        x: 80,
+        y: 48,
+        size: 36,
+        hiddenUntil: ["fridgeRevealed"],
+        onClick: {
+          type: "pickup",
+          item: "key",
+          removeHotspot: true,
+          message: "You squeeze your arm behind the fridge and grab the brass key.",
         },
       },
       {
@@ -176,20 +234,30 @@ const SCENES = {
         onClick: {
           type: "look",
           message:
-            "Today's newspaper, the crossword half-finished. A muddy thumbprint on the gardening section catches your eye.",
+            "Today's newspaper, opened to the gardening section. A muddy thumbprint smudges an article titled 'Sunflower Care: Watering at Daybreak'. Grandpa must have been reading this just before heading outside.",
         },
       },
       {
         id: "garden-gate",
-        label: "Garden",
+        label: "Garden gate",
         emoji: "🚪",
         x: 93,
         y: 55,
         size: 56,
-        // NOTE: In Milestone 3 this will gain a `requires: ["gardenUnlocked"]`
-        // and the `use key` puzzle. For Milestone 2 the gate just opens so the
-        // player can explore the garden scene.
-        onClick: { type: "goto", room: "garden" },
+        requires: ["gardenUnlocked"],
+        onClick: {
+          type: "goto",
+          room: "garden",
+          disabledMessage:
+            "The garden gate is locked tight. You'd need a key to open it.",
+        },
+        onUse: {
+          key: {
+            message:
+              "Click! The brass key fits perfectly. The garden gate swings open.",
+            setsFlag: "gardenUnlocked",
+          },
+        },
       },
     ],
   },
@@ -220,7 +288,14 @@ const SCENES = {
         size: 64,
         onClick: {
           type: "look",
-          message: "A pretty stone bird bath. Bone dry — it could really use some water.",
+          message:
+            "A pretty stone bird bath, brim-full with cool rainwater from last night.",
+        },
+        onUse: {
+          "watering-can": {
+            message: "You dip the watering can into the bird bath until it's full.",
+            swapItem: "watering-can-full",
+          },
         },
       },
       {
@@ -232,7 +307,23 @@ const SCENES = {
         size: 72,
         onClick: {
           type: "look",
-          message: "A tall sunflower, looking a little droopy. It needs water!",
+          message:
+            "A tall sunflower, looking droopy and sad. The earth around it is bone dry — it badly needs water.",
+          messageWhen: [
+            {
+              flag: "sunflowerWatered",
+              message:
+                "The sunflower stands tall and proud now, soaking up the sun. Much happier!",
+            },
+          ],
+        },
+        onUse: {
+          "watering-can-full": {
+            message:
+              "You tip the watering can over the sunflower's roots. The earth drinks it up — and as the soil settles, something glints in the dirt!",
+            setsFlag: "sunflowerWatered",
+            consumesItem: true,
+          },
         },
       },
       {
@@ -243,8 +334,26 @@ const SCENES = {
         y: 70,
         size: 52,
         onClick: {
-          type: "look",
-          message: "An empty watering can sitting on the garden path.",
+          type: "pickup",
+          item: "watering-can",
+          removeHotspot: true,
+          message: "You pick up the empty watering can.",
+        },
+      },
+      {
+        id: "garden-glasses",
+        label: "Glasses!",
+        emoji: "👓",
+        x: 58,
+        y: 62,
+        size: 44,
+        hiddenUntil: ["sunflowerWatered"],
+        onClick: {
+          type: "pickup",
+          item: "glasses",
+          removeHotspot: true,
+          message:
+            "You did it! Grandpa's glasses were buried in the dirt by the sunflower the whole time. Better get these back to him!",
         },
       },
     ],

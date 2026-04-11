@@ -14,6 +14,7 @@
     currentRoom: "living-room",
     lastRoom: null, // the room Ruby just came from (used to position her on entry)
     inventory: [], // array of item ids, e.g. ["flashlight"]
+    selectedItem: null, // currently selected inventory item id, if any
     flags: {}, // e.g. { grandpaTalked: true }
     removedHotspots: {}, // { roomId: Set of hotspot ids that have been removed }
     dialogueQueue: [], // remaining lines to show in the dialogue box
@@ -47,6 +48,22 @@
     return hotspot.requires.every((flag) => state.flags[flag]);
   }
 
+  function isHotspotHidden(hotspot) {
+    if (!hotspot.hiddenUntil) return false;
+    return hotspot.hiddenUntil.some((flag) => !state.flags[flag]);
+  }
+
+  // Picks the right look message based on flags. messageWhen entries are
+  // checked in order; the first matching flag wins.
+  function lookMessage(action) {
+    if (action.messageWhen) {
+      for (const entry of action.messageWhen) {
+        if (state.flags[entry.flag]) return entry.message;
+      }
+    }
+    return action.message;
+  }
+
   // ----- Rendering --------------------------------------------------------
   function renderScene() {
     const scene = SCENES[state.currentRoom];
@@ -63,9 +80,10 @@
     sceneEl.classList.add(scene.background);
     sceneEl.innerHTML = "";
 
-    // Draw each hotspot that hasn't been removed.
+    // Draw each hotspot that hasn't been removed or hidden.
     scene.hotspots.forEach((hotspot) => {
       if (isHotspotRemoved(state.currentRoom, hotspot.id)) return;
+      if (isHotspotHidden(hotspot)) return;
 
       const el = document.createElement("div");
       el.className = "hotspot";
@@ -108,6 +126,14 @@
       const li = document.createElement("li");
       li.textContent = item.emoji;
       li.title = item.name;
+      if (state.selectedItem === itemId) {
+        li.classList.add("selected");
+      }
+      li.addEventListener("click", () => {
+        // Click an item to select it; click again (or click another) to swap.
+        state.selectedItem = state.selectedItem === itemId ? null : itemId;
+        renderInventory();
+      });
       inventoryListEl.appendChild(li);
     });
   }
@@ -156,6 +182,25 @@
   // ----- Action dispatch --------------------------------------------------
   function handleHotspotClick(hotspot) {
     if (state.transitioning) return;
+
+    // ----- Use intent: an inventory item is selected. -------------------
+    // Use actions bypass the requires check, because using is the way to
+    // satisfy whatever requirement is gating the hotspot.
+    if (state.selectedItem) {
+      const itemId = state.selectedItem;
+      state.selectedItem = null; // clear the selection before mutating inventory
+      const useAction = hotspot.onUse && hotspot.onUse[itemId];
+      if (useAction) {
+        applyUse(useAction, itemId);
+      } else {
+        const item = ITEMS[itemId];
+        showDialogue((item && item.rejection) || "That doesn't work here.");
+      }
+      renderInventory();
+      return;
+    }
+
+    // ----- Click intent: no inventory item selected. --------------------
     if (!hotspotEnabled(hotspot)) {
       const action = hotspot.onClick;
       if (action && action.disabledMessage) {
@@ -189,9 +234,11 @@
         renderScene();
         break;
 
-      case "look":
-        if (action.message) showDialogue(action.message);
+      case "look": {
+        const msg = lookMessage(action);
+        if (msg) showDialogue(msg);
         break;
+      }
 
       case "goto":
         if (action.room && SCENES[action.room]) {
@@ -202,6 +249,23 @@
       default:
         console.warn("Unknown action type:", action.type);
     }
+  }
+
+  // Apply a use action: show the message, set any flag, and update the
+  // inventory item (swap or consume) as the data dictates.
+  function applyUse(useAction, itemId) {
+    if (useAction.setsFlag) {
+      state.flags[useAction.setsFlag] = true;
+    }
+    if (useAction.swapItem) {
+      const idx = state.inventory.indexOf(itemId);
+      if (idx >= 0) state.inventory[idx] = useAction.swapItem;
+    } else if (useAction.consumesItem) {
+      const idx = state.inventory.indexOf(itemId);
+      if (idx >= 0) state.inventory.splice(idx, 1);
+    }
+    if (useAction.message) showDialogue(useAction.message);
+    renderScene();
   }
 
   // ----- Boot -------------------------------------------------------------
