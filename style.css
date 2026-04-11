@@ -71,17 +71,16 @@ body {
 }
 
 /* ----- Hotspots (clickable things in a room) ----- */
+/* The outer .hotspot does positioning + hover scale; the inner .hotspot-art
+   holds the emoji and is the only thing that gets per-element animations.
+   This split keeps animation transforms from clobbering the hover scale. */
 .hotspot {
   position: absolute;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 48px;
+  display: inline-block;
   cursor: pointer;
   transition: transform 0.1s ease-in-out, filter 0.1s ease-in-out;
   text-align: center;
   line-height: 1;
-  /* Centered on (left, top) via translate(-50%, -50%). Hover composes scale on top. */
   transform: translate(-50%, -50%);
 }
 
@@ -93,6 +92,22 @@ body {
 .hotspot.disabled {
   cursor: not-allowed;
   opacity: 0.55;
+}
+
+.hotspot-art {
+  display: inline-block;
+  line-height: 1;
+}
+
+/* Sunflower sways gently in the breeze. */
+.hotspot[data-id="sunflower"] .hotspot-art {
+  transform-origin: bottom center;
+  animation: sway 3.6s ease-in-out infinite;
+}
+
+@keyframes sway {
+  0%, 100% { transform: rotate(-3deg); }
+  50%      { transform: rotate(3deg); }
 }
 
 .hotspot .label {
@@ -115,14 +130,45 @@ body {
   opacity: 1;
 }
 
-/* Ruby - the player character. We render her as an emoji with hair on top. */
+/* Ruby - the player character. Outer #ruby positions her; inner .ruby-art
+   carries the emoji + idle bob animation + the blonde hair overlay. */
 #ruby {
   position: absolute;
-  font-size: 56px;
   pointer-events: none;
   transition: left 0.4s ease, top 0.4s ease;
-  filter: drop-shadow(2px 2px 0 rgba(0, 0, 0, 0.3));
   transform: translate(-50%, -50%);
+  font-size: 0; /* prevent the wrapper from contributing whitespace height */
+}
+
+.ruby-art {
+  display: inline-block;
+  position: relative;
+  font-size: 56px;
+  line-height: 1;
+  filter: drop-shadow(2px 2px 0 rgba(0, 0, 0, 0.3));
+  animation: ruby-bob 2s ease-in-out infinite;
+}
+
+/* Blonde "bangs" overlay to make Ruby read as blonde. A small soft yellow
+   shape laid across the top of her head emoji. */
+.ruby-art::before {
+  content: "";
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  width: 30px;
+  height: 13px;
+  background: linear-gradient(180deg, #ffe066 0%, #ffaa00 100%);
+  border-radius: 60% 60% 50% 50% / 90% 90% 30% 30%;
+  transform: translateX(-50%);
+  pointer-events: none;
+  z-index: 2;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
+}
+
+@keyframes ruby-bob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-4px); }
 }
 
 /* ----- Dialogue box ----- */
@@ -214,7 +260,12 @@ body {
 #inventory-list li.selected {
   border-color: #ffd76a;
   background: #4a4a66;
-  box-shadow: 0 0 10px #ffd76a;
+  animation: item-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes item-pulse {
+  0%, 100% { box-shadow: 0 0 10px rgba(255, 215, 106, 0.7); }
+  50%      { box-shadow: 0 0 22px rgba(255, 215, 106, 1), 0 0 32px rgba(255, 215, 106, 0.6); }
 }
 
 /* ----- Overlays (title screen, win screen) ----- */
@@ -275,6 +326,18 @@ body {
   cursor: pointer;
   box-shadow: 0 6px 0 #b39140, 0 8px 16px rgba(0, 0, 0, 0.4);
   transition: transform 0.1s ease, box-shadow 0.1s ease;
+  animation: button-glow 2.4s ease-in-out infinite;
+}
+
+@keyframes button-glow {
+  0%, 100% {
+    box-shadow: 0 6px 0 #b39140, 0 8px 16px rgba(0, 0, 0, 0.4),
+      0 0 0 rgba(255, 215, 106, 0);
+  }
+  50% {
+    box-shadow: 0 6px 0 #b39140, 0 8px 16px rgba(0, 0, 0, 0.4),
+      0 0 36px rgba(255, 215, 106, 0.6);
+  }
 }
 
 #start-button:hover,

@@ -29,6 +29,58 @@
 
   const FADE_MS = 180;
 
+  // ----- Sound (tiny WebAudio synth) -------------------------------------
+  // No external assets - everything is generated from oscillators on the fly.
+  // Created lazily on the first user interaction so browsers don't block it.
+  let audioCtx = null;
+
+  function ensureAudio() {
+    if (audioCtx) {
+      if (audioCtx.state === "suspended") audioCtx.resume();
+      return;
+    }
+    try {
+      const Ctor = window.AudioContext || window.webkitAudioContext;
+      if (Ctor) audioCtx = new Ctor();
+    } catch (e) {
+      audioCtx = null;
+    }
+  }
+
+  function playTone(freq, duration, type, delay, volume) {
+    if (!audioCtx) return;
+    const t = audioCtx.currentTime + (delay || 0);
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type || "sine";
+    osc.frequency.value = freq;
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    const v = volume == null ? 0.1 : volume;
+    gain.gain.setValueAtTime(0, t);
+    gain.gain.linearRampToValueAtTime(v, t + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + duration);
+    osc.start(t);
+    osc.stop(t + duration + 0.05);
+  }
+
+  function playPickup() {
+    playTone(880, 0.12);
+    playTone(1320, 0.14, "sine", 0.07);
+  }
+
+  function playReject() {
+    playTone(220, 0.18, "square", 0, 0.06);
+  }
+
+  function playWinJingle() {
+    // C major arpeggio: C5, E5, G5, C6
+    playTone(523.25, 0.18, "triangle", 0.0, 0.12);
+    playTone(659.25, 0.18, "triangle", 0.18, 0.12);
+    playTone(783.99, 0.18, "triangle", 0.36, 0.12);
+    playTone(1046.5, 0.45, "triangle", 0.54, 0.14);
+  }
+
   // ----- DOM references ---------------------------------------------------
   const sceneEl = document.getElementById("scene");
   const dialogueEl = document.getElementById("dialogue");
@@ -92,19 +144,27 @@
     sceneEl.innerHTML = "";
 
     // Draw each hotspot that hasn't been removed or hidden.
+    // Each hotspot is a positioned outer div containing an inner .hotspot-art
+    // span that holds the emoji. The split lets us animate the art without
+    // fighting the outer element's hover-scale transform.
     scene.hotspots.forEach((hotspot) => {
       if (isHotspotRemoved(state.currentRoom, hotspot.id)) return;
       if (isHotspotHidden(hotspot)) return;
 
       const el = document.createElement("div");
       el.className = "hotspot";
+      el.dataset.id = hotspot.id;
       if (!hotspotEnabled(hotspot)) {
         el.classList.add("disabled");
       }
       el.style.left = hotspot.x + "%";
       el.style.top = hotspot.y + "%";
-      el.style.fontSize = (hotspot.size || 48) + "px";
-      el.textContent = hotspot.emoji;
+
+      const art = document.createElement("span");
+      art.className = "hotspot-art";
+      art.style.fontSize = (hotspot.size || 48) + "px";
+      art.textContent = hotspot.emoji;
+      el.appendChild(art);
 
       const labelEl = document.createElement("span");
       labelEl.className = "label";
@@ -123,9 +183,12 @@
 
     const ruby = document.createElement("div");
     ruby.id = "ruby";
-    ruby.textContent = "👧";
     ruby.style.left = start.x + "%";
     ruby.style.top = start.y + "%";
+    const rubyArt = document.createElement("span");
+    rubyArt.className = "ruby-art";
+    rubyArt.textContent = "👧";
+    ruby.appendChild(rubyArt);
     sceneEl.appendChild(ruby);
   }
 
@@ -242,6 +305,7 @@
         applyUse(useAction, itemId);
       } else {
         const item = ITEMS[itemId];
+        playReject();
         showDialogue((item && item.rejection) || "That doesn't work here.");
       }
       renderInventory();
@@ -275,6 +339,7 @@
       case "pickup": {
         if (action.item && !state.inventory.includes(action.item)) {
           state.inventory.push(action.item);
+          playPickup();
         }
         if (action.removeHotspot) {
           removeHotspot(state.currentRoom, hotspot.id);
@@ -343,6 +408,7 @@
   function showWinScreen() {
     if (!winScreenEl) return;
     spawnConfetti();
+    playWinJingle();
     winScreenEl.classList.remove("hidden");
   }
 
@@ -384,10 +450,17 @@
   }
 
   if (startButtonEl) {
-    startButtonEl.addEventListener("click", hideTitleScreen);
+    startButtonEl.addEventListener("click", () => {
+      // First user interaction unlocks the AudioContext for later sounds.
+      ensureAudio();
+      hideTitleScreen();
+    });
   }
   if (playAgainButtonEl) {
-    playAgainButtonEl.addEventListener("click", resetGame);
+    playAgainButtonEl.addEventListener("click", () => {
+      ensureAudio();
+      resetGame();
+    });
   }
 
   // Wait for the DOM to be ready before booting.
