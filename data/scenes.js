@@ -31,7 +31,10 @@ const SCENES = {
   "living-room": {
     name: "Grandpa's Living Room",
     background: "room-living-room",
-    rubyStart: { x: 50, y: 70 },
+    rubyStart: { x: 50, y: 72 },
+    rubyStartFrom: {
+      kitchen: { x: 88, y: 72 },
+    },
     hotspots: [
       {
         id: "grandpa",
@@ -106,32 +109,143 @@ const SCENES = {
     ],
   },
 
-  // Stub kitchen for Milestone 1 - we'll fill this out in Milestone 2.
   kitchen: {
     name: "Grandpa's Kitchen",
     background: "room-kitchen",
-    rubyStart: { x: 12, y: 70 },
+    // Default entry position; rubyStartFrom overrides this when she walks
+    // in from a known door so she enters from the correct side.
+    rubyStart: { x: 12, y: 72 },
+    rubyStartFrom: {
+      "living-room": { x: 12, y: 72 },
+      garden: { x: 88, y: 72 },
+    },
     hotspots: [
       {
-        id: "kitchen-placeholder",
-        label: "Coming soon",
-        emoji: "🚧",
-        x: 50,
-        y: 50,
-        size: 64,
-        onClick: {
-          type: "look",
-          message: "The rest of the kitchen will be ready in Milestone 2!",
-        },
-      },
-      {
-        id: "back-to-living-room",
-        label: "Back",
+        id: "door-living-room",
+        label: "Living Room",
         emoji: "🚪",
-        x: 8,
+        x: 7,
         y: 55,
         size: 56,
         onClick: { type: "goto", room: "living-room" },
+      },
+      {
+        id: "cupboards",
+        label: "Cupboards",
+        emoji: "🗄️",
+        x: 30,
+        y: 25,
+        size: 56,
+        onClick: {
+          type: "look",
+          message: "Tidy cupboards full of plates and tea cups. No glasses in here.",
+        },
+      },
+      {
+        id: "fridge",
+        label: "Fridge",
+        emoji: "🧊",
+        x: 70,
+        y: 35,
+        size: 64,
+        onClick: {
+          type: "look",
+          message:
+            "An old humming fridge. There's a gap between it and the wall — too dark to see what's back there.",
+        },
+      },
+      {
+        id: "table",
+        label: "Table",
+        emoji: "🪑",
+        x: 50,
+        y: 70,
+        size: 56,
+        onClick: {
+          type: "look",
+          message: "Grandpa's kitchen table. Crumbs from breakfast still sit on it.",
+        },
+      },
+      {
+        id: "newspaper",
+        label: "Newspaper",
+        emoji: "📰",
+        x: 52,
+        y: 58,
+        size: 40,
+        onClick: {
+          type: "look",
+          message:
+            "Today's newspaper, the crossword half-finished. A muddy thumbprint on the gardening section catches your eye.",
+        },
+      },
+      {
+        id: "garden-gate",
+        label: "Garden",
+        emoji: "🚪",
+        x: 93,
+        y: 55,
+        size: 56,
+        // NOTE: In Milestone 3 this will gain a `requires: ["gardenUnlocked"]`
+        // and the `use key` puzzle. For Milestone 2 the gate just opens so the
+        // player can explore the garden scene.
+        onClick: { type: "goto", room: "garden" },
+      },
+    ],
+  },
+
+  garden: {
+    name: "Grandpa's Garden",
+    background: "room-garden",
+    rubyStart: { x: 12, y: 72 },
+    rubyStartFrom: {
+      kitchen: { x: 12, y: 72 },
+    },
+    hotspots: [
+      {
+        id: "door-kitchen",
+        label: "Kitchen",
+        emoji: "🚪",
+        x: 7,
+        y: 55,
+        size: 56,
+        onClick: { type: "goto", room: "kitchen" },
+      },
+      {
+        id: "bird-bath",
+        label: "Bird bath",
+        emoji: "⛲",
+        x: 32,
+        y: 60,
+        size: 64,
+        onClick: {
+          type: "look",
+          message: "A pretty stone bird bath. Bone dry — it could really use some water.",
+        },
+      },
+      {
+        id: "sunflower",
+        label: "Sunflower",
+        emoji: "🌻",
+        x: 55,
+        y: 45,
+        size: 72,
+        onClick: {
+          type: "look",
+          message: "A tall sunflower, looking a little droopy. It needs water!",
+        },
+      },
+      {
+        id: "watering-can",
+        label: "Watering can",
+        emoji: "🪣",
+        x: 80,
+        y: 70,
+        size: 52,
+        onClick: {
+          type: "look",
+          message: "An empty watering can sitting on the garden path.",
+        },
       },
     ],
   },

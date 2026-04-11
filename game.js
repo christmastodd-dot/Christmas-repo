@@ -12,11 +12,15 @@
   // ----- Game state -------------------------------------------------------
   const state = {
     currentRoom: "living-room",
+    lastRoom: null, // the room Ruby just came from (used to position her on entry)
     inventory: [], // array of item ids, e.g. ["flashlight"]
     flags: {}, // e.g. { grandpaTalked: true }
     removedHotspots: {}, // { roomId: Set of hotspot ids that have been removed }
     dialogueQueue: [], // remaining lines to show in the dialogue box
+    transitioning: false, // true while a fade between rooms is in progress
   };
+
+  const FADE_MS = 180;
 
   // ----- DOM references ---------------------------------------------------
   const sceneEl = document.getElementById("scene");
@@ -51,8 +55,11 @@
       return;
     }
 
-    // Reset the scene element and apply the room's background class.
-    sceneEl.className = "";
+    // Remove any previous room-* class but preserve other classes (like
+    // "fading") that the transition logic owns.
+    Array.from(sceneEl.classList).forEach((cls) => {
+      if (cls.startsWith("room-")) sceneEl.classList.remove(cls);
+    });
     sceneEl.classList.add(scene.background);
     sceneEl.innerHTML = "";
 
@@ -79,12 +86,17 @@
       sceneEl.appendChild(el);
     });
 
-    // Draw Ruby at the room's start position.
+    // Pick Ruby's entry position. If we know which door she came through,
+    // use the rubyStartFrom map; otherwise fall back to rubyStart.
+    const start =
+      (scene.rubyStartFrom && scene.rubyStartFrom[state.lastRoom]) ||
+      scene.rubyStart;
+
     const ruby = document.createElement("div");
     ruby.id = "ruby";
     ruby.textContent = "👧";
-    ruby.style.left = scene.rubyStart.x + "%";
-    ruby.style.top = scene.rubyStart.y + "%";
+    ruby.style.left = start.x + "%";
+    ruby.style.top = start.y + "%";
     sceneEl.appendChild(ruby);
   }
 
@@ -118,8 +130,32 @@
 
   dialogueNextEl.addEventListener("click", advanceDialogue);
 
+  // ----- Room transitions ------------------------------------------------
+  function gotoRoom(roomId) {
+    if (state.transitioning || state.currentRoom === roomId) return;
+    state.transitioning = true;
+
+    // Hide any active dialogue so it doesn't bleed across rooms.
+    state.dialogueQueue = [];
+    dialogueEl.classList.add("hidden");
+
+    sceneEl.classList.add("fading");
+
+    setTimeout(() => {
+      state.lastRoom = state.currentRoom;
+      state.currentRoom = roomId;
+      renderScene();
+      // Force the new content to paint at opacity 0, then fade back in.
+      requestAnimationFrame(() => {
+        sceneEl.classList.remove("fading");
+        state.transitioning = false;
+      });
+    }, FADE_MS);
+  }
+
   // ----- Action dispatch --------------------------------------------------
   function handleHotspotClick(hotspot) {
+    if (state.transitioning) return;
     if (!hotspotEnabled(hotspot)) {
       const action = hotspot.onClick;
       if (action && action.disabledMessage) {
@@ -159,8 +195,7 @@
 
       case "goto":
         if (action.room && SCENES[action.room]) {
-          state.currentRoom = action.room;
-          renderScene();
+          gotoRoom(action.room);
         }
         break;
 

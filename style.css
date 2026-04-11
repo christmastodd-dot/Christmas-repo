@@ -49,6 +49,12 @@ body {
   background: #87b9d6; /* default sky color, scenes will override */
   overflow: hidden;
   user-select: none;
+  transition: opacity 0.18s ease;
+  opacity: 1;
+}
+
+#scene.fading {
+  opacity: 0;
 }
 
 /* Each room sets its own background via a class on #scene */
