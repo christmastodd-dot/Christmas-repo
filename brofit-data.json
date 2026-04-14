@@ -561,6 +561,34 @@
             }
           ],
           "ts": 1775346927701
+        },
+        {
+          "date": "2026-04-14",
+          "startTime": "19:01",
+          "duration": "21:40",
+          "exercises": [
+            {
+              "name": "Stationary Bike",
+              "sets": [
+                {
+                  "duration": "25:00",
+                  "distance": 5
+                }
+              ],
+              "inputType": "cardio"
+            },
+            {
+              "name": "Walking",
+              "sets": [
+                {
+                  "duration": "6:00",
+                  "distance": 0.25
+                }
+              ],
+              "inputType": "cardio"
+            }
+          ],
+          "ts": 1776144206165
         }
       ],
       "templates": [
@@ -674,7 +702,7 @@
           "author": "Coach"
         }
       ],
-      "lastSync": "2026-04-14T05:01:46.699Z"
+      "lastSync": "2026-04-14T05:23:29.385Z"
     },
     "Manny Fresh": {
       "xp": 10,
@@ -1714,6 +1742,37 @@
     }
   },
   "feed": [
+    {
+      "id": "feed_w_1776144206165",
+      "author": "Coach",
+      "date": "2026-04-14T05:23:26.165Z",
+      "type": "workout",
+      "caption": "Completed a workout!",
+      "workoutSummary": "2 exercises | 2 sets | 21:40 min",
+      "workoutData": [
+        {
+          "name": "Stationary Bike",
+          "sets": [
+            {
+              "duration": "25:00",
+              "distance": 5
+            }
+          ],
+          "inputType": "cardio"
+        },
+        {
+          "name": "Walking",
+          "sets": [
+            {
+              "duration": "6:00",
+              "distance": 0.25
+            }
+          ],
+          "inputType": "cardio"
+        }
+      ],
+      "reactions": {}
+    },
     {
       "id": "feed_w_1775346927703",
       "author": "Coach",
