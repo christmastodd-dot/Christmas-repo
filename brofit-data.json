@@ -638,6 +638,112 @@
             }
           ],
           "ts": 1776236096316
+        },
+        {
+          "date": "2026-04-15",
+          "startTime": "07:08",
+          "duration": "47:04",
+          "exercises": [
+            {
+              "name": "Walking",
+              "sets": [
+                {
+                  "duration": "11:00",
+                  "distance": 0.4
+                }
+              ],
+              "inputType": "cardio"
+            },
+            {
+              "name": "Bench Press",
+              "sets": [
+                {
+                  "reps": 12,
+                  "weight": 45
+                },
+                {
+                  "reps": 10,
+                  "weight": 135
+                },
+                {
+                  "reps": 10,
+                  "weight": 145
+                },
+                {
+                  "reps": 10,
+                  "weight": 155
+                },
+                {
+                  "reps": 6,
+                  "weight": 165
+                }
+              ],
+              "inputType": "weight"
+            },
+            {
+              "name": "Seated Row Machine",
+              "sets": [
+                {
+                  "reps": 20,
+                  "weight": 55
+                },
+                {
+                  "reps": 10,
+                  "weight": 115
+                },
+                {
+                  "reps": 10,
+                  "weight": 130
+                },
+                {
+                  "reps": 8,
+                  "weight": 145
+                }
+              ],
+              "inputType": "weight"
+            },
+            {
+              "name": "Shoulder Press Machine",
+              "sets": [
+                {
+                  "reps": 14,
+                  "weight": 80
+                },
+                {
+                  "reps": 12,
+                  "weight": 100
+                },
+                {
+                  "reps": 10,
+                  "weight": 120
+                },
+                {
+                  "reps": 10,
+                  "weight": 120
+                }
+              ],
+              "inputType": "weight"
+            },
+            {
+              "name": "Lat Pulldown",
+              "sets": [
+                {
+                  "reps": 14,
+                  "weight": 85
+                },
+                {
+                  "reps": 12,
+                  "weight": 100
+                },
+                {
+                  "reps": 10,
+                  "weight": 115
+                }
+              ],
+              "inputType": "weight"
+            }
+          ],
+          "ts": 1776275746850
         }
       ],
       "templates": [
@@ -751,7 +857,7 @@
           "author": "Coach"
         }
       ],
-      "lastSync": "2026-04-15T17:08:40.839Z"
+      "lastSync": "2026-04-15T17:55:48.754Z"
     },
     "Manny Fresh": {
       "xp": 10,
@@ -1791,6 +1897,115 @@
     }
   },
   "feed": [
+    {
+      "id": "feed_w_1776275746852",
+      "author": "Coach",
+      "date": "2026-04-15T17:55:46.852Z",
+      "type": "workout",
+      "caption": "Completed a workout!",
+      "workoutSummary": "5 exercises | 17 sets | 18,850 lbs vol | 47:04 min",
+      "workoutData": [
+        {
+          "name": "Walking",
+          "sets": [
+            {
+              "duration": "11:00",
+              "distance": 0.4
+            }
+          ],
+          "inputType": "cardio"
+        },
+        {
+          "name": "Bench Press",
+          "sets": [
+            {
+              "reps": 12,
+              "weight": 45
+            },
+            {
+              "reps": 10,
+              "weight": 135
+            },
+            {
+              "reps": 10,
+              "weight": 145
+            },
+            {
+              "reps": 10,
+              "weight": 155
+            },
+            {
+              "reps": 6,
+              "weight": 165
+            }
+          ],
+          "inputType": "weight"
+        },
+        {
+          "name": "Seated Row Machine",
+          "sets": [
+            {
+              "reps": 20,
+              "weight": 55
+            },
+            {
+              "reps": 10,
+              "weight": 115
+            },
+            {
+              "reps": 10,
+              "weight": 130
+            },
+            {
+              "reps": 8,
+              "weight": 145
+            }
+          ],
+          "inputType": "weight"
+        },
+        {
+          "name": "Shoulder Press Machine",
+          "sets": [
+            {
+              "reps": 14,
+              "weight": 80
+            },
+            {
+              "reps": 12,
+              "weight": 100
+            },
+            {
+              "reps": 10,
+              "weight": 120
+            },
+            {
+              "reps": 10,
+              "weight": 120
+            }
+          ],
+          "inputType": "weight"
+        },
+        {
+          "name": "Lat Pulldown",
+          "sets": [
+            {
+              "reps": 14,
+              "weight": 85
+            },
+            {
+              "reps": 12,
+              "weight": 100
+            },
+            {
+              "reps": 10,
+              "weight": 115
+            }
+          ],
+          "inputType": "weight"
+        }
+      ],
+      "reactions": {}
+    },
     {
       "id": "feed_w_1776144206165",
       "author": "Coach",
