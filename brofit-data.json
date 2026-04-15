@@ -1,8 +1,8 @@
 {
   "members": {
     "Coach": {
-      "xp": 225,
-      "streak": 2,
+      "xp": 235,
+      "streak": 3,
       "prs": {
         "bench": {
           "history": [
@@ -589,6 +589,55 @@
             }
           ],
           "ts": 1776144206165
+        },
+        {
+          "date": "2026-04-15",
+          "startTime": "20:44",
+          "duration": "10:23",
+          "exercises": [
+            {
+              "name": "Push-Ups",
+              "sets": [
+                {
+                  "reps": 25,
+                  "weight": 0,
+                  "bwMode": "bodyweight"
+                },
+                {
+                  "reps": 25,
+                  "weight": 0,
+                  "bwMode": "bodyweight"
+                }
+              ],
+              "inputType": "bw"
+            },
+            {
+              "name": "Rotator Cuff Rehab",
+              "sets": [
+                {
+                  "duration": "5:00"
+                }
+              ],
+              "inputType": "duration"
+            },
+            {
+              "name": "Bodyweight Squat",
+              "sets": [
+                {
+                  "reps": 15,
+                  "weight": 0,
+                  "bwMode": "bodyweight"
+                },
+                {
+                  "reps": 15,
+                  "weight": 0,
+                  "bwMode": "bodyweight"
+                }
+              ],
+              "inputType": "bw"
+            }
+          ],
+          "ts": 1776236096316
         }
       ],
       "templates": [
@@ -702,7 +751,7 @@
           "author": "Coach"
         }
       ],
-      "lastSync": "2026-04-15T06:44:34.796Z"
+      "lastSync": "2026-04-15T17:08:40.839Z"
     },
     "Manny Fresh": {
       "xp": 10,
