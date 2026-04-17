@@ -744,6 +744,86 @@
             }
           ],
           "ts": 1776275746850
+        },
+        {
+          "date": "2026-04-17",
+          "startTime": "07:05",
+          "duration": "21:32",
+          "exercises": [
+            {
+              "name": "Lateral Raise",
+              "sets": [
+                {
+                  "reps": 20,
+                  "weight": 0
+                },
+                {
+                  "reps": 20,
+                  "weight": 10
+                },
+                {
+                  "reps": 20,
+                  "weight": 10
+                }
+              ],
+              "inputType": "weight"
+            },
+            {
+              "name": "Rear Delt Fly",
+              "sets": [
+                {
+                  "reps": 20,
+                  "weight": 10
+                },
+                {
+                  "reps": 20,
+                  "weight": 10
+                },
+                {
+                  "reps": 20,
+                  "weight": 10
+                }
+              ],
+              "inputType": "weight"
+            },
+            {
+              "name": "Dumbbell Curl",
+              "sets": [
+                {
+                  "reps": 20,
+                  "weight": 22.5
+                },
+                {
+                  "reps": 18,
+                  "weight": 25
+                },
+                {
+                  "reps": 16,
+                  "weight": 27.5
+                }
+              ],
+              "inputType": "weight"
+            },
+            {
+              "name": "Overhead Tricep Extension",
+              "sets": [
+                {
+                  "reps": 20,
+                  "weight": 45
+                },
+                {
+                  "reps": 18,
+                  "weight": 50
+                },
+                {
+                  "reps": 16,
+                  "weight": 55
+                }
+              ],
+              "inputType": "weight"
+            }
+          ],
+          "ts": 1776446825296
         }
       ],
       "templates": [
@@ -857,7 +937,7 @@
           "author": "Coach"
         }
       ],
-      "lastSync": "2026-04-17T17:05:32.040Z"
+      "lastSync": "2026-04-17T17:27:06.662Z"
     },
     "Manny Fresh": {
       "xp": 10,
@@ -1897,6 +1977,89 @@
     }
   },
   "feed": [
+    {
+      "id": "feed_w_1776446825298",
+      "author": "Coach",
+      "date": "2026-04-17T17:27:05.298Z",
+      "type": "workout",
+      "caption": "Completed a workout!",
+      "workoutSummary": "4 exercises | 12 sets | 5,020 lbs vol | 21:32 min",
+      "workoutData": [
+        {
+          "name": "Lateral Raise",
+          "sets": [
+            {
+              "reps": 20,
+              "weight": 0
+            },
+            {
+              "reps": 20,
+              "weight": 10
+            },
+            {
+              "reps": 20,
+              "weight": 10
+            }
+          ],
+          "inputType": "weight"
+        },
+        {
+          "name": "Rear Delt Fly",
+          "sets": [
+            {
+              "reps": 20,
+              "weight": 10
+            },
+            {
+              "reps": 20,
+              "weight": 10
+            },
+            {
+              "reps": 20,
+              "weight": 10
+            }
+          ],
+          "inputType": "weight"
+        },
+        {
+          "name": "Dumbbell Curl",
+          "sets": [
+            {
+              "reps": 20,
+              "weight": 22.5
+            },
+            {
+              "reps": 18,
+              "weight": 25
+            },
+            {
+              "reps": 16,
+              "weight": 27.5
+            }
+          ],
+          "inputType": "weight"
+        },
+        {
+          "name": "Overhead Tricep Extension",
+          "sets": [
+            {
+              "reps": 20,
+              "weight": 45
+            },
+            {
+              "reps": 18,
+              "weight": 50
+            },
+            {
+              "reps": 16,
+              "weight": 55
+            }
+          ],
+          "inputType": "weight"
+        }
+      ],
+      "reactions": {}
+    },
     {
       "id": "feed_w_1776275746852",
       "author": "Coach",
