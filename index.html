@@ -143,8 +143,8 @@
     particles: [],
     bonus: null,
     dir: 1,
-    speed: 40,         // px/sec horizontal
-    descend: 28,       // px per edge bounce
+    speed: 28,         // px/sec horizontal
+    descend: 20,       // px per edge bounce
     fireRate: 0.28,    // seconds between player shots
     firing: false,
     score: 0,
@@ -157,7 +157,7 @@
   };
 
   const PILLAR_COUNT = 8;
-  const CAPITOL_MAX_HP = 6; // 4 pillars + dome cracked + dome destroyed
+  const CAPITOL_MAX_HP = 10; // 8 pillars + dome cracked + dome destroyed
 
   function newCapitol() {
     return {
@@ -183,7 +183,7 @@
     if (!c || c.hp <= 0) return;
     c.hp--;
     const dmg = c.maxHp - c.hp; // 1..maxHp
-    if (dmg <= 4) {
+    if (dmg <= PILLAR_COUNT) {
       // Destroy the pillar nearest the impact x.
       const remaining = [];
       for (let p = 0; p < PILLAR_COUNT; p++) if (!c.destroyedPillars.has(p)) remaining.push(p);
@@ -197,7 +197,7 @@
       const px = pillarCenterX(pick);
       spawnParticles(px, VH - 80, '#cfd6df');
       spawnParticles(px, VH - 60, '#8a96aa');
-    } else if (dmg === 5) {
+    } else if (dmg === PILLAR_COUNT + 1) {
       c.domeCracked = true;
       spawnParticles(VW / 2, VH - state.capitolHeight, '#9aa7bd');
     } else {
@@ -233,7 +233,7 @@
       }
     }
     state.dir = 1;
-    state.speed = 40 + (state.wave - 1) * 12;
+    state.speed = 28 + (state.wave - 1) * 8;
   }
 
   function startGame() {
@@ -348,7 +348,7 @@
     state.bullets.push({
       x: state.player.x,
       y: state.player.y - state.player.h / 2,
-      vy: -900,
+      vy: -630,
       w: 5,
       h: 14
     });
@@ -370,7 +370,7 @@
     state.invaderBullets.push({
       x: s.x,
       y: s.y + s.h / 2,
-      vy: 360,
+      vy: 252,
       w: 6,
       h: 14
     });
@@ -383,7 +383,7 @@
     if (!state.running) return;
 
     // Keyboard movement
-    const kSpeed = 520;
+    const kSpeed = 364;
     if (keys['ArrowLeft'] || keys['a']) state.player.x -= kSpeed * dt;
     if (keys['ArrowRight'] || keys['d']) state.player.x += kSpeed * dt;
     state.player.x = Math.max(state.player.w / 2, Math.min(VW - state.player.w / 2, state.player.x));
@@ -440,7 +440,7 @@
       state.bonus = {
         x: fromLeft ? -60 : VW + 60,
         y: 80,
-        vx: fromLeft ? 240 : -240,
+        vx: fromLeft ? 168 : -168,
         w: 110,
         h: 40
       };
