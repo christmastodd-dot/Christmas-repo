@@ -221,7 +221,7 @@
   function reset(full=false) {
     player.x = 230; player.y = floors[0].y - player.h;
     player.vx = 0; player.vy = 0;
-    player.onGround = true; player.onLadder = false;
+    player.onGround = true; player.onLadder = false; player.ladder = null;
     player.alive = true; player.win = false;
     player.smashT = 0; player.iframes = 30;
     player.facing = -1;
@@ -419,12 +419,14 @@
     if (!player.onLadder) {
       if (lAny && (keys.up && lAny.bot - feetY > -2 && feetY - lAny.top > -2)) {
         player.onLadder = true;
+        player.ladder = lAny;
         player.x = lAny.x - player.w/2;
         player.vy = 0;
       } else if (lAny && keys.down && player.onGround) {
         const floor = floorAt(cx, feetY);
         if (floor && floor.y === lAny.top) {
           player.onLadder = true;
+          player.ladder = lAny;
           player.x = lAny.x - player.w/2;
           player.y += 2;
           player.vy = 0;
@@ -433,28 +435,27 @@
     }
 
     if (player.onLadder) {
-      const l = ladderAt(player.x + player.w/2, player.y + player.h/2);
-      if (!l) {
+      const l = player.ladder;
+      player.vx = 0; player.vy = 0;
+      if (keys.up) player.y -= CLIMB_SPEED;
+      else if (keys.down) player.y += CLIMB_SPEED;
+      // Auto-dismount onto upper floor as soon as feet reach its top
+      if (player.y + player.h <= l.top) {
         player.onLadder = false;
-      } else {
-        player.vx = 0; player.vy = 0;
-        if (keys.up) player.y -= CLIMB_SPEED;
-        else if (keys.down) player.y += CLIMB_SPEED;
-        if (player.y + player.h <= l.top) {
-          player.onLadder = false;
-          player.y = l.top - player.h;
-          player.onGround = true;
-        }
-        if (player.y + player.h >= l.bot) {
-          player.onLadder = false;
-          player.y = l.bot - player.h;
-          player.onGround = true;
-        }
-        if ((keys.left || keys.right) && Math.abs((player.y + player.h) - l.top) < 3) {
-          player.onLadder = false;
-          player.y = l.top - player.h;
-          player.onGround = true;
-        }
+        player.ladder = null;
+        player.y = l.top - player.h;
+        player.onGround = true;
+      } else if (player.y + player.h >= l.bot) {
+        player.onLadder = false;
+        player.ladder = null;
+        player.y = l.bot - player.h;
+        player.onGround = true;
+      } else if ((keys.left || keys.right) && Math.abs((player.y + player.h) - l.top) < 3) {
+        // Step off sideways near the top
+        player.onLadder = false;
+        player.ladder = null;
+        player.y = l.top - player.h;
+        player.onGround = true;
       }
     }
 
