@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Feral Chicken Hunt - Hawaii</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: #1a1a1a;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    user-select: none; -webkit-user-select: none; touch-action: none; }
+  #wrap { position: relative; width: 100vw; height: 100vh; display: flex;
+    align-items: center; justify-content: center; }
+  canvas { display: block; cursor: crosshair; image-rendering: pixelated;
+    background: #87ceeb; touch-action: none; }
+  #hud { position: absolute; top: 0; left: 0; right: 0; padding: 10px 14px;
+    display: flex; justify-content: space-between; align-items: center;
+    color: #fff; font-weight: 700; font-size: 18px; pointer-events: none;
+    text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000; }
+  #hud .pill { background: rgba(0,0,0,0.35); padding: 6px 12px; border-radius: 20px;
+    backdrop-filter: blur(4px); }
+  #overlay { position: absolute; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; background: rgba(0,0,0,0.55);
+    color: #fff; text-align: center; padding: 20px; }
+  #overlay.hidden { display: none; }
+  #overlay h1 { font-size: clamp(28px, 7vw, 48px); margin-bottom: 8px;
+    text-shadow: 3px 3px 0 #b8860b; }
+  #overlay p { font-size: clamp(14px, 3.5vw, 18px); margin: 6px 0; max-width: 480px; }
+  #overlay button { margin-top: 18px; padding: 14px 32px; font-size: 20px;
+    font-weight: 700; border: none; border-radius: 999px; background: #ff6b35;
+    color: #fff; cursor: pointer; box-shadow: 0 4px 0 #b8451f; }
+  #overlay button:active { transform: translateY(2px); box-shadow: 0 2px 0 #b8451f; }
+  .stat { color: #ffd700; }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <canvas id="game"></canvas>
+  <div id="hud">
+    <div class="pill">Score: <span id="score">0</span></div>
+    <div class="pill">Time: <span id="time">30</span>s</div>
+    <div class="pill">Ammo: <span id="ammo">6</span></div>
+  </div>
+  <div id="overlay">
+    <h1>Feral Chicken Hunt</h1>
+    <p>Da chickens stay running wild all over Hawaii. Tap to shoot 'em!</p>
+    <p>You get <span class="stat">6 shots</span> per reload (auto-reloads when empty).
+       Bag as many as you can in <span class="stat">30 seconds</span>.</p>
+    <button id="start">Start</button>
+  </div>
+</div>
+<script>
+(() => {
+  const canvas = document.getElementById('game');
+  const ctx = canvas.getContext('2d');
+  const scoreEl = document.getElementById('score');
+  const timeEl = document.getElementById('time');
+  const ammoEl = document.getElementById('ammo');
+  const overlay = document.getElementById('overlay');
+  const startBtn = document.getElementById('start');
+
+  let W = 0, H = 0, dpr = 1;
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = window.innerWidth;
+    H = window.innerHeight;
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    canvas.style.width = W + 'px';
+    canvas.style.height = H + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  const state = {
+    running: false,
+    score: 0,
+    time: 30,
+    ammo: 6,
+    maxAmmo: 6,
+    reloading: false,
+    chickens: [],
+    particles: [],
+    floats: [],
+    shots: [],
+    spawnTimer: 0,
+    elapsed: 0,
+    lastT: 0,
+  };
+
+  // ---------- Background ----------
+  const clouds = Array.from({length: 5}, () => ({
+    x: Math.random() * 1000, y: 40 + Math.random() * 80,
+    s: 0.6 + Math.random() * 0.8, v: 4 + Math.random() * 6
+  }));
+
+  function drawSky() {
+    const g = ctx.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, '#87ceeb');
+    g.addColorStop(0.6, '#b9e3f3');
+    g.addColorStop(1, '#f5e6c8');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, W, H);
+  }
+
+  function drawClouds(dt) {
+    ctx.fillStyle = 'rgba(255,255,255,0.85)';
+    clouds.forEach(c => {
+      c.x -= c.v * dt;
+      if (c.x < -120) c.x = W + 80;
+      const s = c.s * 30;
+      ctx.beginPath();
+      ctx.arc(c.x, c.y, s, 0, Math.PI * 2);
+      ctx.arc(c.x + s * 0.9, c.y + 4, s * 0.8, 0, Math.PI * 2);
+      ctx.arc(c.x - s * 0.9, c.y + 4, s * 0.7, 0, Math.PI * 2);
+      ctx.arc(c.x + s * 0.3, c.y - s * 0.5, s * 0.7, 0, Math.PI * 2);
+      ctx.fill();
+    });
+  }
+
+  function drawMountains() {
+    const horizon = H * 0.55;
+    ctx.fillStyle = '#3d6b4a';
+    ctx.beginPath();
+    ctx.moveTo(0, horizon);
+    let x = 0;
+    while (x < W) {
+      const peakX = x + 80 + Math.random() * 30;
+      const peakY = horizon - 60 - ((peakX * 7919) % 80);
+      ctx.lineTo(peakX - 60, horizon);
+      ctx.lineTo(peakX, peakY);
+      x = peakX + 60;
+    }
+    ctx.lineTo(W, horizon);
+    ctx.closePath();
+    ctx.fill();
+    // misty layer
+    ctx.fillStyle = 'rgba(255,255,255,0.18)';
+    ctx.fillRect(0, horizon - 20, W, 30);
+  }
+
+  function drawPalm(x, baseY, scale) {
+    ctx.save();
+    ctx.translate(x, baseY);
+    ctx.scale(scale, scale);
+    // trunk
+    ctx.fillStyle = '#6b4423';
+    ctx.beginPath();
+    ctx.moveTo(-8, 0);
+    ctx.quadraticCurveTo(-4, -80, -10, -160);
+    ctx.lineTo(2, -160);
+    ctx.quadraticCurveTo(8, -80, 8, 0);
+    ctx.closePath();
+    ctx.fill();
+    // trunk rings
+    ctx.strokeStyle = '#4a2f17';
+    ctx.lineWidth = 1.5;
+    for (let i = 1; i < 7; i++) {
+      ctx.beginPath();
+      ctx.moveTo(-8 + i * 0.4, -i * 22);
+      ctx.lineTo(8 - i * 0.4, -i * 22);
+      ctx.stroke();
+    }
+    // fronds
+    ctx.fillStyle = '#2d8a3e';
+    for (let i = 0; i < 7; i++) {
+      const ang = (i / 7) * Math.PI * 2 + 0.3;
+      ctx.save();
+      ctx.translate(0, -160);
+      ctx.rotate(ang);
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.quadraticCurveTo(40, -10, 80, 10);
+      ctx.quadraticCurveTo(40, 0, 0, 8);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+    // coconuts
+    ctx.fillStyle = '#3a2410';
+    ctx.beginPath();
+    ctx.arc(-4, -150, 4, 0, Math.PI * 2);
+    ctx.arc(5, -148, 4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function drawGround() {
+    const horizon = H * 0.55;
+    // grass
+    ctx.fillStyle = '#5fa84a';
+    ctx.fillRect(0, horizon, W, H - horizon);
+    // asphalt strip (parking lot vibe)
+    ctx.fillStyle = '#3a3a3a';
+    ctx.fillRect(0, H * 0.78, W, H * 0.22);
+    // yellow line
+    ctx.strokeStyle = '#f5d042';
+    ctx.lineWidth = 3;
+    ctx.setLineDash([18, 14]);
+    ctx.beginPath();
+    ctx.moveTo(0, H * 0.88);
+    ctx.lineTo(W, H * 0.88);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    // grass tufts
+    ctx.fillStyle = '#4a8a3a';
+    for (let i = 0; i < 30; i++) {
+      const gx = (i * 137) % W;
+      const gy = horizon + 10 + ((i * 53) % (H * 0.78 - horizon - 10));
+      ctx.fillRect(gx, gy, 2, 4);
+      ctx.fillRect(gx + 3, gy + 1, 2, 3);
+    }
+    // palms
+    drawPalm(W * 0.15, H * 0.78, 0.7);
+    drawPalm(W * 0.85, H * 0.78, 0.85);
+    drawPalm(W * 0.5, H * 0.62, 0.45);
+  }
+
+  // ---------- Chicken ----------
+  function spawnChicken() {
+    const fromLeft = Math.random() < 0.5;
+    const horizon = H * 0.55;
+    const groundTop = horizon + 20;
+    const groundBot = H * 0.92;
+    const y = groundTop + Math.random() * (groundBot - groundTop);
+    // perspective scale: closer (lower y) = bigger
+    const t = (y - groundTop) / (groundBot - groundTop);
+    const scale = 0.5 + t * 0.9;
+    const speed = (60 + Math.random() * 70) * (0.7 + t * 0.6);
+    state.chickens.push({
+      x: fromLeft ? -40 : W + 40,
+      y, scale,
+      vx: fromLeft ? speed : -speed,
+      bob: Math.random() * Math.PI * 2,
+      legPhase: 0,
+      alive: true,
+      fallV: 0,
+      points: Math.round(50 / scale), // farther = more points
+    });
+  }
+
+  function drawChicken(c) {
+    ctx.save();
+    ctx.translate(c.x, c.y);
+    const facing = c.vx < 0 ? -1 : 1;
+    ctx.scale(c.scale * facing, c.scale);
+    if (!c.alive) {
+      ctx.rotate(0.6 * facing);
+    } else {
+      ctx.translate(0, Math.sin(c.bob) * 1.5);
+    }
+    // legs
+    if (c.alive) {
+      ctx.strokeStyle = '#e8a83a';
+      ctx.lineWidth = 2;
+      const lp = Math.sin(c.legPhase) * 4;
+      ctx.beginPath();
+      ctx.moveTo(-4, 8); ctx.lineTo(-4 + lp, 18);
+      ctx.moveTo(4, 8); ctx.lineTo(4 - lp, 18);
+      ctx.stroke();
+    }
+    // body (white feral chicken w/ brown patches)
+    ctx.fillStyle = '#f5f1e8';
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 14, 10, 0, 0, Math.PI * 2);
+    ctx.fill();
+    // brown patch
+    ctx.fillStyle = '#8b5a3c';
+    ctx.beginPath();
+    ctx.ellipse(-3, -2, 7, 5, -0.3, 0, Math.PI * 2);
+    ctx.fill();
+    // tail feathers
+    ctx.fillStyle = '#2a2a2a';
+    ctx.beginPath();
+    ctx.moveTo(-12, -2);
+    ctx.lineTo(-20, -8);
+    ctx.lineTo(-18, 0);
+    ctx.lineTo(-20, 6);
+    ctx.closePath();
+    ctx.fill();
+    // head
+    ctx.fillStyle = '#f5f1e8';
+    ctx.beginPath();
+    ctx.arc(11, -6, 6, 0, Math.PI * 2);
+    ctx.fill();
+    // comb
+    ctx.fillStyle = '#d23838';
+    ctx.beginPath();
+    ctx.arc(11, -11, 2, 0, Math.PI * 2);
+    ctx.arc(13, -12, 2, 0, Math.PI * 2);
+    ctx.arc(9, -12, 2, 0, Math.PI * 2);
+    ctx.fill();
+    // wattle
+    ctx.beginPath();
+    ctx.arc(13, -2, 2, 0, Math.PI * 2);
+    ctx.fill();
+    // beak
+    ctx.fillStyle = '#e8a83a';
+    ctx.beginPath();
+    ctx.moveTo(16, -6);
+    ctx.lineTo(20, -5);
+    ctx.lineTo(16, -4);
+    ctx.closePath();
+    ctx.fill();
+    // eye
+    ctx.fillStyle = '#000';
+    ctx.beginPath();
+    ctx.arc(13, -7, 1, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  // ---------- Particles & FX ----------
+  function emitFeathers(x, y, n) {
+    for (let i = 0; i < n; i++) {
+      state.particles.push({
+        x, y,
+        vx: (Math.random() - 0.5) * 120,
+        vy: -60 - Math.random() * 80,
+        life: 1.2,
+        color: Math.random() < 0.7 ? '#fff' : '#8b5a3c',
+        size: 3 + Math.random() * 3,
+        rot: Math.random() * Math.PI,
+        vr: (Math.random() - 0.5) * 6,
+      });
+    }
+  }
+
+  function addFloat(x, y, text, color) {
+    state.floats.push({ x, y, text, color, life: 1.0 });
+  }
+
+  function drawParticles(dt) {
+    state.particles.forEach(p => {
+      p.life -= dt;
+      p.vy += 200 * dt;
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.rot += p.vr * dt;
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.globalAlpha = Math.max(0, p.life);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+      ctx.restore();
+    });
+    state.particles = state.particles.filter(p => p.life > 0);
+    ctx.globalAlpha = 1;
+  }
+
+  function drawFloats(dt) {
+    ctx.font = 'bold 22px sans-serif';
+    ctx.textAlign = 'center';
+    state.floats.forEach(f => {
+      f.life -= dt;
+      f.y -= 40 * dt;
+      ctx.globalAlpha = Math.max(0, f.life);
+      ctx.fillStyle = f.color;
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 3;
+      ctx.strokeText(f.text, f.x, f.y);
+      ctx.fillText(f.text, f.x, f.y);
+    });
+    state.floats = state.floats.filter(f => f.life > 0);
+    ctx.globalAlpha = 1;
+  }
+
+  function drawShots(dt) {
+    state.shots.forEach(s => {
+      s.life -= dt;
+      ctx.strokeStyle = `rgba(255,255,255,${Math.max(0, s.life * 2)})`;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, 18 * (1 - s.life * 2), 0, Math.PI * 2);
+      ctx.stroke();
+    });
+    state.shots = state.shots.filter(s => s.life > 0);
+  }
+
+  // ---------- Audio (tiny WebAudio beeps) ----------
+  let actx;
+  function blip(freq, dur, type = 'square', vol = 0.15) {
+    try {
+      if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+      const o = actx.createOscillator();
+      const g = actx.createGain();
+      o.type = type; o.frequency.value = freq;
+      g.gain.value = vol;
+      g.gain.exponentialRampToValueAtTime(0.0001, actx.currentTime + dur);
+      o.connect(g).connect(actx.destination);
+      o.start();
+      o.stop(actx.currentTime + dur);
+    } catch (e) {}
+  }
+  const sndShot = () => blip(180, 0.08, 'square', 0.18);
+  const sndHit = () => { blip(720, 0.06, 'square'); setTimeout(() => blip(420, 0.1, 'triangle'), 50); };
+  const sndMiss = () => blip(90, 0.1, 'sawtooth', 0.08);
+  const sndReload = () => blip(300, 0.05, 'square', 0.1);
+
+  // ---------- Input ----------
+  function shoot(px, py) {
+    if (!state.running) return;
+    if (state.reloading) return;
+    if (state.ammo <= 0) return;
+    state.ammo--;
+    state.shots.push({ x: px, y: py, life: 0.5 });
+    sndShot();
+    let hit = false;
+    // hit-test newest (front-most) first
+    for (let i = state.chickens.length - 1; i >= 0; i--) {
+      const c = state.chickens[i];
+      if (!c.alive) continue;
+      const r = 18 * c.scale;
+      const dx = px - c.x, dy = py - c.y;
+      if (dx * dx + dy * dy < r * r) {
+        c.alive = false;
+        c.fallV = -120;
+        state.score += c.points;
+        addFloat(c.x, c.y - 20, '+' + c.points, '#ffd700');
+        emitFeathers(c.x, c.y, 14);
+        sndHit();
+        hit = true;
+        break;
+      }
+    }
+    if (!hit) sndMiss();
+    updateHUD();
+    if (state.ammo === 0) startReload();
+  }
+
+  function startReload() {
+    state.reloading = true;
+    ammoEl.textContent = '...';
+    setTimeout(() => {
+      state.ammo = state.maxAmmo;
+      state.reloading = false;
+      sndReload();
+      updateHUD();
+    }, 800);
+  }
+
+  canvas.addEventListener('pointerdown', e => {
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    shoot(e.clientX - rect.left, e.clientY - rect.top);
+  });
+
+  // ---------- Game loop ----------
+  function updateHUD() {
+    scoreEl.textContent = state.score;
+    timeEl.textContent = Math.max(0, Math.ceil(state.time));
+    if (!state.reloading) ammoEl.textContent = state.ammo;
+  }
+
+  function update(dt) {
+    state.spawnTimer -= dt;
+    if (state.spawnTimer <= 0) {
+      spawnChicken();
+      state.spawnTimer = 0.5 + Math.random() * 0.9;
+    }
+    state.chickens.forEach(c => {
+      if (c.alive) {
+        c.x += c.vx * dt;
+        c.bob += dt * 8;
+        c.legPhase += dt * 12;
+      } else {
+        c.fallV += 600 * dt;
+        c.y += c.fallV * dt;
+      }
+    });
+    state.chickens = state.chickens.filter(c => {
+      if (!c.alive && c.y > H + 40) return false;
+      if (c.alive && (c.x < -80 || c.x > W + 80)) return false;
+      return true;
+    });
+    state.time -= dt;
+    if (state.time <= 0) endGame();
+  }
+
+  function render(dt) {
+    drawSky();
+    drawClouds(dt);
+    drawMountains();
+    drawGround();
+    // sort chickens back-to-front (smaller scale = farther = behind)
+    const sorted = [...state.chickens].sort((a, b) => a.y - b.y);
+    sorted.forEach(drawChicken);
+    drawParticles(dt);
+    drawShots(dt);
+    drawFloats(dt);
+  }
+
+  function loop(t) {
+    if (!state.running) return;
+    const dt = Math.min(0.05, (t - state.lastT) / 1000 || 0);
+    state.lastT = t;
+    update(dt);
+    render(dt);
+    updateHUD();
+    requestAnimationFrame(loop);
+  }
+
+  function startGame() {
+    state.running = true;
+    state.score = 0;
+    state.time = 30;
+    state.ammo = state.maxAmmo;
+    state.reloading = false;
+    state.chickens = [];
+    state.particles = [];
+    state.floats = [];
+    state.shots = [];
+    state.spawnTimer = 0;
+    state.lastT = performance.now();
+    overlay.classList.add('hidden');
+    updateHUD();
+    requestAnimationFrame(loop);
+  }
+
+  function endGame() {
+    state.running = false;
+    overlay.classList.remove('hidden');
+    overlay.querySelector('h1').textContent = 'Pau! Time’s Up';
+    overlay.querySelector('p').innerHTML =
+      `You bagged <span class="stat">${state.score}</span> points worth of chickens.`;
+    overlay.querySelectorAll('p')[1].innerHTML =
+      state.score > 300 ? 'Da kine sharpshooter! 🎯' :
+      state.score > 150 ? 'Solid hunt, bruddah.' :
+      'Try again, those chickens stay sneaky.';
+    startBtn.textContent = 'Play Again';
+  }
+
+  startBtn.addEventListener('click', startGame);
+  // tap-to-start anywhere on overlay (mobile)
+  overlay.addEventListener('pointerdown', e => {
+    if (e.target !== startBtn) return;
+  });
+})();
+</script>
+</body>
+</html>
