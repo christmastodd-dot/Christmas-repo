@@ -90,6 +90,10 @@
     lastT: 0,
     levelIdx: 0,
     levelTimer: 10,
+    phase: 'play',          // 'play' | 'transition'
+    transTime: 0,
+    transDur: 2.0,
+    transSwapped: false,
     banner: { text: '', life: 0 },
   };
 
@@ -162,82 +166,273 @@
     ctx.fillRect(0, horizon - 20, W, 30);
   }
 
+  function drawFrond(angle, length, droop, color) {
+    ctx.save();
+    ctx.rotate(angle);
+    // main frond shape
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.bezierCurveTo(length * 0.4, droop * 0.15, length * 0.75, droop * 0.7, length, droop);
+    ctx.bezierCurveTo(length * 0.7, droop * 0.5, length * 0.4, -1, 0, -5);
+    ctx.closePath();
+    ctx.fill();
+    // central rib
+    ctx.strokeStyle = 'rgba(0,30,0,0.45)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.bezierCurveTo(length * 0.4, droop * 0.1, length * 0.75, droop * 0.5, length * 0.98, droop * 0.85);
+    ctx.stroke();
+    // leaflet strokes
+    ctx.lineWidth = 0.7;
+    for (let i = 1; i < 9; i++) {
+      const t = i / 9;
+      const px = length * t;
+      const py = droop * t * t * 0.9;
+      ctx.beginPath();
+      ctx.moveTo(px, py - 1);
+      ctx.lineTo(px + 4, py - 7 - t * 3);
+      ctx.moveTo(px, py + 1);
+      ctx.lineTo(px + 4, py + 4 + t * 2);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
   function drawPalm(x, baseY, scale) {
     ctx.save();
     ctx.translate(x, baseY);
     ctx.scale(scale, scale);
-    // trunk
-    ctx.fillStyle = '#6b4423';
+    // trunk: gentle S curve via bezier
+    ctx.fillStyle = '#8a6a44';
     ctx.beginPath();
     ctx.moveTo(-8, 0);
-    ctx.quadraticCurveTo(-4, -80, -10, -160);
-    ctx.lineTo(2, -160);
-    ctx.quadraticCurveTo(8, -80, 8, 0);
+    ctx.bezierCurveTo(-13, -55, -3, -115, -9, -170);
+    ctx.lineTo(3, -170);
+    ctx.bezierCurveTo(9, -115, -1, -55, 8, 0);
     ctx.closePath();
     ctx.fill();
-    // trunk rings
-    ctx.strokeStyle = '#4a2f17';
-    ctx.lineWidth = 1.5;
-    for (let i = 1; i < 7; i++) {
+    // trunk shading (right side darker)
+    ctx.fillStyle = 'rgba(60,40,20,0.35)';
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.bezierCurveTo(2, -55, -2, -115, 1, -170);
+    ctx.lineTo(3, -170);
+    ctx.bezierCurveTo(9, -115, -1, -55, 8, 0);
+    ctx.closePath();
+    ctx.fill();
+    // trunk rings — curve to follow trunk
+    ctx.strokeStyle = '#5a3a20';
+    ctx.lineWidth = 1.2;
+    for (let i = 1; i < 9; i++) {
+      const ty = -i * 19;
+      const xoff = Math.sin((ty + 80) / 60) * 3;
       ctx.beginPath();
-      ctx.moveTo(-8 + i * 0.4, -i * 22);
-      ctx.lineTo(8 - i * 0.4, -i * 22);
+      ctx.arc(xoff, ty, 7, 0.25, Math.PI - 0.25);
       ctx.stroke();
     }
-    // fronds
-    ctx.fillStyle = '#2d8a3e';
-    for (let i = 0; i < 7; i++) {
-      const ang = (i / 7) * Math.PI * 2 + 0.3;
-      ctx.save();
-      ctx.translate(0, -160);
-      ctx.rotate(ang);
-      ctx.beginPath();
-      ctx.moveTo(0, 0);
-      ctx.quadraticCurveTo(40, -10, 80, 10);
-      ctx.quadraticCurveTo(40, 0, 0, 8);
-      ctx.closePath();
-      ctx.fill();
-      ctx.restore();
-    }
-    // coconuts
-    ctx.fillStyle = '#3a2410';
+    // crown shadow at top of trunk
+    ctx.fillStyle = '#3a2614';
     ctx.beginPath();
-    ctx.arc(-4, -150, 4, 0, Math.PI * 2);
-    ctx.arc(5, -148, 4, 0, Math.PI * 2);
+    ctx.ellipse(-6, -170, 11, 4, 0, 0, Math.PI * 2);
     ctx.fill();
+    // fronds: top half only, drooping outward
+    ctx.save();
+    ctx.translate(-6, -170);
+    // back fronds (darker, drawn first)
+    drawFrond(-Math.PI * 0.65, 60, 22, '#1d6b2e');
+    drawFrond(-Math.PI * 0.35, 60, 22, '#1d6b2e');
+    // front fronds (brighter)
+    drawFrond(-Math.PI * 0.92, 78, 38, '#2d8a3e');
+    drawFrond(-Math.PI * 0.55, 80, 32, '#2d8a3e');
+    drawFrond(-Math.PI * 0.18, 82, 38, '#2d8a3e');
+    drawFrond(Math.PI * 0.05,  72, 45, '#358e44');
+    drawFrond(-Math.PI * 1.05, 72, 45, '#358e44');
+    ctx.restore();
+    // coconut cluster
+    const coconuts = [{x:-3,y:-162},{x:3,y:-160},{x:-1,y:-167},{x:6,y:-164},{x:-7,y:-164}];
+    ctx.fillStyle = '#3a2410';
+    coconuts.forEach(c => {
+      ctx.beginPath();
+      ctx.arc(c.x, c.y, 3.5, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    // coconut highlights
+    ctx.fillStyle = '#7a5a30';
+    coconuts.forEach(c => {
+      ctx.beginPath();
+      ctx.arc(c.x - 1, c.y - 1, 1.2, 0, Math.PI * 2);
+      ctx.fill();
+    });
     ctx.restore();
   }
 
   // ---------- Levels (backdrops) ----------
+  function drawStorefront(cx, baseY) {
+    ctx.save();
+    ctx.translate(cx, baseY);
+    const w = Math.min(W * 0.55, 360), h = 56;
+    // building body
+    ctx.fillStyle = '#d8b88a';
+    ctx.fillRect(-w / 2, -h, w, h);
+    // roof cap
+    ctx.fillStyle = '#5a5a5a';
+    ctx.fillRect(-w / 2 - 6, -h - 6, w + 12, 6);
+    // sign band
+    ctx.fillStyle = '#1f6f3a';
+    ctx.fillRect(-w / 2, -h, w, 16);
+    // sign text
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 13px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('FOODLAND', 0, -h + 8);
+    // window/door bays
+    ctx.fillStyle = '#2a3a4a';
+    const bays = 5;
+    const bayW = (w - 30) / bays;
+    for (let i = 0; i < bays; i++) {
+      ctx.fillRect(-w / 2 + 15 + i * bayW + 4, -h + 22, bayW - 8, 26);
+    }
+    // door highlight
+    ctx.fillStyle = '#5a8aa8';
+    ctx.fillRect(-8, -h + 30, 16, 18);
+    ctx.textBaseline = 'alphabetic';
+    ctx.restore();
+  }
+
+  function drawCar(cx, by, color) {
+    ctx.save();
+    ctx.translate(cx, by);
+    // body
+    ctx.fillStyle = color;
+    ctx.fillRect(-32, -22, 64, 22);
+    // cabin
+    ctx.fillRect(-22, -34, 44, 13);
+    // roof shine
+    ctx.fillStyle = 'rgba(255,255,255,0.18)';
+    ctx.fillRect(-22, -34, 44, 3);
+    // windows
+    ctx.fillStyle = '#7aa8d8';
+    ctx.fillRect(-20, -32, 18, 10);
+    ctx.fillRect(2, -32, 18, 10);
+    // window divider
+    ctx.fillStyle = color;
+    ctx.fillRect(-2, -32, 4, 10);
+    // wheels
+    ctx.fillStyle = '#1a1a1a';
+    ctx.beginPath();
+    ctx.arc(-19, 0, 6, 0, Math.PI * 2);
+    ctx.arc(19, 0, 6, 0, Math.PI * 2);
+    ctx.fill();
+    // hub
+    ctx.fillStyle = '#7a7a7a';
+    ctx.beginPath();
+    ctx.arc(-19, 0, 2, 0, Math.PI * 2);
+    ctx.arc(19, 0, 2, 0, Math.PI * 2);
+    ctx.fill();
+    // headlight
+    ctx.fillStyle = '#fff5a8';
+    ctx.fillRect(30, -16, 3, 4);
+    // taillight
+    ctx.fillStyle = '#c93838';
+    ctx.fillRect(-33, -16, 3, 4);
+    ctx.restore();
+  }
+
+  function drawShoppingCart(cx, by) {
+    ctx.save();
+    ctx.translate(cx, by);
+    ctx.strokeStyle = '#aaa';
+    ctx.lineWidth = 1.5;
+    // basket
+    ctx.beginPath();
+    ctx.moveTo(-10, -10); ctx.lineTo(10, -10);
+    ctx.lineTo(8, 0); ctx.lineTo(-8, 0);
+    ctx.closePath();
+    ctx.stroke();
+    // grid
+    for (let i = -7; i < 9; i += 4) {
+      ctx.beginPath();
+      ctx.moveTo(i, -10); ctx.lineTo(i - 1, 0);
+      ctx.stroke();
+    }
+    ctx.beginPath();
+    ctx.moveTo(-9, -5); ctx.lineTo(9, -5);
+    ctx.stroke();
+    // handle
+    ctx.beginPath();
+    ctx.moveTo(10, -10); ctx.lineTo(13, -14);
+    ctx.stroke();
+    // wheels
+    ctx.fillStyle = '#333';
+    ctx.beginPath();
+    ctx.arc(-7, 3, 2, 0, Math.PI * 2);
+    ctx.arc(7, 3, 2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
   function drawParkingLot() {
     drawMountains();
     const horizon = H * 0.55;
-    // grass
+    // grass strip between mountains and asphalt
+    const asphaltTop = H * 0.7;
     ctx.fillStyle = '#5fa84a';
-    ctx.fillRect(0, horizon, W, H - horizon);
-    // asphalt strip
-    ctx.fillStyle = '#3a3a3a';
-    ctx.fillRect(0, H * 0.78, W, H * 0.22);
-    // yellow line
+    ctx.fillRect(0, horizon, W, asphaltTop - horizon);
+    // storefront sits on the grass band, well behind the parking spaces
+    drawStorefront(W * 0.5, asphaltTop - 4);
+    // asphalt
+    const g = ctx.createLinearGradient(0, asphaltTop, 0, H);
+    g.addColorStop(0, '#4a4a4a');
+    g.addColorStop(1, '#2c2c2c');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, asphaltTop, W, H - asphaltTop);
+    // concrete curb
+    ctx.fillStyle = '#a8a8a8';
+    ctx.fillRect(0, asphaltTop - 5, W, 5);
+    ctx.fillStyle = 'rgba(0,0,0,0.25)';
+    ctx.fillRect(0, asphaltTop, W, 2);
+    // parking space lines (white perpendicular)
+    ctx.strokeStyle = '#f0ead8';
+    ctx.lineWidth = 3;
+    const spaceW = 78;
+    const lineTop = asphaltTop + 6;
+    const lineBot = H * 0.92;
+    for (let lx = (W % spaceW) / 2; lx <= W; lx += spaceW) {
+      ctx.beginPath();
+      ctx.moveTo(lx, lineTop);
+      ctx.lineTo(lx, lineBot);
+      ctx.stroke();
+    }
+    // drive lane (dashed yellow) closer to camera
     ctx.strokeStyle = '#f5d042';
     ctx.lineWidth = 3;
     ctx.setLineDash([18, 14]);
     ctx.beginPath();
-    ctx.moveTo(0, H * 0.88);
-    ctx.lineTo(W, H * 0.88);
+    ctx.moveTo(0, H * 0.96);
+    ctx.lineTo(W, H * 0.96);
     ctx.stroke();
     ctx.setLineDash([]);
     // grass tufts
     ctx.fillStyle = '#4a8a3a';
     for (let i = 0; i < 30; i++) {
       const gx = (i * 137) % W;
-      const gy = horizon + 10 + ((i * 53) % (H * 0.78 - horizon - 10));
+      const gy = horizon + 10 + ((i * 53) % (asphaltTop - horizon - 12));
       ctx.fillRect(gx, gy, 2, 4);
       ctx.fillRect(gx + 3, gy + 1, 2, 3);
     }
-    drawPalm(W * 0.15, H * 0.78, 0.7);
-    drawPalm(W * 0.85, H * 0.78, 0.85);
-    drawPalm(W * 0.5, H * 0.62, 0.45);
+    // parked cars (in upper portion of lot — further from camera)
+    const carRow = asphaltTop + 28;
+    drawCar(W * 0.18, carRow, '#c93a3a');
+    drawCar(W * 0.42, carRow, '#3a6bc9');
+    drawCar(W * 0.82, carRow, '#e8c948');
+    // a stray shopping cart
+    drawShoppingCart(W * 0.62, asphaltTop + 22);
+    // palms framing the scene
+    drawPalm(W * 0.06, asphaltTop + 2, 0.7);
+    drawPalm(W * 0.96, asphaltTop + 6, 0.8);
   }
 
   function drawBanyanPark() {
@@ -676,10 +871,12 @@
   }
 
   function update(dt) {
-    state.spawnTimer -= dt;
-    if (state.spawnTimer <= 0) {
-      spawnChicken();
-      state.spawnTimer = 0.5 + Math.random() * 0.9;
+    if (state.phase === 'play') {
+      state.spawnTimer -= dt;
+      if (state.spawnTimer <= 0) {
+        spawnChicken();
+        state.spawnTimer = 0.5 + Math.random() * 0.9;
+      }
     }
     state.chickens.forEach(c => {
       if (c.alive) {
@@ -708,11 +905,29 @@
       return true;
     });
     state.time -= dt;
-    state.levelTimer -= dt;
-    if (state.levelTimer <= 0 && state.levelIdx < LEVELS.length - 1) {
-      state.levelIdx++;
-      state.levelTimer = 10;
-      showBanner(LEVELS[state.levelIdx].name);
+    if (state.phase === 'play') {
+      state.levelTimer -= dt;
+      if (state.levelTimer <= 0 && state.levelIdx < LEVELS.length - 1) {
+        state.phase = 'transition';
+        state.transTime = 0;
+        state.transSwapped = false;
+        showBanner('Heading to ' + LEVELS[state.levelIdx + 1].name + '...');
+      }
+    } else {
+      state.transTime += dt;
+      // swap level at midpoint (during full fade)
+      if (!state.transSwapped && state.transTime >= state.transDur / 2) {
+        state.levelIdx++;
+        state.transSwapped = true;
+        state.chickens = [];
+        state.particles = [];
+        showBanner(LEVELS[state.levelIdx].name);
+      }
+      if (state.transTime >= state.transDur) {
+        state.phase = 'play';
+        state.levelTimer = 10;
+        state.spawnTimer = 0.3;
+      }
     }
     if (state.time <= 0) endGame();
   }
@@ -727,6 +942,12 @@
     drawParticles(dt);
     drawShots(dt);
     drawFloats(dt);
+    if (state.phase === 'transition') {
+      const t = state.transTime / state.transDur;
+      const a = (t < 0.5 ? t * 2 : (1 - t) * 2) * 0.9;
+      ctx.fillStyle = `rgba(0,0,0,${a})`;
+      ctx.fillRect(0, 0, W, H);
+    }
     drawBanner(dt);
   }
 
@@ -753,6 +974,9 @@
     state.spawnTimer = 0;
     state.levelIdx = 0;
     state.levelTimer = 10;
+    state.phase = 'play';
+    state.transTime = 0;
+    state.transSwapped = false;
     state.banner = { text: '', life: 0 };
     state.lastT = performance.now();
     overlay.classList.add('hidden');
