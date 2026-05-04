@@ -27,61 +27,78 @@
     max-width: 100vw;
     max-height: 100vh;
   }
-  #hud {
-    position: fixed; top: 6px; left: 0; right: 0;
-    text-align: center;
-    pointer-events: none;
-    text-shadow: 2px 2px 0 #000;
-    font-size: 14px;
-    letter-spacing: 2px;
-  }
   #title {
     position: fixed; inset: 0;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    background: rgba(0,0,0,0.85);
+    background: rgba(0,0,0,0.9);
     text-align: center; padding: 16px;
+    z-index: 10;
   }
   #title h1 {
-    font-size: 40px; margin: 0 0 8px;
+    font-size: 44px; margin: 0 0 6px;
     color: #ff3b3b; letter-spacing: 4px;
     text-shadow: 3px 3px 0 #000, 0 0 12px #ff0000;
   }
+  #title h2 {
+    font-size: 14px; margin: 0 0 14px;
+    color: #ffcf00; letter-spacing: 4px;
+  }
   #title p { margin: 6px 0; font-size: 13px; max-width: 320px; }
+  #titleSammy {
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    width: 168px; height: 224px;
+    margin: 8px 0;
+  }
   #title button {
-    margin-top: 14px; padding: 12px 22px;
+    margin-top: 14px; padding: 14px 26px;
     background: #ffcf00; color: #000; border: 3px solid #fff;
-    font: bold 16px "Courier New", monospace; letter-spacing: 2px;
+    font: bold 18px "Courier New", monospace; letter-spacing: 2px;
     cursor: pointer;
   }
   #title button:active { transform: translate(1px,1px); }
   .touch {
     position: fixed; bottom: 0; left: 0; right: 0;
     display: none; justify-content: space-between;
-    padding: 12px; pointer-events: none;
+    padding: 14px; pointer-events: none;
   }
-  .pad { display: grid; grid-template-columns: 56px 56px 56px; grid-template-rows: 56px 56px 56px; gap: 4px; }
+  .pad {
+    display: grid;
+    --c: clamp(52px, 18vw, 78px);
+    grid-template-columns: var(--c) var(--c) var(--c);
+    grid-template-rows: var(--c) var(--c) var(--c);
+    gap: 4px;
+  }
   .btn {
     pointer-events: auto;
-    background: rgba(255,255,255,0.08);
-    border: 2px solid rgba(255,255,255,0.5);
-    color: #fff; font: bold 22px "Courier New", monospace;
+    background: rgba(255,255,255,0.10);
+    border: 2px solid rgba(255,255,255,0.55);
+    color: #fff; font: bold 28px "Courier New", monospace;
     display: flex; align-items: center; justify-content: center;
-    border-radius: 8px;
+    border-radius: 10px;
     -webkit-user-select: none; user-select: none;
   }
   .btn.active { background: rgba(255,207,0,0.3); border-color: #ffcf00; }
-  .jump { width: 96px; height: 96px; align-self: end; font-size: 18px; }
+  .jump {
+    width: clamp(88px, 28vw, 130px);
+    height: clamp(88px, 28vw, 130px);
+    align-self: end; font-size: 22px;
+    background: rgba(255,207,0,0.15);
+    border-color: rgba(255,207,0,0.7);
+  }
   body.mobile .touch { display: flex; }
+  body.mobile #title button { padding: 18px 32px; font-size: 20px; }
 </style>
 </head>
 <body>
 <div id="wrap"><canvas id="game" width="256" height="288"></canvas></div>
-<div id="hud"></div>
 
 <div id="title">
   <h1>SAMMY KONG</h1>
-  <p>Climb the girders. Dodge the cigar barrels. Rescue the trophy.</p>
-  <p style="opacity:.7">Arrows / WASD to move &middot; Space to jump &middot; Up/Down on ladders</p>
+  <h2>~ 1981 ~</h2>
+  <canvas id="titleSammy" width="42" height="56"></canvas>
+  <p>Climb the girders. Dodge the cigar barrels.<br>Watch out for the fireballs. Rescue the trophy.</p>
+  <p style="opacity:.7">Arrows / WASD &middot; Space to jump<br>Grab a SHAKA to smash barrels</p>
   <button id="startBtn">START</button>
 </div>
 
@@ -109,7 +126,6 @@
   ctx.imageSmoothingEnabled = false;
   const W = canvas.width, H = canvas.height;
 
-  // Detect touch
   if (matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window) {
     document.body.classList.add('mobile');
   }
@@ -131,7 +147,6 @@
     const k = keyMap[e.code]; if (!k) return;
     keys[k] = false; e.preventDefault();
   });
-  // Touch buttons
   document.querySelectorAll('.btn').forEach(btn => {
     const k = btn.dataset.key;
     const press = e => { keys[k] = true; btn.classList.add('active'); e.preventDefault(); };
@@ -145,18 +160,15 @@
   });
 
   // ---- Level geometry ----
-  // Six floors, ladders alternate sides. Floor y is the TOP of the girder.
   const GIRDER_H = 6;
   const floors = [
-    // y, leftX, rightX (girder span)
-    { y: 264, x0: 0,   x1: 256 }, // ground
+    { y: 264, x0: 0,   x1: 256 },
     { y: 224, x0: 16,  x1: 256 },
     { y: 184, x0: 0,   x1: 240 },
     { y: 144, x0: 16,  x1: 256 },
     { y: 104, x0: 0,   x1: 240 },
-    { y: 64,  x0: 16,  x1: 200 }, // top (Sammy stands here)
+    { y: 64,  x0: 16,  x1: 200 },
   ];
-  // Ladders connect floor i (top) to floor i-1 (bottom). x is center.
   const ladders = [
     { x: 220, top: floors[1].y, bot: floors[0].y },
     { x: 40,  top: floors[2].y, bot: floors[1].y },
@@ -166,8 +178,9 @@
   ];
   const LADDER_W = 12;
 
-  const trophy = { x: 180, y: floors[5].y - 12 };
-  const sammy  = { x: 40,  y: floors[5].y - 28, throwT: 0 };
+  const trophy  = { x: 180, y: floors[5].y - 12 };
+  const sammy   = { x: 50, y: floors[5].y, throwT: 0, blink: 0 };
+  const oilDrum = { x: 24, y: floors[0].y, lit: false, flameT: 0 };
 
   // ---- Player ----
   const player = {
@@ -180,6 +193,8 @@
     alive: true,
     win: false,
     walkT: 0,
+    smashT: 0, // shaka power-up timer
+    iframes: 0,
   };
 
   const GRAVITY = 0.35;
@@ -187,21 +202,38 @@
   const CLIMB_SPEED = 0.9;
   const JUMP_V = -4.6;
 
-  // ---- Barrels ----
+  // ---- Entities ----
   const barrels = [];
+  const fireballs = [];
+  const pickups = [];
+
   let barrelTimer = 90;
+  let pickupTimer = 60 * 12; // first pickup ~12s
+  let fireballTimer = 60 * 8;
+  let levelTime = 0;
   let score = 0;
   let lives = 3;
-  let state = 'title'; // title | play | dead | win
+  let state = 'title';
+
+  function difficulty() { return Math.min(10, Math.floor(levelTime / 600)); }
+  function barrelInterval() { return Math.max(45, 110 - difficulty() * 7); }
 
   function reset(full=false) {
     player.x = 230; player.y = floors[0].y - player.h;
     player.vx = 0; player.vy = 0;
     player.onGround = true; player.onLadder = false;
     player.alive = true; player.win = false;
+    player.smashT = 0; player.iframes = 30;
+    player.facing = -1;
     barrels.length = 0;
+    fireballs.length = 0;
+    pickups.length = 0;
     barrelTimer = 60;
+    pickupTimer = 60 * 12;
+    fireballTimer = 60 * 8;
+    levelTime = 0;
     sammy.throwT = 0;
+    oilDrum.lit = false; oilDrum.flameT = 0;
     if (full) { score = 0; lives = 3; }
   }
 
@@ -214,7 +246,6 @@
 
   // ---- Helpers ----
   function floorAt(x, y) {
-    // Returns floor object whose top is at y (within tolerance) and x within span.
     for (const f of floors) {
       if (Math.abs(y - f.y) < 1.5 && x >= f.x0 - 2 && x <= f.x1 + 2) return f;
     }
@@ -239,25 +270,34 @@
   // ---- Barrels ----
   function spawnBarrel() {
     barrels.push({
-      x: sammy.x + 10, y: floors[5].y - 4,
+      x: sammy.x + 12, y: floors[5].y - 4,
       vx: 1.0, vy: 0,
       onFloor: floors[5],
       rot: 0,
     });
     sammy.throwT = 18;
+    // Occasionally spawn a second barrel after a delay (high difficulty)
+    if (difficulty() >= 4 && Math.random() < 0.3) {
+      setTimeout(() => {
+        if (state === 'play') {
+          barrels.push({
+            x: sammy.x + 12, y: floors[5].y - 4,
+            vx: 1.0, vy: 0, onFloor: floors[5], rot: 0,
+          });
+          sammy.throwT = 18;
+        }
+      }, 500);
+    }
   }
 
   function updateBarrel(b) {
-    // Apply gravity if not on a floor
     if (b.onFloor) {
       b.x += b.vx;
-      // Roll off the end of the platform
       if (b.vx > 0 && b.x > b.onFloor.x1 - 4) {
         b.onFloor = null;
       } else if (b.vx < 0 && b.x < b.onFloor.x0 + 4) {
         b.onFloor = null;
       } else {
-        // Decide whether to take a ladder (random small chance)
         for (const l of ladders) {
           if (l.top === b.onFloor.y && Math.abs(b.x - l.x) < 1.2 && Math.random() < 0.18) {
             b.onFloor = null;
@@ -271,7 +311,6 @@
       b.y += 1.2;
       b.x = b.descendingLadder.x;
       if (b.y >= b.descendingLadder.bot - 4) {
-        // Land on lower floor
         const f = floors.find(f => f.y === b.descendingLadder.bot);
         b.onFloor = f;
         b.y = f.y - 4;
@@ -281,44 +320,108 @@
     } else {
       b.vy += GRAVITY;
       b.y += b.vy;
-      // Find next floor below
       const f = floorBelow(b.x, b.y);
       if (f && b.y >= f.y - 4) {
         b.onFloor = f;
         b.y = f.y - 4;
         b.vy = 0;
-        // Reverse direction based on which way it was going off
         if (b.vx === 0) b.vx = (b.x < W/2 ? 1 : -1) * 1.0;
         else b.vx = -Math.sign(b.vx) * 1.0;
       }
     }
     b.rot += b.vx * 0.2;
 
-    // Off bottom
+    // Hit oil drum on bottom floor — light it & destroy barrel, maybe spawn fireball
+    if (b.onFloor === floors[0] && Math.abs(b.x - oilDrum.x) < 7) {
+      b.dead = true;
+      oilDrum.lit = true;
+      oilDrum.flameT = 30;
+      if (Math.random() < 0.45 && fireballs.length < 3) spawnFireball();
+    }
+
     if (b.y > H + 20) b.dead = true;
+  }
+
+  // ---- Fireballs ----
+  function spawnFireball() {
+    fireballs.push({
+      x: oilDrum.x, y: floors[0].y - 6,
+      vx: (Math.random() < 0.5 ? -0.55 : 0.55),
+      onFloor: floors[0],
+      climbing: null,
+      flick: 0,
+    });
+  }
+
+  function updateFireball(fb) {
+    fb.flick = (fb.flick + 1) % 8;
+    if (fb.climbing) {
+      const l = fb.climbing;
+      fb.y += fb.climbDir * 0.5;
+      fb.x = l.x;
+      if (fb.climbDir < 0 && fb.y <= l.top - 2) {
+        // reached top
+        const f = floors.find(f => f.y === l.top);
+        fb.onFloor = f; fb.y = f.y - 6;
+        fb.climbing = null;
+        fb.vx = (Math.random() < 0.5 ? -0.55 : 0.55);
+      } else if (fb.climbDir > 0 && fb.y >= l.bot - 6) {
+        const f = floors.find(f => f.y === l.bot);
+        fb.onFloor = f; fb.y = f.y - 6;
+        fb.climbing = null;
+        fb.vx = (Math.random() < 0.5 ? -0.55 : 0.55);
+      }
+      return;
+    }
+    if (!fb.onFloor) return;
+    fb.x += fb.vx;
+    // Turn around at edges
+    if (fb.x < fb.onFloor.x0 + 3) { fb.x = fb.onFloor.x0 + 3; fb.vx = Math.abs(fb.vx); }
+    if (fb.x > fb.onFloor.x1 - 3) { fb.x = fb.onFloor.x1 - 3; fb.vx = -Math.abs(fb.vx); }
+    // Random ladder use
+    for (const l of ladders) {
+      if ((l.top === fb.onFloor.y || l.bot === fb.onFloor.y) &&
+          Math.abs(fb.x - l.x) < 1.5 && Math.random() < 0.012) {
+        fb.climbing = l;
+        fb.climbDir = (l.bot === fb.onFloor.y) ? -1 : 1;
+        fb.x = l.x;
+        break;
+      }
+    }
+  }
+
+  // ---- Pickups (shaka power-up) ----
+  function spawnPickup() {
+    // Place on a random non-top, non-bottom floor at random x
+    const fIdx = 1 + Math.floor(Math.random() * 4);
+    const f = floors[fIdx];
+    const x = f.x0 + 20 + Math.random() * (f.x1 - f.x0 - 40);
+    pickups.push({ x, y: f.y - 8, t: 0, type: 'shaka' });
+  }
+  function updatePickup(p) {
+    p.t++;
+    p.bob = Math.sin(p.t * 0.12) * 1.5;
   }
 
   // ---- Player update ----
   function updatePlayer() {
     if (!player.alive || player.win) return;
+    if (player.iframes > 0) player.iframes--;
+    if (player.smashT > 0) player.smashT--;
 
     const cx = player.x + player.w/2;
     const feetY = player.y + player.h;
-    const headY = player.y;
 
-    // Ladder detection (around feet/center)
     const lFeet = ladderAt(cx, feetY);
-    const lMid = ladderAt(cx, player.y + player.h/2);
-    const lAny = lFeet || lMid;
+    const lMid  = ladderAt(cx, player.y + player.h/2);
+    const lAny  = lFeet || lMid;
 
-    // Start climbing
     if (!player.onLadder) {
-      if (lAny && (keys.up && lAny.bot - feetY > -2 && feetY - lAny.top > -2) ) {
+      if (lAny && (keys.up && lAny.bot - feetY > -2 && feetY - lAny.top > -2)) {
         player.onLadder = true;
         player.x = lAny.x - player.w/2;
         player.vy = 0;
       } else if (lAny && keys.down && player.onGround) {
-        // Climb down requires being on a floor above a ladder top
         const floor = floorAt(cx, feetY);
         if (floor && floor.y === lAny.top) {
           player.onLadder = true;
@@ -334,23 +437,19 @@
       if (!l) {
         player.onLadder = false;
       } else {
-        player.vx = 0;
-        player.vy = 0;
+        player.vx = 0; player.vy = 0;
         if (keys.up) player.y -= CLIMB_SPEED;
         else if (keys.down) player.y += CLIMB_SPEED;
-        // Exit at top
         if (player.y + player.h <= l.top) {
           player.onLadder = false;
           player.y = l.top - player.h;
           player.onGround = true;
         }
-        // Exit at bottom
         if (player.y + player.h >= l.bot) {
           player.onLadder = false;
           player.y = l.bot - player.h;
           player.onGround = true;
         }
-        // Step off sideways
         if ((keys.left || keys.right) && Math.abs((player.y + player.h) - l.top) < 3) {
           player.onLadder = false;
           player.y = l.top - player.h;
@@ -360,28 +459,24 @@
     }
 
     if (!player.onLadder) {
-      // Horizontal
       player.vx = 0;
       if (keys.left)  { player.vx = -MOVE_SPEED; player.facing = -1; }
       if (keys.right) { player.vx =  MOVE_SPEED; player.facing =  1; }
       player.x += player.vx;
       if (player.vx !== 0 && player.onGround) player.walkT += 0.2;
 
-      // Jump
       if (keys.jump && player.onGround) {
         player.vy = JUMP_V;
         player.onGround = false;
-        keys.jump = false; // single press
+        keys.jump = false;
       }
 
-      // Gravity
       player.vy += GRAVITY;
       if (player.vy > 6) player.vy = 6;
       const prevFeet = player.y + player.h;
       player.y += player.vy;
       const newFeet = player.y + player.h;
 
-      // Floor collision (only when falling)
       player.onGround = false;
       if (player.vy >= 0) {
         for (const f of floors) {
@@ -394,44 +489,212 @@
         }
       }
 
-      // World bounds
       if (player.x < 0) player.x = 0;
       if (player.x + player.w > W) player.x = W - player.w;
     }
 
     // Trophy collision
-    if (Math.abs((player.x + player.w/2) - trophy.x) < 8 && Math.abs((player.y + player.h/2) - trophy.y) < 10) {
+    if (Math.abs((player.x + player.w/2) - trophy.x) < 8 &&
+        Math.abs((player.y + player.h/2) - trophy.y) < 10) {
       player.win = true;
       state = 'win';
       score += 1000;
     }
 
-    // Barrel collision + jump-over scoring
+    // Pickup collision
+    for (const p of pickups) {
+      if (p.dead) continue;
+      const dx = (player.x + player.w/2) - p.x;
+      const dy = (player.y + player.h/2) - p.y;
+      if (Math.abs(dx) < 8 && Math.abs(dy) < 9) {
+        p.dead = true;
+        score += 500;
+        player.smashT = 360;
+      }
+    }
+
+    // Barrel collision
     for (const b of barrels) {
       if (b.dead) continue;
       const dx = (player.x + player.w/2) - b.x;
       const dy = (player.y + player.h/2) - b.y;
       if (Math.abs(dx) < 7 && Math.abs(dy) < 8) {
-        player.alive = false;
-        state = 'dead';
-      } else if (!b.scored && b.onFloor && Math.abs(b.y - (player.y + player.h)) > 6 && Math.abs(b.y - (player.y + player.h)) < 16 && Math.abs(dx) < 10 && !player.onGround) {
+        if (player.smashT > 0) {
+          b.dead = true;
+          score += 200;
+        } else if (player.iframes <= 0) {
+          player.alive = false;
+          state = 'dead';
+        }
+      } else if (!b.scored && b.onFloor && Math.abs(dy) > 6 && Math.abs(dy) < 14 &&
+                 Math.abs(dx) < 10 && !player.onGround) {
         b.scored = true;
         score += 100;
       }
     }
+
+    // Fireball collision
+    for (const fb of fireballs) {
+      const dx = (player.x + player.w/2) - fb.x;
+      const dy = (player.y + player.h/2) - fb.y;
+      if (Math.abs(dx) < 6 && Math.abs(dy) < 8) {
+        if (player.smashT > 0) {
+          fb.dead = true;
+          score += 300;
+        } else if (player.iframes <= 0) {
+          player.alive = false;
+          state = 'dead';
+        }
+      }
+    }
   }
 
-  // ---- Drawing helpers ----
-  function px(x, y, c) {
-    ctx.fillStyle = c;
-    ctx.fillRect(x|0, y|0, 1, 1);
-  }
-  function rect(x, y, w, h, c) {
-    ctx.fillStyle = c;
-    ctx.fillRect(x|0, y|0, w, h);
+  // ---- Drawing ----
+
+  // Procedural Sammy: white hair, white goatee, faint glasses, big smile,
+  // navy suit, blue tie. Optional shaka pose with arms raised.
+  // (cx, footY) places his feet on a girder.
+  function drawSammy(g, cx, footY, throwing) {
+    const headW = 16, headH = 16;
+    const bodyH = 14;
+    const top = footY - bodyH - headH; // top of head
+    const fx = cx - headW/2;            // left edge of face
+    const fy = top + 2;
+
+    // Hair (back halo)
+    g.fillStyle = '#dcdcdc';
+    g.fillRect(fx - 2, fy - 2, headW + 4, 4);
+    g.fillRect(fx - 1, fy - 3, headW + 2, 2);
+    g.fillRect(fx, fy - 4, headW, 2);
+    g.fillRect(fx - 2, fy + 2, 2, headH - 4);
+    g.fillRect(fx + headW, fy + 2, 2, headH - 4);
+
+    // Brighter hair highlight
+    g.fillStyle = '#f5f5f5';
+    g.fillRect(fx, fy - 3, headW, 2);
+    g.fillRect(fx + 2, fy - 4, headW - 4, 1);
+    g.fillRect(fx - 1, fy - 1, 4, 3);
+    g.fillRect(fx + headW - 3, fy - 1, 4, 3);
+
+    // Face
+    g.fillStyle = '#e8b48a';
+    g.fillRect(fx + 1, fy + 1, headW - 2, headH - 1);
+    g.fillRect(fx, fy + 3, headW, headH - 5);
+    // chin shadow
+    g.fillStyle = '#c08555';
+    g.fillRect(fx + 2, fy + headH - 1, headW - 4, 1);
+
+    // Glasses — faint silver rims (barely visible)
+    g.fillStyle = '#a8aeb6';
+    // left lens (rounded square outline)
+    g.fillRect(fx + 2, fy + 5, 5, 1);
+    g.fillRect(fx + 2, fy + 8, 5, 1);
+    g.fillRect(fx + 2, fy + 6, 1, 2);
+    g.fillRect(fx + 6, fy + 6, 1, 2);
+    // right lens
+    g.fillRect(fx + headW - 7, fy + 5, 5, 1);
+    g.fillRect(fx + headW - 7, fy + 8, 5, 1);
+    g.fillRect(fx + headW - 7, fy + 6, 1, 2);
+    g.fillRect(fx + headW - 3, fy + 6, 1, 2);
+    // bridge
+    g.fillRect(fx + 7, fy + 6, 2, 1);
+
+    // Lens shine
+    g.fillStyle = '#dde9f5';
+    g.fillRect(fx + 3, fy + 6, 1, 1);
+    g.fillRect(fx + headW - 6, fy + 6, 1, 1);
+
+    // Eyes (smiling slits)
+    g.fillStyle = '#1a1a1a';
+    g.fillRect(fx + 4, fy + 7, 2, 1);
+    g.fillRect(fx + headW - 6, fy + 7, 2, 1);
+
+    // Nose
+    g.fillStyle = '#c08555';
+    g.fillRect(fx + headW/2 - 1, fy + 9, 2, 2);
+    g.fillRect(fx + headW/2, fy + 11, 1, 1);
+
+    // Mustache (white, above smile)
+    g.fillStyle = '#f5f5f5';
+    g.fillRect(fx + 4, fy + 11, headW - 8, 1);
+
+    // Smile
+    g.fillStyle = '#3a1818';
+    g.fillRect(fx + 4, fy + 12, headW - 8, 1);
+    g.fillStyle = '#fff5dc'; // teeth
+    g.fillRect(fx + 5, fy + 12, headW - 10, 1);
+    g.fillStyle = '#3a1818'; // smile corners
+    g.fillRect(fx + 3, fy + 12, 1, 1);
+    g.fillRect(fx + headW - 4, fy + 12, 1, 1);
+
+    // Goatee (white, below smile, tapering)
+    g.fillStyle = '#f5f5f5';
+    g.fillRect(fx + 5, fy + headH - 1, headW - 10, 2);
+    g.fillRect(fx + 6, fy + headH + 1, headW - 12, 1);
+
+    // Body — navy suit
+    const bx = cx - 11, by = top + headH + 1;
+    g.fillStyle = '#10243d';
+    g.fillRect(bx, by, 22, bodyH);
+    // suit highlight
+    g.fillStyle = '#1f4476';
+    g.fillRect(bx, by, 2, bodyH);
+    g.fillRect(bx + 20, by, 2, bodyH);
+
+    // Lapels
+    g.fillStyle = '#0a1a2c';
+    g.fillRect(bx + 6, by, 3, 5);
+    g.fillRect(bx + 13, by, 3, 5);
+
+    // Shirt (blue) at neck
+    g.fillStyle = '#5a93c8';
+    g.fillRect(bx + 9, by, 4, 2);
+
+    // Tie (light blue, thin)
+    g.fillStyle = '#69bff0';
+    g.fillRect(bx + 10, by + 1, 2, 1);
+    g.fillRect(bx + 9, by + 2, 4, 3);
+    g.fillRect(bx + 10, by + 5, 2, 6);
+    g.fillStyle = '#a8e0ff';
+    g.fillRect(bx + 10, by + 2, 1, 2);
+
+    // Arms
+    if (throwing) {
+      // Both arms raised in shaka pose
+      g.fillStyle = '#10243d'; // sleeve
+      g.fillRect(bx - 3, by - 2, 4, 5);
+      g.fillRect(bx + 21, by - 2, 4, 5);
+      g.fillRect(bx - 5, by - 5, 4, 4);
+      g.fillRect(bx + 23, by - 5, 4, 4);
+      // hands (skin)
+      g.fillStyle = '#e8b48a';
+      g.fillRect(bx - 6, by - 7, 4, 3);
+      g.fillRect(bx + 24, by - 7, 4, 3);
+      // shaka thumbs (sticking out sideways)
+      g.fillRect(bx - 8, by - 6, 2, 1);
+      g.fillRect(bx + 28, by - 6, 2, 1);
+      // shaka pinkies (sticking up)
+      g.fillRect(bx - 3, by - 9, 1, 2);
+      g.fillRect(bx + 27, by - 9, 1, 2);
+    } else {
+      // Arms at sides
+      g.fillStyle = '#10243d';
+      g.fillRect(bx - 2, by + 2, 3, 8);
+      g.fillRect(bx + 21, by + 2, 3, 8);
+      g.fillStyle = '#e8b48a';
+      g.fillRect(bx - 2, by + 10, 3, 2);
+      g.fillRect(bx + 21, by + 10, 3, 2);
+    }
+
+    // Legs / shoes peek
+    g.fillStyle = '#0a1a2c';
+    g.fillRect(bx + 5, by + bodyH, 4, 2);
+    g.fillRect(bx + 13, by + bodyH, 4, 2);
+    g.fillStyle = '#1a1a1a';
+    g.fillRect(bx + 4, by + bodyH + 2, 5, 1);
+    g.fillRect(bx + 13, by + bodyH + 2, 5, 1);
   }
 
-  // Sprite drawn from a small string grid
   function drawSprite(sx, sy, grid, palette, scale=1, flip=false) {
     for (let r = 0; r < grid.length; r++) {
       const row = grid[r];
@@ -447,73 +710,6 @@
     }
   }
 
-  // Sammy sprite (24 wide x 24 tall, scale 1) — boss at top
-  // Palette: H=hair white, S=skin, G=glasses dark, B=blue suit, T=tie, K=black, R=mouth, W=teeth/shirt
-  const sammyIdle = [
-    "........HHHHHHHH........",
-    "......HHHHHHHHHHHH......",
-    ".....HHHHHHHHHHHHHH.....",
-    "....HHSSSSSSSSSSSSHH....",
-    "....HSSSSSSSSSSSSSSH....",
-    "...HSSGGGGSSSSGGGGSSH...",
-    "...HSSGWGSSSSSSGWGSSH...",
-    "...HSSGGGGSSSSGGGGSSH...",
-    "....HSSSSSSKKSSSSSSH....",
-    "....HSSSSSSSSSSSSSSH....",
-    ".....HSSRRRRRRRRSSH.....",
-    "......HSWWWWWWWWSH......",
-    ".....HHHSSSSSSSSHHH.....",
-    "....HHHHHHHHHHHHHHHH....",
-    "...BBBBBBBWBBBBBBBBB....",
-    "..BBBBBBBBWBBBBBBBBBB...",
-    "..BBBBBBBTTTBBBBBBBBB...",
-    "..BBBBBBTTTTTBBBBBBBB...",
-    "..BBBBBBBTTTBBBBBBBBB...",
-    "..BBBBBBBTTTBBBBBBBBB...",
-    "..BBBBBBBBTBBBBBBBBBB...",
-    "..BBBBBBBBBBBBBBBBBBB...",
-    "..BBBBBBBBBBBBBBBBBBB...",
-    "...BBBBBBBBBBBBBBBBB....",
-  ];
-  // With shaka arms raised (used during throw idle)
-  const sammyShaka = [
-    "..S....HHHHHHHH......S..", // thumbs out as tiny S blobs at sides
-    ".SS...HHHHHHHHHHHH..SS..",
-    ".S...HHHHHHHHHHHHHH..S..",
-    "SSS.HHSSSSSSSSSSSSHH.SSS",
-    ".S..HSSSSSSSSSSSSSSH..S.",
-    "....HSSGGGGSSSSGGGGSSH..",
-    "S...HSSGWGSSSSSSGWGSSH.S",
-    "SS..HSSGGGGSSSSGGGGSSH.S",
-    "S....HSSSSSSKKSSSSSSH.SS",
-    "......HSSSSSSSSSSSSH..S.",
-    ".......HSSRRRRRRSSH.....",
-    "........HSWWWWWWSH......",
-    ".......HHSSSSSSSSHH.....",
-    "......HHHHHHHHHHHHHH....",
-    ".....BBBBBBBWBBBBBBBB...",
-    "....BBBBBBBBWBBBBBBBBB..",
-    "....BBBBBBBTTTBBBBBBBB..",
-    "....BBBBBBTTTTTBBBBBBB..",
-    "....BBBBBBBTTTBBBBBBBB..",
-    "....BBBBBBBBTBBBBBBBBB..",
-    "....BBBBBBBBBBBBBBBBBB..",
-    "....BBBBBBBBBBBBBBBBBB..",
-    "....BBBBBBBBBBBBBBBBBB..",
-    ".....BBBBBBBBBBBBBBBB...",
-  ];
-  const sammyPalette = {
-    H: '#f0f0f0',  // white hair
-    S: '#e0a878',  // skin tone
-    G: '#1a1a1a',  // glasses frames
-    W: '#9fd8ff',  // glasses lens shine
-    K: '#3a2a1a',  // nose shadow
-    R: '#7a1a1a',  // smile/goatee shadow
-    B: '#1d4a8a',  // blue suit
-    T: '#4ea3ff',  // blue tie
-  };
-
-  // Player sprite (10x14)
   const playerSprite = [
     "...HHHH...",
     "..HFFFFH..",
@@ -531,73 +727,129 @@
     "..BB..BB..",
   ];
   const playerPalette = {
-    H: '#3a1a05', // hair/cap
-    F: '#e9c39a', // face
-    E: '#101010', // eye
-    M: '#c41a1a', // shirt red
-    S: '#ffffff', // shirt white middle
-    P: '#1d4a8a', // pants blue
-    B: '#3a1a05', // shoes brown
+    H: '#3a1a05', F: '#e9c39a', E: '#101010',
+    M: '#c41a1a', S: '#ffffff', P: '#1d4a8a', B: '#3a1a05',
   };
 
-  // Cigar barrel (12x6) — brown with red ember
   function drawCigarBarrel(b) {
     ctx.save();
     ctx.translate(b.x|0, b.y|0);
     ctx.rotate(b.rot);
-    // Body
     ctx.fillStyle = '#6b3a1a';
     ctx.fillRect(-6, -3, 12, 6);
     ctx.fillStyle = '#8a4f24';
     ctx.fillRect(-6, -3, 12, 1);
     ctx.fillStyle = '#4a2510';
     ctx.fillRect(-6,  2, 12, 1);
-    // Wrapper bands
     ctx.fillStyle = '#3a1a05';
     ctx.fillRect(-2, -3, 1, 6);
     ctx.fillRect(2, -3, 1, 6);
-    // Ember tip (right end)
     ctx.fillStyle = '#ffae22';
     ctx.fillRect(5, -2, 1, 4);
     ctx.fillStyle = '#ff3500';
     ctx.fillRect(6, -1, 1, 2);
-    // Ash (left end)
     ctx.fillStyle = '#bcbcbc';
     ctx.fillRect(-7, -2, 1, 4);
     ctx.restore();
   }
 
-  // Trophy
+  function drawFireball(fb) {
+    const x = fb.x|0, y = fb.y|0;
+    const f = fb.flick;
+    ctx.fillStyle = '#ff2200';
+    ctx.fillRect(x-3, y-2, 6, 5);
+    ctx.fillStyle = '#ff8800';
+    ctx.fillRect(x-2, y-1, 4, 3);
+    ctx.fillStyle = '#ffe060';
+    ctx.fillRect(x-1, y, 2, 1);
+    // flickering tongues
+    ctx.fillStyle = '#ff5500';
+    ctx.fillRect(x - 1, y - 4 + (f<4?0:1), 1, 2);
+    ctx.fillRect(x + 1, y - 5 + (f<4?1:0), 1, 2);
+    // little legs
+    ctx.fillStyle = '#1a1a1a';
+    ctx.fillRect(x - 2, y + 3, 1, 2);
+    ctx.fillRect(x + 1, y + 3, 1, 2);
+    // eyes
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(x - 1, y - 1, 1, 1);
+    ctx.fillRect(x + 1, y - 1, 1, 1);
+  }
+
   function drawTrophy(x, y) {
-    // Cup
     ctx.fillStyle = '#ffcf00';
     ctx.fillRect(x-5, y, 10, 6);
     ctx.fillRect(x-6, y-1, 12, 2);
-    // Handles
     ctx.fillRect(x-7, y+1, 1, 3);
     ctx.fillRect(x+6, y+1, 1, 3);
-    // Stem & base
     ctx.fillRect(x-1, y+6, 2, 3);
     ctx.fillRect(x-4, y+9, 8, 2);
-    // Highlight
     ctx.fillStyle = '#fff7a0';
     ctx.fillRect(x-4, y+1, 2, 3);
-    // Sparkle
     const s = (Math.sin(performance.now()/200) > 0) ? '#ffffff' : '#fff7a0';
     ctx.fillStyle = s;
     ctx.fillRect(x+2, y-2, 1, 1);
   }
 
-  // ---- Render ----
+  function drawOilDrum(d) {
+    const x = d.x|0, y = d.y|0;
+    // Drum body
+    ctx.fillStyle = '#1d4ea0';
+    ctx.fillRect(x-6, y-12, 12, 12);
+    ctx.fillStyle = '#2e6fd0';
+    ctx.fillRect(x-6, y-12, 1, 12);
+    ctx.fillStyle = '#0e2a5a';
+    ctx.fillRect(x+5, y-12, 1, 12);
+    // Bands
+    ctx.fillStyle = '#ffd84a';
+    ctx.fillRect(x-6, y-10, 12, 1);
+    ctx.fillRect(x-6, y-3, 12, 1);
+    // Top rim
+    ctx.fillStyle = '#0e2a5a';
+    ctx.fillRect(x-6, y-12, 12, 1);
+
+    if (d.lit) {
+      const t = performance.now() / 60;
+      const flick = (Math.sin(t) + 1) * 0.5;
+      // Flames
+      ctx.fillStyle = '#ff2200';
+      ctx.fillRect(x-4, y-15, 8, 3);
+      ctx.fillStyle = '#ff8800';
+      ctx.fillRect(x-3, y-17 - (flick>0.5?1:0), 6, 3);
+      ctx.fillStyle = '#ffe060';
+      ctx.fillRect(x-2, y-18 - (flick>0.7?1:0), 4, 2);
+      ctx.fillStyle = '#fff5b0';
+      ctx.fillRect(x-1, y-19, 2, 1);
+    }
+  }
+
+  function drawShakaPickup(p) {
+    const x = p.x|0, y = (p.y + (p.bob || 0))|0;
+    // Hand: orange/skin colored shaka silhouette
+    ctx.fillStyle = '#e8b48a';
+    // palm
+    ctx.fillRect(x-2, y-1, 4, 4);
+    // thumb (out left)
+    ctx.fillRect(x-4, y-1, 2, 2);
+    // pinky (out right)
+    ctx.fillRect(x+2, y-2, 2, 3);
+    // wrist
+    ctx.fillRect(x-2, y+3, 4, 2);
+    // shine sparkle
+    const spk = (Math.sin(p.t * 0.2) > 0) ? '#fff7a0' : '#ffffff';
+    ctx.fillStyle = spk;
+    ctx.fillRect(x-5, y-4, 1, 1);
+    ctx.fillRect(x+4, y-5, 1, 1);
+    ctx.fillRect(x, y-6, 1, 1);
+  }
+
   function drawGirder(f) {
-    // Red beam with darker rivets
     ctx.fillStyle = '#d33a2c';
     ctx.fillRect(f.x0, f.y, f.x1 - f.x0, GIRDER_H);
     ctx.fillStyle = '#ff7a5c';
     ctx.fillRect(f.x0, f.y, f.x1 - f.x0, 1);
     ctx.fillStyle = '#7a1d12';
     ctx.fillRect(f.x0, f.y + GIRDER_H - 1, f.x1 - f.x0, 1);
-    // Diagonal hatching
     ctx.fillStyle = '#a82418';
     for (let x = f.x0 + 2; x < f.x1 - 2; x += 6) {
       ctx.fillRect(x, f.y + 2, 2, 2);
@@ -605,20 +857,36 @@
   }
   function drawLadder(l) {
     ctx.fillStyle = '#ffd84a';
-    // rails
     ctx.fillRect(l.x - LADDER_W/2, l.top, 2, l.bot - l.top);
     ctx.fillRect(l.x + LADDER_W/2 - 2, l.top, 2, l.bot - l.top);
-    // rungs
     for (let y = l.top + 3; y < l.bot - 1; y += 5) {
       ctx.fillRect(l.x - LADDER_W/2 + 2, y, LADDER_W - 4, 1);
     }
   }
 
+  function drawPlayer() {
+    if (!player.alive) {
+      ctx.fillStyle = '#c41a1a';
+      ctx.fillRect(player.x - 2, player.y + player.h - 4, player.w + 4, 4);
+      return;
+    }
+    // Smash power-up: flicker with golden aura
+    if (player.smashT > 0) {
+      const halo = (player.smashT % 6) < 3;
+      if (halo) {
+        ctx.fillStyle = 'rgba(255,207,0,0.45)';
+        ctx.fillRect(player.x - 2, player.y - 2, player.w + 4, player.h + 4);
+      }
+    }
+    // i-frames flash
+    if (player.iframes > 0 && (player.iframes % 6) < 3) return;
+    drawSprite(player.x, player.y, playerSprite, playerPalette, 1, player.facing < 0);
+  }
+
   function render() {
-    // Background — starry night-ish
+    // Background
     ctx.fillStyle = '#080812';
     ctx.fillRect(0, 0, W, H);
-    // Stars
     for (let i = 0; i < 30; i++) {
       const sx = (i * 53) % W;
       const sy = (i * 37) % (floors[5].y - 8);
@@ -626,39 +894,49 @@
       ctx.fillRect(sx, sy, 1, 1);
     }
 
-    // Girders
     for (const f of floors) drawGirder(f);
-    // Ladders
     for (const l of ladders) drawLadder(l);
 
+    // Oil drum sits on ground floor
+    drawOilDrum(oilDrum);
+
     // Sammy
-    const grid = sammy.throwT > 0 ? sammyShaka : sammyIdle;
-    drawSprite(sammy.x - 12, sammy.y - 4, grid, sammyPalette, 1, false);
+    drawSammy(ctx, sammy.x, sammy.y, sammy.throwT > 0);
 
     // Trophy
     drawTrophy(trophy.x, trophy.y);
 
-    // Barrels
-    for (const b of barrels) drawCigarBarrel(b);
+    // Pickups
+    for (const p of pickups) if (!p.dead) drawShakaPickup(p);
 
-    // Player
-    if (player.alive) {
-      drawSprite(player.x - 0, player.y, playerSprite, playerPalette, 1, player.facing < 0);
-    } else {
-      // Splat
-      ctx.fillStyle = '#c41a1a';
-      ctx.fillRect(player.x - 2, player.y + player.h - 4, player.w + 4, 4);
-      ctx.fillStyle = '#fff';
-      ctx.fillText('X_X', player.x, player.y + 4);
-    }
+    // Barrels
+    for (const b of barrels) if (!b.dead) drawCigarBarrel(b);
+
+    // Fireballs
+    for (const fb of fireballs) if (!fb.dead) drawFireball(fb);
+
+    drawPlayer();
 
     // HUD
     ctx.fillStyle = '#fff';
     ctx.font = '8px "Courier New", monospace';
+    ctx.textAlign = 'left';
     ctx.fillText('SCORE ' + String(score).padStart(5,'0'), 6, 10);
     ctx.fillText('LIVES ' + lives, W - 56, 10);
     ctx.fillStyle = '#ff3b3b';
     ctx.fillText('SAMMY KONG', W/2 - 30, 10);
+
+    // Smash timer bar
+    if (player.smashT > 0) {
+      ctx.fillStyle = '#000';
+      ctx.fillRect(W/2 - 32, 14, 64, 4);
+      ctx.fillStyle = '#ffcf00';
+      ctx.fillRect(W/2 - 31, 15, (62 * player.smashT/360)|0, 2);
+    }
+
+    // Difficulty indicator
+    ctx.fillStyle = '#888';
+    ctx.fillText('LV' + (difficulty()+1), 6, 20);
 
     if (state === 'dead') {
       banner('OUCH!', lives > 1 ? 'tap / press jump' : 'GAME OVER');
@@ -679,19 +957,43 @@
     ctx.textAlign = 'left';
   }
 
+  // Render Sammy (idle) onto the title canvas
+  (function paintTitleSammy() {
+    const tc = document.getElementById('titleSammy');
+    const tg = tc.getContext('2d');
+    tg.imageSmoothingEnabled = false;
+    tg.clearRect(0, 0, tc.width, tc.height);
+    drawSammy(tg, 21, 50, false);
+  })();
+
   // ---- Main loop ----
   function tick() {
     if (state === 'play') {
+      levelTime++;
       updatePlayer();
-      // Sammy throws
       if (sammy.throwT > 0) sammy.throwT--;
       barrelTimer--;
       if (barrelTimer <= 0) {
         spawnBarrel();
-        barrelTimer = 90 + (Math.random() * 60)|0;
+        barrelTimer = barrelInterval() + ((Math.random() * 30)|0);
+      }
+      pickupTimer--;
+      if (pickupTimer <= 0 && pickups.filter(p=>!p.dead).length === 0) {
+        spawnPickup();
+        pickupTimer = 60 * (15 + (Math.random()*10)|0);
+      }
+      fireballTimer--;
+      if (fireballTimer <= 0 && fireballs.length < 1 + Math.floor(difficulty()/3)) {
+        if (oilDrum.lit) spawnFireball();
+        fireballTimer = 60 * (8 + (Math.random()*6)|0);
       }
       for (const b of barrels) updateBarrel(b);
+      for (const fb of fireballs) updateFireball(fb);
+      for (const p of pickups) updatePickup(p);
       for (let i = barrels.length - 1; i >= 0; i--) if (barrels[i].dead) barrels.splice(i,1);
+      for (let i = fireballs.length - 1; i >= 0; i--) if (fireballs[i].dead) fireballs.splice(i,1);
+      for (let i = pickups.length - 1; i >= 0; i--) if (pickups[i].dead) pickups.splice(i,1);
+      if (oilDrum.flameT > 0) oilDrum.flameT--;
     } else if (state === 'dead' || state === 'win') {
       if (keys.jump) {
         keys.jump = false;
