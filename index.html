@@ -221,19 +221,32 @@
   // ---------- Chicken species ----------
   const SPECIES = {
     hen: {
-      weight: 1.0,
-      speedMult: 1.0,
-      pointsMult: 1.0,
-      sizeMult: 1.0,
-      colors: {
-        body:  '#f5f1e8',
-        patch: '#8b5a3c',
-        tail:  '#2a2a2a',
-        comb:  '#d23838',
-        beak:  '#e8a83a',
-        legs:  '#e8a83a',
-      },
+      weight: 1.0, speedMult: 1.0, pointsMult: 1.0, sizeMult: 1.0,
+      combScale: 1.0,
+      colors: { body:'#f5f1e8', patch:'#8b5a3c', tail:'#2a2a2a',
+                comb:'#d23838', beak:'#e8a83a', legs:'#e8a83a' },
       featherColors: ['#fff','#fff','#fff','#fff','#fff','#fff','#fff','#8b5a3c','#8b5a3c','#8b5a3c'],
+    },
+    rooster: {
+      weight: 0.55, speedMult: 1.35, pointsMult: 2.0, sizeMult: 1.05,
+      combScale: 1.7,
+      colors: { body:'#5c3a26', patch:'#2a1810', tail:'#0a4d0a',
+                comb:'#d63333', beak:'#e8a83a', legs:'#c98520' },
+      featherColors: ['#5c3a26','#5c3a26','#2a1810','#0a4d0a','#0a4d0a','#d63333'],
+    },
+    chick: {
+      weight: 0.7, speedMult: 0.65, pointsMult: 0.7, sizeMult: 0.55,
+      combScale: 0,
+      colors: { body:'#fff7a8', patch:'#ffe066', tail:'#ffd042',
+                comb:'#ffb84d', beak:'#e8a83a', legs:'#e8a83a' },
+      featherColors: ['#fff7a8','#fff7a8','#ffe066','#ffd042'],
+    },
+    golden: {
+      weight: 0.05, speedMult: 1.7, pointsMult: 5.0, sizeMult: 1.0,
+      combScale: 1.2, sparkle: true,
+      colors: { body:'#ffd700', patch:'#daa520', tail:'#b8860b',
+                comb:'#ff4500', beak:'#fff5b8', legs:'#fff5b8' },
+      featherColors: ['#ffd700','#ffeb3b','#fff5b8','#daa520','#fff'],
     },
   };
 
@@ -320,17 +333,19 @@
     ctx.beginPath();
     ctx.arc(11, -6, 6, 0, Math.PI * 2);
     ctx.fill();
-    // comb
-    ctx.fillStyle = cols.comb;
-    ctx.beginPath();
-    ctx.arc(11, -11, 2, 0, Math.PI * 2);
-    ctx.arc(13, -12, 2, 0, Math.PI * 2);
-    ctx.arc(9, -12, 2, 0, Math.PI * 2);
-    ctx.fill();
-    // wattle
-    ctx.beginPath();
-    ctx.arc(13, -2, 2, 0, Math.PI * 2);
-    ctx.fill();
+    // comb + wattle (skipped for chicks)
+    if (sp.combScale > 0) {
+      const cs = sp.combScale;
+      ctx.fillStyle = cols.comb;
+      ctx.beginPath();
+      ctx.arc(11, -11, 2 * cs, 0, Math.PI * 2);
+      ctx.arc(13, -12, 2 * cs, 0, Math.PI * 2);
+      ctx.arc(9, -12, 2 * cs, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(13, -2, 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
     // beak
     ctx.fillStyle = cols.beak;
     ctx.beginPath();
@@ -501,6 +516,17 @@
         c.x += c.vx * dt;
         c.bob += dt * 8;
         c.legPhase += dt * 12;
+        if (SPECIES[c.type].sparkle && Math.random() < 0.5) {
+          state.particles.push({
+            x: c.x + (Math.random() - 0.5) * 32 * c.scale,
+            y: c.y + (Math.random() - 0.5) * 22 * c.scale,
+            vx: 0, vy: -10,
+            life: 0.5,
+            color: Math.random() < 0.5 ? '#ffd700' : '#fff5b8',
+            size: 2 + Math.random() * 2,
+            rot: 0, vr: 0,
+          });
+        }
       } else {
         c.fallV += 600 * dt;
         c.y += c.fallV * dt;
@@ -562,8 +588,8 @@
     overlay.querySelector('p').innerHTML =
       `You bagged <span class="stat">${state.score}</span> points worth of chickens.`;
     overlay.querySelectorAll('p')[1].innerHTML =
-      state.score > 300 ? 'Da kine sharpshooter! 🎯' :
-      state.score > 150 ? 'Solid hunt, bruddah.' :
+      state.score > 800 ? 'Da kine sharpshooter! 🎯' :
+      state.score > 400 ? 'Solid hunt, bruddah.' :
       'Try again, those chickens stay sneaky.';
     startBtn.textContent = 'Play Again';
   }
