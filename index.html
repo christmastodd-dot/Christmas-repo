@@ -427,7 +427,7 @@
 
     // Invader shooting
     invaderShootTimer -= dt;
-    const shootInterval = Math.max(0.4, 1.6 - state.wave * 0.15);
+    const shootInterval = Math.max(0.8, 3.2 - state.wave * 0.3);
     if (invaderShootTimer <= 0) {
       invaderShoot();
       invaderShootTimer = shootInterval * (0.6 + Math.random() * 0.8);
