@@ -150,9 +150,64 @@
     score: 0,
     wave: 1,
     capitolHeight: 140,
+    capitol: null,
+    smokeTimer: 0,
     over: false,
     won: false
   };
+
+  const PILLAR_COUNT = 8;
+  const CAPITOL_MAX_HP = 6; // 4 pillars + dome cracked + dome destroyed
+
+  function newCapitol() {
+    return {
+      maxHp: CAPITOL_MAX_HP,
+      hp: CAPITOL_MAX_HP,
+      destroyedPillars: new Set(),
+      domeCracked: false,
+      domeDestroyed: false
+    };
+  }
+
+  function pillarCenterX(i) {
+    const cx = VW / 2;
+    const w = 520;
+    const left = cx - w / 2;
+    const pillarW = 28;
+    const pillarGap = (w - pillarW * PILLAR_COUNT) / (PILLAR_COUNT - 1);
+    return left + i * (pillarW + pillarGap) + pillarW / 2;
+  }
+
+  function damageCapitol(x) {
+    const c = state.capitol;
+    if (!c || c.hp <= 0) return;
+    c.hp--;
+    const dmg = c.maxHp - c.hp; // 1..maxHp
+    if (dmg <= 4) {
+      // Destroy the pillar nearest the impact x.
+      const remaining = [];
+      for (let p = 0; p < PILLAR_COUNT; p++) if (!c.destroyedPillars.has(p)) remaining.push(p);
+      let pick = remaining[0];
+      let bestDist = Math.abs(pillarCenterX(pick) - x);
+      for (const p of remaining) {
+        const d = Math.abs(pillarCenterX(p) - x);
+        if (d < bestDist) { bestDist = d; pick = p; }
+      }
+      c.destroyedPillars.add(pick);
+      const px = pillarCenterX(pick);
+      spawnParticles(px, VH - 80, '#cfd6df');
+      spawnParticles(px, VH - 60, '#8a96aa');
+    } else if (dmg === 5) {
+      c.domeCracked = true;
+      spawnParticles(VW / 2, VH - state.capitolHeight, '#9aa7bd');
+    } else {
+      c.domeDestroyed = true;
+      for (let i = -1; i <= 1; i++) {
+        spawnParticles(VW / 2 + i * 40, VH - state.capitolHeight + 10, '#9aa7bd');
+      }
+    }
+    if (c.hp <= 0) endGame(false);
+  }
 
   const ROWS = 5;
   const COLS = 8;
@@ -190,6 +245,8 @@
     state.bonus = null;
     state.player.x = VW / 2;
     state.player.cooldown = 0;
+    state.capitol = newCapitol();
+    state.smokeTimer = 0;
     state.over = false;
     state.won = false;
     state.running = true;
@@ -395,8 +452,16 @@
     }
 
     // Invader bullets
+    const capitolTop = VH - state.capitolHeight;
     for (const b of state.invaderBullets) b.y += b.vy * dt;
-    state.invaderBullets = state.invaderBullets.filter(b => b.y < VH);
+    state.invaderBullets = state.invaderBullets.filter(b => {
+      if (b.y >= capitolTop) {
+        damageCapitol(b.x);
+        spawnParticles(b.x, capitolTop, '#eb5757');
+        return false;
+      }
+      return b.y < VH;
+    });
 
     // Collisions: player bullets vs invaders
     for (const b of state.bullets) {
@@ -434,11 +499,28 @@
       }
     }
 
-    // Capitol breached?
-    const capitolTop = VH - state.capitolHeight;
-    if (maxY >= capitolTop - 10) {
-      endGame(false);
-      return;
+    // Invaders that crash into the Capitol chip away at it.
+    for (const inv of state.invaders) {
+      if (!inv.alive) continue;
+      if (inv.y + inv.h / 2 >= capitolTop - 10) {
+        inv.alive = false;
+        spawnParticles(inv.x, inv.y, ROW_COLORS[inv.row]);
+        damageCapitol(inv.x);
+        if (state.over) return;
+      }
+    }
+
+    // Smoke from damaged areas.
+    state.smokeTimer -= dt;
+    if (state.smokeTimer <= 0 && state.capitol) {
+      state.smokeTimer = 0.18;
+      const c = state.capitol;
+      for (const p of c.destroyedPillars) {
+        if (Math.random() < 0.6) emitSmoke(pillarCenterX(p), VH - 80);
+      }
+      if (c.domeCracked || c.domeDestroyed) {
+        emitSmoke(VW / 2 + (Math.random() - 0.5) * 60, VH - state.capitolHeight - 10);
+      }
     }
 
     // Particles
@@ -464,9 +546,22 @@
     }
   }
 
+  function emitSmoke(x, y) {
+    state.particles.push({
+      x: x + (Math.random() - 0.5) * 8,
+      y,
+      vx: (Math.random() - 0.5) * 30,
+      vy: -40 - Math.random() * 40,
+      life: 1.2 + Math.random() * 0.6,
+      color: '#5a6478',
+      smoke: true
+    });
+  }
+
   // ---------- Render ----------
   function drawCapitol() {
     // Hawaii State Capitol stylized: open-air pillars + volcano-cone "dome".
+    const c = state.capitol;
     const baseY = VH - 20;
     const top = VH - state.capitolHeight;
     const cx = VW / 2;
@@ -481,40 +576,109 @@
     ctx.fillStyle = '#cfd6df';
     ctx.fillRect(left - 20, baseY - 16, w + 40, 16);
 
-    // Pillars
-    const pillarCount = 8;
+    // Pillars (skip destroyed; draw rubble stub in their place)
     const pillarW = 28;
-    const pillarGap = (w - pillarW * pillarCount) / (pillarCount - 1);
-    ctx.fillStyle = '#e8eef7';
-    for (let i = 0; i < pillarCount; i++) {
+    const pillarGap = (w - pillarW * PILLAR_COUNT) / (PILLAR_COUNT - 1);
+    const pillarTop = top + 36;
+    const pillarBottom = baseY - 16;
+    for (let i = 0; i < PILLAR_COUNT; i++) {
       const px = left + i * (pillarW + pillarGap);
-      ctx.fillRect(px, top + 36, pillarW, baseY - 16 - (top + 36));
+      if (c && c.destroyedPillars.has(i)) {
+        // Rubble stub
+        ctx.fillStyle = '#6c7588';
+        ctx.fillRect(px, pillarBottom - 10, pillarW, 10);
+        ctx.fillStyle = '#4a5060';
+        ctx.fillRect(px + 4, pillarBottom - 14, pillarW - 8, 4);
+        // Scorch
+        ctx.fillStyle = 'rgba(0,0,0,0.35)';
+        ctx.beginPath();
+        ctx.ellipse(px + pillarW / 2, pillarBottom - 2, pillarW * 0.7, 4, 0, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        ctx.fillStyle = '#e8eef7';
+        ctx.fillRect(px, pillarTop, pillarW, pillarBottom - pillarTop);
+      }
     }
 
-    // Entablature
+    // Entablature — sags between destroyed pillar gaps
     ctx.fillStyle = '#cfd6df';
     ctx.fillRect(left - 10, top + 26, w + 20, 14);
+    if (c) {
+      ctx.fillStyle = '#0a1428';
+      for (const i of c.destroyedPillars) {
+        const px = left + i * (pillarW + pillarGap);
+        // Bite out of the entablature above the missing pillar
+        ctx.beginPath();
+        ctx.moveTo(px - 4, top + 32);
+        ctx.lineTo(px + pillarW / 2, top + 40);
+        ctx.lineTo(px + pillarW + 4, top + 32);
+        ctx.lineTo(px + pillarW + 4, top + 26);
+        ctx.lineTo(px - 4, top + 26);
+        ctx.closePath();
+        ctx.fill();
+      }
+    }
 
-    // Volcano-cone dome (truncated cone, open top)
-    ctx.fillStyle = '#9aa7bd';
-    ctx.beginPath();
-    ctx.moveTo(cx - 110, top + 26);
-    ctx.lineTo(cx - 60, top - 30);
-    ctx.lineTo(cx + 60, top - 30);
-    ctx.lineTo(cx + 110, top + 26);
-    ctx.closePath();
-    ctx.fill();
-    // Open crater
-    ctx.fillStyle = '#0a1428';
-    ctx.beginPath();
-    ctx.ellipse(cx, top - 30, 60, 8, 0, 0, Math.PI * 2);
-    ctx.fill();
+    // Dome
+    if (!c || !c.domeDestroyed) {
+      ctx.fillStyle = '#9aa7bd';
+      ctx.beginPath();
+      ctx.moveTo(cx - 110, top + 26);
+      ctx.lineTo(cx - 60, top - 30);
+      ctx.lineTo(cx + 60, top - 30);
+      ctx.lineTo(cx + 110, top + 26);
+      ctx.closePath();
+      ctx.fill();
+      // Open crater
+      ctx.fillStyle = '#0a1428';
+      ctx.beginPath();
+      ctx.ellipse(cx, top - 30, 60, 8, 0, 0, Math.PI * 2);
+      ctx.fill();
 
-    // Flag pole
-    ctx.fillStyle = '#cfd6df';
-    ctx.fillRect(cx - 1.5, top - 70, 3, 40);
-    ctx.fillStyle = '#6fcf97';
-    ctx.fillRect(cx + 1.5, top - 70, 22, 14);
+      if (c && c.domeCracked) {
+        ctx.strokeStyle = '#0a1428';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(cx - 40, top - 28);
+        ctx.lineTo(cx - 20, top - 5);
+        ctx.lineTo(cx - 28, top + 8);
+        ctx.lineTo(cx + 6, top + 24);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(cx + 30, top - 28);
+        ctx.lineTo(cx + 18, top - 6);
+        ctx.lineTo(cx + 36, top + 14);
+        ctx.stroke();
+        ctx.lineWidth = 1;
+      }
+    } else {
+      // Destroyed dome: jagged rubble silhouette
+      ctx.fillStyle = '#6c7588';
+      ctx.beginPath();
+      ctx.moveTo(cx - 110, top + 26);
+      ctx.lineTo(cx - 80, top + 6);
+      ctx.lineTo(cx - 50, top + 18);
+      ctx.lineTo(cx - 20, top - 2);
+      ctx.lineTo(cx + 10, top + 14);
+      ctx.lineTo(cx + 40, top + 4);
+      ctx.lineTo(cx + 80, top + 20);
+      ctx.lineTo(cx + 110, top + 26);
+      ctx.closePath();
+      ctx.fill();
+      // Glowing fire
+      ctx.fillStyle = 'rgba(235, 87, 87, 0.55)';
+      ctx.beginPath();
+      ctx.ellipse(cx, top + 18, 40, 6, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Flag pole — falls when dome is destroyed
+    if (!c || !c.domeDestroyed) {
+      ctx.fillStyle = '#cfd6df';
+      ctx.fillRect(cx - 1.5, top - 70, 3, 40);
+      ctx.fillStyle = '#6fcf97';
+      ctx.fillRect(cx + 1.5, top - 70, 22, 14);
+    }
   }
 
   function drawPlayer() {
@@ -565,9 +729,18 @@
 
   function drawParticles() {
     for (const pt of state.particles) {
-      ctx.globalAlpha = Math.max(0, pt.life);
-      ctx.fillStyle = pt.color;
-      ctx.fillRect(pt.x - 2, pt.y - 2, 4, 4);
+      if (pt.smoke) {
+        ctx.globalAlpha = Math.max(0, Math.min(0.55, pt.life * 0.5));
+        ctx.fillStyle = pt.color;
+        const r = 6 + (1.5 - pt.life) * 6;
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, r, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        ctx.globalAlpha = Math.max(0, pt.life);
+        ctx.fillStyle = pt.color;
+        ctx.fillRect(pt.x - 2, pt.y - 2, 4, 4);
+      }
     }
     ctx.globalAlpha = 1;
   }
@@ -580,6 +753,28 @@
     ctx.fillText(`Score: ${state.score}`, 24, 24);
     ctx.textAlign = 'right';
     ctx.fillText(`Wave ${state.wave}`, VW - 24, 24);
+
+    // Capitol integrity bar
+    if (state.capitol) {
+      const c = state.capitol;
+      const barW = 220;
+      const barH = 14;
+      const barX = (VW - barW) / 2;
+      const barY = 28;
+      ctx.fillStyle = '#1a2a4a';
+      ctx.fillRect(barX, barY, barW, barH);
+      const pct = Math.max(0, c.hp / c.maxHp);
+      const color = pct > 0.66 ? '#6fcf97' : pct > 0.33 ? '#f2c94c' : '#eb5757';
+      ctx.fillStyle = color;
+      ctx.fillRect(barX, barY, barW * pct, barH);
+      ctx.strokeStyle = '#aab8d0';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(barX, barY, barW, barH);
+      ctx.fillStyle = '#aab8d0';
+      ctx.font = '14px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('CAPITOL INTEGRITY', VW / 2, barY + barH + 4);
+    }
   }
 
   function drawStars() {
