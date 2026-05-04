@@ -178,6 +178,31 @@
     return left + i * (pillarW + pillarGap) + pillarW / 2;
   }
 
+  function getCapitolRects() {
+    const c = state.capitol;
+    const baseY = VH - 20;
+    const top = VH - state.capitolHeight;
+    const cx = VW / 2;
+    const w = 520;
+    const left = cx - w / 2;
+    const pillarW = 28;
+    const pillarGap = (w - pillarW * PILLAR_COUNT) / (PILLAR_COUNT - 1);
+    const rects = [];
+    rects.push({ x: left - 20, y: baseY - 16, w: w + 40, h: 16 }); // platform
+    for (let i = 0; i < PILLAR_COUNT; i++) {
+      if (c && c.destroyedPillars.has(i)) continue;
+      const px = left + i * (pillarW + pillarGap);
+      rects.push({ x: px, y: top + 36, w: pillarW, h: baseY - 16 - (top + 36) });
+    }
+    rects.push({ x: left - 10, y: top + 26, w: w + 20, h: 14 }); // entablature
+    if (!c || !c.domeDestroyed) {
+      rects.push({ x: cx - 110, y: top - 30, w: 220, h: 56 }); // dome bbox
+    } else {
+      rects.push({ x: cx - 110, y: top + 6, w: 220, h: 20 }); // ruin
+    }
+    return rects;
+  }
+
   function damageCapitol(x) {
     const c = state.capitol;
     if (!c || c.hp <= 0) return;
@@ -427,7 +452,7 @@
 
     // Invader shooting
     invaderShootTimer -= dt;
-    const shootInterval = Math.max(0.8, 3.2 - state.wave * 0.3);
+    const shootInterval = Math.max(1.6, 6.4 - state.wave * 0.6);
     if (invaderShootTimer <= 0) {
       invaderShoot();
       invaderShootTimer = shootInterval * (0.6 + Math.random() * 0.8);
@@ -454,13 +479,16 @@
     // Invader bullets
     const capitolTop = VH - state.capitolHeight;
     for (const b of state.invaderBullets) b.y += b.vy * dt;
+    const capitolRects = getCapitolRects();
     state.invaderBullets = state.invaderBullets.filter(b => {
-      if (b.y >= capitolTop) {
-        damageCapitol(b.x);
-        spawnParticles(b.x, capitolTop, '#eb5757');
-        return false;
+      for (const r of capitolRects) {
+        if (b.x >= r.x && b.x <= r.x + r.w && b.y >= r.y && b.y <= r.y + r.h) {
+          damageCapitol(b.x);
+          spawnParticles(b.x, b.y, '#eb5757');
+          return false;
+        }
       }
-      return b.y < VH;
+      return b.y < VH + 20;
     });
 
     // Collisions: player bullets vs invaders
