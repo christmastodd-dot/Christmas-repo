@@ -88,7 +88,30 @@
     spawnTimer: 0,
     elapsed: 0,
     lastT: 0,
+    levelIdx: 0,
+    levelTimer: 10,
+    banner: { text: '', life: 0 },
   };
+
+  function showBanner(text) {
+    state.banner = { text, life: 2.0 };
+  }
+
+  function drawBanner(dt) {
+    if (state.banner.life <= 0) return;
+    state.banner.life -= dt;
+    const a = Math.min(1, state.banner.life * 1.2);
+    ctx.save();
+    ctx.globalAlpha = a;
+    ctx.font = 'bold 34px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.lineWidth = 5;
+    ctx.strokeStyle = '#000';
+    ctx.fillStyle = '#fff';
+    ctx.strokeText(state.banner.text, W / 2, H * 0.22);
+    ctx.fillText(state.banner.text, W / 2, H * 0.22);
+    ctx.restore();
+  }
 
   // ---------- Background ----------
   const clouds = Array.from({length: 5}, () => ({
@@ -125,13 +148,11 @@
     ctx.fillStyle = '#3d6b4a';
     ctx.beginPath();
     ctx.moveTo(0, horizon);
-    let x = 0;
-    while (x < W) {
-      const peakX = x + 80 + Math.random() * 30;
+    for (let i = 0; i * 110 < W + 110; i++) {
+      const peakX = i * 110 + 60;
       const peakY = horizon - 60 - ((peakX * 7919) % 80);
       ctx.lineTo(peakX - 60, horizon);
       ctx.lineTo(peakX, peakY);
-      x = peakX + 60;
     }
     ctx.lineTo(W, horizon);
     ctx.closePath();
@@ -187,12 +208,14 @@
     ctx.restore();
   }
 
-  function drawGround() {
+  // ---------- Levels (backdrops) ----------
+  function drawParkingLot() {
+    drawMountains();
     const horizon = H * 0.55;
     // grass
     ctx.fillStyle = '#5fa84a';
     ctx.fillRect(0, horizon, W, H - horizon);
-    // asphalt strip (parking lot vibe)
+    // asphalt strip
     ctx.fillStyle = '#3a3a3a';
     ctx.fillRect(0, H * 0.78, W, H * 0.22);
     // yellow line
@@ -212,11 +235,158 @@
       ctx.fillRect(gx, gy, 2, 4);
       ctx.fillRect(gx + 3, gy + 1, 2, 3);
     }
-    // palms
     drawPalm(W * 0.15, H * 0.78, 0.7);
     drawPalm(W * 0.85, H * 0.78, 0.85);
     drawPalm(W * 0.5, H * 0.62, 0.45);
   }
+
+  function drawBanyanPark() {
+    const horizon = H * 0.55;
+    // distant rolling hills
+    ctx.fillStyle = '#4a7a4a';
+    ctx.beginPath();
+    ctx.moveTo(0, horizon);
+    for (let i = 0; i * 90 < W + 90; i++) {
+      const px = i * 90 + 30;
+      const py = horizon - 22 - ((px * 7919) % 22);
+      ctx.lineTo(px - 45, horizon);
+      ctx.quadraticCurveTo(px, py, px + 45, horizon);
+    }
+    ctx.lineTo(W, horizon);
+    ctx.closePath();
+    ctx.fill();
+    // grass field gradient
+    const g = ctx.createLinearGradient(0, horizon, 0, H);
+    g.addColorStop(0, '#5fa84a');
+    g.addColorStop(1, '#3d7a30');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, horizon, W, H - horizon);
+    // grass tufts
+    ctx.fillStyle = '#4a8a3a';
+    for (let i = 0; i < 60; i++) {
+      const gx = (i * 137) % W;
+      const gy = horizon + 15 + ((i * 53) % (H - horizon - 25));
+      ctx.fillRect(gx, gy, 2, 4);
+      ctx.fillRect(gx + 3, gy + 1, 2, 3);
+    }
+    drawBanyan(W * 0.22, H * 0.88, 1.1);
+    drawPicnicTable(W * 0.78, H * 0.84);
+  }
+
+  function drawBanyan(x, baseY, scale) {
+    ctx.save();
+    ctx.translate(x, baseY);
+    ctx.scale(scale, scale);
+    // aerial roots
+    ctx.fillStyle = '#5a3a20';
+    for (let i = -3; i <= 3; i++) {
+      const rx = i * 14;
+      const len = 100 + Math.abs(i) * 8;
+      ctx.fillRect(rx - 3, -len, 6, len);
+    }
+    // main trunk
+    ctx.fillStyle = '#6b4423';
+    ctx.beginPath();
+    ctx.moveTo(-32, 0);
+    ctx.quadraticCurveTo(-26, -100, -22, -150);
+    ctx.lineTo(22, -150);
+    ctx.quadraticCurveTo(26, -100, 32, 0);
+    ctx.closePath();
+    ctx.fill();
+    // canopy
+    ctx.fillStyle = '#2d6b2e';
+    const blobs = [{x:0,y:-200,r:65},{x:-55,y:-175,r:50},{x:60,y:-175,r:55},
+                   {x:-30,y:-225,r:42},{x:35,y:-225,r:45}];
+    blobs.forEach(b => { ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, Math.PI*2); ctx.fill(); });
+    ctx.fillStyle = '#3d8a3e';
+    blobs.forEach(b => {
+      ctx.beginPath();
+      ctx.arc(b.x - b.r * 0.3, b.y - b.r * 0.3, b.r * 0.5, 0, Math.PI*2);
+      ctx.fill();
+    });
+    ctx.restore();
+  }
+
+  function drawPicnicTable(x, y) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.fillStyle = '#7a5530';
+    // bench legs
+    ctx.fillRect(-30, 0, 4, 20);
+    ctx.fillRect(26, 0, 4, 20);
+    // table legs
+    ctx.fillRect(-30, -28, 4, 28);
+    ctx.fillRect(26, -28, 4, 28);
+    // table top
+    ctx.fillStyle = '#8b6739';
+    ctx.fillRect(-38, -32, 76, 6);
+    // bench seat
+    ctx.fillRect(-38, 0, 76, 4);
+    ctx.restore();
+  }
+
+  function drawBeachPark() {
+    const horizon = H * 0.55;
+    // distant ocean strip + island
+    ctx.fillStyle = '#3a7ca5';
+    ctx.fillRect(0, horizon - 12, W, 14);
+    ctx.fillStyle = '#5a7a6a';
+    ctx.beginPath();
+    ctx.moveTo(W * 0.62, horizon - 12);
+    ctx.quadraticCurveTo(W * 0.72, horizon - 38, W * 0.82, horizon - 12);
+    ctx.fill();
+    // wave foam
+    ctx.fillStyle = '#fff';
+    for (let i = 0; i < W; i += 12) {
+      if (((i * 17) % 30) < 15) ctx.fillRect(i, horizon - 2, 6, 2);
+    }
+    // sand
+    const g = ctx.createLinearGradient(0, horizon, 0, H);
+    g.addColorStop(0, '#ecd9a8');
+    g.addColorStop(1, '#d4b878');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, horizon, W, H - horizon);
+    // shells / specks
+    ctx.fillStyle = '#a89060';
+    for (let i = 0; i < 60; i++) {
+      const sx = (i * 213) % W;
+      const sy = horizon + 30 + ((i * 71) % (H - horizon - 35));
+      ctx.fillRect(sx, sy, 2, 2);
+    }
+    drawBeachUmbrella(W * 0.14, H * 0.82);
+    drawPalm(W * 0.88, H * 0.86, 0.9);
+  }
+
+  function drawBeachUmbrella(x, y) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.strokeStyle = '#5a3a1a';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(0, 0); ctx.lineTo(0, -80);
+    ctx.stroke();
+    const stripes = ['#e64545','#f5f1e8','#e64545','#f5f1e8','#e64545'];
+    for (let i = 0; i < stripes.length; i++) {
+      ctx.fillStyle = stripes[i];
+      ctx.beginPath();
+      const a0 = Math.PI + (i / stripes.length) * Math.PI;
+      const a1 = Math.PI + ((i + 1) / stripes.length) * Math.PI;
+      ctx.moveTo(0, -80);
+      ctx.arc(0, -80, 42, a0, a1);
+      ctx.closePath();
+      ctx.fill();
+    }
+    // tip
+    ctx.fillStyle = '#8b6739';
+    ctx.fillRect(-1, -86, 2, 6);
+    ctx.restore();
+  }
+
+  const LEVELS = [
+    { name: 'Foodland Parking Lot', draw: drawParkingLot },
+    { name: 'Banyan Park',          draw: drawBanyanPark },
+    { name: 'Beach Park',           draw: drawBeachPark },
+  ];
 
   // ---------- Chicken species ----------
   const SPECIES = {
@@ -538,20 +708,26 @@
       return true;
     });
     state.time -= dt;
+    state.levelTimer -= dt;
+    if (state.levelTimer <= 0 && state.levelIdx < LEVELS.length - 1) {
+      state.levelIdx++;
+      state.levelTimer = 10;
+      showBanner(LEVELS[state.levelIdx].name);
+    }
     if (state.time <= 0) endGame();
   }
 
   function render(dt) {
     drawSky();
     drawClouds(dt);
-    drawMountains();
-    drawGround();
+    LEVELS[state.levelIdx].draw();
     // sort chickens back-to-front (smaller scale = farther = behind)
     const sorted = [...state.chickens].sort((a, b) => a.y - b.y);
     sorted.forEach(drawChicken);
     drawParticles(dt);
     drawShots(dt);
     drawFloats(dt);
+    drawBanner(dt);
   }
 
   function loop(t) {
@@ -575,8 +751,12 @@
     state.floats = [];
     state.shots = [];
     state.spawnTimer = 0;
+    state.levelIdx = 0;
+    state.levelTimer = 10;
+    state.banner = { text: '', life: 0 };
     state.lastT = performance.now();
     overlay.classList.add('hidden');
+    showBanner(LEVELS[0].name);
     updateHUD();
     requestAnimationFrame(loop);
   }
