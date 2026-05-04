@@ -20,6 +20,17 @@
     text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000; }
   #hud .pill { background: rgba(0,0,0,0.35); padding: 6px 12px; border-radius: 20px;
     backdrop-filter: blur(4px); }
+  #targetsBar { position: absolute; bottom: 14px; left: 50%;
+    transform: translateX(-50%); display: flex; gap: 7px;
+    padding: 8px 16px; background: rgba(0,0,0,0.5); border-radius: 999px;
+    pointer-events: none; backdrop-filter: blur(4px);
+    box-shadow: 0 0 0 2px rgba(255,255,255,0.08); }
+  #targetsBar.hidden { display: none; }
+  .dot { width: 12px; height: 12px; border-radius: 50%;
+    background: rgba(255,255,255,0.22); transition: background 0.15s; }
+  .dot.hit { background: #5cc05c; box-shadow: 0 0 6px #5cc05c; }
+  .dot.miss { background: #c93a3a; }
+  .dot.quota { outline: 2px solid rgba(255,215,0,0.8); outline-offset: 2px; }
   #overlay { position: absolute; inset: 0; display: flex; flex-direction: column;
     align-items: center; justify-content: center; background: rgba(0,0,0,0.55);
     color: #fff; text-align: center; padding: 20px; }
@@ -39,14 +50,15 @@
   <canvas id="game"></canvas>
   <div id="hud">
     <div class="pill">Score: <span id="score">0</span></div>
-    <div class="pill">Time: <span id="time">30</span>s</div>
+    <div class="pill">Round: <span id="round">1</span>/3</div>
     <div class="pill">Ammo: <span id="ammo">6</span></div>
   </div>
+  <div id="targetsBar" class="hidden"></div>
   <div id="overlay">
     <h1>Feral Chicken Hunt</h1>
     <p>Da chickens stay running wild all over Hawaii. Tap to shoot 'em!</p>
-    <p>You get <span class="stat">6 shots</span> per reload (auto-reloads when empty).
-       Bag as many as you can in <span class="stat">30 seconds</span>.</p>
+    <p>Each round spawns <span class="stat">10 chickens</span>. Hit at least
+       <span class="stat">6</span> to advance. Three rounds to clear the hunt.</p>
     <button id="start">Start</button>
   </div>
 </div>
@@ -55,10 +67,21 @@
   const canvas = document.getElementById('game');
   const ctx = canvas.getContext('2d');
   const scoreEl = document.getElementById('score');
-  const timeEl = document.getElementById('time');
+  const roundEl = document.getElementById('round');
   const ammoEl = document.getElementById('ammo');
   const overlay = document.getElementById('overlay');
   const startBtn = document.getElementById('start');
+  const targetsBar = document.getElementById('targetsBar');
+
+  const ROUND_SIZE = 10;
+  const ROUND_QUOTA = 6;
+  const dotEls = [];
+  for (let i = 0; i < ROUND_SIZE; i++) {
+    const d = document.createElement('span');
+    d.className = 'dot' + (i === ROUND_QUOTA - 1 ? ' quota' : '');
+    targetsBar.appendChild(d);
+    dotEls.push(d);
+  }
 
   let W = 0, H = 0, dpr = 1;
   function resize() {
@@ -77,7 +100,6 @@
   const state = {
     running: false,
     score: 0,
-    time: 30,
     ammo: 6,
     maxAmmo: 6,
     reloading: false,
@@ -89,13 +111,20 @@
     elapsed: 0,
     lastT: 0,
     levelIdx: 0,
-    levelDur: 15,
-    mode: 'menu',           // 'menu' | 'playing' | 'levelEnd' | 'gameOver'
-    banner: { text: '', life: 0 },
+    mode: 'menu',           // 'menu' | 'playing' | 'roundEnd' | 'levelEnd' | 'gameOver'
+    spawnedCount: 0,
+    roundTargets: [],       // length 10, each null | 'hit' | 'miss'
+    dog: { active: false, t: 0, dur: 2.6, mode: 'success', hits: 0 },
+    banner: { text: '', life: 0, big: false, sub: '' },
   };
 
-  function showBanner(text) {
-    state.banner = { text, life: 2.0 };
+  function showBanner(text, opts = {}) {
+    state.banner = {
+      text,
+      life: opts.life || 2.0,
+      big: !!opts.big,
+      sub: opts.sub || '',
+    };
   }
 
   function drawBanner(dt) {
@@ -103,6 +132,25 @@
     state.banner.life -= dt;
     const a = Math.min(1, state.banner.life * 1.2);
     ctx.save();
+    if (state.banner.big) {
+      ctx.globalAlpha = a;
+      ctx.font = 'bold 64px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.lineWidth = 7;
+      ctx.strokeStyle = '#000';
+      ctx.fillStyle = '#ffd042';
+      ctx.strokeText(state.banner.text, W / 2, H * 0.32);
+      ctx.fillText(state.banner.text, W / 2, H * 0.32);
+      if (state.banner.sub) {
+        ctx.font = 'bold 24px sans-serif';
+        ctx.fillStyle = '#fff';
+        ctx.lineWidth = 4;
+        ctx.strokeText(state.banner.sub, W / 2, H * 0.32 + 38);
+        ctx.fillText(state.banner.sub, W / 2, H * 0.32 + 38);
+      }
+      ctx.restore();
+      return;
+    }
     ctx.globalAlpha = a;
     ctx.font = 'bold 34px sans-serif';
     ctx.textAlign = 'center';
@@ -624,6 +672,7 @@
   }
 
   function spawnChicken() {
+    if (state.spawnedCount >= ROUND_SIZE) return;
     const fromLeft = Math.random() < 0.5;
     const horizon = H * 0.55;
     const groundTop = horizon + 20;
@@ -637,6 +686,7 @@
     const speed = (60 + Math.random() * 70) * (0.7 + t * 0.6) * sp.speedMult;
     state.chickens.push({
       type,
+      slot: state.spawnedCount,
       x: fromLeft ? -40 : W + 40,
       y,
       scale: baseScale * sp.sizeMult,
@@ -647,6 +697,7 @@
       fallV: 0,
       points: Math.round((50 / baseScale) * sp.pointsMult),
     });
+    state.spawnedCount++;
   }
 
   function drawChicken(c) {
@@ -811,6 +862,8 @@
   const sndHit = () => { blip(720, 0.06, 'square'); setTimeout(() => blip(420, 0.1, 'triangle'), 50); };
   const sndMiss = () => blip(90, 0.1, 'sawtooth', 0.08);
   const sndReload = () => blip(300, 0.05, 'square', 0.1);
+  const sndSuccess = () => { blip(523, 0.1, 'square', 0.14); setTimeout(() => blip(659, 0.1, 'square', 0.14), 90); setTimeout(() => blip(784, 0.18, 'square', 0.14), 180); };
+  const sndLaugh = () => { blip(220, 0.12, 'sawtooth', 0.12); setTimeout(() => blip(180, 0.12, 'sawtooth', 0.12), 130); setTimeout(() => blip(140, 0.16, 'sawtooth', 0.12), 260); };
 
   // ---------- Input ----------
   function shoot(px, py) {
@@ -831,6 +884,10 @@
         c.alive = false;
         c.fallV = -120;
         state.score += c.points;
+        if (c.slot != null) {
+          state.roundTargets[c.slot] = 'hit';
+          updateDots();
+        }
         addFloat(c.x, c.y - 20, '+' + c.points, '#ffd700');
         emitFeathers(c.x, c.y, 14, SPECIES[c.type].featherColors);
         sndHit();
@@ -863,15 +920,34 @@
   // ---------- Game loop ----------
   function updateHUD() {
     scoreEl.textContent = state.score;
-    timeEl.textContent = Math.max(0, Math.ceil(state.time));
+    roundEl.textContent = state.levelIdx + 1;
     if (!state.reloading) ammoEl.textContent = state.ammo;
   }
 
+  function updateDots() {
+    for (let i = 0; i < ROUND_SIZE; i++) {
+      const t = state.roundTargets[i];
+      const cls = ['dot'];
+      if (i === ROUND_QUOTA - 1) cls.push('quota');
+      if (t === 'hit') cls.push('hit');
+      else if (t === 'miss') cls.push('miss');
+      dotEls[i].className = cls.join(' ');
+    }
+  }
+
+  function resetRoundTargets() {
+    state.roundTargets = new Array(ROUND_SIZE).fill(null);
+    state.spawnedCount = 0;
+    updateDots();
+  }
+
   function update(dt) {
-    state.spawnTimer -= dt;
-    if (state.spawnTimer <= 0) {
-      spawnChicken();
-      state.spawnTimer = 0.5 + Math.random() * 0.9;
+    if (state.mode === 'playing' && state.spawnedCount < ROUND_SIZE) {
+      state.spawnTimer -= dt;
+      if (state.spawnTimer <= 0) {
+        spawnChicken();
+        state.spawnTimer = 0.5 + Math.random() * 0.9;
+      }
     }
     state.chickens.forEach(c => {
       if (c.alive) {
@@ -896,17 +972,47 @@
     });
     state.chickens = state.chickens.filter(c => {
       if (!c.alive && c.y > H + 40) return false;
-      if (c.alive && (c.x < -80 || c.x > W + 80)) return false;
+      if (c.alive && (c.x < -80 || c.x > W + 80)) {
+        if (c.slot != null && state.roundTargets[c.slot] == null) {
+          state.roundTargets[c.slot] = 'miss';
+          showBanner('RAN AWAY!', { life: 1.2 });
+          updateDots();
+        }
+        return false;
+      }
       return true;
     });
-    state.time -= dt;
-    if (state.time <= 0) {
-      if (state.levelIdx >= LEVELS.length - 1) {
-        endGame();
-      } else {
-        showLevelEnd();
+    if (state.mode === 'playing'
+        && state.spawnedCount >= ROUND_SIZE
+        && state.roundTargets.every(t => t != null)) {
+      const hits = state.roundTargets.filter(t => t === 'hit').length;
+      triggerRoundEnd(hits);
+    }
+    if (state.dog.active) {
+      state.dog.t += dt;
+      if (state.dog.t >= state.dog.dur) {
+        state.dog.active = false;
+        if (state.dog.mode === 'success') {
+          if (state.levelIdx >= LEVELS.length - 1) endGame(true);
+          else showLevelEnd();
+        } else {
+          endGame(false);
+        }
       }
     }
+  }
+
+  function triggerRoundEnd(hits) {
+    const passed = hits >= ROUND_QUOTA;
+    state.mode = 'roundEnd';
+    state.dog = {
+      active: true,
+      t: 0,
+      dur: passed ? 2.6 : 2.4,
+      mode: passed ? 'success' : 'laugh',
+      hits,
+    };
+    if (passed) sndSuccess(); else sndLaugh();
   }
 
   function render(dt) {
@@ -919,7 +1025,198 @@
     drawParticles(dt);
     drawShots(dt);
     drawFloats(dt);
+    if (state.dog.active) drawDog();
     drawBanner(dt);
+  }
+
+  // ---------- Hunting dog ----------
+  function drawDog() {
+    const t = state.dog.t / state.dog.dur;
+    // rise (0..0.18), hold (0.18..0.82), drop (0.82..1)
+    let yOff;
+    if (t < 0.18) yOff = (1 - t / 0.18) * 130;
+    else if (t > 0.82) yOff = ((t - 0.82) / 0.18) * 130;
+    else yOff = 0;
+    const cx = W * 0.5;
+    const baseY = H * 0.92 + yOff;
+    // grass / brush hiding bottom half
+    ctx.save();
+    ctx.translate(cx, baseY);
+    // brush silhouette behind the dog
+    ctx.fillStyle = '#2d6b2e';
+    ctx.beginPath();
+    ctx.ellipse(0, 18, 90, 22, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#3d8a3e';
+    ctx.beginPath();
+    ctx.ellipse(-30, 14, 50, 14, 0, 0, Math.PI * 2);
+    ctx.ellipse(40, 12, 40, 12, 0, 0, Math.PI * 2);
+    ctx.fill();
+    // dog body — bobbing for laugh
+    const bob = state.dog.mode === 'laugh' ? Math.sin(state.dog.t * 18) * 3 : 0;
+    ctx.translate(0, bob);
+    drawDogBody(state.dog.mode, state.dog.hits);
+    ctx.restore();
+    // speech bubble
+    if (yOff === 0) {
+      const text = state.dog.mode === 'laugh' ? 'HA HA!' : 'Got ‘em!';
+      drawBubble(cx + 70, baseY - 70 + bob, text);
+    }
+  }
+
+  function drawDogBody(mode, chickensHeld) {
+    // body (oval)
+    ctx.fillStyle = '#a06a3a';
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 34, 24, 0, 0, Math.PI * 2);
+    ctx.fill();
+    // belly
+    ctx.fillStyle = '#e6c08a';
+    ctx.beginPath();
+    ctx.ellipse(0, 8, 22, 14, 0, 0, Math.PI * 2);
+    ctx.fill();
+    // arms holding chickens up (success)
+    if (mode === 'success' && chickensHeld > 0) {
+      ctx.fillStyle = '#a06a3a';
+      ctx.fillRect(-16, -28, 8, 22);
+      ctx.fillRect(8, -32, 8, 26);
+      const cn = Math.min(chickensHeld, 3);
+      for (let i = 0; i < cn; i++) {
+        const hx = -10 + i * 12;
+        const hy = -42;
+        drawHeldChicken(hx, hy);
+      }
+    }
+    // head
+    ctx.save();
+    const headTilt = mode === 'laugh' ? -0.35 : 0;
+    ctx.translate(22, -18);
+    ctx.rotate(headTilt);
+    // skull
+    ctx.fillStyle = '#a06a3a';
+    ctx.beginPath();
+    ctx.arc(0, 0, 17, 0, Math.PI * 2);
+    ctx.fill();
+    // muzzle
+    ctx.fillStyle = '#e6c08a';
+    ctx.beginPath();
+    ctx.ellipse(9, 7, 12, 8, 0, 0, Math.PI * 2);
+    ctx.fill();
+    // long floppy ear (left)
+    ctx.fillStyle = '#7a4a26';
+    ctx.beginPath();
+    ctx.ellipse(-12, -2, 6, 16, -0.3, 0, Math.PI * 2);
+    ctx.fill();
+    // ear (right, smaller)
+    ctx.beginPath();
+    ctx.ellipse(8, -14, 5, 9, 0.4, 0, Math.PI * 2);
+    ctx.fill();
+    // eye
+    ctx.fillStyle = '#000';
+    if (mode === 'laugh') {
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(-3, -3); ctx.quadraticCurveTo(2, -7, 7, -3);
+      ctx.stroke();
+    } else {
+      ctx.beginPath();
+      ctx.arc(2, -3, 2.2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    // nose
+    ctx.fillStyle = '#000';
+    ctx.beginPath();
+    ctx.arc(17, 5, 3.2, 0, Math.PI * 2);
+    ctx.fill();
+    // open mouth + tongue (laugh)
+    if (mode === 'laugh') {
+      ctx.fillStyle = '#3a1818';
+      ctx.beginPath();
+      ctx.ellipse(11, 12, 8, 5, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#e85ca0';
+      ctx.beginPath();
+      ctx.ellipse(11, 13, 5, 3, 0, 0, Math.PI * 2);
+      ctx.fill();
+      // teeth
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(5, 9, 2, 3);
+      ctx.fillRect(15, 9, 2, 3);
+    } else {
+      // smug smile
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(5, 11); ctx.quadraticCurveTo(11, 14, 17, 11);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function drawHeldChicken(x, y) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(0.7, 0.7);
+    // body
+    ctx.fillStyle = '#f5f1e8';
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 11, 8, 0, 0, Math.PI * 2);
+    ctx.fill();
+    // head
+    ctx.beginPath();
+    ctx.arc(8, -4, 5, 0, Math.PI * 2);
+    ctx.fill();
+    // X eye (dead)
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.moveTo(7, -6); ctx.lineTo(11, -2);
+    ctx.moveTo(11, -6); ctx.lineTo(7, -2);
+    ctx.stroke();
+    // beak
+    ctx.fillStyle = '#e8a83a';
+    ctx.beginPath();
+    ctx.moveTo(13, -4); ctx.lineTo(16, -3); ctx.lineTo(13, -2);
+    ctx.closePath();
+    ctx.fill();
+    // legs sticking up
+    ctx.strokeStyle = '#e8a83a';
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    ctx.moveTo(-3, -6); ctx.lineTo(-4, -14);
+    ctx.moveTo(2, -6); ctx.lineTo(3, -14);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawBubble(cx, cy, text) {
+    ctx.save();
+    ctx.font = 'bold 18px sans-serif';
+    const w = ctx.measureText(text).width + 22;
+    const h = 28;
+    ctx.fillStyle = '#fff';
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(cx - w/2, cy - h/2, w, h, 10);
+    ctx.fill();
+    ctx.stroke();
+    // tail
+    ctx.beginPath();
+    ctx.moveTo(cx - 12, cy + h/2);
+    ctx.lineTo(cx - 24, cy + h/2 + 12);
+    ctx.lineTo(cx - 4, cy + h/2);
+    ctx.closePath();
+    ctx.fillStyle = '#fff';
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#000';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, cx, cy);
+    ctx.textBaseline = 'alphabetic';
+    ctx.restore();
   }
 
   function loop(t) {
@@ -932,23 +1229,33 @@
     requestAnimationFrame(loop);
   }
 
+  function announceRound() {
+    showBanner('ROUND ' + (state.levelIdx + 1), {
+      big: true,
+      sub: LEVELS[state.levelIdx].name,
+      life: 2.2,
+    });
+  }
+
   function startGame() {
     state.running = true;
     state.mode = 'playing';
     state.score = 0;
-    state.time = state.levelDur;
     state.ammo = state.maxAmmo;
     state.reloading = false;
     state.chickens = [];
     state.particles = [];
     state.floats = [];
     state.shots = [];
-    state.spawnTimer = 0;
+    state.spawnTimer = 0.5;
     state.levelIdx = 0;
-    state.banner = { text: '', life: 0 };
+    state.dog = { active: false, t: 0, dur: 2.6, mode: 'success', hits: 0 };
+    state.banner = { text: '', life: 0, big: false, sub: '' };
+    resetRoundTargets();
+    targetsBar.classList.remove('hidden');
     state.lastT = performance.now();
     overlay.classList.add('hidden');
-    showBanner(LEVELS[0].name);
+    announceRound();
     updateHUD();
     requestAnimationFrame(loop);
   }
@@ -958,44 +1265,60 @@
     state.mode = 'levelEnd';
     const cleared = LEVELS[state.levelIdx].name;
     const next = LEVELS[state.levelIdx + 1].name;
+    const hits = state.roundTargets.filter(t => t === 'hit').length;
     overlay.classList.remove('hidden');
     overlay.querySelector('h1').textContent = cleared + ' — Pau!';
     overlay.querySelector('p').innerHTML =
-      `Score so far: <span class="stat">${state.score}</span>`;
+      `Bagged <span class="stat">${hits}/${ROUND_SIZE}</span> &nbsp;·&nbsp; ` +
+      `Score: <span class="stat">${state.score}</span>` +
+      (hits === ROUND_SIZE ? ' &nbsp;<span class="stat">PERFECT!</span>' : '');
     overlay.querySelectorAll('p')[1].innerHTML =
-      `Next stop: <span class="stat">${next}</span>`;
+      `Next round: <span class="stat">${next}</span>`;
     startBtn.textContent = 'Proceed';
   }
 
   function nextLevel() {
     state.levelIdx++;
-    state.time = state.levelDur;
     state.ammo = state.maxAmmo;
     state.reloading = false;
-    state.spawnTimer = 0.3;
+    state.spawnTimer = 0.5;
     state.chickens = [];
     state.particles = [];
     state.shots = [];
+    state.dog = { active: false, t: 0, dur: 2.6, mode: 'success', hits: 0 };
     state.mode = 'playing';
     state.running = true;
+    resetRoundTargets();
     state.lastT = performance.now();
     overlay.classList.add('hidden');
-    showBanner(LEVELS[state.levelIdx].name);
+    announceRound();
     updateHUD();
     requestAnimationFrame(loop);
   }
 
-  function endGame() {
+  function endGame(won) {
     state.running = false;
     state.mode = 'gameOver';
+    targetsBar.classList.add('hidden');
     overlay.classList.remove('hidden');
-    overlay.querySelector('h1').textContent = 'Hunt Pau!';
-    overlay.querySelector('p').innerHTML =
-      `You bagged <span class="stat">${state.score}</span> points worth of chickens.`;
-    overlay.querySelectorAll('p')[1].innerHTML =
-      state.score > 1200 ? 'Da kine sharpshooter! 🎯' :
-      state.score > 600  ? 'Solid hunt, bruddah.' :
-      'Try again, those chickens stay sneaky.';
+    if (won) {
+      overlay.querySelector('h1').textContent = 'Hunt Pau! You Win!';
+      overlay.querySelector('p').innerHTML =
+        `Cleared all 3 rounds. Final score: <span class="stat">${state.score}</span>.`;
+      overlay.querySelectorAll('p')[1].innerHTML =
+        state.score > 1500 ? 'Da kine sharpshooter! 🎯' :
+        state.score > 800  ? 'Solid hunt, bruddah.' :
+        'You did it — barely. 😮‍💨';
+    } else {
+      const hits = state.roundTargets.filter(t => t === 'hit').length;
+      overlay.querySelector('h1').textContent = 'Game Over';
+      overlay.querySelector('p').innerHTML =
+        `Only bagged <span class="stat">${hits}/${ROUND_SIZE}</span> ` +
+        `(needed <span class="stat">${ROUND_QUOTA}</span>) on round ` +
+        `<span class="stat">${state.levelIdx + 1}</span>.`;
+      overlay.querySelectorAll('p')[1].innerHTML =
+        'Da dog stay laughing. Try again.';
+    }
     startBtn.textContent = 'Play Again';
   }
 
