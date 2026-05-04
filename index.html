@@ -218,30 +218,65 @@
     drawPalm(W * 0.5, H * 0.62, 0.45);
   }
 
-  // ---------- Chicken ----------
+  // ---------- Chicken species ----------
+  const SPECIES = {
+    hen: {
+      weight: 1.0,
+      speedMult: 1.0,
+      pointsMult: 1.0,
+      sizeMult: 1.0,
+      colors: {
+        body:  '#f5f1e8',
+        patch: '#8b5a3c',
+        tail:  '#2a2a2a',
+        comb:  '#d23838',
+        beak:  '#e8a83a',
+        legs:  '#e8a83a',
+      },
+      featherColors: ['#fff','#fff','#fff','#fff','#fff','#fff','#fff','#8b5a3c','#8b5a3c','#8b5a3c'],
+    },
+  };
+
+  function pickSpecies() {
+    let total = 0;
+    for (const k in SPECIES) total += SPECIES[k].weight;
+    let r = Math.random() * total;
+    for (const k in SPECIES) {
+      r -= SPECIES[k].weight;
+      if (r <= 0) return k;
+    }
+    return 'hen';
+  }
+
   function spawnChicken() {
     const fromLeft = Math.random() < 0.5;
     const horizon = H * 0.55;
     const groundTop = horizon + 20;
     const groundBot = H * 0.92;
     const y = groundTop + Math.random() * (groundBot - groundTop);
-    // perspective scale: closer (lower y) = bigger
+    // perspective: closer (lower y) = bigger
     const t = (y - groundTop) / (groundBot - groundTop);
-    const scale = 0.5 + t * 0.9;
-    const speed = (60 + Math.random() * 70) * (0.7 + t * 0.6);
+    const baseScale = 0.5 + t * 0.9;
+    const type = pickSpecies();
+    const sp = SPECIES[type];
+    const speed = (60 + Math.random() * 70) * (0.7 + t * 0.6) * sp.speedMult;
     state.chickens.push({
+      type,
       x: fromLeft ? -40 : W + 40,
-      y, scale,
+      y,
+      scale: baseScale * sp.sizeMult,
       vx: fromLeft ? speed : -speed,
       bob: Math.random() * Math.PI * 2,
       legPhase: 0,
       alive: true,
       fallV: 0,
-      points: Math.round(50 / scale), // farther = more points
+      points: Math.round((50 / baseScale) * sp.pointsMult),
     });
   }
 
   function drawChicken(c) {
+    const sp = SPECIES[c.type];
+    const cols = sp.colors;
     ctx.save();
     ctx.translate(c.x, c.y);
     const facing = c.vx < 0 ? -1 : 1;
@@ -253,7 +288,7 @@
     }
     // legs
     if (c.alive) {
-      ctx.strokeStyle = '#e8a83a';
+      ctx.strokeStyle = cols.legs;
       ctx.lineWidth = 2;
       const lp = Math.sin(c.legPhase) * 4;
       ctx.beginPath();
@@ -261,18 +296,18 @@
       ctx.moveTo(4, 8); ctx.lineTo(4 - lp, 18);
       ctx.stroke();
     }
-    // body (white feral chicken w/ brown patches)
-    ctx.fillStyle = '#f5f1e8';
+    // body
+    ctx.fillStyle = cols.body;
     ctx.beginPath();
     ctx.ellipse(0, 0, 14, 10, 0, 0, Math.PI * 2);
     ctx.fill();
-    // brown patch
-    ctx.fillStyle = '#8b5a3c';
+    // patch
+    ctx.fillStyle = cols.patch;
     ctx.beginPath();
     ctx.ellipse(-3, -2, 7, 5, -0.3, 0, Math.PI * 2);
     ctx.fill();
     // tail feathers
-    ctx.fillStyle = '#2a2a2a';
+    ctx.fillStyle = cols.tail;
     ctx.beginPath();
     ctx.moveTo(-12, -2);
     ctx.lineTo(-20, -8);
@@ -281,12 +316,12 @@
     ctx.closePath();
     ctx.fill();
     // head
-    ctx.fillStyle = '#f5f1e8';
+    ctx.fillStyle = cols.body;
     ctx.beginPath();
     ctx.arc(11, -6, 6, 0, Math.PI * 2);
     ctx.fill();
     // comb
-    ctx.fillStyle = '#d23838';
+    ctx.fillStyle = cols.comb;
     ctx.beginPath();
     ctx.arc(11, -11, 2, 0, Math.PI * 2);
     ctx.arc(13, -12, 2, 0, Math.PI * 2);
@@ -297,7 +332,7 @@
     ctx.arc(13, -2, 2, 0, Math.PI * 2);
     ctx.fill();
     // beak
-    ctx.fillStyle = '#e8a83a';
+    ctx.fillStyle = cols.beak;
     ctx.beginPath();
     ctx.moveTo(16, -6);
     ctx.lineTo(20, -5);
@@ -313,14 +348,14 @@
   }
 
   // ---------- Particles & FX ----------
-  function emitFeathers(x, y, n) {
+  function emitFeathers(x, y, n, colors) {
     for (let i = 0; i < n; i++) {
       state.particles.push({
         x, y,
         vx: (Math.random() - 0.5) * 120,
         vy: -60 - Math.random() * 80,
         life: 1.2,
-        color: Math.random() < 0.7 ? '#fff' : '#8b5a3c',
+        color: colors[Math.floor(Math.random() * colors.length)],
         size: 3 + Math.random() * 3,
         rot: Math.random() * Math.PI,
         vr: (Math.random() - 0.5) * 6,
@@ -420,7 +455,7 @@
         c.fallV = -120;
         state.score += c.points;
         addFloat(c.x, c.y - 20, '+' + c.points, '#ffd700');
-        emitFeathers(c.x, c.y, 14);
+        emitFeathers(c.x, c.y, 14, SPECIES[c.type].featherColors);
         sndHit();
         hit = true;
         break;
