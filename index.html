@@ -89,11 +89,8 @@
     elapsed: 0,
     lastT: 0,
     levelIdx: 0,
-    levelTimer: 10,
-    phase: 'play',          // 'play' | 'transition'
-    transTime: 0,
-    transDur: 2.0,
-    transSwapped: false,
+    levelDur: 15,
+    mode: 'menu',           // 'menu' | 'playing' | 'levelEnd' | 'gameOver'
     banner: { text: '', life: 0 },
   };
 
@@ -871,12 +868,10 @@
   }
 
   function update(dt) {
-    if (state.phase === 'play') {
-      state.spawnTimer -= dt;
-      if (state.spawnTimer <= 0) {
-        spawnChicken();
-        state.spawnTimer = 0.5 + Math.random() * 0.9;
-      }
+    state.spawnTimer -= dt;
+    if (state.spawnTimer <= 0) {
+      spawnChicken();
+      state.spawnTimer = 0.5 + Math.random() * 0.9;
     }
     state.chickens.forEach(c => {
       if (c.alive) {
@@ -905,31 +900,13 @@
       return true;
     });
     state.time -= dt;
-    if (state.phase === 'play') {
-      state.levelTimer -= dt;
-      if (state.levelTimer <= 0 && state.levelIdx < LEVELS.length - 1) {
-        state.phase = 'transition';
-        state.transTime = 0;
-        state.transSwapped = false;
-        showBanner('Heading to ' + LEVELS[state.levelIdx + 1].name + '...');
-      }
-    } else {
-      state.transTime += dt;
-      // swap level at midpoint (during full fade)
-      if (!state.transSwapped && state.transTime >= state.transDur / 2) {
-        state.levelIdx++;
-        state.transSwapped = true;
-        state.chickens = [];
-        state.particles = [];
-        showBanner(LEVELS[state.levelIdx].name);
-      }
-      if (state.transTime >= state.transDur) {
-        state.phase = 'play';
-        state.levelTimer = 10;
-        state.spawnTimer = 0.3;
+    if (state.time <= 0) {
+      if (state.levelIdx >= LEVELS.length - 1) {
+        endGame();
+      } else {
+        showLevelEnd();
       }
     }
-    if (state.time <= 0) endGame();
   }
 
   function render(dt) {
@@ -942,12 +919,6 @@
     drawParticles(dt);
     drawShots(dt);
     drawFloats(dt);
-    if (state.phase === 'transition') {
-      const t = state.transTime / state.transDur;
-      const a = (t < 0.5 ? t * 2 : (1 - t) * 2) * 0.9;
-      ctx.fillStyle = `rgba(0,0,0,${a})`;
-      ctx.fillRect(0, 0, W, H);
-    }
     drawBanner(dt);
   }
 
@@ -963,8 +934,9 @@
 
   function startGame() {
     state.running = true;
+    state.mode = 'playing';
     state.score = 0;
-    state.time = 30;
+    state.time = state.levelDur;
     state.ammo = state.maxAmmo;
     state.reloading = false;
     state.chickens = [];
@@ -973,10 +945,6 @@
     state.shots = [];
     state.spawnTimer = 0;
     state.levelIdx = 0;
-    state.levelTimer = 10;
-    state.phase = 'play';
-    state.transTime = 0;
-    state.transSwapped = false;
     state.banner = { text: '', life: 0 };
     state.lastT = performance.now();
     overlay.classList.add('hidden');
@@ -985,23 +953,55 @@
     requestAnimationFrame(loop);
   }
 
+  function showLevelEnd() {
+    state.running = false;
+    state.mode = 'levelEnd';
+    const cleared = LEVELS[state.levelIdx].name;
+    const next = LEVELS[state.levelIdx + 1].name;
+    overlay.classList.remove('hidden');
+    overlay.querySelector('h1').textContent = cleared + ' — Pau!';
+    overlay.querySelector('p').innerHTML =
+      `Score so far: <span class="stat">${state.score}</span>`;
+    overlay.querySelectorAll('p')[1].innerHTML =
+      `Next stop: <span class="stat">${next}</span>`;
+    startBtn.textContent = 'Proceed';
+  }
+
+  function nextLevel() {
+    state.levelIdx++;
+    state.time = state.levelDur;
+    state.ammo = state.maxAmmo;
+    state.reloading = false;
+    state.spawnTimer = 0.3;
+    state.chickens = [];
+    state.particles = [];
+    state.shots = [];
+    state.mode = 'playing';
+    state.running = true;
+    state.lastT = performance.now();
+    overlay.classList.add('hidden');
+    showBanner(LEVELS[state.levelIdx].name);
+    updateHUD();
+    requestAnimationFrame(loop);
+  }
+
   function endGame() {
     state.running = false;
+    state.mode = 'gameOver';
     overlay.classList.remove('hidden');
-    overlay.querySelector('h1').textContent = 'Pau! Time’s Up';
+    overlay.querySelector('h1').textContent = 'Hunt Pau!';
     overlay.querySelector('p').innerHTML =
       `You bagged <span class="stat">${state.score}</span> points worth of chickens.`;
     overlay.querySelectorAll('p')[1].innerHTML =
-      state.score > 800 ? 'Da kine sharpshooter! 🎯' :
-      state.score > 400 ? 'Solid hunt, bruddah.' :
+      state.score > 1200 ? 'Da kine sharpshooter! 🎯' :
+      state.score > 600  ? 'Solid hunt, bruddah.' :
       'Try again, those chickens stay sneaky.';
     startBtn.textContent = 'Play Again';
   }
 
-  startBtn.addEventListener('click', startGame);
-  // tap-to-start anywhere on overlay (mobile)
-  overlay.addEventListener('pointerdown', e => {
-    if (e.target !== startBtn) return;
+  startBtn.addEventListener('click', () => {
+    if (state.mode === 'levelEnd') nextLevel();
+    else startGame();
   });
 })();
 </script>
