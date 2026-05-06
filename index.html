@@ -211,105 +211,223 @@
     ctx.fillRect(0, horizon - 20, W, 30);
   }
 
-  function drawFrond(angle, length, droop, color) {
+  function drawFrond(angle, length, droop, palette) {
     ctx.save();
     ctx.rotate(angle);
-    // main frond shape
-    ctx.fillStyle = color;
+    const N = 22;
+    // precompute rib points
+    const pts = [];
+    for (let i = 0; i <= N; i++) {
+      const t = i / N;
+      pts.push({ t, x: length * t, y: droop * t * t });
+    }
+    // draw leaflets along the rib (back-to-front so tip leaflets overlay base)
+    for (let i = 1; i < N; i++) {
+      const p = pts[i];
+      const prev = pts[i - 1];
+      const next = pts[i + 1];
+      const tx = next.x - prev.x;
+      const ty = next.y - prev.y;
+      const tl = Math.hypot(tx, ty) || 1;
+      const nx = -ty / tl;
+      const ny = tx / tl;
+      // leaflet length tapers (peak around 35% of rib)
+      const peak = 0.4;
+      const prox = 1 - Math.abs(p.t - peak) / Math.max(peak, 1 - peak);
+      const leafLen = Math.max(2.5, prox * 18 + 4);
+      const sweep = 0.28;
+      const swX = (tx / tl) * leafLen * sweep;
+      const swY = (ty / tl) * leafLen * sweep;
+      // upper leaflet
+      ctx.fillStyle = palette.upper;
+      ctx.beginPath();
+      ctx.moveTo(prev.x, prev.y);
+      ctx.quadraticCurveTo(
+        p.x + nx * leafLen * 0.45,
+        p.y + ny * leafLen * 0.45,
+        p.x + nx * leafLen + swX,
+        p.y + ny * leafLen + swY
+      );
+      ctx.lineTo(p.x, p.y);
+      ctx.closePath();
+      ctx.fill();
+      // lower leaflet (darker, drooping)
+      ctx.fillStyle = palette.lower;
+      ctx.beginPath();
+      ctx.moveTo(prev.x, prev.y);
+      ctx.quadraticCurveTo(
+        p.x - nx * leafLen * 0.45,
+        p.y - ny * leafLen * 0.45 + 1,
+        p.x - nx * leafLen + swX,
+        p.y - ny * leafLen + swY + 1
+      );
+      ctx.lineTo(p.x, p.y);
+      ctx.closePath();
+      ctx.fill();
+    }
+    // central rib (drawn over leaflet bases)
+    ctx.strokeStyle = palette.rib;
+    ctx.lineWidth = 1.6;
+    ctx.lineCap = 'round';
     ctx.beginPath();
     ctx.moveTo(0, 0);
-    ctx.bezierCurveTo(length * 0.4, droop * 0.15, length * 0.75, droop * 0.7, length, droop);
-    ctx.bezierCurveTo(length * 0.7, droop * 0.5, length * 0.4, -1, 0, -5);
+    for (let i = 1; i <= N; i++) ctx.lineTo(pts[i].x, pts[i].y);
+    ctx.stroke();
+    // tip-leaflet (forms the pointed end)
+    ctx.fillStyle = palette.upper;
+    const tip = pts[N];
+    const beforeTip = pts[N - 2];
+    const tipDx = tip.x - beforeTip.x, tipDy = tip.y - beforeTip.y;
+    const tdl = Math.hypot(tipDx, tipDy) || 1;
+    ctx.beginPath();
+    ctx.moveTo(beforeTip.x, beforeTip.y);
+    ctx.lineTo(tip.x + (tipDx / tdl) * 6, tip.y + (tipDy / tdl) * 6);
+    ctx.lineTo(beforeTip.x + (-tipDy / tdl) * 3, beforeTip.y + (tipDx / tdl) * 3);
     ctx.closePath();
     ctx.fill();
-    // central rib
-    ctx.strokeStyle = 'rgba(0,30,0,0.45)';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.bezierCurveTo(length * 0.4, droop * 0.1, length * 0.75, droop * 0.5, length * 0.98, droop * 0.85);
-    ctx.stroke();
-    // leaflet strokes
-    ctx.lineWidth = 0.7;
-    for (let i = 1; i < 9; i++) {
-      const t = i / 9;
-      const px = length * t;
-      const py = droop * t * t * 0.9;
-      ctx.beginPath();
-      ctx.moveTo(px, py - 1);
-      ctx.lineTo(px + 4, py - 7 - t * 3);
-      ctx.moveTo(px, py + 1);
-      ctx.lineTo(px + 4, py + 4 + t * 2);
-      ctx.stroke();
-    }
     ctx.restore();
   }
 
-  function drawPalm(x, baseY, scale) {
+  function drawPalm(x, baseY, scale, opts) {
+    opts = opts || {};
+    const lean = opts.lean || 0;
+    const variant = opts.variant || 0;
     ctx.save();
     ctx.translate(x, baseY);
+    ctx.rotate(lean);
     ctx.scale(scale, scale);
-    // trunk: gentle S curve via bezier
-    ctx.fillStyle = '#8a6a44';
+
+    const trunkH = 180;
+    const baseW = 18;
+    const topW = 9;
+
+    // trunk silhouette (slight S, tapered)
+    ctx.fillStyle = '#a8865a';
     ctx.beginPath();
-    ctx.moveTo(-8, 0);
-    ctx.bezierCurveTo(-13, -55, -3, -115, -9, -170);
-    ctx.lineTo(3, -170);
-    ctx.bezierCurveTo(9, -115, -1, -55, 8, 0);
+    ctx.moveTo(-baseW / 2, 0);
+    ctx.bezierCurveTo(-baseW / 2 - 2, -trunkH * 0.4,
+                      -topW / 2 - 5,  -trunkH * 0.75,
+                      -topW / 2 - 1,  -trunkH);
+    ctx.lineTo(topW / 2 + 1, -trunkH);
+    ctx.bezierCurveTo(topW / 2 + 6, -trunkH * 0.75,
+                      baseW / 2 + 4, -trunkH * 0.4,
+                      baseW / 2, 0);
     ctx.closePath();
     ctx.fill();
-    // trunk shading (right side darker)
-    ctx.fillStyle = 'rgba(60,40,20,0.35)';
+
+    // shaded right half
+    const shade = ctx.createLinearGradient(-baseW / 2, 0, baseW / 2 + 4, 0);
+    shade.addColorStop(0, 'rgba(255,220,170,0.18)');
+    shade.addColorStop(0.4, 'rgba(0,0,0,0)');
+    shade.addColorStop(1, 'rgba(50,30,12,0.55)');
+    ctx.fillStyle = shade;
     ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.bezierCurveTo(2, -55, -2, -115, 1, -170);
-    ctx.lineTo(3, -170);
-    ctx.bezierCurveTo(9, -115, -1, -55, 8, 0);
+    ctx.moveTo(-baseW / 2, 0);
+    ctx.bezierCurveTo(-baseW / 2 - 2, -trunkH * 0.4,
+                      -topW / 2 - 5,  -trunkH * 0.75,
+                      -topW / 2 - 1,  -trunkH);
+    ctx.lineTo(topW / 2 + 1, -trunkH);
+    ctx.bezierCurveTo(topW / 2 + 6, -trunkH * 0.75,
+                      baseW / 2 + 4, -trunkH * 0.4,
+                      baseW / 2, 0);
     ctx.closePath();
     ctx.fill();
-    // trunk rings — curve to follow trunk
-    ctx.strokeStyle = '#5a3a20';
-    ctx.lineWidth = 1.2;
-    for (let i = 1; i < 9; i++) {
-      const ty = -i * 19;
-      const xoff = Math.sin((ty + 80) / 60) * 3;
+
+    // diamond husk pattern (chevron rows)
+    ctx.strokeStyle = 'rgba(58,34,14,0.65)';
+    ctx.lineWidth = 1;
+    const rows = 13;
+    for (let i = 0; i < rows; i++) {
+      const t = i / rows;
+      const y = -8 - (trunkH - 14) * t;
+      const w = baseW + (topW - baseW) * t;
+      const offset = (i % 2) * (w / 4);
+      // 4 chevrons across width
       ctx.beginPath();
-      ctx.arc(xoff, ty, 7, 0.25, Math.PI - 0.25);
+      const segs = 3;
+      for (let j = 0; j <= segs; j++) {
+        const cx = -w / 2 + (w / segs) * j + offset - w / 8;
+        if (j === 0) ctx.moveTo(cx, y);
+        else ctx.lineTo(cx, y - (j % 2 ? 4 : 0));
+      }
       ctx.stroke();
+      // subtle highlight on the chevrons
+      ctx.strokeStyle = 'rgba(240,210,160,0.18)';
+      ctx.beginPath();
+      for (let j = 0; j <= segs; j++) {
+        const cx = -w / 2 + (w / segs) * j + offset - w / 8;
+        if (j === 0) ctx.moveTo(cx, y - 1);
+        else ctx.lineTo(cx, y - 1 - (j % 2 ? 4 : 0));
+      }
+      ctx.stroke();
+      ctx.strokeStyle = 'rgba(58,34,14,0.65)';
     }
-    // crown shadow at top of trunk
+
+    // crown collar (where fronds emerge)
     ctx.fillStyle = '#3a2614';
     ctx.beginPath();
-    ctx.ellipse(-6, -170, 11, 4, 0, 0, Math.PI * 2);
+    ctx.ellipse(0, -trunkH, topW / 2 + 5, 4, 0, 0, Math.PI * 2);
     ctx.fill();
-    // fronds: top half only, drooping outward
+    ctx.fillStyle = '#7a4f28';
+    ctx.beginPath();
+    ctx.ellipse(0, -trunkH - 1, topW / 2 + 4, 3, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // coconut cluster (tucked just below the fronds)
+    const coconuts = [
+      { x: -6, y: -trunkH + 4, r: 4.5 },
+      { x:  5, y: -trunkH + 5, r: 4.2 },
+      { x:  0, y: -trunkH + 1, r: 4.5 },
+      { x: -2, y: -trunkH + 7, r: 4.0 },
+      { x:  8, y: -trunkH + 1, r: 3.8 },
+    ];
+    coconuts.forEach(c => {
+      ctx.fillStyle = '#3a2410';
+      ctx.beginPath();
+      ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = 'rgba(180,130,70,0.6)';
+      ctx.beginPath();
+      ctx.arc(c.x - c.r * 0.35, c.y - c.r * 0.35, c.r * 0.4, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    // stem connecting cluster to crown
+    ctx.strokeStyle = '#5a3a1a';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(0, -trunkH);
+    ctx.lineTo(0, -trunkH + 5);
+    ctx.stroke();
+
+    // fronds — fan around the crown
     ctx.save();
-    ctx.translate(-6, -170);
-    // back fronds (darker, drawn first)
-    drawFrond(-Math.PI * 0.65, 60, 22, '#1d6b2e');
-    drawFrond(-Math.PI * 0.35, 60, 22, '#1d6b2e');
-    // front fronds (brighter)
-    drawFrond(-Math.PI * 0.92, 78, 38, '#2d8a3e');
-    drawFrond(-Math.PI * 0.55, 80, 32, '#2d8a3e');
-    drawFrond(-Math.PI * 0.18, 82, 38, '#2d8a3e');
-    drawFrond(Math.PI * 0.05,  72, 45, '#358e44');
-    drawFrond(-Math.PI * 1.05, 72, 45, '#358e44');
+    ctx.translate(0, -trunkH);
+    const lightP = { upper: '#3da250', lower: '#1c6b2e', rib: '#234014' };
+    const midP   = { upper: '#338a45', lower: '#155224', rib: '#1a3010' };
+    const darkP  = { upper: '#2a7a3a', lower: '#0e421a', rib: '#15280c' };
+
+    // small variant offset so multiple palms aren't identical
+    const v = variant * 0.07;
+
+    // back row (smaller, darker, drawn first)
+    drawFrond(-Math.PI * 0.92 + v, 58, 18, darkP);
+    drawFrond(-Math.PI * 0.55 + v, 50, 14, darkP);
+    drawFrond(-Math.PI * 0.08 + v, 58, 18, darkP);
+
+    // mid row
+    drawFrond(-Math.PI * 1.02 + v, 78, 32, midP);
+    drawFrond(-Math.PI * 0.72 + v, 80, 28, midP);
+    drawFrond(-Math.PI * 0.28 + v, 80, 28, midP);
+    drawFrond(Math.PI * 0.02 + v,  78, 32, midP);
+
+    // front row (longest, drooping most)
+    drawFrond(-Math.PI * 0.85 + v, 92, 50, lightP);
+    drawFrond(-Math.PI * 0.45 + v, 95, 48, lightP);
+    drawFrond(-Math.PI * 0.15 + v, 92, 50, lightP);
+    drawFrond(Math.PI * 0.10 + v,  82, 60, lightP);
+    drawFrond(-Math.PI * 1.10 + v, 82, 60, lightP);
     ctx.restore();
-    // coconut cluster
-    const coconuts = [{x:-3,y:-162},{x:3,y:-160},{x:-1,y:-167},{x:6,y:-164},{x:-7,y:-164}];
-    ctx.fillStyle = '#3a2410';
-    coconuts.forEach(c => {
-      ctx.beginPath();
-      ctx.arc(c.x, c.y, 3.5, 0, Math.PI * 2);
-      ctx.fill();
-    });
-    // coconut highlights
-    ctx.fillStyle = '#7a5a30';
-    coconuts.forEach(c => {
-      ctx.beginPath();
-      ctx.arc(c.x - 1, c.y - 1, 1.2, 0, Math.PI * 2);
-      ctx.fill();
-    });
+
     ctx.restore();
   }
 
@@ -476,8 +594,8 @@
     // a stray shopping cart
     drawShoppingCart(W * 0.62, asphaltTop + 22);
     // palms framing the scene
-    drawPalm(W * 0.06, asphaltTop + 2, 0.7);
-    drawPalm(W * 0.96, asphaltTop + 6, 0.8);
+    drawPalm(W * 0.06, asphaltTop + 2, 0.7, { lean: -0.04, variant: 0 });
+    drawPalm(W * 0.96, asphaltTop + 6, 0.8, { lean:  0.05, variant: 1 });
   }
 
   function drawBanyanPark() {
@@ -594,7 +712,7 @@
       ctx.fillRect(sx, sy, 2, 2);
     }
     drawBeachUmbrella(W * 0.14, H * 0.82);
-    drawPalm(W * 0.88, H * 0.86, 0.9);
+    drawPalm(W * 0.88, H * 0.86, 0.9, { lean: 0.07, variant: 2 });
   }
 
   function drawBeachUmbrella(x, y) {
