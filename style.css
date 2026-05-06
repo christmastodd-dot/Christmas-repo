@@ -135,29 +135,17 @@ button:active { transform: translateY(1px); }
   border-top: 2px solid var(--neon-cyan);
   box-shadow: 0 0 12px var(--neon-cyan);
 }
-#queue-label {
-  font-size: 10px;
+#status {
+  flex: 1;
+  font-size: 12px;
   letter-spacing: 2px;
   color: var(--neon-cyan);
-  writing-mode: vertical-rl;
-  transform: rotate(180deg);
+  text-shadow: 0 0 4px var(--neon-cyan);
+  text-align: center;
 }
-#queue {
-  display: flex;
-  gap: 6px;
-  flex: 1;
-  overflow: hidden;
-}
-.q-tile {
-  width: 44px;
-  height: 44px;
-  border: 1px solid var(--grid);
-  background: #0a0228;
-  flex-shrink: 0;
-}
-.q-tile.head {
-  border-color: var(--neon-yellow);
-  box-shadow: 0 0 8px var(--neon-yellow);
+#status.win {
+  color: var(--neon-green);
+  text-shadow: 0 0 6px var(--neon-green);
 }
 
 .ctl {

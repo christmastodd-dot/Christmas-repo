@@ -11,16 +11,16 @@
   <div id="app">
     <header id="hud">
       <div class="hud-cell">
-        <div class="hud-label">SCORE</div>
-        <div class="hud-value" id="score">0</div>
+        <div class="hud-label">MOVES</div>
+        <div class="hud-value" id="moves">0</div>
       </div>
       <div class="hud-cell">
         <div class="hud-label">LEVEL</div>
         <div class="hud-value" id="level">1</div>
       </div>
       <div class="hud-cell">
-        <div class="hud-label">FLOW IN</div>
-        <div class="hud-value" id="timer">--</div>
+        <div class="hud-label">PAR</div>
+        <div class="hud-value" id="par">--</div>
       </div>
     </header>
 
@@ -30,9 +30,10 @@
         <div class="panel">
           <h1 id="overlay-title">SEWER QUEST '86</h1>
           <p id="overlay-text">
-            Connect the <span class="src">CESSPOOL</span> to the
-            <span class="snk">TREATMENT PLANT</span> before sewage
-            runs off to the ocean.
+            Tap pipes to rotate them. Connect the
+            <span class="src">CESSPOOL</span> to the
+            <span class="snk">TREATMENT PLANT</span> to keep the
+            ocean clean.
           </p>
           <button id="overlay-btn">START</button>
         </div>
@@ -40,9 +41,8 @@
     </main>
 
     <section id="dock">
-      <div id="queue-label">NEXT</div>
-      <div id="queue"></div>
-      <button id="rotate-btn" class="ctl" aria-label="Discard piece">DUMP</button>
+      <div id="status">TAP A PIPE TO ROTATE</div>
+      <button id="shuffle-btn" class="ctl" aria-label="New board">NEW BOARD</button>
     </section>
   </div>
 
