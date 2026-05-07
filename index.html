@@ -562,148 +562,212 @@
 
   // ---- Drawing ----
 
-  // Procedural Sammy: white hair, white goatee, faint glasses, big smile,
-  // navy suit, blue tie. Optional shaka pose with arms raised.
+  // Procedural Sammy: receded silver hair + matching white goatee/mustache,
+  // faint silver glasses, big crinkled smile with teeth, navy suit with
+  // notched lapels, blue dress shirt and medium-blue tie.
+  // Optional shaka pose with arms raised.
   // (cx, footY) places his feet on a girder.
   function drawSammy(g, cx, footY, throwing) {
     const headW = 16, headH = 16;
     const bodyH = 14;
-    const top = footY - bodyH - headH; // top of head
-    const fx = cx - headW/2;            // left edge of face
+    const top = footY - bodyH - headH;
+    const fx = cx - headW/2;
     const fy = top + 2;
 
-    // Hair (back halo)
-    g.fillStyle = '#dcdcdc';
-    g.fillRect(fx - 2, fy - 2, headW + 4, 4);
-    g.fillRect(fx - 1, fy - 3, headW + 2, 2);
-    g.fillRect(fx, fy - 4, headW, 2);
-    g.fillRect(fx - 2, fy + 2, 2, headH - 4);
-    g.fillRect(fx + headW, fy + 2, 2, headH - 4);
+    const SKIN        = '#e8b48a';
+    const SKIN_SHADE  = '#b87f4f';
+    const SKIN_HI     = '#f0c89a';
+    const HAIR        = '#f5f5f5';
+    const HAIR_SHADE  = '#c8c8c8';
+    const TEETH       = '#fff5dc';
+    const MOUTH       = '#3a1818';
+    const SUIT        = '#0e1f33';
+    const SUIT_HL     = '#1f4476';
+    const SUIT_DK     = '#050d18';
+    const SHIRT       = '#7ab3e0';
+    const TIE         = '#2e6cb8';
+    const TIE_HL      = '#5fa8e8';
+    const FRAME       = '#9ea4ad';
 
-    // Brighter hair highlight
-    g.fillStyle = '#f5f5f5';
-    g.fillRect(fx, fy - 3, headW, 2);
+    // ---- Face skin (slightly oval) ----
+    g.fillStyle = SKIN;
+    g.fillRect(fx + 1, fy, headW - 2, headH);     // main face
+    g.fillRect(fx,     fy + 3, headW, headH - 6); // cheek widen
+    g.fillRect(fx + 3, fy + headH, headW - 6, 1); // chin under
+
+    // ---- Hair (receded: full crown, side temples, forehead skin shows) ----
+    // Crown (above forehead)
+    g.fillStyle = HAIR_SHADE;
+    g.fillRect(fx + 1, fy - 3, headW - 2, 1);
+    g.fillRect(fx,     fy - 2, headW,     1);
+    g.fillStyle = HAIR;
     g.fillRect(fx + 2, fy - 4, headW - 4, 1);
-    g.fillRect(fx - 1, fy - 1, 4, 3);
-    g.fillRect(fx + headW - 3, fy - 1, 4, 3);
+    g.fillRect(fx + 1, fy - 3, headW - 2, 1);
+    g.fillRect(fx + 1, fy - 1, headW - 2, 1);
+    // Receded hairline: hair only at corners on row fy, skin between
+    g.fillRect(fx + 1, fy,     2, 1);
+    g.fillRect(fx + headW-3, fy, 2, 1);
+    // Hair sides (temples down past brow)
+    g.fillStyle = HAIR;
+    g.fillRect(fx,     fy,     1, 4);
+    g.fillRect(fx + headW-1, fy, 1, 4);
+    g.fillStyle = HAIR_SHADE;
+    g.fillRect(fx - 1, fy + 1, 1, 3);
+    g.fillRect(fx + headW, fy + 1, 1, 3);
 
-    // Face
-    g.fillStyle = '#e8b48a';
-    g.fillRect(fx + 1, fy + 1, headW - 2, headH - 1);
-    g.fillRect(fx, fy + 3, headW, headH - 5);
-    // chin shadow
-    g.fillStyle = '#c08555';
-    g.fillRect(fx + 2, fy + headH - 1, headW - 4, 1);
+    // Subtle hairline shadow on forehead
+    g.fillStyle = SKIN_SHADE;
+    g.fillRect(fx + 4, fy + 1, headW - 8, 1);
 
-    // Glasses — faint silver rims (barely visible)
-    g.fillStyle = '#a8aeb6';
-    // left lens (rounded square outline)
+    // ---- Ears (tiny) ----
+    g.fillStyle = SKIN_SHADE;
+    g.fillRect(fx - 1, fy + 7, 1, 3);
+    g.fillRect(fx + headW, fy + 7, 1, 3);
+
+    // ---- Glasses (thin silver, barely visible) ----
+    g.fillStyle = FRAME;
+    // left lens
     g.fillRect(fx + 2, fy + 5, 5, 1);
     g.fillRect(fx + 2, fy + 8, 5, 1);
     g.fillRect(fx + 2, fy + 6, 1, 2);
     g.fillRect(fx + 6, fy + 6, 1, 2);
     // right lens
-    g.fillRect(fx + headW - 7, fy + 5, 5, 1);
-    g.fillRect(fx + headW - 7, fy + 8, 5, 1);
-    g.fillRect(fx + headW - 7, fy + 6, 1, 2);
-    g.fillRect(fx + headW - 3, fy + 6, 1, 2);
-    // bridge
+    g.fillRect(fx + 9, fy + 5, 5, 1);
+    g.fillRect(fx + 9, fy + 8, 5, 1);
+    g.fillRect(fx + 9, fy + 6, 1, 2);
+    g.fillRect(fx + 13, fy + 6, 1, 2);
+    // bridge & temple arms
     g.fillRect(fx + 7, fy + 6, 2, 1);
-
-    // Lens shine
+    g.fillRect(fx + 1, fy + 6, 1, 1);
+    g.fillRect(fx + 14, fy + 6, 1, 1);
+    // lens shine
     g.fillStyle = '#dde9f5';
     g.fillRect(fx + 3, fy + 6, 1, 1);
-    g.fillRect(fx + headW - 6, fy + 6, 1, 1);
+    g.fillRect(fx + 10, fy + 6, 1, 1);
 
-    // Eyes (smiling slits)
+    // ---- Eyes (smiling slits) + crinkles ----
     g.fillStyle = '#1a1a1a';
     g.fillRect(fx + 4, fy + 7, 2, 1);
-    g.fillRect(fx + headW - 6, fy + 7, 2, 1);
+    g.fillRect(fx + 11, fy + 7, 2, 1);
+    // crow's-feet hints
+    g.fillStyle = SKIN_SHADE;
+    g.fillRect(fx + 1, fy + 7, 1, 1);
+    g.fillRect(fx + headW - 2, fy + 7, 1, 1);
 
-    // Nose
-    g.fillStyle = '#c08555';
-    g.fillRect(fx + headW/2 - 1, fy + 9, 2, 2);
-    g.fillRect(fx + headW/2, fy + 11, 1, 1);
+    // ---- Cheek highlights (raised from smile) ----
+    g.fillStyle = SKIN_HI;
+    g.fillRect(fx + 2, fy + 10, 2, 1);
+    g.fillRect(fx + headW - 4, fy + 10, 2, 1);
 
-    // Mustache (white, above smile)
-    g.fillStyle = '#f5f5f5';
-    g.fillRect(fx + 4, fy + 11, headW - 8, 1);
+    // ---- Nose ----
+    g.fillStyle = SKIN_SHADE;
+    g.fillRect(fx + 7, fy + 9, 2, 2);
+    g.fillRect(fx + 8, fy + 11, 1, 1);
 
-    // Smile
-    g.fillStyle = '#3a1818';
+    // ---- Mustache (wide white, slight droop at outer corners) ----
+    g.fillStyle = HAIR;
+    g.fillRect(fx + 3, fy + 11, headW - 6, 1);
     g.fillRect(fx + 4, fy + 12, headW - 8, 1);
-    g.fillStyle = '#fff5dc'; // teeth
-    g.fillRect(fx + 5, fy + 12, headW - 10, 1);
-    g.fillStyle = '#3a1818'; // smile corners
-    g.fillRect(fx + 3, fy + 12, 1, 1);
-    g.fillRect(fx + headW - 4, fy + 12, 1, 1);
 
-    // Goatee (white, below smile, tapering)
-    g.fillStyle = '#f5f5f5';
-    g.fillRect(fx + 5, fy + headH - 1, headW - 10, 2);
-    g.fillRect(fx + 6, fy + headH + 1, headW - 12, 1);
+    // ---- Smile (full grin with visible teeth) ----
+    g.fillStyle = MOUTH;
+    g.fillRect(fx + 4, fy + 13, headW - 8, 2);
+    g.fillStyle = TEETH;
+    g.fillRect(fx + 5, fy + 13, headW - 10, 1);
+    // smile corners curl up (dimples)
+    g.fillStyle = MOUTH;
+    g.fillRect(fx + 3, fy + 13, 1, 1);
+    g.fillRect(fx + headW - 4, fy + 13, 1, 1);
+    g.fillStyle = SKIN_SHADE;
+    g.fillRect(fx + 2, fy + 12, 1, 1);
+    g.fillRect(fx + headW - 3, fy + 12, 1, 1);
 
-    // Body — navy suit
-    const bx = cx - 11, by = top + headH + 1;
-    g.fillStyle = '#10243d';
-    g.fillRect(bx, by, 22, bodyH);
-    // suit highlight
-    g.fillStyle = '#1f4476';
-    g.fillRect(bx, by, 2, bodyH);
-    g.fillRect(bx + 20, by, 2, bodyH);
+    // ---- Goatee (wider triangular, white) ----
+    g.fillStyle = HAIR;
+    g.fillRect(fx + 4, fy + 15, headW - 8, 1);
+    g.fillRect(fx + 5, fy + 16, headW - 10, 1);
+    g.fillRect(fx + 6, fy + 17, headW - 12, 1);
 
-    // Lapels
-    g.fillStyle = '#0a1a2c';
-    g.fillRect(bx + 6, by, 3, 5);
-    g.fillRect(bx + 13, by, 3, 5);
+    // ---- Body — navy suit ----
+    const bx = cx - 12, by = top + headH + 2;
+    g.fillStyle = SUIT;
+    g.fillRect(bx, by, 24, bodyH);
+    // shoulder highlight
+    g.fillStyle = SUIT_HL;
+    g.fillRect(bx, by, 2, 5);
+    g.fillRect(bx + 22, by, 2, 5);
+    // bottom shadow
+    g.fillStyle = SUIT_DK;
+    g.fillRect(bx, by + bodyH - 2, 24, 2);
 
-    // Shirt (blue) at neck
-    g.fillStyle = '#5a93c8';
-    g.fillRect(bx + 9, by, 4, 2);
+    // ---- Lapels (notched V) ----
+    g.fillStyle = SUIT_DK;
+    // left lapel inner edge
+    g.fillRect(bx + 7, by, 1, 6);
+    g.fillRect(bx + 8, by + 1, 1, 5);
+    g.fillRect(bx + 9, by + 2, 1, 3);
+    // right lapel inner edge
+    g.fillRect(bx + 16, by, 1, 6);
+    g.fillRect(bx + 15, by + 1, 1, 5);
+    g.fillRect(bx + 14, by + 2, 1, 3);
+    // lapel highlights
+    g.fillStyle = SUIT_HL;
+    g.fillRect(bx + 6, by + 1, 1, 4);
+    g.fillRect(bx + 17, by + 1, 1, 4);
 
-    // Tie (light blue, thin)
-    g.fillStyle = '#69bff0';
-    g.fillRect(bx + 10, by + 1, 2, 1);
-    g.fillRect(bx + 9, by + 2, 4, 3);
-    g.fillRect(bx + 10, by + 5, 2, 6);
-    g.fillStyle = '#a8e0ff';
-    g.fillRect(bx + 10, by + 2, 1, 2);
+    // ---- Shirt collar (blue) ----
+    g.fillStyle = SHIRT;
+    g.fillRect(bx + 10, by, 4, 2);
+    g.fillRect(bx + 11, by + 2, 2, 1);
 
-    // Arms
+    // ---- Tie (medium blue with knot) ----
+    g.fillStyle = TIE;
+    g.fillRect(bx + 11, by + 3, 2, 1);   // knot top
+    g.fillRect(bx + 10, by + 4, 4, 3);   // knot
+    g.fillRect(bx + 11, by + 7, 2, 5);   // tie body
+    g.fillRect(bx + 11, by + 12, 2, 1);  // tip
+    // tie highlight
+    g.fillStyle = TIE_HL;
+    g.fillRect(bx + 11, by + 4, 1, 1);
+    g.fillRect(bx + 11, by + 8, 1, 2);
+
+    // ---- Arms ----
     if (throwing) {
-      // Both arms raised in shaka pose
-      g.fillStyle = '#10243d'; // sleeve
+      // Shaka pose - arms raised at sides
+      g.fillStyle = SUIT;
       g.fillRect(bx - 3, by - 2, 4, 5);
-      g.fillRect(bx + 21, by - 2, 4, 5);
+      g.fillRect(bx + 23, by - 2, 4, 5);
       g.fillRect(bx - 5, by - 5, 4, 4);
-      g.fillRect(bx + 23, by - 5, 4, 4);
-      // hands (skin)
-      g.fillStyle = '#e8b48a';
+      g.fillRect(bx + 25, by - 5, 4, 4);
+      g.fillStyle = SUIT_HL;
+      g.fillRect(bx - 5, by - 5, 1, 4);
+      g.fillRect(bx + 28, by - 5, 1, 4);
+      // hands
+      g.fillStyle = SKIN;
       g.fillRect(bx - 6, by - 7, 4, 3);
-      g.fillRect(bx + 24, by - 7, 4, 3);
-      // shaka thumbs (sticking out sideways)
+      g.fillRect(bx + 26, by - 7, 4, 3);
+      // shaka thumbs out
       g.fillRect(bx - 8, by - 6, 2, 1);
-      g.fillRect(bx + 28, by - 6, 2, 1);
-      // shaka pinkies (sticking up)
+      g.fillRect(bx + 30, by - 6, 2, 1);
+      // pinkies up
       g.fillRect(bx - 3, by - 9, 1, 2);
-      g.fillRect(bx + 27, by - 9, 1, 2);
+      g.fillRect(bx + 29, by - 9, 1, 2);
     } else {
-      // Arms at sides
-      g.fillStyle = '#10243d';
+      g.fillStyle = SUIT;
       g.fillRect(bx - 2, by + 2, 3, 8);
-      g.fillRect(bx + 21, by + 2, 3, 8);
-      g.fillStyle = '#e8b48a';
+      g.fillRect(bx + 23, by + 2, 3, 8);
+      g.fillStyle = SKIN;
       g.fillRect(bx - 2, by + 10, 3, 2);
-      g.fillRect(bx + 21, by + 10, 3, 2);
+      g.fillRect(bx + 23, by + 10, 3, 2);
     }
 
-    // Legs / shoes peek
-    g.fillStyle = '#0a1a2c';
-    g.fillRect(bx + 5, by + bodyH, 4, 2);
-    g.fillRect(bx + 13, by + bodyH, 4, 2);
+    // ---- Legs / shoes ----
+    g.fillStyle = SUIT_DK;
+    g.fillRect(bx + 6, by + bodyH, 4, 2);
+    g.fillRect(bx + 14, by + bodyH, 4, 2);
     g.fillStyle = '#1a1a1a';
-    g.fillRect(bx + 4, by + bodyH + 2, 5, 1);
-    g.fillRect(bx + 13, by + bodyH + 2, 5, 1);
+    g.fillRect(bx + 5, by + bodyH + 2, 5, 1);
+    g.fillRect(bx + 14, by + bodyH + 2, 5, 1);
   }
 
   function drawSprite(sx, sy, grid, palette, scale=1, flip=false) {
