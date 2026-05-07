@@ -59,6 +59,8 @@
 
   // Random walk from src to snk, avoiding revisits.
   // Biased toward the target, with occasional detours for twistiness.
+  // Constraint: the path must enter the source from the east and the
+  // sink from the west, since those endpoints have fixed openings.
   function generatePath(sx, sy, tx, ty) {
     for (let attempt = 0; attempt < 50; attempt++) {
       const path = [[sx, sy]];
@@ -72,9 +74,11 @@
           const nx = cx + dx, ny = cy + dy;
           if (!inBounds(nx, ny)) continue;
           if (seen.has(nx + ',' + ny)) continue;
-          // disallow stepping back into source column unless it IS the start;
-          // disallow leaving the sink column once we reach it
+          // Never re-enter the source column.
           if (nx === sx && ny !== sy) continue;
+          // Never enter the sink column except by landing exactly on the sink,
+          // which forces the final step to come from due west.
+          if (nx === tx && !(nx === tx && ny === ty)) continue;
           cands.push([d, nx, ny]);
         }
         if (cands.length === 0) { stuck = true; break; }
@@ -92,51 +96,90 @@
       }
       if (!stuck) return path;
     }
-    // fallback: straight L-shape
+    // Fallback: east to tx-1, vertical to ty, then east into sink.
+    // This shape always satisfies the source-east and sink-west constraints.
     const path = [];
     let cx = sx, cy = sy;
     path.push([cx, cy]);
-    while (cx !== tx) { cx += Math.sign(tx - cx); path.push([cx, cy]); }
+    while (cx < tx - 1) { cx += 1; path.push([cx, cy]); }
     while (cy !== ty) { cy += Math.sign(ty - cy); path.push([cx, cy]); }
+    path.push([tx, ty]);
     return path;
   }
 
-  function newBoard() {
-    const g = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
-    const sy = 1 + Math.floor(Math.random() * (ROWS - 2));
-    let ty;
-    do { ty = 1 + Math.floor(Math.random() * (ROWS - 2)); } while (ty === sy);
-
-    const path = generatePath(0, sy, COLS - 1, ty);
-
-    // Endpoints (rotation-locked)
-    g[sy][0] = { type: 'src', openings: new Set(['E']), connected: false, locked: true };
-    g[ty][COLS - 1] = { type: 'snk', openings: new Set(['W']), connected: false, locked: true };
-
-    // Interior path cells: openings derived from neighbors in path
-    for (let i = 1; i < path.length - 1; i++) {
-      const cur = path[i];
-      const dirToPrev = dirBetween(cur, path[i - 1]);
-      const dirToNext = dirBetween(cur, path[i + 1]);
-      g[cur[1]][cur[0]] = {
-        type: 'pipe',
-        openings: new Set([dirToPrev, dirToNext]),
-        connected: false,
-        locked: false,
-      };
+  // BFS on a candidate board; returns true iff sink is reachable from src.
+  function isSolved(g, sx, sy, tx, ty) {
+    const seen = Array.from({ length: ROWS }, () => Array(COLS).fill(false));
+    const q = [[sx, sy]];
+    seen[sy][sx] = true;
+    while (q.length) {
+      const [x, y] = q.shift();
+      const cell = g[y][x];
+      for (const d of cell.openings) {
+        const [dx, dy] = DXY[d];
+        const nx = x + dx, ny = y + dy;
+        if (!inBounds(nx, ny) || seen[ny][nx]) continue;
+        const next = g[ny][nx];
+        if (!next || !next.openings.has(OPP[d])) continue;
+        if (nx === tx && ny === ty) return true;
+        seen[ny][nx] = true;
+        q.push([nx, ny]);
+      }
     }
+    return false;
+  }
 
-    // Decoy pipes in remaining cells (random openings, 1 or 2 arms)
+  function buildSolvedBoard() {
+    for (let attempt = 0; attempt < 20; attempt++) {
+      const g = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
+      const sy = 1 + Math.floor(Math.random() * (ROWS - 2));
+      let ty;
+      do { ty = 1 + Math.floor(Math.random() * (ROWS - 2)); } while (ty === sy);
+
+      const path = generatePath(0, sy, COLS - 1, ty);
+
+      g[sy][0] = { type: 'src', openings: new Set(['E']), connected: false, locked: true };
+      g[ty][COLS - 1] = { type: 'snk', openings: new Set(['W']), connected: false, locked: true };
+
+      for (let i = 1; i < path.length - 1; i++) {
+        const cur = path[i];
+        const dirToPrev = dirBetween(cur, path[i - 1]);
+        const dirToNext = dirBetween(cur, path[i + 1]);
+        g[cur[1]][cur[0]] = {
+          type: 'pipe',
+          openings: new Set([dirToPrev, dirToNext]),
+          connected: false,
+          locked: false,
+        };
+      }
+
+      // Verify the unscrambled board actually solves before continuing.
+      if (!isSolved(g, 0, sy, COLS - 1, ty)) continue;
+
+      return { g, path, sy, ty };
+    }
+    // Should never happen with the fallback, but if it does, throw rather
+    // than serve an unsolvable board.
+    throw new Error('Failed to build a solvable board');
+  }
+
+  function newBoard() {
+    const built = buildSolvedBoard();
+    const g = built.g;
+    const sy = built.sy, ty = built.ty;
+    const path = built.path;
+
+    // Decoy pipes in remaining cells (random openings).
+    // Decoys never overwrite path cells, so they can't disconnect the solution.
     for (let y = 0; y < ROWS; y++) {
       for (let x = 0; x < COLS; x++) {
         if (g[y][x]) continue;
         if (Math.random() < 0.65) {
-          // pick a random pipe type to use as a decoy
           const decoys = [
-            ['N', 'S'], ['E', 'W'],          // straights
+            ['N', 'S'], ['E', 'W'],
             ['N', 'E'], ['E', 'S'],
-            ['S', 'W'], ['W', 'N'],          // elbows
-            ['N', 'E', 'S'], ['E', 'S', 'W'], // tees (rare)
+            ['S', 'W'], ['W', 'N'],
+            ['N', 'E', 'S'], ['E', 'S', 'W'],
           ];
           const pick = rand(decoys);
           g[y][x] = {
@@ -149,11 +192,9 @@
       }
     }
 
-    // Compute par BEFORE scrambling: number of unique rotations needed
-    // is roughly the number of path cells; we use path.length as a soft par.
     par = Math.max(6, Math.floor(path.length * 1.4));
 
-    // Scramble rotations of every non-locked pipe
+    // Scramble rotations of every non-locked pipe.
     for (let y = 0; y < ROWS; y++) {
       for (let x = 0; x < COLS; x++) {
         const c = g[y][x];
