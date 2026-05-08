@@ -843,23 +843,22 @@
   // ---- Shaka particle system (always-on emoji popping around Sammy) ----
   const gameShakas = [];
   const titleShakas = [];
-  const SHAKA_COLORS = ['#ffcf00', '#ff7a5c', '#7cd97c', '#e8b48a', '#69bff0'];
 
-  function drawTinyShaka(g, x, y, color, flip) {
-    g.fillStyle = color;
-    if (!flip) {
-      // pinky on right, thumb on left going down
-      g.fillRect(x + 5, y + 0, 1, 2);   // pinky shaft
-      g.fillRect(x + 1, y + 2, 5, 1);   // fist top
-      g.fillRect(x + 0, y + 3, 5, 1);   // fist bottom
-      g.fillRect(x + 0, y + 4, 1, 2);   // thumb
+  function drawShakaEmoji(g, x, y, size, flip) {
+    g.font = (size | 0) + 'px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
+    g.textAlign = 'center';
+    g.textBaseline = 'middle';
+    if (flip) {
+      g.save();
+      g.translate(x | 0, y | 0);
+      g.scale(-1, 1);
+      g.fillText('🤙', 0, 0);
+      g.restore();
     } else {
-      // mirrored: pinky on left, thumb on right going down
-      g.fillRect(x + 0, y + 0, 1, 2);
-      g.fillRect(x + 0, y + 2, 5, 1);
-      g.fillRect(x + 1, y + 3, 5, 1);
-      g.fillRect(x + 5, y + 4, 1, 2);
+      g.fillText('🤙', x | 0, y | 0);
     }
+    g.textAlign = 'left';
+    g.textBaseline = 'alphabetic';
   }
 
   function spawnShaka(arr, cx, cy, range) {
@@ -873,7 +872,7 @@
       life: 50 + ((Math.random() * 30) | 0),
       age: 0,
       flip: Math.random() < 0.5,
-      color: SHAKA_COLORS[(Math.random() * SHAKA_COLORS.length) | 0],
+      size: 11 + ((Math.random() * 6) | 0),
       wobble: Math.random() * Math.PI * 2,
     });
   }
@@ -893,7 +892,7 @@
     for (const p of arr) {
       const a = 1 - p.age / p.life;
       g.globalAlpha = Math.max(0, Math.min(1, a < 0.2 ? a / 0.2 : 1));
-      drawTinyShaka(g, p.x | 0, p.y | 0, p.color, p.flip);
+      drawShakaEmoji(g, p.x, p.y, p.size, p.flip);
     }
     g.globalAlpha = 1;
   }
