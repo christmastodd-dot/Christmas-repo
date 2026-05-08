@@ -421,7 +421,7 @@
       onFloor: sammyFloor,
       rot: 0,
     });
-    sammy.throwT = 18;
+    sammy.throwT = 36;
     // Occasionally spawn a second barrel after a delay (high difficulty)
     if (difficulty() >= 4 && Math.random() < 0.21) {
       setTimeout(() => {
@@ -430,7 +430,7 @@
             x: sammy.x + 12, y: topFloorY - 4,
             vx: cigarSpeed, vy: 0, onFloor: sammyFloor, rot: 0,
           });
-          sammy.throwT = 18;
+          sammy.throwT = 36;
         }
       }, 500);
     }
@@ -740,6 +740,7 @@
     const SHIRT       = '#7ab3e0';
     const TIE         = '#2e6cb8';
     const TIE_HL      = '#5fa8e8';
+    const TIE_DK      = '#1a3f7a';
     const FRAME       = '#9ea4ad';
 
     // ---- Face skin (slightly oval) ----
@@ -873,38 +874,100 @@
     g.fillRect(bx + 10, by, 4, 2);
     g.fillRect(bx + 11, by + 2, 2, 1);
 
-    // ---- Tie (medium blue with knot) ----
+    // ---- Bow tie (centered at bx + 12) ----
+    const bowY = by + 3;
+    // Left wing (tapered fat-out, narrow-in)
     g.fillStyle = TIE;
-    g.fillRect(bx + 11, by + 3, 2, 1);   // knot top
-    g.fillRect(bx + 10, by + 4, 4, 3);   // knot
-    g.fillRect(bx + 11, by + 7, 2, 5);   // tie body
-    g.fillRect(bx + 11, by + 12, 2, 1);  // tip
-    // tie highlight
+    g.fillRect(bx + 8,  bowY,     3, 1);  // top edge
+    g.fillRect(bx + 7,  bowY + 1, 4, 2);  // middle (widest)
+    g.fillRect(bx + 8,  bowY + 3, 3, 1);  // bottom edge
+    // Right wing
+    g.fillRect(bx + 13, bowY,     3, 1);
+    g.fillRect(bx + 13, bowY + 1, 4, 2);
+    g.fillRect(bx + 13, bowY + 3, 3, 1);
+    // Knot (darker center, full height)
+    g.fillStyle = TIE_DK;
+    g.fillRect(bx + 11, bowY,     2, 4);
+    // Wing highlights (top corners)
     g.fillStyle = TIE_HL;
-    g.fillRect(bx + 11, by + 4, 1, 1);
-    g.fillRect(bx + 11, by + 8, 1, 2);
+    g.fillRect(bx + 8, bowY + 1, 1, 1);
+    g.fillRect(bx + 15, bowY + 1, 1, 1);
+    // Knot center notch
+    g.fillRect(bx + 11, bowY + 1, 1, 1);
 
     // ---- Arms ----
     if (throwing) {
-      // Shaka pose - arms raised at sides
+      // ===== Big readable double-shaka, hands raised above head =====
+      // LEFT arm: angled sleeve from shoulder up-and-out to wrist
       g.fillStyle = SUIT;
-      g.fillRect(bx - 3, by - 2, 4, 5);
-      g.fillRect(bx + 23, by - 2, 4, 5);
-      g.fillRect(bx - 5, by - 5, 4, 4);
-      g.fillRect(bx + 25, by - 5, 4, 4);
+      g.fillRect(bx - 1,  by - 1, 3, 4);   // shoulder cap
+      g.fillRect(bx - 3,  by - 5, 3, 5);   // upper segment
+      g.fillRect(bx - 5,  by - 9, 3, 5);   // mid segment
+      g.fillRect(bx - 7,  by - 14, 3, 6);  // forearm to wrist
       g.fillStyle = SUIT_HL;
-      g.fillRect(bx - 5, by - 5, 1, 4);
-      g.fillRect(bx + 28, by - 5, 1, 4);
-      // hands
+      g.fillRect(bx - 7,  by - 14, 1, 6);  // sleeve edge highlight
+      g.fillStyle = '#1a1a1a';
+      g.fillRect(bx - 7,  by - 14, 4, 1);  // sleeve cuff
+
+      // LEFT hand — big palm
       g.fillStyle = SKIN;
-      g.fillRect(bx - 6, by - 7, 4, 3);
-      g.fillRect(bx + 26, by - 7, 4, 3);
-      // shaka thumbs out
-      g.fillRect(bx - 8, by - 6, 2, 1);
-      g.fillRect(bx + 30, by - 6, 2, 1);
-      // pinkies up
-      g.fillRect(bx - 3, by - 9, 1, 2);
-      g.fillRect(bx + 29, by - 9, 1, 2);
+      g.fillRect(bx - 7, by - 19, 5, 5);   // palm 5w x 5h
+      // Pinky pointing UP — chunky, well above head
+      g.fillRect(bx - 5, by - 25, 2, 6);
+      g.fillStyle = SKIN_HI;
+      g.fillRect(bx - 5, by - 25, 1, 2);   // pinky tip highlight
+      // Thumb sticking OUT to the LEFT — chunky, clearly visible
+      g.fillStyle = SKIN;
+      g.fillRect(bx - 10, by - 17, 3, 3);
+      g.fillRect(bx - 11, by - 16, 1, 1);  // thumb nail/tip
+      // Knuckle ridge + folded-finger shading
+      g.fillStyle = SKIN_SHADE;
+      g.fillRect(bx - 7, by - 15, 5, 1);   // knuckle line at base of palm
+      g.fillRect(bx - 3, by - 19, 1, 5);   // gap between palm and pinky base
+      g.fillRect(bx - 7, by - 19, 1, 5);   // outer palm shadow
+
+      // RIGHT arm (mirror)
+      g.fillStyle = SUIT;
+      g.fillRect(bx + 22, by - 1, 3, 4);
+      g.fillRect(bx + 24, by - 5, 3, 5);
+      g.fillRect(bx + 26, by - 9, 3, 5);
+      g.fillRect(bx + 28, by - 14, 3, 6);
+      g.fillStyle = SUIT_HL;
+      g.fillRect(bx + 30, by - 14, 1, 6);
+      g.fillStyle = '#1a1a1a';
+      g.fillRect(bx + 27, by - 14, 4, 1);
+
+      // RIGHT hand
+      g.fillStyle = SKIN;
+      g.fillRect(bx + 26, by - 19, 5, 5);  // palm
+      // Pinky UP
+      g.fillRect(bx + 28, by - 25, 2, 6);
+      g.fillStyle = SKIN_HI;
+      g.fillRect(bx + 29, by - 25, 1, 2);
+      // Thumb OUT to RIGHT
+      g.fillStyle = SKIN;
+      g.fillRect(bx + 31, by - 17, 3, 3);
+      g.fillRect(bx + 34, by - 16, 1, 1);
+      // Knuckle / palm shadows
+      g.fillStyle = SKIN_SHADE;
+      g.fillRect(bx + 26, by - 15, 5, 1);
+      g.fillRect(bx + 30, by - 19, 1, 5);
+      g.fillRect(bx + 30, by - 19, 1, 5);
+
+      // Motion sparkles bouncing around the raised hands so the throw pops
+      g.fillStyle = '#ffcf00';
+      const blink = ((sammy && sammy.throwT) || 0) % 12;
+      if (blink < 6) {
+        g.fillRect(bx - 13, by - 22, 1, 1);
+        g.fillRect(bx + 36, by - 22, 1, 1);
+        g.fillRect(bx - 8,  by - 28, 1, 1);
+        g.fillRect(bx + 33, by - 28, 1, 1);
+      } else {
+        g.fillRect(bx - 11, by - 26, 1, 1);
+        g.fillRect(bx + 34, by - 26, 1, 1);
+        g.fillRect(bx - 5,  by - 29, 1, 1);
+        g.fillRect(bx + 30, by - 29, 1, 1);
+      }
     } else {
       g.fillStyle = SUIT;
       g.fillRect(bx - 2, by + 2, 3, 8);
