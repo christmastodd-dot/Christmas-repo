@@ -1202,33 +1202,6 @@
     // observatory complex up there)
     ctx.fillStyle = '#f0e8d0';
     ctx.fillRect(W * 0.515, horizon - peakH + 2, 2, 2);
-    // cloud belt obscuring the middle of the mountain — semi-transparent
-    // so the summit pokes through the top and the base shows through below.
-    const cloudY = horizon - peakH * 0.45;
-    const cloudBandH = peakH * 0.32;
-    // wide soft haze across the whole belt
-    ctx.fillStyle = 'rgba(255,255,255,0.30)';
-    ctx.fillRect(0, cloudY - cloudBandH * 0.4, W, cloudBandH);
-    // chunkier cloud blobs at varying alpha
-    for (let i = 0; i < 22; i++) {
-      const cx = (i * (W / 22)) + ((i * 19) % 40) - 20;
-      const cy = cloudY + ((i * 13) % cloudBandH) - cloudBandH * 0.5;
-      const cw = 38 + ((i * 7) % 32);
-      const ch = 6 + ((i * 5) % 4);
-      ctx.fillStyle = `rgba(255,255,255,${0.32 + (i % 3) * 0.16})`;
-      ctx.beginPath();
-      ctx.ellipse(cx, cy, cw, ch, 0, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    // a few brighter highlight wisps near the cloud belt center
-    ctx.fillStyle = 'rgba(255,255,255,0.65)';
-    for (let i = 0; i < 8; i++) {
-      const cx = (i * (W / 8)) + ((i * 23) % 30);
-      const cy = cloudY + ((i * 7) % 6) - 3;
-      ctx.beginPath();
-      ctx.ellipse(cx, cy, 28, 3, 0, 0, Math.PI * 2);
-      ctx.fill();
-    }
     // mid band: red cinder slope between the clouds and the foreground
     const mg = ctx.createLinearGradient(0, cinderTop, 0, groundY);
     mg.addColorStop(0, '#b46044');
