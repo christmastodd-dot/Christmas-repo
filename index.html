@@ -36,12 +36,9 @@
     color: #fff; text-align: center; padding: 20px; }
   #overlay.hidden { display: none; }
   #overlay.menu-mode { background: transparent; justify-content: flex-end;
-    padding-bottom: 6vh; }
-  #overlay.menu-mode h1 { display: none; }
-  #overlay.menu-mode p { font-size: clamp(11px, 2.6vw, 14px);
-    color: #cce4ea; opacity: 0.85; max-width: 360px;
-    text-shadow: 1px 1px 0 #000; }
-  #overlay.menu-mode .stat { color: #ffce4d; }
+    padding-bottom: 2.5vh; }
+  #overlay.menu-mode h1,
+  #overlay.menu-mode p { display: none; }
   #overlay h1 { font-size: clamp(28px, 7vw, 48px); margin-bottom: 8px;
     text-shadow: 3px 3px 0 #b8860b; }
   #overlay p { font-size: clamp(14px, 3.5vw, 18px); margin: 6px 0; max-width: 480px; }
@@ -1569,10 +1566,10 @@
   // ---------- Title screen ----------
   function setupMenu() {
     state.menuChickens = [
-      { type: 'hen',     x: -60,     y: H * 0.46, scale: 1.5, vx: 110,  bob: 0,   legPhase: 0, alive: true, fallV: 0 },
-      { type: 'rooster', x: W + 60,  y: H * 0.56, scale: 1.3, vx: -130, bob: 1.2, legPhase: 0, alive: true, fallV: 0 },
-      { type: 'chick',   x: -90,     y: H * 0.80, scale: 2.0, vx:  85,  bob: 0.4, legPhase: 0, alive: true, fallV: 0 },
-      { type: 'golden',  x: W + 120, y: H * 0.30, scale: 1.0, vx: -170, bob: 2.0, legPhase: 0, alive: true, fallV: 0 },
+      { type: 'hen',     x: -60,     y: H * 0.43, scale: 1.5, vx: 110,  bob: 0,   legPhase: 0, alive: true, fallV: 0 },
+      { type: 'rooster', x: W + 60,  y: H * 0.57, scale: 1.3, vx: -130, bob: 1.2, legPhase: 0, alive: true, fallV: 0 },
+      { type: 'chick',   x: -90,     y: H * 0.18, scale: 1.6, vx:  85,  bob: 0.4, legPhase: 0, alive: true, fallV: 0 },
+      { type: 'golden',  x: W + 120, y: H * 0.10, scale: 0.9, vx: -170, bob: 2.0, legPhase: 0, alive: true, fallV: 0 },
     ];
     state.menuT = 0;
     state.menuLastT = performance.now();
@@ -1589,16 +1586,46 @@
     drawTitle();
     // chickens parading across
     state.menuChickens.forEach(drawChicken);
-    // start prompt blink
-    const blink = Math.sin(state.menuT * 4) > 0;
+    // rules pill (canvas-rendered for guaranteed legibility)
+    drawMenuRules();
+  }
+
+  function drawMenuRules() {
     ctx.save();
-    ctx.font = `bold ${Math.max(12, Math.min(20, W * 0.04))}px Impact, "Arial Black", sans-serif`;
+    const lines = [
+      '10 chickens per round  ·  hit 6 to advance  ·  3 rounds',
+      'Misses −25 pts  ·  finish quick for a +500 time bonus',
+    ];
+    const fs = Math.max(11, Math.min(15, W * 0.028));
+    ctx.font = `${fs}px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillStyle = blink ? '#22e0e0' : '#0c8a8a';
-    ctx.shadowColor = '#22e0e0';
-    ctx.shadowBlur = blink ? 10 : 0;
-    ctx.fillText('— PRESS START —', W / 2, H * 0.92);
+    const widths = lines.map(l => ctx.measureText(l).width);
+    const maxW = Math.max(...widths);
+    const padX = 18, padY = 10;
+    const lineH = fs * 1.55;
+    const boxW = Math.min(maxW + padX * 2, W - 24);
+    const boxH = lineH * lines.length + padY * 2;
+    const cx = W / 2;
+    const cy = H * 0.86;
+    // pill background
+    ctx.fillStyle = 'rgba(8, 14, 22, 0.85)';
+    ctx.strokeStyle = 'rgba(34, 224, 224, 0.55)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    if (typeof ctx.roundRect === 'function') {
+      ctx.roundRect(cx - boxW / 2, cy - boxH / 2, boxW, boxH, 14);
+    } else {
+      ctx.rect(cx - boxW / 2, cy - boxH / 2, boxW, boxH);
+    }
+    ctx.fill();
+    ctx.stroke();
+    // text
+    ctx.fillStyle = '#f0fafc';
+    for (let i = 0; i < lines.length; i++) {
+      const ly = cy - boxH / 2 + padY + lineH * (i + 0.5);
+      ctx.fillText(lines[i], cx, ly);
+    }
     ctx.restore();
   }
 
