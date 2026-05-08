@@ -452,49 +452,63 @@
   function drawPlantShape(x, y, m, color, lit) {
     const left = x + m, top = y + m;
     const w = cellSize - 2 * m, h = cellSize - 2 * m;
-    const stackW = Math.max(3, Math.floor(w * 0.16));
-    const tallStackH = Math.floor(h * 0.42);
-    const shortStackH = Math.floor(h * 0.30);
-    // Body fills the bottom ~58% so stacks visibly rise above it.
-    const bodyTop = top + Math.floor(h * 0.42);
-    const bodyH = h - (bodyTop - top);
-    const stack1X = left + Math.floor(w * 0.20);
-    const stack2X = left + Math.floor(w * 0.58);
 
-    ctx.fillStyle = '#0a0228';
-    ctx.strokeStyle = color;
+    // Circular settling tank dominates the left ~55% of the cell.
+    const tankR = Math.max(6, Math.floor(Math.min(w * 0.28, h * 0.42)));
+    const tankCX = left + tankR + 1;
+    const tankCY = top + Math.floor(h * 0.52);
+
+    // Smaller control building to the right.
+    const bldgW = Math.max(8, Math.floor(w * 0.34));
+    const bldgH = Math.max(8, Math.floor(h * 0.58));
+    const bldgX = left + w - bldgW;
+    const bldgY = top + h - bldgH;
+
     ctx.lineWidth = 2;
+    ctx.strokeStyle = color;
     ctx.shadowColor = color;
     ctx.shadowBlur = lit ? 12 : 6;
 
-    // Tall stack
-    const tallTop = bodyTop - tallStackH;
-    ctx.fillRect(stack1X, tallTop, stackW, tallStackH + 2);
-    ctx.strokeRect(stack1X + 0.5, tallTop + 0.5, stackW - 1, tallStackH + 2 - 1);
-    // Short stack
-    const shortTop = bodyTop - shortStackH;
-    ctx.fillRect(stack2X, shortTop, stackW, shortStackH + 2);
-    ctx.strokeRect(stack2X + 0.5, shortTop + 0.5, stackW - 1, shortStackH + 2 - 1);
+    // Tank outer wall
+    ctx.fillStyle = '#0a0228';
+    ctx.beginPath();
+    ctx.arc(tankCX, tankCY, tankR, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
 
-    // Body
-    ctx.fillRect(left, bodyTop, w, bodyH);
-    ctx.strokeRect(left + 0.5, bodyTop + 0.5, w - 1, bodyH - 1);
+    // Control building
+    ctx.fillStyle = '#0a0228';
+    ctx.fillRect(bldgX, bldgY, bldgW, bldgH);
+    ctx.strokeRect(bldgX + 0.5, bldgY + 0.5, bldgW - 1, bldgH - 1);
 
     ctx.shadowBlur = 0;
 
+    // Sewage inside the tank: dim when idle, bright sewage when active.
+    const innerR = Math.max(2, tankR - 3);
+    ctx.fillStyle = lit ? '#c47a2a' : '#3d2614';
+    ctx.beginPath();
+    ctx.arc(tankCX, tankCY, innerR, 0, Math.PI * 2);
+    ctx.fill();
+    // Decorative rim ring around the contents
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(tankCX, tankCY, innerR, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Building roof line
+    ctx.beginPath();
+    ctx.moveTo(bldgX, bldgY + Math.floor(bldgH * 0.32));
+    ctx.lineTo(bldgX + bldgW, bldgY + Math.floor(bldgH * 0.32));
+    ctx.stroke();
+
     // Door
-    const doorW = Math.max(4, Math.floor(w * 0.20));
-    const doorH = Math.max(5, Math.floor(bodyH * 0.55));
-    const doorX = left + Math.floor((w - doorW) / 2);
-    const doorY = bodyTop + bodyH - doorH;
+    const doorW = Math.max(3, Math.floor(bldgW * 0.45));
+    const doorH = Math.max(4, Math.floor(bldgH * 0.45));
+    const doorX = bldgX + Math.floor((bldgW - doorW) / 2);
+    const doorY = bldgY + bldgH - doorH;
     ctx.fillStyle = color;
     ctx.fillRect(doorX, doorY, doorW, doorH);
-
-    // Smoke puffs (stronger when lit)
-    const puffSz = Math.max(2, Math.floor(stackW * 0.9));
-    ctx.fillStyle = lit ? color : '#5a4a8a';
-    ctx.fillRect(stack1X - 1, tallTop - puffSz - 1, stackW + 2, puffSz);
-    ctx.fillRect(stack2X - 1, shortTop - puffSz - 1, stackW + 2, puffSz);
   }
 
   function drawEndpoint(cx, cy, cell, color, kind, label) {
@@ -521,15 +535,15 @@
     if (kind === 'house') drawHouseShape(x, y, m, color, lit);
     else drawPlantShape(x, y, m, color, lit);
 
-    // Letter label, centered in the body region
-    ctx.fillStyle = color;
-    ctx.font = `bold ${Math.floor(cellSize * 0.26)}px 'Courier New', monospace`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    const labelY = kind === 'house'
-      ? y + cellSize * 0.62
-      : y + cellSize * 0.72;
-    ctx.fillText(label, x + cellSize / 2, labelY);
+    // Only the house gets a letter label; the plant silhouette is its own
+    // identifier and there's no clean spot for text at small cell sizes.
+    if (kind === 'house' && label) {
+      ctx.fillStyle = color;
+      ctx.font = `bold ${Math.floor(cellSize * 0.24)}px 'Courier New', monospace`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(label, x + cellSize / 2, y + cellSize * 0.62);
+    }
   }
 
   // ---------- Input ----------
