@@ -446,6 +446,8 @@
       if (bounce) state.dir *= -1;
     } else {
       state.wave++;
+      state.capitol = newCapitol();
+      state.invaderBullets.length = 0;
       spawnWave();
     }
 
