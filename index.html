@@ -169,32 +169,166 @@
     btn.addEventListener('mouseleave', release);
   });
 
-  // ---- Level geometry ----
+  // ---- Level data ----
   const GIRDER_H = 6;
-  const floors = [
-    { y: 264, x0: 0,   x1: 256 },
-    { y: 224, x0: 16,  x1: 256 },
-    { y: 184, x0: 0,   x1: 240 },
-    { y: 144, x0: 16,  x1: 256 },
-    { y: 104, x0: 0,   x1: 240 },
-    { y: 64,  x0: 16,  x1: 200 },
-  ];
-  const ladders = [
-    { x: 220, top: floors[1].y, bot: floors[0].y },
-    { x: 40,  top: floors[2].y, bot: floors[1].y },
-    { x: 200, top: floors[3].y, bot: floors[2].y },
-    { x: 60,  top: floors[4].y, bot: floors[3].y },
-    { x: 180, top: floors[5].y, bot: floors[4].y },
-  ];
   const LADDER_W = 12;
 
-  const trophy  = { x: 180, y: floors[5].y - 12 };
-  const sammy   = { x: 50, y: floors[5].y, throwT: 0, blink: 0 };
-  const oilDrum = { x: 24, y: floors[0].y, lit: false, flameT: 0 };
+  const LEVELS = [
+    { // 1: GIRDERS — classic tower, slow cigars
+      name: 'GIRDERS',
+      floors: [
+        { y: 264, x0: 0,   x1: 256 },
+        { y: 224, x0: 16,  x1: 256 },
+        { y: 184, x0: 0,   x1: 240 },
+        { y: 144, x0: 16,  x1: 256 },
+        { y: 104, x0: 0,   x1: 240 },
+        { y: 64,  x0: 16,  x1: 200 },
+      ],
+      ladders: [
+        { x: 220, top: 224, bot: 264 },
+        { x: 40,  top: 184, bot: 224 },
+        { x: 200, top: 144, bot: 184 },
+        { x: 60,  top: 104, bot: 144 },
+        { x: 180, top: 64,  bot: 104 },
+      ],
+      sammy:       { x: 50,  y: 64 },
+      trophy:      { x: 180, y: 52 },
+      drum:        { x: 24,  y: 264, lit: false },
+      playerStart: { x: 230, floorY: 264 },
+      cigarSpeed: 0.9, ladderProb: 0.32, barrelMul: 1.5,
+    },
+    { // 2: CATWALK — split middle floors with center gaps
+      name: 'CATWALK',
+      floors: [
+        { y: 264, x0: 0,   x1: 256 },
+        { y: 224, x0: 0,   x1: 96 },
+        { y: 224, x0: 160, x1: 256 },
+        { y: 184, x0: 32,  x1: 224 },
+        { y: 144, x0: 0,   x1: 96 },
+        { y: 144, x0: 160, x1: 256 },
+        { y: 104, x0: 32,  x1: 224 },
+        { y: 64,  x0: 80,  x1: 176 },
+      ],
+      ladders: [
+        { x: 60,  top: 224, bot: 264 },
+        { x: 200, top: 224, bot: 264 },
+        { x: 56,  top: 184, bot: 224 },
+        { x: 200, top: 184, bot: 224 },
+        { x: 80,  top: 144, bot: 184 },
+        { x: 180, top: 144, bot: 184 },
+        { x: 56,  top: 104, bot: 144 },
+        { x: 200, top: 104, bot: 144 },
+        { x: 128, top: 64,  bot: 104 },
+      ],
+      sammy:       { x: 100, y: 64 },
+      trophy:      { x: 160, y: 52 },
+      drum:        { x: 24,  y: 264, lit: false },
+      playerStart: { x: 30,  floorY: 264 },
+      cigarSpeed: 1.3, ladderProb: 0.32, barrelMul: 1.0,
+    },
+    { // 3: STACKS — taller, narrower spacing, more floors
+      name: 'STACKS',
+      floors: [
+        { y: 268, x0: 0,   x1: 256 },
+        { y: 236, x0: 16,  x1: 256 },
+        { y: 204, x0: 0,   x1: 240 },
+        { y: 172, x0: 16,  x1: 256 },
+        { y: 140, x0: 0,   x1: 240 },
+        { y: 108, x0: 16,  x1: 256 },
+        { y: 76,  x0: 0,   x1: 240 },
+        { y: 44,  x0: 32,  x1: 220 },
+      ],
+      ladders: [
+        { x: 220, top: 236, bot: 268 },
+        { x: 40,  top: 204, bot: 236 },
+        { x: 200, top: 172, bot: 204 },
+        { x: 60,  top: 140, bot: 172 },
+        { x: 200, top: 108, bot: 140 },
+        { x: 60,  top: 76,  bot: 108 },
+        { x: 180, top: 44,  bot: 76 },
+      ],
+      sammy:       { x: 60,  y: 44 },
+      trophy:      { x: 200, y: 32 },
+      drum:        { x: 24,  y: 268, lit: false },
+      playerStart: { x: 230, floorY: 268 },
+      cigarSpeed: 1.4, ladderProb: 0.4, barrelMul: 0.95,
+    },
+    { // 4: FOUNDRY — drum lit from start, more fireballs
+      name: 'FOUNDRY',
+      floors: [
+        { y: 268, x0: 0,   x1: 256 },
+        { y: 218, x0: 32,  x1: 224 },
+        { y: 168, x0: 0,   x1: 256 },
+        { y: 118, x0: 32,  x1: 224 },
+        { y: 68,  x0: 64,  x1: 192 },
+      ],
+      ladders: [
+        { x: 200, top: 218, bot: 268 },
+        { x: 56,  top: 168, bot: 218 },
+        { x: 200, top: 118, bot: 168 },
+        { x: 80,  top: 68,  bot: 118 },
+      ],
+      sammy:       { x: 96,  y: 68 },
+      trophy:      { x: 168, y: 56 },
+      drum:        { x: 24,  y: 268, lit: true },
+      playerStart: { x: 230, floorY: 268 },
+      cigarSpeed: 1.5, ladderProb: 0.5, barrelMul: 0.85,
+    },
+    { // 5: SHOWDOWN — small arena, double ladders, fast cigars
+      name: 'SHOWDOWN',
+      floors: [
+        { y: 268, x0: 0,   x1: 256 },
+        { y: 200, x0: 16,  x1: 240 },
+        { y: 132, x0: 0,   x1: 256 },
+        { y: 64,  x0: 64,  x1: 192 },
+      ],
+      ladders: [
+        { x: 32,  top: 200, bot: 268 },
+        { x: 224, top: 200, bot: 268 },
+        { x: 32,  top: 132, bot: 200 },
+        { x: 224, top: 132, bot: 200 },
+        { x: 80,  top: 64,  bot: 132 },
+        { x: 176, top: 64,  bot: 132 },
+      ],
+      sammy:       { x: 96,  y: 64 },
+      trophy:      { x: 160, y: 52 },
+      drum:        { x: 24,  y: 268, lit: true },
+      playerStart: { x: 128, floorY: 268 },
+      cigarSpeed: 1.6, ladderProb: 0.5, barrelMul: 0.7,
+    },
+  ];
+
+  let floors, ladders, sammy, trophy, oilDrum;
+  let topFloorY, groundFloorY, sammyFloor;
+  let playerSpawnX, playerSpawnY;
+  let cigarSpeed = 1.0, ladderProb = 0.32, barrelMul = 1.0;
+  let level = 1;
+  let levelIntroT = 0;
+
+  function loadLevel(n) {
+    const lvl = LEVELS[Math.max(0, Math.min(LEVELS.length, n) - 1)];
+    floors  = lvl.floors.map(f => ({ ...f }));
+    ladders = lvl.ladders.map(l => ({ ...l }));
+    sammy   = { x: lvl.sammy.x,  y: lvl.sammy.y, throwT: 0 };
+    trophy  = { x: lvl.trophy.x, y: lvl.trophy.y };
+    oilDrum = { x: lvl.drum.x,   y: lvl.drum.y, lit: lvl.drum.lit, flameT: lvl.drum.lit ? 30 : 0 };
+    cigarSpeed = lvl.cigarSpeed;
+    ladderProb = lvl.ladderProb;
+    barrelMul  = lvl.barrelMul;
+    topFloorY    = Math.min(...floors.map(f => f.y));
+    groundFloorY = Math.max(...floors.map(f => f.y));
+    sammyFloor = floors.find(f => f.y === sammy.y && sammy.x >= f.x0 && sammy.x <= f.x1)
+                || floors.find(f => f.y === sammy.y);
+    playerSpawnX = lvl.playerStart.x;
+    playerSpawnY = lvl.playerStart.floorY - 14;
+    levelIntroT = 90;
+  }
+
+  loadLevel(1);
 
   // ---- Player ----
   const player = {
-    x: 230, y: floors[0].y - 14,
+    x: playerSpawnX, y: playerSpawnY,
     w: 10, h: 14,
     vx: 0, vy: 0,
     onGround: true,
@@ -226,10 +360,12 @@
   let state = 'title';
 
   function difficulty() { return Math.min(10, Math.floor(levelTime / 600)); }
-  function barrelInterval() { return Math.max(64, 157 - difficulty() * 10); }
+  function barrelInterval() { return Math.max(64, 157 - difficulty() * 10) * barrelMul; }
 
   function reset(full=false) {
-    player.x = 230; player.y = floors[0].y - player.h;
+    if (full) { score = 0; lives = 3; level = 1; }
+    loadLevel(level);
+    player.x = playerSpawnX; player.y = playerSpawnY;
     player.vx = 0; player.vy = 0;
     player.onGround = true; player.onLadder = false; player.ladder = null;
     player.alive = true; player.win = false;
@@ -242,15 +378,14 @@
     pickupTimer = 60 * 12;
     fireballTimer = 60 * 8;
     levelTime = 0;
-    sammy.throwT = 0;
-    oilDrum.lit = false; oilDrum.flameT = 0;
-    if (full) { score = 0; lives = 3; }
   }
 
   function start() {
     reset(true);
     state = 'play';
     document.getElementById('title').style.display = 'none';
+    document.querySelector('#title h1').textContent = 'SAMMY KONG';
+    document.getElementById('startBtn').textContent = 'START';
   }
   document.getElementById('startBtn').addEventListener('click', start);
 
@@ -280,9 +415,9 @@
   // ---- Barrels ----
   function spawnBarrel() {
     barrels.push({
-      x: sammy.x + 12, y: floors[5].y - 4,
-      vx: 1.4, vy: 0,
-      onFloor: floors[5],
+      x: sammy.x + 12, y: topFloorY - 4,
+      vx: cigarSpeed, vy: 0,
+      onFloor: sammyFloor,
       rot: 0,
     });
     sammy.throwT = 18;
@@ -291,8 +426,8 @@
       setTimeout(() => {
         if (state === 'play') {
           barrels.push({
-            x: sammy.x + 12, y: floors[5].y - 4,
-            vx: 1.4, vy: 0, onFloor: floors[5], rot: 0,
+            x: sammy.x + 12, y: topFloorY - 4,
+            vx: cigarSpeed, vy: 0, onFloor: sammyFloor, rot: 0,
           });
           sammy.throwT = 18;
         }
@@ -309,7 +444,7 @@
         b.onFloor = null;
       } else {
         for (const l of ladders) {
-          if (l.top === b.onFloor.y && Math.abs(b.x - l.x) < 1.8 && Math.random() < 0.32) {
+          if (l.top === b.onFloor.y && Math.abs(b.x - l.x) < 1.8 && Math.random() < ladderProb) {
             b.onFloor = null;
             b.descendingLadder = l;
             b.vx = 0;
@@ -321,10 +456,13 @@
       b.y += 1.8;
       b.x = b.descendingLadder.x;
       if (b.y >= b.descendingLadder.bot - 4) {
-        const f = floors.find(f => f.y === b.descendingLadder.bot);
+        // Pick a floor at the ladder's bottom that contains the ladder x
+        const f = floors.find(f => f.y === b.descendingLadder.bot
+          && b.x >= f.x0 && b.x <= f.x1)
+          || floors.find(f => f.y === b.descendingLadder.bot);
         b.onFloor = f;
         b.y = f.y - 4;
-        b.vx = (Math.random() < 0.5 ? -1 : 1) * 1.4;
+        b.vx = (Math.random() < 0.5 ? -1 : 1) * cigarSpeed;
         b.descendingLadder = null;
       }
     } else {
@@ -337,14 +475,14 @@
         b.vy = 0;
         // Keep rolling the same direction so barrels cascade off the
         // stack instead of zigzagging back and forth on each platform.
-        if (b.vx === 0) b.vx = (b.x < W/2 ? 1 : -1) * 1.4;
-        else b.vx = Math.sign(b.vx) * 1.4;
+        if (b.vx === 0) b.vx = (b.x < W/2 ? 1 : -1) * cigarSpeed;
+        else b.vx = Math.sign(b.vx) * cigarSpeed;
       }
     }
     b.rot += b.vx * 0.2;
 
     // Hit oil drum on bottom floor — light it & destroy barrel, maybe spawn fireball
-    if (b.onFloor === floors[0] && Math.abs(b.x - oilDrum.x) < 7) {
+    if (b.onFloor && b.onFloor.y === groundFloorY && Math.abs(b.x - oilDrum.x) < 7) {
       b.dead = true;
       oilDrum.lit = true;
       oilDrum.flameT = 30;
@@ -357,9 +495,9 @@
   // ---- Fireballs ----
   function spawnFireball() {
     fireballs.push({
-      x: oilDrum.x, y: floors[0].y - 6,
+      x: oilDrum.x, y: groundFloorY - 6,
       vx: (Math.random() < 0.5 ? -0.55 : 0.55),
-      onFloor: floors[0],
+      onFloor: floors.find(f => f.y === groundFloorY && oilDrum.x >= f.x0 && oilDrum.x <= f.x1) || floors[0],
       climbing: null,
       flick: 0,
     });
@@ -404,9 +542,11 @@
 
   // ---- Pickups (shaka power-up) ----
   function spawnPickup() {
-    // Place on a random non-top, non-bottom floor at random x
-    const fIdx = 1 + Math.floor(Math.random() * 4);
-    const f = floors[fIdx];
+    // Place on a random non-top, non-bottom floor that's wide enough
+    const candidates = floors.filter(f =>
+      f.y !== groundFloorY && f.y !== topFloorY && (f.x1 - f.x0) >= 50);
+    if (!candidates.length) return;
+    const f = candidates[Math.floor(Math.random() * candidates.length)];
     const x = f.x0 + 20 + Math.random() * (f.x1 - f.x0 - 40);
     pickups.push({ x, y: f.y - 8, t: 0, type: 'shaka' });
   }
@@ -966,7 +1106,7 @@
     ctx.fillRect(0, 0, W, H);
     for (let i = 0; i < 30; i++) {
       const sx = (i * 53) % W;
-      const sy = (i * 37) % (floors[5].y - 8);
+      const sy = (i * 37) % Math.max(8, topFloorY - 8);
       ctx.fillStyle = i % 5 === 0 ? '#ffd0d0' : '#5a5a7a';
       ctx.fillRect(sx, sy, 1, 1);
     }
@@ -1011,14 +1151,21 @@
       ctx.fillRect(W/2 - 31, 15, (62 * player.smashT/360)|0, 2);
     }
 
-    // Difficulty indicator
+    // Level indicator
+    ctx.fillStyle = '#ffcf00';
+    ctx.fillText('STAGE ' + level + '/' + LEVELS.length, 6, 20);
     ctx.fillStyle = '#888';
-    ctx.fillText('LV' + (difficulty()+1), 6, 20);
+    ctx.fillText(LEVELS[level - 1].name, 6, 30);
 
-    if (state === 'dead') {
+    if (levelIntroT > 0 && state === 'play') {
+      banner('STAGE ' + level, LEVELS[level - 1].name);
+    } else if (state === 'dead') {
       banner('OUCH!', lives > 1 ? 'tap / press jump' : 'GAME OVER');
     } else if (state === 'win') {
-      banner('YOU GOT THE TROPHY!', 'tap / press jump to play again');
+      const more = level < LEVELS.length;
+      banner(more ? 'STAGE CLEAR!' : 'YOU SAVED THE TROPHY!',
+             more ? 'tap / press jump for next stage'
+                  : 'tap / press jump to play again');
     }
   }
   function banner(a, b) {
@@ -1071,6 +1218,7 @@
       for (let i = fireballs.length - 1; i >= 0; i--) if (fireballs[i].dead) fireballs.splice(i,1);
       for (let i = pickups.length - 1; i >= 0; i--) if (pickups[i].dead) pickups.splice(i,1);
       if (oilDrum.flameT > 0) oilDrum.flameT--;
+      if (levelIntroT > 0) levelIntroT--;
     } else if (state === 'dead' || state === 'win') {
       if (keys.jump) {
         keys.jump = false;
@@ -1082,12 +1230,23 @@
             document.querySelector('#title h1').textContent = 'GAME OVER';
             document.getElementById('startBtn').textContent = 'TRY AGAIN';
           } else {
+            // Respawn at start of current level (keep level + score)
             reset(false);
             state = 'play';
           }
         } else {
-          reset(true);
-          state = 'play';
+          // Advance to next level, or finish the run
+          if (level < LEVELS.length) {
+            level++;
+            score += 500; // stage clear bonus
+            reset(false);
+            state = 'play';
+          } else {
+            state = 'title';
+            document.getElementById('title').style.display = 'flex';
+            document.querySelector('#title h1').textContent = 'YOU WIN!';
+            document.getElementById('startBtn').textContent = 'PLAY AGAIN';
+          }
         }
       }
     }
