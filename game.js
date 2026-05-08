@@ -23,6 +23,7 @@
   const overlayText = document.getElementById('overlay-text');
   const overlayBtn = document.getElementById('overlay-btn');
   const shuffleBtn = document.getElementById('shuffle-btn');
+  const muteBtn = document.getElementById('mute-btn');
 
   let grid;
   let cellSize;
@@ -634,6 +635,7 @@
   });
 
   overlayBtn.addEventListener('click', () => {
+    audio.start();
     if (phase === 'won') level++;
     else if (phase === 'idle' || phase === 'lost') { level = 1; }
     startLevel(true);
@@ -676,6 +678,88 @@
     overlayBtn.textContent = 'NEXT LEVEL';
     overlay.classList.remove('hidden');
   }
+
+  // ---------- Audio (chiptune loop) ----------
+  const NOTES = {
+    E2: 82.41, F2: 87.31, G2: 98.00, A2: 110.00, B2: 123.47,
+    C3: 130.81, D3: 146.83, E3: 164.81, F3: 174.61, G3: 196.00, A3: 220.00, B3: 246.94,
+    C4: 261.63, D4: 293.66, E4: 329.63, F4: 349.23, G4: 392.00, A4: 440.00, B4: 493.88,
+    C5: 523.25,
+  };
+  // Two voices per 8th note: [bass, arp]. 32 8th-notes = 4 bars.
+  // i - VII - VI - v in A minor (Am - G - F - Em).
+  const PATTERN = [
+    ['A2','A3'], [null,'E4'], [null,'C4'], [null,'E4'],
+    ['A2','A3'], [null,'E4'], [null,'C4'], [null,'E4'],
+    ['G2','G3'], [null,'D4'], [null,'B3'], [null,'D4'],
+    ['G2','G3'], [null,'D4'], [null,'B3'], [null,'D4'],
+    ['F2','F3'], [null,'C4'], [null,'A3'], [null,'C4'],
+    ['F2','F3'], [null,'C4'], [null,'A3'], [null,'C4'],
+    ['E2','E3'], [null,'B3'], [null,'G3'], [null,'B3'],
+    ['E2','E3'], [null,'B3'], [null,'G3'], [null,'B3'],
+  ];
+  const audio = {
+    ctx: null, master: null, muted: false,
+    step: 0, nextTime: 0, schedulerId: null,
+    BPM: 110,
+
+    init() {
+      if (this.ctx) return true;
+      const Ctor = window.AudioContext || window.webkitAudioContext;
+      if (!Ctor) return false;
+      try {
+        this.ctx = new Ctor();
+        this.master = this.ctx.createGain();
+        this.master.gain.value = this.muted ? 0 : 0.16;
+        this.master.connect(this.ctx.destination);
+        return true;
+      } catch (e) { return false; }
+    },
+
+    start() {
+      if (!this.init()) return;
+      if (this.ctx.state === 'suspended') this.ctx.resume();
+      if (this.schedulerId) return;
+      this.nextTime = this.ctx.currentTime + 0.05;
+      this.step = 0;
+      this.schedulerId = setInterval(() => this.tick(), 25);
+    },
+
+    setMuted(m) {
+      this.muted = m;
+      if (this.master) this.master.gain.value = m ? 0 : 0.16;
+    },
+
+    tick() {
+      const stepDur = 60 / this.BPM / 2; // 8th note
+      while (this.nextTime < this.ctx.currentTime + 0.1) {
+        const slot = PATTERN[this.step % PATTERN.length];
+        const bass = slot[0], arp = slot[1];
+        if (bass) this.note(NOTES[bass], this.nextTime, stepDur * 0.92, 0.16);
+        if (arp)  this.note(NOTES[arp],  this.nextTime, stepDur * 0.55, 0.10);
+        this.nextTime += stepDur;
+        this.step++;
+      }
+    },
+
+    note(freq, when, dur, peak) {
+      const o = this.ctx.createOscillator();
+      const g = this.ctx.createGain();
+      o.type = 'square';
+      o.frequency.setValueAtTime(freq, when);
+      g.gain.setValueAtTime(0, when);
+      g.gain.linearRampToValueAtTime(peak, when + 0.005);
+      g.gain.exponentialRampToValueAtTime(0.001, when + dur);
+      o.connect(g).connect(this.master);
+      o.start(when);
+      o.stop(when + dur + 0.02);
+    },
+  };
+
+  muteBtn.addEventListener('click', () => {
+    audio.setMuted(!audio.muted);
+    muteBtn.classList.toggle('muted', audio.muted);
+  });
 
   // ---------- Boot ----------
   window.addEventListener('resize', resize);

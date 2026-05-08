@@ -205,3 +205,13 @@ button:active { transform: translateY(1px); }
   border-color: #fff;
   box-shadow: 0 0 10px var(--neon-pink);
 }
+
+#mute-btn {
+  font-size: 16px;
+  padding: 6px 10px;
+  min-width: 36px;
+}
+#mute-btn.muted {
+  opacity: 0.45;
+  text-decoration: line-through;
+}
