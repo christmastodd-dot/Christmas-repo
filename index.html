@@ -619,34 +619,66 @@
   }
 
   function drawBanyanDrive() {
-    const horizon = H * 0.55;
-    // distant ocean strip (Hilo Bay) — thin band at the horizon
-    const oceanTop = horizon - 4;
-    const oceanBot = horizon + 14;
+    const oceanTop = H * 0.38;
+    const oceanBot = H * 0.57;
+    // distant Mauna Kea silhouette (back of the bay)
+    ctx.fillStyle = '#6a7484';
+    ctx.beginPath();
+    ctx.moveTo(0, oceanTop);
+    ctx.lineTo(W * 0.10, oceanTop - 32);
+    ctx.lineTo(W * 0.20, oceanTop - 16);
+    ctx.lineTo(W * 0.30, oceanTop - 38);
+    ctx.lineTo(W * 0.42, oceanTop - 14);
+    ctx.lineTo(W * 0.55, oceanTop);
+    ctx.closePath();
+    ctx.fill();
+    // mountain mist
+    ctx.fillStyle = 'rgba(255,255,255,0.22)';
+    ctx.fillRect(0, oceanTop - 4, W * 0.6, 6);
+    // wide ocean band — Hilo Bay
     const og = ctx.createLinearGradient(0, oceanTop, 0, oceanBot);
-    og.addColorStop(0, '#3a7ca5');
-    og.addColorStop(1, '#6aa8c8');
+    og.addColorStop(0, '#1f5878');
+    og.addColorStop(0.5, '#3a7ca5');
+    og.addColorStop(1, '#7ab8d8');
     ctx.fillStyle = og;
     ctx.fillRect(0, oceanTop, W, oceanBot - oceanTop);
-    // Coconut Island silhouette across the bay
-    ctx.fillStyle = '#4a6a52';
-    ctx.beginPath();
-    ctx.ellipse(W * 0.18, oceanBot - 5, 70, 5, 0, 0, Math.PI * 2);
-    ctx.fill();
+    // wave streaks
+    ctx.fillStyle = 'rgba(255,255,255,0.22)';
+    for (let i = 0; i < 28; i++) {
+      const wx = (i * 153) % W;
+      const wy = oceanTop + 12 + ((i * 47) % (oceanBot - oceanTop - 18));
+      ctx.fillRect(wx, wy, 16, 1);
+    }
+    // hotels on the far shore — bigger, closer-feeling
+    const hotelBase = oceanTop + 4;
+    drawHotel(W * 0.70, hotelBase,
+              Math.min(190, W * 0.26), Math.min(170, H * 0.30),
+              '#e8d4b0', 'NANILOA');
+    drawHotel(W * 0.45, hotelBase,
+              Math.min(120, W * 0.17), Math.min(125, H * 0.21),
+              '#d8b89a');
+    drawHotel(W * 0.88, hotelBase,
+              Math.min(110, W * 0.15), Math.min(110, H * 0.18),
+              '#e0c4a0');
+    // Coconut Island silhouette in mid-bay (in front of hotels)
     ctx.fillStyle = '#3a5a42';
-    ctx.fillRect(W * 0.18 - 8, oceanBot - 9, 4, 4); // tiny palm dots
-    ctx.fillRect(W * 0.18 + 4, oceanBot - 8, 3, 3);
-    // wave foam at the far shore
+    ctx.beginPath();
+    ctx.ellipse(W * 0.22, oceanBot - 18, 80, 7, 0, 0, Math.PI * 2);
+    ctx.fill();
+    // tiny palms on the island
+    ctx.fillStyle = '#2d4a30';
+    ctx.fillRect(W * 0.22 - 8, oceanBot - 28, 2, 8);
+    ctx.fillRect(W * 0.22 + 4, oceanBot - 30, 2, 10);
+    ctx.beginPath();
+    ctx.arc(W * 0.22 - 7, oceanBot - 30, 4, 0, Math.PI * 2);
+    ctx.arc(W * 0.22 + 5, oceanBot - 32, 4, 0, Math.PI * 2);
+    ctx.fill();
+    // wave foam at the near shore
     ctx.fillStyle = '#fff';
     for (let i = 0; i < W; i += 14) {
-      if (((i * 17) % 30) < 15) ctx.fillRect(i, oceanBot - 2, 6, 2);
+      if (((i * 17) % 30) < 15) ctx.fillRect(i, oceanBot - 2, 7, 2);
     }
-    // hotels rising on the far shore (drawn before grass so any base
-    // overlap is hidden; bases sit on the ocean line)
-    drawHotel(W * 0.72, oceanBot, Math.min(150, W * 0.22), 130, '#e8d4b0', 'NANILOA');
-    drawHotel(W * 0.55, oceanBot, Math.min(90, W * 0.14), 80, '#d8b89a');
-    drawHotel(W * 0.86, oceanBot, Math.min(70, W * 0.11), 55, '#e0c4a0');
-    // grass field gradient
+    // grass field gradient (near shore)
     const g = ctx.createLinearGradient(0, oceanBot, 0, H);
     g.addColorStop(0, '#5fa84a');
     g.addColorStop(1, '#3d7a30');
@@ -654,16 +686,24 @@
     ctx.fillRect(0, oceanBot, W, H - oceanBot);
     // grass tufts
     ctx.fillStyle = '#4a8a3a';
-    for (let i = 0; i < 60; i++) {
+    for (let i = 0; i < 70; i++) {
       const gx = (i * 137) % W;
-      const gy = oceanBot + 15 + ((i * 53) % (H - oceanBot - 25));
+      const gy = oceanBot + 12 + ((i * 53) % (H - oceanBot - 22));
       ctx.fillRect(gx, gy, 2, 4);
       ctx.fillRect(gx + 3, gy + 1, 2, 3);
     }
-    // big banyan on left — the namesake
-    drawBanyan(W * 0.2, H * 0.88, 1.15);
-    // small road sign post on right
-    drawRoadSign(W * 0.84, H * 0.86);
+    // banyans planted along the drive — the namesake, multiple sizes
+    // mid-distance, smaller (back row, near the road)
+    drawBanyan(W * 0.34, oceanBot + (H - oceanBot) * 0.45, 0.55);
+    drawBanyan(W * 0.78, oceanBot + (H - oceanBot) * 0.42, 0.5);
+    // mid-foreground
+    drawBanyan(W * 0.55, H * 0.86, 0.78);
+    // foreground left — biggest
+    drawBanyan(W * 0.14, H * 0.95, 1.2);
+    // foreground right
+    drawBanyan(W * 0.92, H * 0.92, 0.85);
+    // road sign post
+    drawRoadSign(W * 0.74, H * 0.96);
   }
 
   function drawHotel(cx, groundY, w, h, faceColor, sign) {
@@ -826,25 +866,69 @@
   function drawBeachUmbrella(x, y) {
     ctx.save();
     ctx.translate(x, y);
-    ctx.strokeStyle = '#5a3a1a';
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.moveTo(0, 0); ctx.lineTo(0, -80);
-    ctx.stroke();
-    const stripes = ['#e64545','#f5f1e8','#e64545','#f5f1e8','#e64545'];
-    for (let i = 0; i < stripes.length; i++) {
+    const tipY = -94;       // canopy peak (and pole exit)
+    const halfW = 58;       // canopy half-width
+    const drop = 14;        // rim drop below the peak at the sides
+    // pole
+    ctx.fillStyle = '#5a3a1a';
+    ctx.fillRect(-1.6, 0, 3.2, -tipY);
+    ctx.fillStyle = 'rgba(255,235,200,0.18)';
+    ctx.fillRect(-1.6, 0, 1, -tipY);
+    // canopy panels — alternating stripes radiating from the peak,
+    // with a parabolic rim so the edges droop below the peak
+    const stripes = ['#e64545', '#f5f1e8', '#e64545', '#f5f1e8',
+                     '#e64545', '#f5f1e8', '#e64545'];
+    const N = stripes.length;
+    const rimY = (px) => tipY + drop * Math.pow(px / halfW, 2);
+    for (let i = 0; i < N; i++) {
+      const x0 = -halfW + (2 * halfW) * (i / N);
+      const x1 = -halfW + (2 * halfW) * ((i + 1) / N);
+      const y0 = rimY(x0);
+      const y1 = rimY(x1);
+      const xm = (x0 + x1) / 2;
+      const ym = rimY(xm) + 3.5;  // scallop droop between corners
       ctx.fillStyle = stripes[i];
       ctx.beginPath();
-      const a0 = Math.PI + (i / stripes.length) * Math.PI;
-      const a1 = Math.PI + ((i + 1) / stripes.length) * Math.PI;
-      ctx.moveTo(0, -80);
-      ctx.arc(0, -80, 42, a0, a1);
+      ctx.moveTo(0, tipY);
+      ctx.lineTo(x0, y0);
+      ctx.quadraticCurveTo(xm, ym, x1, y1);
       ctx.closePath();
       ctx.fill();
     }
-    // tip
-    ctx.fillStyle = '#8b6739';
-    ctx.fillRect(-1, -86, 2, 6);
+    // canopy outline (defines the dome silhouette)
+    ctx.strokeStyle = 'rgba(50,20,10,0.5)';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    for (let i = 0; i <= 40; i++) {
+      const t = i / 40;
+      const xt = -halfW + (2 * halfW) * t;
+      // include scallops by perturbing slightly between panel boundaries
+      const seg = t * N;
+      const segFrac = seg - Math.floor(seg);
+      const scallop = Math.sin(segFrac * Math.PI) * 1.8;
+      const yt = rimY(xt) + scallop;
+      if (i === 0) ctx.moveTo(xt, yt);
+      else ctx.lineTo(xt, yt);
+    }
+    ctx.stroke();
+    // panel rib seams (radial lines from peak to rim)
+    ctx.strokeStyle = 'rgba(0,0,0,0.18)';
+    ctx.lineWidth = 0.8;
+    for (let i = 1; i < N; i++) {
+      const xr = -halfW + (2 * halfW) * (i / N);
+      const yr = rimY(xr);
+      ctx.beginPath();
+      ctx.moveTo(0, tipY);
+      ctx.lineTo(xr, yr);
+      ctx.stroke();
+    }
+    // tip ferrule sticking up from the canopy peak
+    ctx.fillStyle = '#3a2410';
+    ctx.fillRect(-1.5, tipY - 9, 3, 9);
+    ctx.fillStyle = '#c9a066';
+    ctx.beginPath();
+    ctx.arc(0, tipY - 10, 1.8, 0, Math.PI * 2);
+    ctx.fill();
     ctx.restore();
   }
 
@@ -900,8 +984,9 @@
   function spawnChicken() {
     if (state.spawnedCount >= ROUND_SIZE) return;
     const fromLeft = Math.random() < 0.5;
-    const horizon = H * 0.55;
-    const groundTop = horizon + 20;
+    // groundTop must sit below any per-level water/sky band; current
+    // levels keep their playable surface at or below 60% of screen height.
+    const groundTop = H * 0.60;
     const groundBot = H * 0.92;
     const y = groundTop + Math.random() * (groundBot - groundTop);
     // perspective: closer (lower y) = bigger
