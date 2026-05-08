@@ -294,8 +294,8 @@
       for (let x = 0; x < COLS; x++) {
         const cell = grid[y][x];
         if (!cell) continue;
-        if (cell.type === 'src') drawEndpoint(x, y, cell, '#3dff9a', 'C');
-        else if (cell.type === 'snk') drawEndpoint(x, y, cell, '#2ff5ff', 'T');
+        if (cell.type === 'src') drawEndpoint(x, y, cell, '#3dff9a', 'house', 'C');
+        else if (cell.type === 'snk') drawEndpoint(x, y, cell, '#2ff5ff', 'plant', 'P');
         else drawPipe(x, y, cell);
       }
     }
@@ -406,7 +406,98 @@
     ctx.shadowBlur = 0;
   }
 
-  function drawEndpoint(cx, cy, cell, color, label) {
+  function drawHouseShape(x, y, m, color, lit) {
+    const left = x + m, top = y + m;
+    const w = cellSize - 2 * m, h = cellSize - 2 * m;
+    const roofH = Math.floor(h * 0.36);
+    const bodyTop = top + roofH;
+    const bodyH = h - roofH;
+
+    ctx.fillStyle = '#0a0228';
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.shadowColor = color;
+    ctx.shadowBlur = lit ? 12 : 6;
+
+    // Body
+    ctx.fillRect(left, bodyTop, w, bodyH);
+    ctx.strokeRect(left + 0.5, bodyTop + 0.5, w - 1, bodyH - 1);
+
+    // Roof
+    ctx.beginPath();
+    ctx.moveTo(left - 1, bodyTop);
+    ctx.lineTo(left + w / 2, top);
+    ctx.lineTo(left + w + 1, bodyTop);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.shadowBlur = 0;
+
+    // Door (filled in endpoint color)
+    const doorW = Math.max(4, Math.floor(w * 0.22));
+    const doorH = Math.max(6, Math.floor(bodyH * 0.55));
+    const doorX = left + Math.floor((w - doorW) / 2);
+    const doorY = bodyTop + bodyH - doorH;
+    ctx.fillStyle = color;
+    ctx.fillRect(doorX, doorY, doorW, doorH);
+
+    // Two pixel-style windows
+    const winSz = Math.max(3, Math.floor(w * 0.13));
+    const winY = bodyTop + Math.floor(bodyH * 0.18);
+    ctx.fillRect(left + Math.floor(w * 0.18), winY, winSz, winSz);
+    ctx.fillRect(left + w - Math.floor(w * 0.18) - winSz, winY, winSz, winSz);
+  }
+
+  function drawPlantShape(x, y, m, color, lit) {
+    const left = x + m, top = y + m;
+    const w = cellSize - 2 * m, h = cellSize - 2 * m;
+    const stackW = Math.max(3, Math.floor(w * 0.16));
+    const tallStackH = Math.floor(h * 0.42);
+    const shortStackH = Math.floor(h * 0.30);
+    // Body fills the bottom ~58% so stacks visibly rise above it.
+    const bodyTop = top + Math.floor(h * 0.42);
+    const bodyH = h - (bodyTop - top);
+    const stack1X = left + Math.floor(w * 0.20);
+    const stack2X = left + Math.floor(w * 0.58);
+
+    ctx.fillStyle = '#0a0228';
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.shadowColor = color;
+    ctx.shadowBlur = lit ? 12 : 6;
+
+    // Tall stack
+    const tallTop = bodyTop - tallStackH;
+    ctx.fillRect(stack1X, tallTop, stackW, tallStackH + 2);
+    ctx.strokeRect(stack1X + 0.5, tallTop + 0.5, stackW - 1, tallStackH + 2 - 1);
+    // Short stack
+    const shortTop = bodyTop - shortStackH;
+    ctx.fillRect(stack2X, shortTop, stackW, shortStackH + 2);
+    ctx.strokeRect(stack2X + 0.5, shortTop + 0.5, stackW - 1, shortStackH + 2 - 1);
+
+    // Body
+    ctx.fillRect(left, bodyTop, w, bodyH);
+    ctx.strokeRect(left + 0.5, bodyTop + 0.5, w - 1, bodyH - 1);
+
+    ctx.shadowBlur = 0;
+
+    // Door
+    const doorW = Math.max(4, Math.floor(w * 0.20));
+    const doorH = Math.max(5, Math.floor(bodyH * 0.55));
+    const doorX = left + Math.floor((w - doorW) / 2);
+    const doorY = bodyTop + bodyH - doorH;
+    ctx.fillStyle = color;
+    ctx.fillRect(doorX, doorY, doorW, doorH);
+
+    // Smoke puffs (stronger when lit)
+    const puffSz = Math.max(2, Math.floor(stackW * 0.9));
+    ctx.fillStyle = lit ? color : '#5a4a8a';
+    ctx.fillRect(stack1X - 1, tallTop - puffSz - 1, stackW + 2, puffSz);
+    ctx.fillRect(stack2X - 1, shortTop - puffSz - 1, stackW + 2, puffSz);
+  }
+
+  function drawEndpoint(cx, cy, cell, color, kind, label) {
     const x = cx * cellSize, y = cy * cellSize;
     const m = Math.floor(cellSize * 0.16);
     // During the win animation the sink is "connected" before water reaches it;
@@ -414,21 +505,8 @@
     const lit = (cell.animFill === undefined || cell.animFill === null)
       ? cell.connected
       : cell.animFill >= 1;
-    ctx.fillStyle = '#0a0228';
-    ctx.fillRect(x + m, y + m, cellSize - 2 * m, cellSize - 2 * m);
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 2;
-    ctx.shadowColor = color;
-    ctx.shadowBlur = lit ? 12 : 6;
-    ctx.strokeRect(x + m, y + m, cellSize - 2 * m, cellSize - 2 * m);
-    ctx.shadowBlur = 0;
-    ctx.fillStyle = color;
-    ctx.font = `bold ${Math.floor(cellSize * 0.45)}px 'Courier New', monospace`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(label, x + cellSize / 2, y + cellSize / 2 + 1);
 
-    // stub
+    // Stub first so the icon overlaps it cleanly.
     cell.openings.forEach(d => {
       const r = armRect(x, y, d);
       const stub = { ...r };
@@ -439,6 +517,19 @@
       ctx.fillStyle = lit ? '#c47a2a' : color;
       ctx.fillRect(stub.x, stub.y, stub.w, stub.h);
     });
+
+    if (kind === 'house') drawHouseShape(x, y, m, color, lit);
+    else drawPlantShape(x, y, m, color, lit);
+
+    // Letter label, centered in the body region
+    ctx.fillStyle = color;
+    ctx.font = `bold ${Math.floor(cellSize * 0.26)}px 'Courier New', monospace`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const labelY = kind === 'house'
+      ? y + cellSize * 0.62
+      : y + cellSize * 0.72;
+    ctx.fillText(label, x + cellSize / 2, labelY);
   }
 
   // ---------- Input ----------
