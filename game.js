@@ -646,6 +646,7 @@
     recomputeConnectivity();
     phase = 'play';
     overlay.classList.add('hidden');
+    overlay.classList.remove('title-mode');
     statusEl.classList.remove('win');
     statusEl.textContent = 'TAP A PIPE TO ROTATE';
     updateHud();
@@ -680,7 +681,43 @@
   window.addEventListener('resize', resize);
   window.addEventListener('orientationchange', resize);
 
+  function populateTitleWallpaper() {
+    const decoys = [
+      ['N', 'S'], ['E', 'W'],
+      ['N', 'E'], ['E', 'S'], ['S', 'W'], ['W', 'N'],
+    ];
+    for (let y = 0; y < ROWS; y++) {
+      for (let x = 0; x < COLS; x++) {
+        if (Math.random() < 0.75) {
+          const pick = rand(decoys);
+          let openings = new Set(pick);
+          const turns = Math.floor(Math.random() * 4);
+          for (let i = 0; i < turns; i++) openings = rotateOpenings(openings);
+          grid[y][x] = { type: 'pipe', openings, connected: false, locked: false };
+        } else {
+          grid[y][x] = null;
+        }
+      }
+    }
+  }
+
+  function showTitleScreen() {
+    phase = 'idle';
+    populateTitleWallpaper();
+    overlay.classList.remove('hidden');
+    overlay.classList.add('title-mode');
+    overlayTitle.innerHTML = 'SEWER<br>QUEST';
+    overlayText.innerHTML =
+      `<div class="subtitle">CESSPOOL EDITION &bull; '86</div>` +
+      `<div class="prompt">PRESS START</div>` +
+      `<div class="hint">Tap pipes to rotate them. Connect the ` +
+      `<span class="src">CESSPOOL</span> to the ` +
+      `<span class="snk">TREATMENT PLANT</span> ` +
+      `before sewage runs to the ocean.</div>`;
+    overlayBtn.textContent = 'START';
+    resize();
+  }
+
   grid = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
-  resize();
-  overlayBtn.textContent = 'START';
+  showTitleScreen();
 })();

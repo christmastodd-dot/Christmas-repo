@@ -90,6 +90,55 @@ html, body {
 }
 #overlay.hidden { display: none; }
 
+#overlay.title-mode { background: rgba(5, 0, 16, 0.6); }
+#overlay.title-mode .panel {
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  padding: 8px;
+  max-width: 96%;
+}
+#overlay.title-mode h1 {
+  font-size: clamp(44px, 15vw, 80px);
+  line-height: 0.92;
+  letter-spacing: 8px;
+  margin-bottom: 14px;
+  color: var(--neon-cyan);
+  text-shadow:
+    -1px 1px 0 #1f3aff,
+    -2px 2px 0 #1f3aff,
+    -3px 3px 0 #0a1a8a,
+    -4px 4px 0 #0a1a8a,
+    -5px 5px 0 #050a40,
+    0 0 24px var(--neon-cyan);
+}
+.subtitle {
+  font-size: 12px;
+  letter-spacing: 4px;
+  color: var(--neon-pink);
+  text-shadow: 0 0 6px var(--neon-pink);
+  margin-bottom: 22px;
+}
+.prompt {
+  font-size: 14px;
+  letter-spacing: 4px;
+  color: var(--neon-yellow);
+  text-shadow: 0 0 6px var(--neon-yellow);
+  margin-bottom: 14px;
+  animation: arcadeBlink 1.1s steps(2, end) infinite;
+}
+.hint {
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--text);
+  opacity: 0.85;
+  margin-bottom: 16px;
+}
+@keyframes arcadeBlink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0.25; }
+}
+
 .panel {
   border: 2px solid var(--neon-pink);
   background: var(--bg2);
