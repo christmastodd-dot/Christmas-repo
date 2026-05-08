@@ -948,17 +948,43 @@
     sg.addColorStop(1, '#f5d8b0');
     ctx.fillStyle = sg;
     ctx.fillRect(0, 0, W, horizon);
-    // distant blue ridge line (across the canyon)
-    ctx.fillStyle = '#7a8a9a';
+    // big mountain ridge across the canyon — dramatic silhouette
+    ctx.fillStyle = '#5a6e7a';
     ctx.beginPath();
     ctx.moveTo(0, horizon);
-    for (let i = 0; i * 80 < W + 80; i++) {
-      const px = i * 80;
-      const py = horizon - 14 - ((px * 7919) % 18);
-      ctx.lineTo(px - 30, horizon);
-      ctx.lineTo(px, py);
-    }
+    ctx.lineTo(W * 0.04, horizon - 22);
+    ctx.lineTo(W * 0.14, horizon - 58);
+    ctx.lineTo(W * 0.22, horizon - 78);     // first peak
+    ctx.lineTo(W * 0.30, horizon - 50);
+    ctx.lineTo(W * 0.42, horizon - 92);     // tallest peak
+    ctx.lineTo(W * 0.50, horizon - 70);
+    ctx.lineTo(W * 0.60, horizon - 82);     // second tall peak
+    ctx.lineTo(W * 0.70, horizon - 48);
+    ctx.lineTo(W * 0.80, horizon - 62);
+    ctx.lineTo(W * 0.90, horizon - 30);
+    ctx.lineTo(W * 0.97, horizon - 16);
     ctx.lineTo(W, horizon);
+    ctx.closePath();
+    ctx.fill();
+    // mountain mist
+    ctx.fillStyle = 'rgba(255,255,255,0.25)';
+    ctx.fillRect(0, horizon - 8, W, 10);
+    // green forested upper slopes on the mountain
+    ctx.fillStyle = '#3a5a2a';
+    ctx.beginPath();
+    ctx.moveTo(W * 0.04, horizon - 14);
+    ctx.lineTo(W * 0.14, horizon - 42);
+    ctx.lineTo(W * 0.22, horizon - 56);
+    ctx.lineTo(W * 0.30, horizon - 38);
+    ctx.lineTo(W * 0.42, horizon - 70);
+    ctx.lineTo(W * 0.50, horizon - 54);
+    ctx.lineTo(W * 0.60, horizon - 64);
+    ctx.lineTo(W * 0.70, horizon - 36);
+    ctx.lineTo(W * 0.80, horizon - 46);
+    ctx.lineTo(W * 0.90, horizon - 22);
+    ctx.lineTo(W * 0.97, horizon - 10);
+    ctx.lineTo(W, horizon);
+    ctx.lineTo(0, horizon);
     ctx.closePath();
     ctx.fill();
     // far canyon wall (orange-red, banded)
@@ -986,18 +1012,48 @@
       }
       ctx.stroke();
     }
-    // sparse pine silhouettes along the mid ridge
-    ctx.fillStyle = '#3a4a30';
-    for (let i = 0; i < 7; i++) {
-      const tx = (i * 0.13 + 0.08) * W;
-      const ty = horizon + (rimY - horizon) * 0.55;
+    // Waipoo Falls — thin white waterfall down a canyon wall
+    const fallX = W * 0.32;
+    const fallTop = horizon + 6;
+    const fallBot = horizon + (rimY - horizon) * 0.85;
+    ctx.fillStyle = 'rgba(255,255,255,0.55)';
+    ctx.fillRect(fallX - 3, fallTop, 6, fallBot - fallTop);
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(fallX - 1.5, fallTop, 3, fallBot - fallTop);
+    ctx.fillStyle = 'rgba(190,220,235,0.7)';
+    ctx.beginPath();
+    ctx.ellipse(fallX, fallBot, 9, 2.5, 0, 0, Math.PI * 2);
+    ctx.fill();
+    // green vegetation patches clinging to upper canyon wall
+    ctx.fillStyle = '#5a8530';
+    for (let i = 0; i < 10; i++) {
+      const px = (i * 0.107 + 0.02) * W;
+      const py = horizon + 6 + (i % 4) * 5;
       ctx.beginPath();
-      ctx.moveTo(tx, ty - 14);
+      ctx.ellipse(px, py, 18 + (i % 5) * 4, 6, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    // mid-wall green patches
+    ctx.fillStyle = '#4a7530';
+    for (let i = 0; i < 8; i++) {
+      const px = (i * 0.13 + 0.05) * W;
+      const py = horizon + (rimY - horizon) * 0.4 + (i % 3) * 5;
+      ctx.beginPath();
+      ctx.ellipse(px, py, 16 + (i % 4) * 3, 5, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    // pine silhouettes scattered along the mid ridge — more of them
+    ctx.fillStyle = '#3a5a30';
+    for (let i = 0; i < 14; i++) {
+      const tx = (i * 0.072 + 0.04) * W;
+      const ty = horizon + (rimY - horizon) * 0.55 + ((i * 7) % 6);
+      const th = 12 + ((i * 5) % 8);
+      ctx.beginPath();
+      ctx.moveTo(tx, ty - th);
       ctx.lineTo(tx - 4, ty);
       ctx.lineTo(tx + 4, ty);
       ctx.closePath();
       ctx.fill();
-      ctx.fillRect(tx - 0.5, ty, 1, 3);
     }
     // foreground rim — red dirt
     const fg = ctx.createLinearGradient(0, rimY, 0, H);
@@ -1005,6 +1061,15 @@
     fg.addColorStop(1, '#5a2812');
     ctx.fillStyle = fg;
     ctx.fillRect(0, rimY, W, H - rimY);
+    // lush green grass patches across the foreground rim
+    ctx.fillStyle = '#4a7a30';
+    for (let i = 0; i < 16; i++) {
+      const sx = (i * 0.07 + 0.01) * W;
+      const sy = rimY + 4 + (i % 4) * 4;
+      ctx.beginPath();
+      ctx.ellipse(sx, sy, 24 + (i % 3) * 6, 6, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
     // dirt pebbles
     ctx.fillStyle = 'rgba(40,15,5,0.45)';
     for (let i = 0; i < 60; i++) {
@@ -1012,21 +1077,32 @@
       const sy = rimY + 8 + ((i * 53) % (H - rimY - 18));
       ctx.fillRect(sx, sy, 2, 2);
     }
-    // sparse green scrub
-    ctx.fillStyle = '#5a7a35';
-    for (let i = 0; i < 30; i++) {
+    // dense green scrub texture
+    ctx.fillStyle = '#5a8a35';
+    for (let i = 0; i < 60; i++) {
       const sx = (i * 173) % W;
       const sy = rimY + 4 + ((i * 47) % (H - rimY - 12));
       ctx.fillRect(sx, sy, 3, 3);
       ctx.fillRect(sx + 1, sy - 1, 2, 2);
+      ctx.fillRect(sx + 2, sy + 1, 2, 2);
     }
-    // wooden viewpoint fence post
+    // brighter grass tufts
+    ctx.fillStyle = '#7aa848';
+    for (let i = 0; i < 40; i++) {
+      const sx = (i * 211) % W;
+      const sy = rimY + 6 + ((i * 67) % (H - rimY - 12));
+      ctx.fillRect(sx, sy, 2, 3);
+    }
+    // wooden viewpoint fence posts
     drawFencePost(W * 0.86, H * 0.78);
     drawFencePost(W * 0.06, H * 0.82);
-    // tropical shrubs in the foreground
-    drawCanyonShrub(W * 0.18, H * 0.93);
-    drawCanyonShrub(W * 0.50, H * 0.88);
-    drawCanyonShrub(W * 0.72, H * 0.94);
+    // bushy shrubs across the foreground
+    drawCanyonShrub(W * 0.14, H * 0.93);
+    drawCanyonShrub(W * 0.30, H * 0.86);
+    drawCanyonShrub(W * 0.46, H * 0.94);
+    drawCanyonShrub(W * 0.62, H * 0.88);
+    drawCanyonShrub(W * 0.76, H * 0.95);
+    drawCanyonShrub(W * 0.92, H * 0.86);
   }
 
   function drawFencePost(x, y) {
@@ -1071,34 +1147,61 @@
     sg.addColorStop(1, '#cfdde8');
     ctx.fillStyle = sg;
     ctx.fillRect(0, 0, W, horizon);
-    // distant cinder cones along the horizon
-    const cones = [
-      { x: 0.10, h: 28, c: '#7a3a26' },
-      { x: 0.22, h: 18, c: '#8a4530' },
-      { x: 0.34, h: 36, c: '#6a2a18' },
-      { x: 0.50, h: 52, c: '#5a2010' },
-      { x: 0.66, h: 40, c: '#6a2a18' },
-      { x: 0.78, h: 22, c: '#8a4530' },
-      { x: 0.90, h: 30, c: '#7a3a26' },
-    ];
-    cones.forEach(c => {
-      const cx = c.x * W;
-      ctx.fillStyle = c.c;
-      ctx.beginPath();
-      ctx.moveTo(cx - c.h * 0.7, horizon);
-      ctx.lineTo(cx, horizon - c.h);
-      ctx.lineTo(cx + c.h * 0.7, horizon);
-      ctx.closePath();
-      ctx.fill();
-      // crater notch
-      ctx.fillStyle = 'rgba(0,0,0,0.35)';
-      ctx.beginPath();
-      ctx.moveTo(cx - c.h * 0.18, horizon - c.h);
-      ctx.lineTo(cx, horizon - c.h + 4);
-      ctx.lineTo(cx + c.h * 0.18, horizon - c.h);
-      ctx.closePath();
-      ctx.fill();
-    });
+    // single dominant Haleakala summit — wide shield-volcano profile
+    const peakH = Math.min(110, H * 0.20);
+    ctx.fillStyle = '#5a2a18';
+    ctx.beginPath();
+    ctx.moveTo(0, horizon);
+    ctx.lineTo(W * 0.10, horizon - peakH * 0.10);
+    ctx.lineTo(W * 0.22, horizon - peakH * 0.30);
+    ctx.lineTo(W * 0.34, horizon - peakH * 0.55);
+    ctx.lineTo(W * 0.44, horizon - peakH * 0.85);
+    ctx.lineTo(W * 0.52, horizon - peakH);          // summit
+    ctx.lineTo(W * 0.60, horizon - peakH * 0.85);
+    ctx.lineTo(W * 0.72, horizon - peakH * 0.55);
+    ctx.lineTo(W * 0.84, horizon - peakH * 0.30);
+    ctx.lineTo(W * 0.94, horizon - peakH * 0.10);
+    ctx.lineTo(W, horizon);
+    ctx.closePath();
+    ctx.fill();
+    // sunlit (left) face — lighter wash
+    ctx.fillStyle = 'rgba(220,140,90,0.22)';
+    ctx.beginPath();
+    ctx.moveTo(0, horizon);
+    ctx.lineTo(W * 0.10, horizon - peakH * 0.10);
+    ctx.lineTo(W * 0.22, horizon - peakH * 0.30);
+    ctx.lineTo(W * 0.34, horizon - peakH * 0.55);
+    ctx.lineTo(W * 0.44, horizon - peakH * 0.85);
+    ctx.lineTo(W * 0.52, horizon - peakH);
+    ctx.lineTo(W * 0.52, horizon);
+    ctx.closePath();
+    ctx.fill();
+    // shadow (right) face — darker wash
+    ctx.fillStyle = 'rgba(0,0,0,0.28)';
+    ctx.beginPath();
+    ctx.moveTo(W * 0.52, horizon - peakH);
+    ctx.lineTo(W * 0.60, horizon - peakH * 0.85);
+    ctx.lineTo(W * 0.72, horizon - peakH * 0.55);
+    ctx.lineTo(W * 0.84, horizon - peakH * 0.30);
+    ctx.lineTo(W * 0.94, horizon - peakH * 0.10);
+    ctx.lineTo(W, horizon);
+    ctx.lineTo(W * 0.52, horizon);
+    ctx.closePath();
+    ctx.fill();
+    // crater notch at the summit (Haleakala's iconic caldera)
+    ctx.fillStyle = 'rgba(0,0,0,0.55)';
+    ctx.beginPath();
+    ctx.moveTo(W * 0.46, horizon - peakH * 0.92);
+    ctx.lineTo(W * 0.52, horizon - peakH * 0.86);
+    ctx.lineTo(W * 0.58, horizon - peakH * 0.92);
+    ctx.lineTo(W * 0.55, horizon - peakH);
+    ctx.lineTo(W * 0.49, horizon - peakH);
+    ctx.closePath();
+    ctx.fill();
+    // tiny snow / observatory speck near the summit (Haleakala has the
+    // observatory complex up there)
+    ctx.fillStyle = '#f0e8d0';
+    ctx.fillRect(W * 0.515, horizon - peakH + 2, 2, 2);
     // sea of clouds — chunky horizontal bands hugging the horizon
     ctx.fillStyle = 'rgba(255,255,255,0.92)';
     for (let i = 0; i < 16; i++) {
