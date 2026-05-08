@@ -281,7 +281,7 @@
   function spawnBarrel() {
     barrels.push({
       x: sammy.x + 12, y: floors[5].y - 4,
-      vx: 1.0, vy: 0,
+      vx: 1.4, vy: 0,
       onFloor: floors[5],
       rot: 0,
     });
@@ -292,7 +292,7 @@
         if (state === 'play') {
           barrels.push({
             x: sammy.x + 12, y: floors[5].y - 4,
-            vx: 1.0, vy: 0, onFloor: floors[5], rot: 0,
+            vx: 1.4, vy: 0, onFloor: floors[5], rot: 0,
           });
           sammy.throwT = 18;
         }
@@ -309,7 +309,7 @@
         b.onFloor = null;
       } else {
         for (const l of ladders) {
-          if (l.top === b.onFloor.y && Math.abs(b.x - l.x) < 1.2 && Math.random() < 0.18) {
+          if (l.top === b.onFloor.y && Math.abs(b.x - l.x) < 1.8 && Math.random() < 0.32) {
             b.onFloor = null;
             b.descendingLadder = l;
             b.vx = 0;
@@ -318,13 +318,13 @@
         }
       }
     } else if (b.descendingLadder) {
-      b.y += 1.2;
+      b.y += 1.8;
       b.x = b.descendingLadder.x;
       if (b.y >= b.descendingLadder.bot - 4) {
         const f = floors.find(f => f.y === b.descendingLadder.bot);
         b.onFloor = f;
         b.y = f.y - 4;
-        b.vx = (Math.random() < 0.5 ? -1 : 1) * 1.0;
+        b.vx = (Math.random() < 0.5 ? -1 : 1) * 1.4;
         b.descendingLadder = null;
       }
     } else {
@@ -335,8 +335,10 @@
         b.onFloor = f;
         b.y = f.y - 4;
         b.vy = 0;
-        if (b.vx === 0) b.vx = (b.x < W/2 ? 1 : -1) * 1.0;
-        else b.vx = -Math.sign(b.vx) * 1.0;
+        // Keep rolling the same direction so barrels cascade off the
+        // stack instead of zigzagging back and forth on each platform.
+        if (b.vx === 0) b.vx = (b.x < W/2 ? 1 : -1) * 1.4;
+        else b.vx = Math.sign(b.vx) * 1.4;
       }
     }
     b.rot += b.vx * 0.2;
