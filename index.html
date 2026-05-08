@@ -168,7 +168,7 @@
   // ---------- Game state ----------
   const state = {
     running: false,
-    player: { x: VW / 2, y: VH - 180, w: 80, h: 36, cooldown: 0 },
+    player: { x: VW / 2, y: VH - 180, w: 100, h: 45, cooldown: 0 },
     bullets: [],
     invaders: [],
     invaderBullets: [],
@@ -935,13 +935,13 @@
     const p = state.player;
     // Base
     ctx.fillStyle = '#6fcf97';
-    ctx.fillRect(p.x - p.w / 2, p.y - 6, p.w, 14);
+    ctx.fillRect(p.x - p.w / 2, p.y - 7.5, p.w, 17.5);
     // Cannon
     ctx.fillStyle = '#aef0c4';
-    ctx.fillRect(p.x - 6, p.y - p.h / 2, 12, 24);
+    ctx.fillRect(p.x - 7.5, p.y - p.h / 2, 15, 30);
     // Label
     ctx.fillStyle = '#0a1428';
-    ctx.font = 'bold 14px sans-serif';
+    ctx.font = 'bold 18px sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText('SB2471', p.x, p.y + 1);
