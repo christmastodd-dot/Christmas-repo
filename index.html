@@ -359,6 +359,8 @@
   let barrelTimer = 90;
   let pickupTimer = 60 * 12; // first pickup ~12s
   let fireballTimer = 60 * 8;
+  let gameShakaTimer = 0;
+  let titleShakaTimer = 0;
   let levelTime = 0;
   let score = 0;
   let lives = 3;
@@ -379,6 +381,7 @@
     barrels.length = 0;
     fireballs.length = 0;
     pickups.length = 0;
+    gameShakas.length = 0;
     barrelTimer = 60;
     pickupTimer = 60 * 12;
     fireballTimer = 60 * 8;
@@ -539,7 +542,6 @@
       onFloor: sammyFloor,
       rot: 0,
     });
-    sammy.throwT = 36;
     // Occasionally spawn a second barrel after a delay (high difficulty)
     if (difficulty() >= 4 && Math.random() < 0.21) {
       setTimeout(() => {
@@ -548,7 +550,6 @@
             x: sammy.x + 12, y: topFloorY - 4,
             vx: cigarSpeed, vy: 0, onFloor: sammyFloor, rot: 0,
           });
-          sammy.throwT = 36;
         }
       }, 500);
     }
@@ -838,6 +839,65 @@
   // notched lapels, blue dress shirt and medium-blue tie.
   // Optional shaka pose with arms raised.
   // (cx, footY) places his feet on a girder.
+
+  // ---- Shaka particle system (always-on emoji popping around Sammy) ----
+  const gameShakas = [];
+  const titleShakas = [];
+  const SHAKA_COLORS = ['#ffcf00', '#ff7a5c', '#7cd97c', '#e8b48a', '#69bff0'];
+
+  function drawTinyShaka(g, x, y, color, flip) {
+    g.fillStyle = color;
+    if (!flip) {
+      // pinky on right, thumb on left going down
+      g.fillRect(x + 5, y + 0, 1, 2);   // pinky shaft
+      g.fillRect(x + 1, y + 2, 5, 1);   // fist top
+      g.fillRect(x + 0, y + 3, 5, 1);   // fist bottom
+      g.fillRect(x + 0, y + 4, 1, 2);   // thumb
+    } else {
+      // mirrored: pinky on left, thumb on right going down
+      g.fillRect(x + 0, y + 0, 1, 2);
+      g.fillRect(x + 0, y + 2, 5, 1);
+      g.fillRect(x + 1, y + 3, 5, 1);
+      g.fillRect(x + 5, y + 4, 1, 2);
+    }
+  }
+
+  function spawnShaka(arr, cx, cy, range) {
+    const angle = Math.random() * Math.PI * 2;
+    const r = range * (0.4 + Math.random() * 0.7);
+    arr.push({
+      x: cx + Math.cos(angle) * r,
+      y: cy + Math.sin(angle) * r,
+      vx: (Math.random() - 0.5) * 0.4,
+      vy: -0.4 - Math.random() * 0.6,
+      life: 50 + ((Math.random() * 30) | 0),
+      age: 0,
+      flip: Math.random() < 0.5,
+      color: SHAKA_COLORS[(Math.random() * SHAKA_COLORS.length) | 0],
+      wobble: Math.random() * Math.PI * 2,
+    });
+  }
+
+  function updateShakas(arr) {
+    for (const p of arr) {
+      p.age++;
+      p.wobble += 0.18;
+      p.x += p.vx + Math.sin(p.wobble) * 0.25;
+      p.y += p.vy;
+      if (p.age >= p.life) p.dead = true;
+    }
+    for (let i = arr.length - 1; i >= 0; i--) if (arr[i].dead) arr.splice(i, 1);
+  }
+
+  function drawShakas(g, arr) {
+    for (const p of arr) {
+      const a = 1 - p.age / p.life;
+      g.globalAlpha = Math.max(0, Math.min(1, a < 0.2 ? a / 0.2 : 1));
+      drawTinyShaka(g, p.x | 0, p.y | 0, p.color, p.flip);
+    }
+    g.globalAlpha = 1;
+  }
+
   function drawSammy(g, cx, footY, throwing) {
     const headW = 16, headH = 16;
     const bodyH = 14;
@@ -1380,8 +1440,9 @@
     // Oil drum sits on ground floor
     drawOilDrum(oilDrum);
 
-    // Sammy
-    drawSammy(ctx, sammy.x, sammy.y, sammy.throwT > 0);
+    // Sammy + always-on shaka emoji burst around him
+    drawSammy(ctx, sammy.x, sammy.y, false);
+    drawShakas(ctx, gameShakas);
 
     // Trophy
     drawTrophy(trophy.x, trophy.y);
@@ -1541,8 +1602,16 @@
       tg.fillText('YOU SAVED THE TROPHY!', tw / 2, 134);
     }
 
-    // ----- Sammy character below the title -----
+    // ----- Sammy character below the title with shaka emoji burst -----
+    titleShakaTimer--;
+    if (titleShakaTimer <= 0) {
+      spawnShaka(titleShakas, tw / 2, 168, 32);
+      titleShakaTimer = 8 + ((Math.random() * 10) | 0);
+    }
+    updateShakas(titleShakas);
+
     drawSammy(tg, tw / 2, 184, false);
+    drawShakas(tg, titleShakas);
 
     // Sammy stands on a tiny "girder" plinth (red beam, like the floors)
     tg.fillStyle = '#d33a2c';
@@ -1580,7 +1649,13 @@
     if (state === 'play') {
       levelTime++;
       updatePlayer();
-      if (sammy.throwT > 0) sammy.throwT--;
+      // Always-on shaka emoji burst around Sammy
+      gameShakaTimer--;
+      if (gameShakaTimer <= 0) {
+        spawnShaka(gameShakas, sammy.x, sammy.y - 18, 24);
+        gameShakaTimer = 14 + ((Math.random() * 14) | 0);
+      }
+      updateShakas(gameShakas);
       barrelTimer--;
       if (barrelTimer <= 0) {
         spawnBarrel();
