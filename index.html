@@ -51,6 +51,7 @@
   <div id="hud">
     <div class="pill">Score: <span id="score">0</span></div>
     <div class="pill">Round: <span id="round">1</span>/3</div>
+    <div class="pill">Time: <span id="time">0</span>s</div>
     <div class="pill">Ammo: <span id="ammo">6</span></div>
   </div>
   <div id="targetsBar" class="hidden"></div>
@@ -59,6 +60,8 @@
     <p>Da chickens stay running wild all over Hawaii. Tap to shoot 'em!</p>
     <p>Each round spawns <span class="stat">10 chickens</span>. Hit at least
        <span class="stat">6</span> to advance. Three rounds to clear the hunt.</p>
+    <p>Misses cost <span class="stat">−25</span> points. Finish quick for a
+       <span class="stat">time bonus</span> up to <span class="stat">+500</span>.</p>
     <button id="start">Start</button>
   </div>
 </div>
@@ -68,6 +71,7 @@
   const ctx = canvas.getContext('2d');
   const scoreEl = document.getElementById('score');
   const roundEl = document.getElementById('round');
+  const timeEl = document.getElementById('time');
   const ammoEl = document.getElementById('ammo');
   const overlay = document.getElementById('overlay');
   const startBtn = document.getElementById('start');
@@ -114,9 +118,19 @@
     mode: 'menu',           // 'menu' | 'playing' | 'roundEnd' | 'levelEnd' | 'gameOver'
     spawnedCount: 0,
     roundTargets: [],       // length 10, each null | 'hit' | 'miss'
+    roundStartT: 0,         // performance.now() when round began
+    roundElapsed: 0,        // seconds elapsed in last round (for level-end display)
+    roundBonus: 0,          // last awarded time bonus
+    misses: 0,              // shots that missed in current round (for level-end display)
     dog: { active: false, t: 0, dur: 2.6, mode: 'success', hits: 0 },
     banner: { text: '', life: 0, big: false, sub: '' },
   };
+
+  const MISS_PENALTY = 25;
+
+  function computeTimeBonus(elapsedSec) {
+    return Math.max(0, Math.min(500, Math.round(600 - 18 * elapsedSec)));
+  }
 
   function showBanner(text, opts = {}) {
     state.banner = {
@@ -1013,7 +1027,12 @@
         break;
       }
     }
-    if (!hit) sndMiss();
+    if (!hit) {
+      sndMiss();
+      state.score -= MISS_PENALTY;
+      state.misses++;
+      addFloat(px, py, '−' + MISS_PENALTY, '#ff5555');
+    }
     updateHUD();
     if (state.ammo === 0) startReload();
   }
@@ -1039,6 +1058,10 @@
   function updateHUD() {
     scoreEl.textContent = state.score;
     roundEl.textContent = state.levelIdx + 1;
+    if (state.mode === 'playing' && state.roundStartT > 0) {
+      const e = (performance.now() - state.roundStartT) / 1000;
+      timeEl.textContent = e.toFixed(1);
+    }
     if (!state.reloading) ammoEl.textContent = state.ammo;
   }
 
@@ -1123,6 +1146,16 @@
   function triggerRoundEnd(hits) {
     const passed = hits >= ROUND_QUOTA;
     state.mode = 'roundEnd';
+    state.roundElapsed = (performance.now() - state.roundStartT) / 1000;
+    if (passed) {
+      state.roundBonus = computeTimeBonus(state.roundElapsed);
+      state.score += state.roundBonus;
+      if (state.roundBonus > 0) {
+        addFloat(W / 2, H * 0.4, 'Time Bonus +' + state.roundBonus, '#ffd042');
+      }
+    } else {
+      state.roundBonus = 0;
+    }
     state.dog = {
       active: true,
       t: 0,
@@ -1367,6 +1400,10 @@
     state.shots = [];
     state.spawnTimer = 0.5;
     state.levelIdx = 0;
+    state.misses = 0;
+    state.roundBonus = 0;
+    state.roundElapsed = 0;
+    state.roundStartT = performance.now();
     state.dog = { active: false, t: 0, dur: 2.6, mode: 'success', hits: 0 };
     state.banner = { text: '', life: 0, big: false, sub: '' };
     resetRoundTargets();
@@ -1387,11 +1424,14 @@
     overlay.classList.remove('hidden');
     overlay.querySelector('h1').textContent = cleared + ' — Pau!';
     overlay.querySelector('p').innerHTML =
-      `Bagged <span class="stat">${hits}/${ROUND_SIZE}</span> &nbsp;·&nbsp; ` +
-      `Score: <span class="stat">${state.score}</span>` +
+      `Bagged <span class="stat">${hits}/${ROUND_SIZE}</span> in ` +
+      `<span class="stat">${state.roundElapsed.toFixed(1)}s</span> &nbsp;·&nbsp; ` +
+      `Misses: <span class="stat">${state.misses}</span>` +
       (hits === ROUND_SIZE ? ' &nbsp;<span class="stat">PERFECT!</span>' : '');
     overlay.querySelectorAll('p')[1].innerHTML =
-      `Next round: <span class="stat">${next}</span>`;
+      `Time bonus: <span class="stat">+${state.roundBonus}</span> &nbsp;·&nbsp; ` +
+      `Score: <span class="stat">${state.score}</span> &nbsp;·&nbsp; ` +
+      `Next: <span class="stat">${next}</span>`;
     startBtn.textContent = 'Proceed';
   }
 
@@ -1403,6 +1443,10 @@
     state.chickens = [];
     state.particles = [];
     state.shots = [];
+    state.misses = 0;
+    state.roundBonus = 0;
+    state.roundElapsed = 0;
+    state.roundStartT = performance.now();
     state.dog = { active: false, t: 0, dur: 2.6, mode: 'success', hits: 0 };
     state.mode = 'playing';
     state.running = true;
