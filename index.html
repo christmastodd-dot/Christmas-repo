@@ -623,11 +623,28 @@
       ctx.fillRect(gx, gy, 2, 4);
       ctx.fillRect(gx + 3, gy + 1, 2, 3);
     }
-    drawCar(W * 0.18, carRow, '#c93a3a');
-    drawCar(W * 0.42, carRow, '#3a6bc9');
-    drawCar(W * 0.82, carRow, '#e8c948');
-    // a stray shopping cart
-    drawShoppingCart(W * 0.62, asphaltTop + 22);
+    // line cars up with the stall centers (between two divider ticks)
+    const stallOffset = (W % stallW) / 2;
+    const numStalls = Math.floor(W / stallW);
+    const stallCenter = i => stallOffset + (i + 0.5) * stallW;
+    const carColors = ['#c93a3a', '#3a6bc9', '#e8c948'];
+    const carStallIdx = [
+      Math.max(1, Math.floor(numStalls * 0.18)),
+      Math.floor(numStalls * 0.5),
+      Math.min(numStalls - 2, Math.floor(numStalls * 0.82)),
+    ];
+    carStallIdx.forEach((idx, k) => {
+      if (idx >= 0 && idx < numStalls) drawCar(stallCenter(idx), carRow, carColors[k]);
+    });
+    // a stray shopping cart parked between the cars (in an empty stall)
+    const cartIdx = numStalls > 4
+      ? Math.floor(numStalls * 0.66)
+      : -1;
+    if (cartIdx >= 0 && !carStallIdx.includes(cartIdx)) {
+      drawShoppingCart(stallCenter(cartIdx), asphaltTop + 22);
+    } else {
+      drawShoppingCart(W * 0.66, asphaltTop + 22);
+    }
     // palms framing the scene
     drawPalm(W * 0.06, asphaltTop + 2, 0.7, { lean: -0.04, variant: 0 });
     drawPalm(W * 0.96, asphaltTop + 6, 0.8, { lean:  0.05, variant: 1 });
@@ -1471,17 +1488,18 @@
       if (state.roundBonus > 0) {
         addFloat(W / 2, H * 0.4, 'Time Bonus +' + state.roundBonus, '#ffd042');
       }
+      sndSuccess();
+      // Skip the dog cutscene on a round win — go straight to the
+      // level-end overlay (or the win screen on the final round).
+      if (state.levelIdx >= LEVELS.length - 1) endGame(true);
+      else showLevelEnd();
     } else {
       state.roundBonus = 0;
+      state.dog = {
+        active: true, t: 0, dur: 2.4, mode: 'laugh', hits,
+      };
+      sndLaugh();
     }
-    state.dog = {
-      active: true,
-      t: 0,
-      dur: passed ? 2.6 : 2.4,
-      mode: passed ? 'success' : 'laugh',
-      hits,
-    };
-    if (passed) sndSuccess(); else sndLaugh();
   }
 
   function render(dt) {
