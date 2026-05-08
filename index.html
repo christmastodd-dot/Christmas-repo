@@ -40,28 +40,20 @@
   #title {
     position: fixed; inset: 0;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    background: rgba(0,0,0,0.9);
+    background: #000;
     text-align: center; padding: 16px;
     z-index: 10;
   }
-  #title h1 {
-    font-size: 44px; margin: 0 0 6px;
-    color: #ff3b3b; letter-spacing: 4px;
-    text-shadow: 3px 3px 0 #000, 0 0 12px #ff0000;
-  }
-  #title h2 {
-    font-size: 14px; margin: 0 0 14px;
-    color: #ffcf00; letter-spacing: 4px;
-  }
-  #title p { margin: 6px 0; font-size: 13px; max-width: 320px; }
   #titleSammy {
     image-rendering: pixelated;
     image-rendering: crisp-edges;
-    width: 168px; height: 224px;
-    margin: 8px 0;
+    width: min(92vmin, 420px);
+    height: auto;
+    aspect-ratio: 224 / 256;
+    margin: 0 0 12px;
   }
   #title button {
-    margin-top: 14px; padding: 14px 26px;
+    margin-top: 4px; padding: 14px 26px;
     background: #ffcf00; color: #000; border: 3px solid #fff;
     font: bold 18px "Courier New", monospace; letter-spacing: 2px;
     cursor: pointer;
@@ -104,11 +96,7 @@
 <div id="wrap"><canvas id="game" width="256" height="288"></canvas></div>
 
 <div id="title">
-  <h1>SAMMY KONG</h1>
-  <h2>~ 1981 ~</h2>
-  <canvas id="titleSammy" width="42" height="56"></canvas>
-  <p>Climb the girders. Dodge the cigar barrels.<br>Watch out for the fireballs. Rescue the trophy.</p>
-  <p style="opacity:.7">Arrows / WASD &middot; Space to jump<br>Grab a SHAKA to smash barrels</p>
+  <canvas id="titleSammy" width="224" height="256"></canvas>
   <button id="startBtn">START</button>
 </div>
 
@@ -385,7 +373,7 @@
     reset(true);
     state = 'play';
     document.getElementById('title').style.display = 'none';
-    document.querySelector('#title h1').textContent = 'SAMMY KONG';
+    titleMode = 'main';
     document.getElementById('startBtn').textContent = 'START';
   }
   document.getElementById('startBtn').addEventListener('click', start);
@@ -1308,14 +1296,129 @@
     ctx.textAlign = 'left';
   }
 
-  // Render Sammy (idle) onto the title canvas
-  (function paintTitleSammy() {
+  // ---- Title card (DK-style arcade title screen) ----
+  let titleMode = 'main'; // 'main' | 'gameover' | 'youwin'
+
+  // Chunky 5x7 pixel font for the big SAMMY KONG letters
+  const BIG_FONT = {
+    S: [".XXXX","X....","X....",".XXX.","....X","....X","XXXX."],
+    A: [".XXX.","X...X","X...X","XXXXX","X...X","X...X","X...X"],
+    M: ["X...X","XX.XX","X.X.X","X.X.X","X...X","X...X","X...X"],
+    Y: ["X...X","X...X",".X.X.","..X..","..X..","..X..","..X.."],
+    K: ["X...X","X..X.","X.X..","XX...","X.X..","X..X.","X...X"],
+    O: [".XXX.","X...X","X...X","X...X","X...X","X...X",".XXX."],
+    N: ["X...X","XX..X","X.X.X","X..XX","X...X","X...X","X...X"],
+    G: [".XXXX","X....","X....","X..XX","X...X","X...X",".XXXX"],
+  };
+
+  function drawBigText(g, text, cx, top, block) {
+    const letterW = 5 * block;
+    const letterH = 7 * block;
+    const gap = block;
+    const totalW = text.length * letterW + Math.max(0, text.length - 1) * gap;
+    let x = (cx - totalW / 2) | 0;
+    const BLUE    = '#3858f8';
+    const BLUE_HL = '#7898ff';
+    const BLUE_DK = '#1828a8';
+    for (const ch of text) {
+      const grid = BIG_FONT[ch];
+      if (grid) {
+        for (let r = 0; r < 7; r++) {
+          for (let c = 0; c < 5; c++) {
+            if (grid[r][c] !== 'X') continue;
+            const px = x + c * block;
+            const py = top + r * block;
+            g.fillStyle = BLUE;
+            g.fillRect(px, py, block, block);
+            g.fillStyle = BLUE_HL;
+            g.fillRect(px, py, 1, 1);
+            g.fillStyle = BLUE_DK;
+            g.fillRect(px + block - 1, py + block - 1, 1, 1);
+          }
+        }
+      }
+      x += letterW + gap;
+    }
+  }
+
+  function paintTitleCard() {
     const tc = document.getElementById('titleSammy');
+    if (!tc) return;
     const tg = tc.getContext('2d');
     tg.imageSmoothingEnabled = false;
-    tg.clearRect(0, 0, tc.width, tc.height);
-    drawSammy(tg, 21, 50, false);
-  })();
+    const tw = tc.width, th = tc.height;
+
+    // Background
+    tg.fillStyle = '#000';
+    tg.fillRect(0, 0, tw, th);
+
+    // ----- Top score bar -----
+    tg.font = 'bold 9px "Courier New", monospace';
+    tg.textAlign = 'left';
+    tg.fillStyle = '#ff3b3b';
+    tg.fillText('1UP', 14, 12);
+    tg.fillText('HIGH SCORE', 84, 12);
+    tg.fillStyle = '#ffcf00';
+    tg.fillText('L=' + String(level).padStart(2, '0'), 184, 12);
+    tg.fillStyle = '#ffffff';
+    tg.fillText(String(score).padStart(6, '0'), 14, 24);
+    tg.fillText('010000', 92, 24);
+
+    // ----- BIG title: SAMMY / KONG -----
+    drawBigText(tg, 'SAMMY', tw / 2, 40, 4);
+    drawBigText(tg, 'KONG',  tw / 2, 80, 4);
+
+    // TM mark in green to the right of KONG
+    tg.fillStyle = '#3ade3a';
+    tg.font = 'bold 8px "Courier New", monospace';
+    tg.fillText('TM', tw / 2 + 50, 96);
+
+    // ----- State-specific banner under the title -----
+    if (titleMode === 'gameover') {
+      tg.fillStyle = '#ff3b3b';
+      tg.font = 'bold 14px "Courier New", monospace';
+      tg.textAlign = 'center';
+      tg.fillText('GAME OVER', tw / 2, 134);
+    } else if (titleMode === 'youwin') {
+      tg.fillStyle = '#ffcf00';
+      tg.font = 'bold 12px "Courier New", monospace';
+      tg.textAlign = 'center';
+      tg.fillText('YOU SAVED THE TROPHY!', tw / 2, 134);
+    }
+
+    // ----- Sammy character below the title -----
+    drawSammy(tg, tw / 2, 184, false);
+
+    // Sammy stands on a tiny "girder" plinth (red beam, like the floors)
+    tg.fillStyle = '#d33a2c';
+    tg.fillRect(tw / 2 - 30, 184, 60, 6);
+    tg.fillStyle = '#ff7a5c';
+    tg.fillRect(tw / 2 - 30, 184, 60, 1);
+    tg.fillStyle = '#7a1d12';
+    tg.fillRect(tw / 2 - 30, 189, 60, 1);
+
+    // ----- Footer -----
+    tg.font = '8px "Courier New", monospace';
+    tg.textAlign = 'center';
+    tg.fillStyle = '#ffffff';
+    tg.fillText('© 2026  SAMMYWARE INC.', tw / 2, 222);
+
+    // Push start prompt (blinking)
+    if ((Math.floor(performance.now() / 500) % 2) === 0) {
+      tg.fillStyle = '#ffcf00';
+      tg.font = 'bold 9px "Courier New", monospace';
+      tg.fillText('PUSH START', tw / 2, 244);
+    }
+
+    tg.textAlign = 'left';
+  }
+
+  // Re-paint the title every frame so PUSH START blinks and Sammy stays current
+  function tickTitle() {
+    if (state === 'title') paintTitleCard();
+    requestAnimationFrame(tickTitle);
+  }
+  tickTitle();
 
   // ---- Main loop ----
   function tick() {
@@ -1353,8 +1456,8 @@
           lives--;
           if (lives <= 0) {
             state = 'title';
+            titleMode = 'gameover';
             document.getElementById('title').style.display = 'flex';
-            document.querySelector('#title h1').textContent = 'GAME OVER';
             document.getElementById('startBtn').textContent = 'TRY AGAIN';
           } else {
             // Respawn at start of current level (keep level + score)
@@ -1370,8 +1473,8 @@
             state = 'play';
           } else {
             state = 'title';
+            titleMode = 'youwin';
             document.getElementById('title').style.display = 'flex';
-            document.querySelector('#title h1').textContent = 'YOU WIN!';
             document.getElementById('startBtn').textContent = 'PLAY AGAIN';
           }
         }
