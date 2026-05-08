@@ -1139,7 +1139,7 @@
 
   function drawHaleakala() {
     const horizon = H * 0.42;
-    const cinderTop = H * 0.50;
+    const cinderTop = horizon;   // cinder slope starts right at the mountain base, no sky gap
     const groundY = H * 0.60;
     // cool pale-blue sky (high altitude)
     const sg = ctx.createLinearGradient(0, 0, 0, horizon);
