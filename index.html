@@ -1015,94 +1015,101 @@
 
     // ---- Arms ----
     if (throwing) {
-      // ===== Double-shaka with closed fists + angled thumb & pinky =====
-      // LEFT arm sleeve: shoulder up-and-out to wrist
+      // ===== Sleeves: chunky stair-step from shoulder up to wrist =====
+      // LEFT arm
       g.fillStyle = SUIT;
       g.fillRect(bx - 1,  by - 2, 3, 5);   // shoulder cap
-      g.fillRect(bx - 4,  by - 6, 4, 5);   // upper
-      g.fillRect(bx - 7,  by - 11, 4, 6);  // forearm
-      g.fillRect(bx - 9,  by - 17, 4, 7);  // wrist
+      g.fillRect(bx - 4,  by - 7, 4, 6);   // upper
+      g.fillRect(bx - 6,  by - 13, 4, 6);  // mid
+      g.fillRect(bx - 9,  by - 19, 4, 6);  // forearm to wrist
       g.fillStyle = SUIT_HL;
-      g.fillRect(bx - 9,  by - 17, 1, 7);
+      g.fillRect(bx - 9,  by - 19, 1, 6);  // outer edge
       g.fillStyle = '#1a1a1a';
-      g.fillRect(bx - 9,  by - 17, 4, 1); // cuff
+      g.fillRect(bx - 9,  by - 19, 4, 1);  // cuff line
 
-      // LEFT hand sprite (10 wide x 10 tall, top-left at lhx,lhy)
-      // Closed fist in middle; pinky angles UP-RIGHT (toward Sammy's head),
-      // thumb angles DOWN-LEFT (away from body) — matches the reference.
-      const lhx = bx - 13, lhy = by - 23;
-      g.fillStyle = SKIN;
-      // Fist (4 rows tall, slight pyramid shape)
-      g.fillRect(lhx + 4, lhy + 3, 4, 1);
-      g.fillRect(lhx + 3, lhy + 4, 5, 1);
-      g.fillRect(lhx + 2, lhy + 5, 6, 1);
-      g.fillRect(lhx + 1, lhy + 6, 6, 1);
-      // Pinky angling UP-RIGHT
-      g.fillRect(lhx + 6, lhy + 2, 2, 1);
-      g.fillRect(lhx + 7, lhy + 1, 2, 1);
-      g.fillRect(lhx + 8, lhy + 0, 1, 1);
-      // Thumb angling DOWN-LEFT
-      g.fillRect(lhx + 0, lhy + 7, 2, 1);
-      g.fillRect(lhx + 0, lhy + 8, 1, 1);
-      g.fillRect(lhx + 0, lhy + 9, 1, 1);
-      // Knuckle dimples on the fist
-      g.fillStyle = SKIN_SHADE;
-      g.fillRect(lhx + 4, lhy + 4, 1, 1);
-      g.fillRect(lhx + 6, lhy + 4, 1, 1);
-      g.fillRect(lhx + 5, lhy + 5, 1, 1);
-      // Pinky tip highlight
-      g.fillStyle = SKIN_HI;
-      g.fillRect(lhx + 8, lhy + 0, 1, 1);
-
-      // RIGHT arm sleeve (mirror)
+      // RIGHT arm (mirror)
       g.fillStyle = SUIT;
       g.fillRect(bx + 22, by - 2, 3, 5);
-      g.fillRect(bx + 24, by - 6, 4, 5);
-      g.fillRect(bx + 26, by - 11, 4, 6);
-      g.fillRect(bx + 29, by - 17, 4, 7);
+      g.fillRect(bx + 24, by - 7, 4, 6);
+      g.fillRect(bx + 26, by - 13, 4, 6);
+      g.fillRect(bx + 29, by - 19, 4, 6);
       g.fillStyle = SUIT_HL;
-      g.fillRect(bx + 32, by - 17, 1, 7);
+      g.fillRect(bx + 32, by - 19, 1, 6);
       g.fillStyle = '#1a1a1a';
-      g.fillRect(bx + 29, by - 17, 4, 1);
+      g.fillRect(bx + 29, by - 19, 4, 1);
 
-      // RIGHT hand sprite (mirrored)
-      const rhx = bx + 17, rhy = by - 23;
+      // ===== LEFT shaka hand =====
+      // 12 wide x 12 tall sprite. Pinky is a tall vertical bar on the
+      // upper-right. Fist has a knuckle row with dimples between three
+      // folded fingers. Thumb stair-steps down-left from the fist base.
+      const lhx = bx - 14, lhy = by - 26;
       g.fillStyle = SKIN;
-      // Fist (mirror of left)
-      g.fillRect(rhx + 2, rhy + 3, 4, 1);
-      g.fillRect(rhx + 2, rhy + 4, 5, 1);
-      g.fillRect(rhx + 2, rhy + 5, 6, 1);
-      g.fillRect(rhx + 3, rhy + 6, 6, 1);
-      // Pinky angling UP-LEFT (toward head)
-      g.fillRect(rhx + 2, rhy + 2, 2, 1);
-      g.fillRect(rhx + 1, rhy + 1, 2, 1);
-      g.fillRect(rhx + 1, rhy + 0, 1, 1);
-      // Thumb angling DOWN-RIGHT (away from body)
-      g.fillRect(rhx + 8, rhy + 7, 2, 1);
-      g.fillRect(rhx + 9, rhy + 8, 1, 1);
-      g.fillRect(rhx + 9, rhy + 9, 1, 1);
-      // Knuckle dimples
+      // Pinky shaft (col 10, rows 0-3)
+      g.fillRect(lhx + 10, lhy + 0, 1, 4);
+      // Fist top + knuckle row (cols 4-9, rows 2-3)
+      g.fillRect(lhx + 4, lhy + 2, 6, 1);
+      g.fillRect(lhx + 4, lhy + 3, 6, 1);
+      // Fist body — widest in the middle, tapering toward wrist
+      g.fillRect(lhx + 3, lhy + 4, 8, 1);   // row 4
+      g.fillRect(lhx + 2, lhy + 5, 9, 1);   // row 5
+      g.fillRect(lhx + 2, lhy + 6, 9, 1);   // row 6
+      g.fillRect(lhx + 3, lhy + 7, 7, 1);   // row 7 (wrist)
+      // Knuckle dimples — three darker dots between the folded fingers
       g.fillStyle = SKIN_SHADE;
-      g.fillRect(rhx + 5, rhy + 4, 1, 1);
-      g.fillRect(rhx + 3, rhy + 4, 1, 1);
-      g.fillRect(rhx + 4, rhy + 5, 1, 1);
+      g.fillRect(lhx + 5, lhy + 3, 1, 1);
+      g.fillRect(lhx + 7, lhy + 3, 1, 1);
+      g.fillRect(lhx + 9, lhy + 3, 1, 1);
       // Pinky tip highlight
       g.fillStyle = SKIN_HI;
-      g.fillRect(rhx + 1, rhy + 0, 1, 1);
+      g.fillRect(lhx + 10, lhy + 0, 1, 1);
+      // Thumb — diagonal stair-step DOWN-LEFT from bottom-left of fist
+      g.fillStyle = SKIN;
+      g.fillRect(lhx + 2, lhy + 8,  2, 1);
+      g.fillRect(lhx + 1, lhy + 9,  2, 1);
+      g.fillRect(lhx + 0, lhy + 10, 2, 1);
+      g.fillRect(lhx + 0, lhy + 11, 1, 1);
 
-      // Motion sparkles around the raised hands
+      // ===== RIGHT shaka hand (mirrored within 12-wide sprite) =====
+      const rhx = bx + 16, rhy = by - 26;
+      g.fillStyle = SKIN;
+      // Pinky shaft (col 1)
+      g.fillRect(rhx + 1, rhy + 0, 1, 4);
+      // Fist top + knuckle row (cols 2-7, rows 2-3)
+      g.fillRect(rhx + 2, rhy + 2, 6, 1);
+      g.fillRect(rhx + 2, rhy + 3, 6, 1);
+      // Fist body
+      g.fillRect(rhx + 1, rhy + 4, 8, 1);
+      g.fillRect(rhx + 1, rhy + 5, 9, 1);
+      g.fillRect(rhx + 1, rhy + 6, 9, 1);
+      g.fillRect(rhx + 2, rhy + 7, 7, 1);
+      // Knuckle dimples
+      g.fillStyle = SKIN_SHADE;
+      g.fillRect(rhx + 6, rhy + 3, 1, 1);
+      g.fillRect(rhx + 4, rhy + 3, 1, 1);
+      g.fillRect(rhx + 2, rhy + 3, 1, 1);
+      // Pinky tip
+      g.fillStyle = SKIN_HI;
+      g.fillRect(rhx + 1, rhy + 0, 1, 1);
+      // Thumb — diagonal stair-step DOWN-RIGHT
+      g.fillStyle = SKIN;
+      g.fillRect(rhx + 8,  rhy + 8,  2, 1);
+      g.fillRect(rhx + 9,  rhy + 9,  2, 1);
+      g.fillRect(rhx + 10, rhy + 10, 2, 1);
+      g.fillRect(rhx + 11, rhy + 11, 1, 1);
+
+      // Motion sparkles bracketing the raised hands
       g.fillStyle = '#ffcf00';
       const blink = ((sammy && sammy.throwT) || 0) % 12;
       if (blink < 6) {
-        g.fillRect(bx - 16, by - 22, 1, 1);
-        g.fillRect(bx + 31, by - 22, 1, 1);
-        g.fillRect(bx - 14, by - 12, 1, 1);
-        g.fillRect(bx + 29, by - 12, 1, 1);
+        g.fillRect(bx - 17, by - 24, 1, 1);
+        g.fillRect(bx + 30, by - 24, 1, 1);
+        g.fillRect(bx - 11, by - 28, 1, 1);
+        g.fillRect(bx + 26, by - 28, 1, 1);
       } else {
-        g.fillRect(bx - 14, by - 25, 1, 1);
-        g.fillRect(bx + 29, by - 25, 1, 1);
-        g.fillRect(bx - 12, by - 14, 1, 1);
-        g.fillRect(bx + 27, by - 14, 1, 1);
+        g.fillRect(bx - 15, by - 27, 1, 1);
+        g.fillRect(bx + 28, by - 27, 1, 1);
+        g.fillRect(bx - 8,  by - 28, 1, 1);
+        g.fillRect(bx + 24, by - 28, 1, 1);
       }
     } else {
       g.fillStyle = SUIT;
