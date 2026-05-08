@@ -35,6 +35,13 @@
     align-items: center; justify-content: center; background: rgba(0,0,0,0.55);
     color: #fff; text-align: center; padding: 20px; }
   #overlay.hidden { display: none; }
+  #overlay.menu-mode { background: transparent; justify-content: flex-end;
+    padding-bottom: 6vh; }
+  #overlay.menu-mode h1 { display: none; }
+  #overlay.menu-mode p { font-size: clamp(11px, 2.6vw, 14px);
+    color: #cce4ea; opacity: 0.85; max-width: 360px;
+    text-shadow: 1px 1px 0 #000; }
+  #overlay.menu-mode .stat { color: #ffce4d; }
   #overlay h1 { font-size: clamp(28px, 7vw, 48px); margin-bottom: 8px;
     text-shadow: 3px 3px 0 #b8860b; }
   #overlay p { font-size: clamp(14px, 3.5vw, 18px); margin: 6px 0; max-width: 480px; }
@@ -97,6 +104,7 @@
     canvas.style.width = W + 'px';
     canvas.style.height = H + 'px';
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    if (state && state.mode === 'menu') setupMenu();
   }
   window.addEventListener('resize', resize);
   resize();
@@ -1559,6 +1567,131 @@
     requestAnimationFrame(loop);
   }
 
+  // ---------- Title screen ----------
+  function setupMenu() {
+    state.menuChickens = [
+      { type: 'hen',     x: -60,     y: H * 0.46, scale: 1.5, vx: 110,  bob: 0,   legPhase: 0, alive: true, fallV: 0 },
+      { type: 'rooster', x: W + 60,  y: H * 0.56, scale: 1.3, vx: -130, bob: 1.2, legPhase: 0, alive: true, fallV: 0 },
+      { type: 'chick',   x: -90,     y: H * 0.80, scale: 2.0, vx:  85,  bob: 0.4, legPhase: 0, alive: true, fallV: 0 },
+      { type: 'golden',  x: W + 120, y: H * 0.30, scale: 1.0, vx: -170, bob: 2.0, legPhase: 0, alive: true, fallV: 0 },
+    ];
+    state.menuT = 0;
+    state.menuLastT = performance.now();
+  }
+
+  function renderMenu() {
+    // black background
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, W, H);
+    // faint scanlines for retro feel
+    ctx.fillStyle = 'rgba(255,255,255,0.025)';
+    for (let y = 0; y < H; y += 4) ctx.fillRect(0, y, W, 1);
+    // title
+    drawTitle();
+    // chickens parading across
+    state.menuChickens.forEach(drawChicken);
+    // start prompt blink
+    const blink = Math.sin(state.menuT * 4) > 0;
+    ctx.save();
+    ctx.font = `bold ${Math.max(12, Math.min(20, W * 0.04))}px Impact, "Arial Black", sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = blink ? '#22e0e0' : '#0c8a8a';
+    ctx.shadowColor = '#22e0e0';
+    ctx.shadowBlur = blink ? 10 : 0;
+    ctx.fillText('— PRESS START —', W / 2, H * 0.92);
+    ctx.restore();
+  }
+
+  function drawTitle() {
+    ctx.save();
+    const fontSize = Math.min(W * 0.18, H * 0.18, 140);
+    ctx.font = `900 ${fontSize}px Impact, "Arial Black", "Helvetica Neue", sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    // tighten letter spacing for the blocky NES look
+    if (typeof ctx.letterSpacing !== 'undefined') ctx.letterSpacing = '4px';
+
+    const cx = W / 2;
+    const topY = H * 0.28;
+    const lineY = H * 0.50;
+    const botY = H * 0.72;
+
+    // 3D shadow / drop layer
+    ctx.fillStyle = '#0c5a7a';
+    ctx.fillText('CHICKEN', cx + 5, topY + 5);
+    ctx.fillText('HUNT',    cx + 5, botY + 5);
+    // outline (deep blue) — gives the chunky pixel-block feel
+    ctx.lineWidth = Math.max(3, fontSize * 0.06);
+    ctx.strokeStyle = '#0a2a3a';
+    ctx.strokeText('CHICKEN', cx, topY);
+    ctx.strokeText('HUNT',    cx, botY);
+    // main cyan fill
+    ctx.fillStyle = '#22e0e0';
+    ctx.fillText('CHICKEN', cx, topY);
+    ctx.fillText('HUNT',    cx, botY);
+    // subtle highlight (top half of letters)
+    ctx.save();
+    const clipH = fontSize * 0.4;
+    ctx.beginPath();
+    ctx.rect(0, topY - fontSize * 0.5, W, clipH);
+    ctx.rect(0, botY - fontSize * 0.5, W, clipH);
+    ctx.clip();
+    ctx.fillStyle = '#7df5f5';
+    ctx.fillText('CHICKEN', cx, topY);
+    ctx.fillText('HUNT',    cx, botY);
+    ctx.restore();
+
+    // orange divider line between the two words
+    const lineW = Math.min(W * 0.78, 700);
+    const lineThick = Math.max(3, fontSize * 0.04);
+    ctx.fillStyle = '#1a0a05';
+    ctx.fillRect((W - lineW) / 2 + 3, lineY - lineThick / 2 + 3, lineW, lineThick);
+    ctx.fillStyle = '#e88a30';
+    ctx.fillRect((W - lineW) / 2, lineY - lineThick / 2, lineW, lineThick);
+    ctx.fillStyle = '#ffb866';
+    ctx.fillRect((W - lineW) / 2, lineY - lineThick / 2, lineW, Math.max(1, lineThick / 3));
+    ctx.restore();
+  }
+
+  function updateMenuChickens(dt) {
+    state.menuChickens.forEach(c => {
+      c.x += c.vx * dt;
+      c.bob += dt * 8;
+      c.legPhase += dt * 12;
+      if (c.vx > 0 && c.x > W + 80) c.x = -80;
+      if (c.vx < 0 && c.x < -80) c.x = W + 80;
+    });
+  }
+
+  function menuLoop(t) {
+    if (state.mode !== 'menu') {
+      state.menuRafId = null;
+      return;
+    }
+    const dt = Math.min(0.05, (t - state.menuLastT) / 1000 || 0);
+    state.menuLastT = t;
+    state.menuT += dt;
+    updateMenuChickens(dt);
+    renderMenu();
+    state.menuRafId = requestAnimationFrame(menuLoop);
+  }
+
+  function startMenuAnimation() {
+    overlay.classList.add('menu-mode');
+    setupMenu();
+    if (state.menuRafId) cancelAnimationFrame(state.menuRafId);
+    state.menuRafId = requestAnimationFrame(menuLoop);
+  }
+
+  function stopMenuAnimation() {
+    overlay.classList.remove('menu-mode');
+    if (state.menuRafId) {
+      cancelAnimationFrame(state.menuRafId);
+      state.menuRafId = null;
+    }
+  }
+
   function announceRound() {
     showBanner('ROUND ' + (state.levelIdx + 1), {
       big: true,
@@ -1568,6 +1701,7 @@
   }
 
   function startGame() {
+    stopMenuAnimation();
     state.running = true;
     state.mode = 'playing';
     state.score = 0;
@@ -1667,6 +1801,9 @@
     if (state.mode === 'levelEnd') nextLevel();
     else startGame();
   });
+
+  // Kick off the title screen animation
+  startMenuAnimation();
 })();
 </script>
 </body>
