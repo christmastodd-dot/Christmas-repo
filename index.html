@@ -157,15 +157,15 @@
   };
 
   const PILLAR_COUNT = 8;
-  const CAPITOL_MAX_HP = 10; // 8 pillars + dome cracked + dome destroyed
+  const CAPITOL_MAX_HP = 10; // 8 pillars + seal cracked + seal destroyed
 
   function newCapitol() {
     return {
       maxHp: CAPITOL_MAX_HP,
       hp: CAPITOL_MAX_HP,
       destroyedPillars: new Set(),
-      domeCracked: false,
-      domeDestroyed: false
+      sealCracked: false,
+      sealDestroyed: false
     };
   }
 
@@ -192,13 +192,11 @@
     for (let i = 0; i < PILLAR_COUNT; i++) {
       if (c && c.destroyedPillars.has(i)) continue;
       const px = left + i * (pillarW + pillarGap);
-      rects.push({ x: px, y: top + 36, w: pillarW, h: baseY - 16 - (top + 36) });
+      rects.push({ x: px, y: top + 26, w: pillarW, h: baseY - 16 - (top + 26) });
     }
-    rects.push({ x: left - 10, y: top + 26, w: w + 20, h: 14 }); // entablature
-    if (!c || !c.domeDestroyed) {
-      rects.push({ x: cx - 110, y: top - 30, w: 220, h: 56 }); // dome bbox
-    } else {
-      rects.push({ x: cx - 110, y: top + 6, w: 220, h: 20 }); // ruin
+    rects.push({ x: left - 24, y: top - 10, w: w + 48, h: 36 }); // flat roof slab
+    if (!c || !c.sealDestroyed) {
+      rects.push({ x: cx - 38, y: top + 50, w: 76, h: 76 }); // seal disc bbox
     }
     return rects;
   }
@@ -223,12 +221,12 @@
       spawnParticles(px, VH - 80, '#cfd6df');
       spawnParticles(px, VH - 60, '#8a96aa');
     } else if (dmg === PILLAR_COUNT + 1) {
-      c.domeCracked = true;
-      spawnParticles(VW / 2, VH - state.capitolHeight, '#9aa7bd');
+      c.sealCracked = true;
+      spawnParticles(VW / 2, VH - state.capitolHeight + 88, '#a87b3f');
     } else {
-      c.domeDestroyed = true;
+      c.sealDestroyed = true;
       for (let i = -1; i <= 1; i++) {
-        spawnParticles(VW / 2 + i * 40, VH - state.capitolHeight + 10, '#9aa7bd');
+        spawnParticles(VW / 2 + i * 24, VH - state.capitolHeight + 88, '#a87b3f');
       }
     }
     if (c.hp <= 0) endGame(false);
@@ -546,8 +544,11 @@
       for (const p of c.destroyedPillars) {
         if (Math.random() < 0.6) emitSmoke(pillarCenterX(p), VH - 80);
       }
-      if (c.domeCracked || c.domeDestroyed) {
-        emitSmoke(VW / 2 + (Math.random() - 0.5) * 60, VH - state.capitolHeight - 10);
+      if (c.sealCracked && !c.sealDestroyed) {
+        emitSmoke(VW / 2 + (Math.random() - 0.5) * 30, VH - state.capitolHeight + 80);
+      }
+      if (c.sealDestroyed) {
+        emitSmoke(VW / 2 + (Math.random() - 0.5) * 60, VH - 30);
       }
     }
 
@@ -588,7 +589,8 @@
 
   // ---------- Render ----------
   function drawCapitol() {
-    // Hawaii State Capitol stylized: open-air pillars + volcano-cone "dome".
+    // Hawaii State Capitol stylized: tall fluted pillars under a flat
+    // upper structure, with the State Seal hung between center pillars.
     const c = state.capitol;
     const baseY = VH - 20;
     const top = VH - state.capitolHeight;
@@ -607,7 +609,7 @@
     // Pillars (skip destroyed; draw rubble stub in their place)
     const pillarW = 28;
     const pillarGap = (w - pillarW * PILLAR_COUNT) / (PILLAR_COUNT - 1);
-    const pillarTop = top + 36;
+    const pillarTop = top + 26;
     const pillarBottom = baseY - 16;
     for (let i = 0; i < PILLAR_COUNT; i++) {
       const px = left + i * (pillarW + pillarGap);
@@ -625,87 +627,117 @@
       } else {
         ctx.fillStyle = '#e8eef7';
         ctx.fillRect(px, pillarTop, pillarW, pillarBottom - pillarTop);
+        // Fluting lines
+        ctx.fillStyle = '#bcc4d0';
+        ctx.fillRect(px + 8, pillarTop, 1, pillarBottom - pillarTop);
+        ctx.fillRect(px + 14, pillarTop, 1, pillarBottom - pillarTop);
+        ctx.fillRect(px + 20, pillarTop, 1, pillarBottom - pillarTop);
       }
     }
 
-    // Entablature — sags between destroyed pillar gaps
+    // Flat upper roof slab (replaces the dome)
     ctx.fillStyle = '#cfd6df';
-    ctx.fillRect(left - 10, top + 26, w + 20, 14);
-    if (c) {
-      ctx.fillStyle = '#0a1428';
-      for (const i of c.destroyedPillars) {
-        const px = left + i * (pillarW + pillarGap);
-        // Bite out of the entablature above the missing pillar
-        ctx.beginPath();
-        ctx.moveTo(px - 4, top + 32);
-        ctx.lineTo(px + pillarW / 2, top + 40);
-        ctx.lineTo(px + pillarW + 4, top + 32);
-        ctx.lineTo(px + pillarW + 4, top + 26);
-        ctx.lineTo(px - 4, top + 26);
-        ctx.closePath();
-        ctx.fill();
-      }
-    }
+    ctx.fillRect(left - 24, top - 10, w + 48, 36);
+    ctx.fillStyle = '#e8eef7';
+    ctx.fillRect(left - 24, top - 10, w + 48, 4);
+    ctx.fillStyle = '#9aa7bd';
+    ctx.fillRect(left - 24, top + 22, w + 48, 4);
 
-    // Dome
-    if (!c || !c.domeDestroyed) {
-      ctx.fillStyle = '#9aa7bd';
+    // Hanging State Seal
+    const sealCx = cx;
+    const sealCy = top + 88;
+    const sealR = 36;
+
+    if (!c || !c.sealDestroyed) {
+      // Suspension chains from the roof
+      ctx.strokeStyle = '#7a8294';
+      ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.moveTo(cx - 110, top + 26);
-      ctx.lineTo(cx - 60, top - 30);
-      ctx.lineTo(cx + 60, top - 30);
-      ctx.lineTo(cx + 110, top + 26);
+      ctx.moveTo(sealCx - 30, top + 26);
+      ctx.lineTo(sealCx - 16, sealCy - sealR + 6);
+      ctx.moveTo(sealCx + 30, top + 26);
+      ctx.lineTo(sealCx + 16, sealCy - sealR + 6);
+      ctx.stroke();
+      ctx.lineWidth = 1;
+
+      // Seal: bronze rim, inner ring, gold center
+      ctx.fillStyle = '#a87b3f';
+      ctx.beginPath();
+      ctx.arc(sealCx, sealCy, sealR, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#7a5828';
+      ctx.beginPath();
+      ctx.arc(sealCx, sealCy, sealR - 3, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#c9a058';
+      ctx.beginPath();
+      ctx.arc(sealCx, sealCy, sealR - 9, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 5-point star at center
+      ctx.fillStyle = '#3a2a14';
+      ctx.beginPath();
+      for (let i = 0; i < 10; i++) {
+        const r = i % 2 === 0 ? 12 : 5;
+        const a = -Math.PI / 2 + i * Math.PI / 5;
+        const x = sealCx + Math.cos(a) * r;
+        const y = sealCy + Math.sin(a) * r;
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
       ctx.closePath();
       ctx.fill();
-      // Open crater
-      ctx.fillStyle = '#0a1428';
-      ctx.beginPath();
-      ctx.ellipse(cx, top - 30, 60, 8, 0, 0, Math.PI * 2);
-      ctx.fill();
 
-      if (c && c.domeCracked) {
+      // "1959" beneath the star
+      ctx.fillStyle = '#3a2a14';
+      ctx.font = 'bold 9px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('1959', sealCx, sealCy + sealR - 14);
+
+      // Tick marks around the rim suggesting "STATE OF HAWAII" lettering
+      ctx.fillStyle = '#3a2a14';
+      for (let i = 0; i < 24; i++) {
+        const a = i * (Math.PI * 2) / 24;
+        const x1 = sealCx + Math.cos(a) * (sealR - 1.5);
+        const y1 = sealCy + Math.sin(a) * (sealR - 1.5);
+        ctx.fillRect(x1 - 1, y1 - 1, 2, 2);
+      }
+
+      if (c && c.sealCracked) {
         ctx.strokeStyle = '#0a1428';
-        ctx.lineWidth = 3;
+        ctx.lineWidth = 2.5;
         ctx.beginPath();
-        ctx.moveTo(cx - 40, top - 28);
-        ctx.lineTo(cx - 20, top - 5);
-        ctx.lineTo(cx - 28, top + 8);
-        ctx.lineTo(cx + 6, top + 24);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(cx + 30, top - 28);
-        ctx.lineTo(cx + 18, top - 6);
-        ctx.lineTo(cx + 36, top + 14);
+        ctx.moveTo(sealCx - sealR + 4, sealCy - 8);
+        ctx.lineTo(sealCx - 6, sealCy + 2);
+        ctx.lineTo(sealCx + 4, sealCy - 6);
+        ctx.lineTo(sealCx + sealR - 6, sealCy + 12);
         ctx.stroke();
         ctx.lineWidth = 1;
       }
     } else {
-      // Destroyed dome: jagged rubble silhouette
-      ctx.fillStyle = '#6c7588';
+      // Seal has fallen: snapped chains and shattered fragments on the platform
+      ctx.strokeStyle = '#7a8294';
+      ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.moveTo(cx - 110, top + 26);
-      ctx.lineTo(cx - 80, top + 6);
-      ctx.lineTo(cx - 50, top + 18);
-      ctx.lineTo(cx - 20, top - 2);
-      ctx.lineTo(cx + 10, top + 14);
-      ctx.lineTo(cx + 40, top + 4);
-      ctx.lineTo(cx + 80, top + 20);
-      ctx.lineTo(cx + 110, top + 26);
-      ctx.closePath();
-      ctx.fill();
-      // Glowing fire
-      ctx.fillStyle = 'rgba(235, 87, 87, 0.55)';
+      ctx.moveTo(sealCx - 30, top + 26);
+      ctx.lineTo(sealCx - 26, top + 60);
+      ctx.moveTo(sealCx + 30, top + 26);
+      ctx.lineTo(sealCx + 26, top + 60);
+      ctx.stroke();
+      ctx.lineWidth = 1;
+      // Fragments resting on platform
+      ctx.fillStyle = '#7a5828';
+      ctx.fillRect(sealCx - 34, baseY - 22, 18, 6);
+      ctx.fillRect(sealCx - 6, baseY - 24, 22, 8);
+      ctx.fillRect(sealCx + 18, baseY - 22, 14, 6);
+      ctx.fillStyle = '#a87b3f';
+      ctx.fillRect(sealCx - 30, baseY - 22, 6, 4);
+      ctx.fillRect(sealCx + 4, baseY - 24, 8, 4);
+      // Ember glow
+      ctx.fillStyle = 'rgba(235, 87, 87, 0.45)';
       ctx.beginPath();
-      ctx.ellipse(cx, top + 18, 40, 6, 0, 0, Math.PI * 2);
+      ctx.ellipse(sealCx, baseY - 18, 40, 4, 0, 0, Math.PI * 2);
       ctx.fill();
-    }
-
-    // Flag pole — falls when dome is destroyed
-    if (!c || !c.domeDestroyed) {
-      ctx.fillStyle = '#cfd6df';
-      ctx.fillRect(cx - 1.5, top - 70, 3, 40);
-      ctx.fillStyle = '#6fcf97';
-      ctx.fillRect(cx + 1.5, top - 70, 22, 14);
     }
   }
 
