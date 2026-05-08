@@ -889,105 +889,53 @@
       const sy = horizon + 30 + ((i * 71) % (H - horizon - 35));
       ctx.fillRect(sx, sy, 2, 2);
     }
-    drawBeachUmbrella(W * 0.14, H * 0.82);
+    drawBeachBall(W * 0.14, H * 0.82);
     drawPalm(W * 0.88, H * 0.86, 0.9, { lean: 0.07, variant: 2 });
   }
 
-  function drawBeachUmbrella(x, y) {
+  function drawBeachBall(x, y) {
     ctx.save();
     ctx.translate(x, y);
-    const tipY  = -110;     // canopy peak height above the planting point
-    const halfW = 70;       // canopy half-width
-    const drop  = 42;       // rim drop below the peak at the sides
-    const N     = 8;        // number of canopy panels
-    const stripes = ['#e64545','#f5f1e8','#e64545','#f5f1e8',
-                     '#e64545','#f5f1e8','#e64545','#f5f1e8'];
-    const rimY = (px) => tipY + drop * Math.pow(px / halfW, 2);
-
-    // shadow under the umbrella where it's planted
+    const r = 24;
+    // sand shadow at planting point (y=0 = ground)
     ctx.fillStyle = 'rgba(40,28,12,0.32)';
     ctx.beginPath();
-    ctx.ellipse(0, 1, 9, 3, 0, 0, Math.PI * 2);
+    ctx.ellipse(0, 1, r * 0.85, 3.5, 0, 0, Math.PI * 2);
     ctx.fill();
-
-    // pole — draws UP from the planting point (y=0) to the canopy peak.
-    // fillRect with a negative height extends upward in canvas coords.
-    ctx.fillStyle = '#5a3a1a';
-    ctx.fillRect(-2, 0, 4, tipY);
-    ctx.fillStyle = 'rgba(255,235,200,0.22)';
-    ctx.fillRect(-2, 0, 1.4, tipY);
-
-    // canopy panels (radial slices from peak to scalloped rim)
+    // ball center sits one radius above the ground
+    ctx.translate(0, -r);
+    // alternating panels — classic beach ball wedges
+    const panels = ['#e64545','#f5f1e8','#3a8acd','#f5f1e8','#ffd042','#f5f1e8'];
+    const N = panels.length;
     for (let i = 0; i < N; i++) {
-      const x0 = -halfW + (2 * halfW) * (i / N);
-      const x1 = -halfW + (2 * halfW) * ((i + 1) / N);
-      const y0 = rimY(x0);
-      const y1 = rimY(x1);
-      const xm = (x0 + x1) / 2;
-      const ym = rimY(xm) + 6;  // scallop droop between corners
-      ctx.fillStyle = stripes[i % stripes.length];
+      const a0 = (i / N) * Math.PI * 2 - Math.PI / 2;
+      const a1 = ((i + 1) / N) * Math.PI * 2 - Math.PI / 2;
+      ctx.fillStyle = panels[i];
       ctx.beginPath();
-      ctx.moveTo(0, tipY);
-      ctx.lineTo(x0, y0);
-      ctx.quadraticCurveTo(xm, ym, x1, y1);
+      ctx.moveTo(0, 0);
+      ctx.arc(0, 0, r, a0, a1);
       ctx.closePath();
       ctx.fill();
     }
-
-    // canopy outline (defines the dome silhouette and emphasizes scallops)
-    ctx.strokeStyle = 'rgba(40,15,8,0.7)';
-    ctx.lineWidth = 1.6;
+    // soft gloss highlight in the upper-left
+    const grad = ctx.createRadialGradient(-r * 0.35, -r * 0.45, 1, -r * 0.35, -r * 0.45, r * 0.7);
+    grad.addColorStop(0, 'rgba(255,255,255,0.55)');
+    grad.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = grad;
     ctx.beginPath();
-    for (let i = 0; i <= 64; i++) {
-      const t = i / 64;
-      const xt = -halfW + (2 * halfW) * t;
-      const seg = t * N;
-      const segFrac = seg - Math.floor(seg);
-      const scallop = Math.sin(segFrac * Math.PI) * 4;
-      const yt = rimY(xt) + scallop;
-      if (i === 0) ctx.moveTo(xt, yt);
-      else ctx.lineTo(xt, yt);
-    }
-    ctx.stroke();
-
-    // panel rib seams (radial lines from peak to rim)
-    ctx.strokeStyle = 'rgba(0,0,0,0.32)';
-    ctx.lineWidth = 1;
-    for (let i = 1; i < N; i++) {
-      const xr = -halfW + (2 * halfW) * (i / N);
-      const yr = rimY(xr);
-      ctx.beginPath();
-      ctx.moveTo(0, tipY);
-      ctx.lineTo(xr, yr);
-      ctx.stroke();
-    }
-
-    // shading on the right half (light from upper-left)
-    ctx.save();
-    ctx.beginPath();
-    ctx.moveTo(0, tipY);
-    for (let i = 0; i <= 32; i++) {
-      const t = i / 32;
-      const xt = halfW * t;
-      const seg = (0.5 + t * 0.5) * N;
-      const segFrac = seg - Math.floor(seg);
-      const scallop = Math.sin(segFrac * Math.PI) * 4;
-      ctx.lineTo(xt, rimY(xt) + scallop);
-    }
-    ctx.closePath();
-    ctx.clip();
-    ctx.fillStyle = 'rgba(0,0,0,0.18)';
-    ctx.fillRect(-halfW, tipY - 4, 2 * halfW, drop + 12);
-    ctx.restore();
-
-    // ferrule sticking up from the canopy peak
-    ctx.fillStyle = '#3a2410';
-    ctx.fillRect(-1.8, tipY - 12, 3.6, 12);
-    ctx.fillStyle = '#c9a066';
-    ctx.beginPath();
-    ctx.arc(0, tipY - 13, 2.2, 0, Math.PI * 2);
+    ctx.arc(0, 0, r, 0, Math.PI * 2);
     ctx.fill();
-
+    // small white pole cap on top
+    ctx.fillStyle = '#f5f1e8';
+    ctx.beginPath();
+    ctx.arc(0, -r + 2, 3.5, 0, Math.PI * 2);
+    ctx.fill();
+    // outline
+    ctx.strokeStyle = 'rgba(0,0,0,0.45)';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.arc(0, 0, r, 0, Math.PI * 2);
+    ctx.stroke();
     ctx.restore();
   }
 
