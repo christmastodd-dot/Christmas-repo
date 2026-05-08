@@ -571,16 +571,24 @@
     ctx.fillRect(0, asphaltTop - 5, W, 5);
     ctx.fillStyle = 'rgba(0,0,0,0.25)';
     ctx.fillRect(0, asphaltTop, W, 2);
-    // parking space lines (white perpendicular)
+    // parked cars (in upper portion of lot — further from camera)
+    const carRow = asphaltTop + 28;
+    // parking stalls: parallel-parking layout matching the broadside cars
+    // — long horizontal aisle line below the cars, short vertical tick
+    // marks between stalls
     ctx.strokeStyle = '#f0ead8';
     ctx.lineWidth = 3;
-    const spaceW = 78;
-    const lineTop = asphaltTop + 6;
-    const lineBot = H * 0.92;
-    for (let lx = (W % spaceW) / 2; lx <= W; lx += spaceW) {
+    const stallFrontY = carRow + 16;
+    ctx.beginPath();
+    ctx.moveTo(0, stallFrontY);
+    ctx.lineTo(W, stallFrontY);
+    ctx.stroke();
+    const stallW = 110;
+    const tickH = 18;
+    for (let lx = (W % stallW) / 2; lx <= W + 1; lx += stallW) {
       ctx.beginPath();
-      ctx.moveTo(lx, lineTop);
-      ctx.lineTo(lx, lineBot);
+      ctx.moveTo(lx, stallFrontY);
+      ctx.lineTo(lx, stallFrontY - tickH);
       ctx.stroke();
     }
     // drive lane (dashed yellow) closer to camera
@@ -600,8 +608,6 @@
       ctx.fillRect(gx, gy, 2, 4);
       ctx.fillRect(gx + 3, gy + 1, 2, 3);
     }
-    // parked cars (in upper portion of lot — further from camera)
-    const carRow = asphaltTop + 28;
     drawCar(W * 0.18, carRow, '#c93a3a');
     drawCar(W * 0.42, carRow, '#3a6bc9');
     drawCar(W * 0.82, carRow, '#e8c948');
