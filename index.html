@@ -3,8 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#0a1428">
-<title>Defend the Capitol</title>
+<meta name="theme-color" content="#000000">
+<title>Corporate Invaders</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 <style>
   html, body {
     margin: 0;
@@ -36,39 +39,66 @@
     text-align: center;
     padding: 24px;
     box-sizing: border-box;
-    background: rgba(10, 20, 40, 0.92);
+    background: #000;
     z-index: 10;
+    font-family: 'Press Start 2P', 'Courier New', monospace;
   }
   .overlay.hidden { display: none; }
-  .overlay h1 {
-    font-size: clamp(28px, 7vw, 48px);
-    margin: 0 0 12px;
-    letter-spacing: 1px;
+  .invader-row {
+    display: flex;
+    gap: clamp(14px, 4vw, 28px);
+    font-size: clamp(28px, 8vw, 52px);
+    font-family: monospace;
+    font-weight: bold;
+    margin-bottom: clamp(16px, 4vw, 28px);
+    animation: drift 1.4s steps(2) infinite;
   }
-  .overlay h2 {
-    font-size: clamp(22px, 6vw, 36px);
-    margin: 0 0 12px;
+  .invader-row span:nth-child(1) { color: #eb5757; }
+  .invader-row span:nth-child(2) { color: #f2994a; }
+  .invader-row span:nth-child(3) { color: #f2c94c; }
+  .invader-row span:nth-child(4) { color: #6fcf97; }
+  .invader-row span:nth-child(5) { color: #56ccf2; }
+  @keyframes drift {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(14px); }
   }
-  .overlay p {
-    font-size: clamp(14px, 4vw, 18px);
-    max-width: 480px;
+  .arcade-title {
+    font-size: clamp(22px, 7vw, 44px);
     line-height: 1.5;
-    margin: 6px 0;
-    color: #aab8d0;
+    color: #6fcf97;
+    text-shadow: 4px 4px 0 #1f5e2c, 8px 8px 0 rgba(0, 0, 0, 0.6);
+    letter-spacing: 2px;
+    margin: 0 0 clamp(18px, 4vw, 28px);
+    text-align: center;
   }
-  .overlay button {
-    margin-top: 24px;
-    padding: 14px 32px;
-    font-size: clamp(16px, 4.5vw, 20px);
-    background: #2a7a3a;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
+  .arcade-title.warn { color: #eb5757; text-shadow: 4px 4px 0 #6e1f1f, 8px 8px 0 rgba(0, 0, 0, 0.6); }
+  .arcade-line {
+    font-size: clamp(9px, 2.4vw, 13px);
+    line-height: 1.8;
+    letter-spacing: 1.5px;
+    color: #e8eef7;
+    margin: 6px 0;
+    max-width: 520px;
+    text-transform: uppercase;
+  }
+  .arcade-line.dim { color: #6a7a90; margin-top: clamp(14px, 3vw, 20px); }
+  .arcade-line.score { color: #f2c94c; margin-top: clamp(14px, 3vw, 20px); font-size: clamp(11px, 3vw, 16px); }
+  .arcade-btn {
+    margin-top: clamp(22px, 5vw, 36px);
+    padding: 16px 28px;
+    background: transparent;
+    color: #f2c94c;
+    border: 3px solid #f2c94c;
+    font-family: inherit;
+    font-size: clamp(11px, 3vw, 15px);
+    letter-spacing: 3px;
+    text-transform: uppercase;
     cursor: pointer;
     touch-action: manipulation;
+    animation: blink 1.2s steps(2, start) infinite;
   }
-  .overlay button:active { background: #1f5e2c; }
+  .arcade-btn:active { background: #f2c94c; color: #000; animation: none; }
+  @keyframes blink { 50% { opacity: 0.35; } }
   .accent { color: #6fcf97; }
   .warn { color: #eb5757; }
 </style>
@@ -77,17 +107,19 @@
 <canvas id="game"></canvas>
 
 <div id="startScreen" class="overlay">
-  <h1>Defend the <span class="accent">Capitol</span></h1>
-  <p>Corporate <span class="accent">$</span> are descending on the Hawaii State Capitol.</p>
-  <p>Shoot them down before they buy the building.</p>
-  <p style="margin-top:18px;font-size:0.9em;">Drag to move &middot; Tap or hold to fire</p>
-  <button id="startBtn">Start</button>
+  <div class="invader-row" aria-hidden="true">
+    <span>$</span><span>$</span><span>$</span><span>$</span><span>$</span>
+  </div>
+  <h1 class="arcade-title">CORPORATE<br>INVADERS</h1>
+  <p class="arcade-line">Defend the Hawaii State Capitol</p>
+  <p class="arcade-line dim">Drag to move &middot; Tap to fire</p>
+  <button id="startBtn" class="arcade-btn">Press Start</button>
 </div>
 
 <div id="endScreen" class="overlay hidden">
-  <h2 id="endTitle">The Capitol has been bought.</h2>
-  <p id="endStats"></p>
-  <button id="restartBtn">Play Again</button>
+  <h2 id="endTitle" class="arcade-title warn">Game Over</h2>
+  <p id="endStats" class="arcade-line score"></p>
+  <button id="restartBtn" class="arcade-btn">Play Again</button>
 </div>
 
 <script>
@@ -286,11 +318,11 @@
     const title = document.getElementById('endTitle');
     const stats = document.getElementById('endStats');
     if (won) {
-      title.textContent = 'Campaign finance defended!';
-      title.className = 'accent';
+      title.textContent = 'Capitol Defended';
+      title.className = 'arcade-title';
     } else {
-      title.textContent = 'The Capitol has been bought.';
-      title.className = 'warn';
+      title.textContent = 'Game Over';
+      title.className = 'arcade-title warn';
     }
     stats.textContent = `Score: ${state.score}  ·  Wave: ${state.wave}`;
     document.getElementById('endScreen').classList.remove('hidden');
