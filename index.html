@@ -337,7 +337,8 @@
     alive: true,
     win: false,
     walkT: 0,
-    smashT: 0, // shaka power-up timer
+    smashT: 0,  // shaka power-up timer
+    coffeeT: 0, // coffee cup power-up timer (speed + jump)
     iframes: 0,
   };
 
@@ -369,7 +370,7 @@
     player.vx = 0; player.vy = 0;
     player.onGround = true; player.onLadder = false; player.ladder = null;
     player.alive = true; player.win = false;
-    player.smashT = 0; player.iframes = 30;
+    player.smashT = 0; player.coffeeT = 0; player.iframes = 30;
     player.facing = -1;
     barrels.length = 0;
     fireballs.length = 0;
@@ -540,7 +541,7 @@
     }
   }
 
-  // ---- Pickups (shaka power-up) ----
+  // ---- Pickups (power-ups) ----
   function spawnPickup() {
     // Place on a random non-top, non-bottom floor that's wide enough
     const candidates = floors.filter(f =>
@@ -548,7 +549,8 @@
     if (!candidates.length) return;
     const f = candidates[Math.floor(Math.random() * candidates.length)];
     const x = f.x0 + 20 + Math.random() * (f.x1 - f.x0 - 40);
-    pickups.push({ x, y: f.y - 8, t: 0, type: 'shaka' });
+    const type = Math.random() < 0.55 ? 'shaka' : 'coffee';
+    pickups.push({ x, y: f.y - 8, t: 0, type });
   }
   function updatePickup(p) {
     p.t++;
@@ -560,6 +562,7 @@
     if (!player.alive || player.win) return;
     if (player.iframes > 0) player.iframes--;
     if (player.smashT > 0) player.smashT--;
+    if (player.coffeeT > 0) player.coffeeT--;
 
     const cx = player.x + player.w/2;
     const feetY = player.y + player.h;
@@ -589,8 +592,9 @@
     if (player.onLadder) {
       const l = player.ladder;
       player.vx = 0; player.vy = 0;
-      if (keys.up) player.y -= CLIMB_SPEED;
-      else if (keys.down) player.y += CLIMB_SPEED;
+      const climb = player.coffeeT > 0 ? CLIMB_SPEED * 1.5 : CLIMB_SPEED;
+      if (keys.up) player.y -= climb;
+      else if (keys.down) player.y += climb;
       // Auto-dismount onto upper floor as soon as feet reach its top
       if (player.y + player.h <= l.top) {
         player.onLadder = false;
@@ -612,14 +616,16 @@
     }
 
     if (!player.onLadder) {
+      const speed = player.coffeeT > 0 ? MOVE_SPEED * 1.6 : MOVE_SPEED;
+      const jumpV = player.coffeeT > 0 ? JUMP_V * 1.22 : JUMP_V;
       player.vx = 0;
-      if (keys.left)  { player.vx = -MOVE_SPEED; player.facing = -1; }
-      if (keys.right) { player.vx =  MOVE_SPEED; player.facing =  1; }
+      if (keys.left)  { player.vx = -speed; player.facing = -1; }
+      if (keys.right) { player.vx =  speed; player.facing =  1; }
       player.x += player.vx;
       if (player.vx !== 0 && player.onGround) player.walkT += 0.2;
 
       if (keys.jump && player.onGround) {
-        player.vy = JUMP_V;
+        player.vy = jumpV;
         player.onGround = false;
         keys.jump = false;
       }
@@ -661,8 +667,13 @@
       const dy = (player.y + player.h/2) - p.y;
       if (Math.abs(dx) < 8 && Math.abs(dy) < 9) {
         p.dead = true;
-        score += 500;
-        player.smashT = 360;
+        if (p.type === 'coffee') {
+          score += 250;
+          player.coffeeT = 360;
+        } else {
+          score += 500;
+          player.smashT = 360;
+        }
       }
     }
 
@@ -1060,6 +1071,45 @@
     ctx.fillRect(x, y-6, 1, 1);
   }
 
+  function drawCoffeePickup(p) {
+    const x = p.x|0, y = (p.y + (p.bob || 0))|0;
+    // Steam wisps (animated)
+    const s = (p.t / 6)|0;
+    ctx.fillStyle = '#dfe5ee';
+    ctx.fillRect(x-2, y-7 + (s%2), 1, 1);
+    ctx.fillRect(x,   y-8 + ((s+1)%2), 1, 1);
+    ctx.fillRect(x+2, y-7 + (s%2), 1, 1);
+    ctx.fillRect(x-1, y-9 + (s%2), 1, 1);
+    ctx.fillRect(x+1, y-9 + ((s+1)%2), 1, 1);
+    // Cup body (white ceramic)
+    ctx.fillStyle = '#f4ede1';
+    ctx.fillRect(x-3, y-3, 6, 6);
+    // Coffee surface (brown)
+    ctx.fillStyle = '#3a1d09';
+    ctx.fillRect(x-2, y-3, 4, 1);
+    // Crema highlight
+    ctx.fillStyle = '#7a4a1c';
+    ctx.fillRect(x-1, y-3, 2, 1);
+    // Cup shading
+    ctx.fillStyle = '#c8bfac';
+    ctx.fillRect(x+2, y-2, 1, 4);
+    // Handle (dark outline + interior)
+    ctx.fillStyle = '#3a1818';
+    ctx.fillRect(x+3, y-2, 2, 1);
+    ctx.fillRect(x+4, y-1, 1, 2);
+    ctx.fillRect(x+3, y+1, 2, 1);
+    // Saucer
+    ctx.fillStyle = '#c8bfac';
+    ctx.fillRect(x-4, y+3, 8, 1);
+    ctx.fillStyle = '#9a8e76';
+    ctx.fillRect(x-4, y+4, 8, 1);
+    // Sparkle
+    const spk = (Math.sin(p.t * 0.2) > 0) ? '#fff7a0' : '#ffffff';
+    ctx.fillStyle = spk;
+    ctx.fillRect(x-5, y-5, 1, 1);
+    ctx.fillRect(x+5, y-4, 1, 1);
+  }
+
   function drawGirder(f) {
     ctx.fillStyle = '#d33a2c';
     ctx.fillRect(f.x0, f.y, f.x1 - f.x0, GIRDER_H);
@@ -1095,6 +1145,13 @@
         ctx.fillRect(player.x - 2, player.y - 2, player.w + 4, player.h + 4);
       }
     }
+    // Coffee power-up: speed-line trail behind facing direction
+    if (player.coffeeT > 0) {
+      ctx.fillStyle = 'rgba(170,255,170,0.35)';
+      const dir = player.facing < 0 ? 1 : -1;
+      ctx.fillRect(player.x + dir * 4, player.y + 2, 3, player.h - 4);
+      ctx.fillRect(player.x + dir * 7, player.y + 5, 2, player.h - 9);
+    }
     // i-frames flash
     if (player.iframes > 0 && (player.iframes % 6) < 3) return;
     drawSprite(player.x, player.y, playerSprite, playerPalette, 1, player.facing < 0);
@@ -1124,7 +1181,7 @@
     drawTrophy(trophy.x, trophy.y);
 
     // Pickups
-    for (const p of pickups) if (!p.dead) drawShakaPickup(p);
+    for (const p of pickups) if (!p.dead) (p.type === 'coffee' ? drawCoffeePickup : drawShakaPickup)(p);
 
     // Barrels
     for (const b of barrels) if (!b.dead) drawCigarBarrel(b);
@@ -1143,12 +1200,19 @@
     ctx.fillStyle = '#ff3b3b';
     ctx.fillText('SAMMY KONG', W/2 - 30, 10);
 
-    // Smash timer bar
+    // Power-up timer bars (smash on top, coffee below)
     if (player.smashT > 0) {
       ctx.fillStyle = '#000';
       ctx.fillRect(W/2 - 32, 14, 64, 4);
       ctx.fillStyle = '#ffcf00';
       ctx.fillRect(W/2 - 31, 15, (62 * player.smashT/360)|0, 2);
+    }
+    if (player.coffeeT > 0) {
+      const yBar = player.smashT > 0 ? 20 : 14;
+      ctx.fillStyle = '#000';
+      ctx.fillRect(W/2 - 32, yBar, 64, 4);
+      ctx.fillStyle = '#7cd97c';
+      ctx.fillRect(W/2 - 31, yBar + 1, (62 * player.coffeeT/360)|0, 2);
     }
 
     // Level indicator
