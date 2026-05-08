@@ -651,106 +651,89 @@
   }
 
   function drawBanyanDrive() {
-    const oceanTop = H * 0.38;
-    const oceanBot = H * 0.57;
-    // distant Mauna Kea silhouette (back of the bay)
+    const oceanTop = H * 0.22;
+    const landY = H * 0.55;   // shore line where the bay meets the foreground land
+    // distant Mauna Kea silhouette (back of the bay, in the upper sky)
     ctx.fillStyle = '#6a7484';
     ctx.beginPath();
     ctx.moveTo(0, oceanTop);
-    ctx.lineTo(W * 0.10, oceanTop - 32);
-    ctx.lineTo(W * 0.20, oceanTop - 16);
-    ctx.lineTo(W * 0.30, oceanTop - 38);
+    ctx.lineTo(W * 0.10, oceanTop - 30);
+    ctx.lineTo(W * 0.20, oceanTop - 14);
+    ctx.lineTo(W * 0.30, oceanTop - 36);
     ctx.lineTo(W * 0.42, oceanTop - 14);
     ctx.lineTo(W * 0.55, oceanTop);
     ctx.closePath();
     ctx.fill();
-    // mountain mist
     ctx.fillStyle = 'rgba(255,255,255,0.22)';
     ctx.fillRect(0, oceanTop - 4, W * 0.6, 6);
-    // far shore: green-tan strip of land where the hotels stand
-    const landTop = oceanTop - 14;
-    ctx.fillStyle = '#5a7240';
-    ctx.fillRect(0, landTop, W, oceanTop - landTop);
-    // a few darker bushes / palms scattered along the far shore
-    ctx.fillStyle = '#3a4a25';
-    for (let i = 0; i < 18; i++) {
-      const lx = (i * 67) % W;
-      const lh = 2 + ((i * 31) % 4);
-      ctx.fillRect(lx, oceanTop - lh, 2, lh);
-    }
-    // shoreline edge shadow where land meets water
-    ctx.fillStyle = 'rgba(20,12,6,0.5)';
-    ctx.fillRect(0, oceanTop - 1, W, 1);
-    // wide ocean band — Hilo Bay
-    const og = ctx.createLinearGradient(0, oceanTop, 0, oceanBot);
+    // wide ocean band — Hilo Bay, behind the hotels
+    const og = ctx.createLinearGradient(0, oceanTop, 0, landY);
     og.addColorStop(0, '#1f5878');
     og.addColorStop(0.5, '#3a7ca5');
     og.addColorStop(1, '#7ab8d8');
     ctx.fillStyle = og;
-    ctx.fillRect(0, oceanTop, W, oceanBot - oceanTop);
-    // wave streaks
+    ctx.fillRect(0, oceanTop, W, landY - oceanTop);
+    // wave streaks for movement
     ctx.fillStyle = 'rgba(255,255,255,0.22)';
-    for (let i = 0; i < 28; i++) {
+    for (let i = 0; i < 32; i++) {
       const wx = (i * 153) % W;
-      const wy = oceanTop + 12 + ((i * 47) % (oceanBot - oceanTop - 18));
-      ctx.fillRect(wx, wy, 16, 1);
+      const wy = oceanTop + 12 + ((i * 47) % (landY - oceanTop - 22));
+      ctx.fillRect(wx, wy, 18, 1);
     }
-    // hotels on the far shore — bases sit on the land strip,
-    // strictly above the water line
-    const hotelBase = oceanTop - 1;
-    drawHotel(W * 0.70, hotelBase,
-              Math.min(190, W * 0.26), Math.min(170, H * 0.30),
-              '#e8d4b0', 'NANILOA');
-    drawHotel(W * 0.45, hotelBase,
-              Math.min(120, W * 0.17), Math.min(125, H * 0.21),
-              '#d8b89a');
-    drawHotel(W * 0.88, hotelBase,
-              Math.min(110, W * 0.15), Math.min(110, H * 0.18),
-              '#e0c4a0');
-    // Coconut Island silhouette in mid-bay (in front of hotels)
+    // Coconut Island silhouette out in mid-bay
     ctx.fillStyle = '#3a5a42';
     ctx.beginPath();
-    ctx.ellipse(W * 0.22, oceanBot - 18, 80, 7, 0, 0, Math.PI * 2);
+    ctx.ellipse(W * 0.22, landY - 22, 70, 6, 0, 0, Math.PI * 2);
     ctx.fill();
-    // tiny palms on the island
     ctx.fillStyle = '#2d4a30';
-    ctx.fillRect(W * 0.22 - 8, oceanBot - 28, 2, 8);
-    ctx.fillRect(W * 0.22 + 4, oceanBot - 30, 2, 10);
+    ctx.fillRect(W * 0.22 - 8, landY - 32, 2, 10);
+    ctx.fillRect(W * 0.22 + 4, landY - 34, 2, 12);
     ctx.beginPath();
-    ctx.arc(W * 0.22 - 7, oceanBot - 30, 4, 0, Math.PI * 2);
-    ctx.arc(W * 0.22 + 5, oceanBot - 32, 4, 0, Math.PI * 2);
+    ctx.arc(W * 0.22 - 7, landY - 34, 4, 0, Math.PI * 2);
+    ctx.arc(W * 0.22 + 5, landY - 37, 4, 0, Math.PI * 2);
     ctx.fill();
-    // wave foam at the near shore
+    // wave foam at the shore where ocean meets the foreground land
     ctx.fillStyle = '#fff';
     for (let i = 0; i < W; i += 14) {
-      if (((i * 17) % 30) < 15) ctx.fillRect(i, oceanBot - 2, 7, 2);
+      if (((i * 17) % 30) < 15) ctx.fillRect(i, landY - 2, 7, 2);
     }
-    // grass field gradient (near shore)
-    const g = ctx.createLinearGradient(0, oceanBot, 0, H);
+    // foreground grass — the park where we're standing
+    const g = ctx.createLinearGradient(0, landY, 0, H);
     g.addColorStop(0, '#5fa84a');
     g.addColorStop(1, '#3d7a30');
     ctx.fillStyle = g;
-    ctx.fillRect(0, oceanBot, W, H - oceanBot);
+    ctx.fillRect(0, landY, W, H - landY);
     // grass tufts
     ctx.fillStyle = '#4a8a3a';
     for (let i = 0; i < 70; i++) {
       const gx = (i * 137) % W;
-      const gy = oceanBot + 12 + ((i * 53) % (H - oceanBot - 22));
+      const gy = landY + 10 + ((i * 53) % (H - landY - 22));
       ctx.fillRect(gx, gy, 2, 4);
       ctx.fillRect(gx + 3, gy + 1, 2, 3);
     }
-    // banyans planted along the drive — the namesake, multiple sizes
-    // mid-distance, smaller (back row, near the road)
-    drawBanyan(W * 0.34, oceanBot + (H - oceanBot) * 0.45, 0.55);
-    drawBanyan(W * 0.78, oceanBot + (H - oceanBot) * 0.42, 0.5);
-    // mid-foreground
+    // hotels in foreground — bases sit on the same shore line as the
+    // park, rising up into the bay-band above so the water shows
+    // around and behind them.
+    drawHotel(W * 0.16, landY,
+              Math.min(115, W * 0.16), Math.min(125, H * 0.22),
+              '#d8b89a');
+    drawHotel(W * 0.42, landY,
+              Math.min(180, W * 0.24), Math.min(190, H * 0.34),
+              '#e8d4b0', 'NANILOA');
+    drawHotel(W * 0.70, landY,
+              Math.min(150, W * 0.20), Math.min(160, H * 0.28),
+              '#e0c4a0');
+    drawHotel(W * 0.91, landY,
+              Math.min(95, W * 0.13), Math.min(105, H * 0.18),
+              '#d8b89a');
+    // banyans (foreground, drawn after hotels so they appear in front)
+    drawBanyan(W * 0.34, landY + (H - landY) * 0.45, 0.55);
+    drawBanyan(W * 0.78, landY + (H - landY) * 0.42, 0.5);
     drawBanyan(W * 0.55, H * 0.86, 0.78);
-    // foreground left — biggest
     drawBanyan(W * 0.14, H * 0.95, 1.2);
-    // foreground right
     drawBanyan(W * 0.92, H * 0.92, 0.85);
     // road sign post
-    drawRoadSign(W * 0.74, H * 0.96);
+    drawRoadSign(W * 0.62, H * 0.96);
   }
 
   function drawHotel(cx, groundY, w, h, faceColor, sign) {
