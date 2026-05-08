@@ -31,6 +31,7 @@
   let par = 0;
   let phase = 'idle';
   let srcPos, snkPos;
+  let flowAnim = null;
 
   function rand(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
   function inBounds(x, y) { return x >= 0 && y >= 0 && x < COLS && y < ROWS; }
@@ -213,7 +214,8 @@
   function recomputeConnectivity() {
     for (let y = 0; y < ROWS; y++) {
       for (let x = 0; x < COLS; x++) {
-        if (grid[y][x]) grid[y][x].connected = false;
+        const c = grid[y][x];
+        if (c) { c.connected = false; c.parent = null; }
       }
     }
     const q = [[srcPos.x, srcPos.y]];
@@ -229,9 +231,28 @@
         if (!next || next.connected) return;
         if (!next.openings.has(OPP[d])) return;
         next.connected = true;
+        // direction water enters `next` is the opposite of d (d = parent->child)
+        next.parent = { px: x, py: y, entryDir: OPP[d] };
         q.push([nx, ny]);
       });
     }
+  }
+
+  // Reconstruct the ordered chain from src to sink.
+  // Each entry is { x, y, entry } where entry is the side water enters from.
+  function findFlowPath() {
+    const snk = grid[snkPos.y][snkPos.x];
+    if (!snk.connected) return null;
+    const chain = [];
+    let cx = snkPos.x, cy = snkPos.y;
+    while (cx !== srcPos.x || cy !== srcPos.y) {
+      const cell = grid[cy][cx];
+      chain.unshift({ x: cx, y: cy, entry: cell.parent.entryDir });
+      const p = cell.parent;
+      cx = p.px; cy = p.py;
+    }
+    chain.unshift({ x: srcPos.x, y: srcPos.y, entry: 'W' });
+    return chain;
   }
 
   // ---------- Sizing ----------
@@ -292,6 +313,34 @@
     if (dir === 'S') return { x: cx - half, y: cy, w: pipeW, h: halfCell };
   }
 
+  // Fill a fraction t of an arm. inward=true grows from outer edge to center,
+  // inward=false grows from center to outer edge.
+  function fillArm(x, y, dir, t, inward) {
+    if (t <= 0) return;
+    const r = armRect(x, y, dir);
+    const inset = 3;
+    let fx = r.x + inset, fy = r.y + inset;
+    let fw = r.w - 2 * inset, fh = r.h - 2 * inset;
+    if (dir === 'E') {
+      const w = fw * t;
+      if (inward) fx = r.x + r.w - inset - w; // grow from right edge inward
+      fw = w;
+    } else if (dir === 'W') {
+      const w = fw * t;
+      if (!inward) fx = r.x + r.w - inset - w; // grow from center toward left edge
+      fw = w;
+    } else if (dir === 'S') {
+      const h = fh * t;
+      if (inward) fy = r.y + r.h - inset - h;
+      fh = h;
+    } else if (dir === 'N') {
+      const h = fh * t;
+      if (!inward) fy = r.y + r.h - inset - h;
+      fh = h;
+    }
+    ctx.fillRect(fx, fy, fw, fh);
+  }
+
   function drawPipe(cx, cy, cell) {
     const x = cx * cellSize, y = cy * cellSize;
     const wallEmpty = '#1a0a3a';
@@ -319,29 +368,58 @@
     ctx.fillStyle = wallEmpty;
     ctx.fillRect(hx, hy, hub, hub);
 
-    if (cell.connected) {
-      ctx.fillStyle = sewage;
-      ctx.shadowColor = sewageGlow;
-      ctx.shadowBlur = 8;
+    // Resolve fill amount: animFill overrides connected when set.
+    const fill = (cell.animFill === undefined || cell.animFill === null)
+      ? (cell.connected ? 1 : 0)
+      : cell.animFill;
+    if (fill <= 0) return;
+
+    ctx.fillStyle = sewage;
+    ctx.shadowColor = sewageGlow;
+    ctx.shadowBlur = 8;
+
+    if (fill >= 1) {
       cell.openings.forEach(d => {
         const r = armRect(x, y, d);
         const inset = 3;
         ctx.fillRect(r.x + inset, r.y + inset, r.w - 2 * inset, r.h - 2 * inset);
       });
       ctx.fillRect(hx + 2, hy + 2, hub - 4, hub - 4);
-      ctx.shadowBlur = 0;
+    } else {
+      const entry = cell.animEntry;
+      // First half: entry arm fills from edge to hub.
+      const inT = Math.min(1, fill / 0.5);
+      if (entry && cell.openings.has(entry)) {
+        fillArm(x, y, entry, inT, true);
+      }
+      if (fill > 0.5) {
+        const outT = Math.min(1, (fill - 0.5) / 0.5);
+        // Hub fades in proportional to outT.
+        ctx.fillRect(hx + 2, hy + 2, hub - 4, hub - 4);
+        // All other arms fill from hub outward.
+        cell.openings.forEach(d => {
+          if (d === entry) return;
+          fillArm(x, y, d, outT, false);
+        });
+      }
     }
+    ctx.shadowBlur = 0;
   }
 
   function drawEndpoint(cx, cy, cell, color, label) {
     const x = cx * cellSize, y = cy * cellSize;
     const m = Math.floor(cellSize * 0.16);
+    // During the win animation the sink is "connected" before water reaches it;
+    // honor animFill so the box only lights up when the flow actually arrives.
+    const lit = (cell.animFill === undefined || cell.animFill === null)
+      ? cell.connected
+      : cell.animFill >= 1;
     ctx.fillStyle = '#0a0228';
     ctx.fillRect(x + m, y + m, cellSize - 2 * m, cellSize - 2 * m);
     ctx.strokeStyle = color;
     ctx.lineWidth = 2;
     ctx.shadowColor = color;
-    ctx.shadowBlur = cell.connected ? 12 : 6;
+    ctx.shadowBlur = lit ? 12 : 6;
     ctx.strokeRect(x + m, y + m, cellSize - 2 * m, cellSize - 2 * m);
     ctx.shadowBlur = 0;
     ctx.fillStyle = color;
@@ -353,13 +431,12 @@
     // stub
     cell.openings.forEach(d => {
       const r = armRect(x, y, d);
-      const inset = cellSize / 2 - m;
       const stub = { ...r };
       if (d === 'E') { stub.x = x + cellSize - m; stub.w = m; }
       if (d === 'W') { stub.x = x; stub.w = m; }
       if (d === 'N') { stub.y = y; stub.h = m; }
       if (d === 'S') { stub.y = y + cellSize - m; stub.h = m; }
-      ctx.fillStyle = cell.connected ? '#c47a2a' : color;
+      ctx.fillStyle = lit ? '#c47a2a' : color;
       ctx.fillRect(stub.x, stub.y, stub.w, stub.h);
     });
   }
@@ -384,7 +461,62 @@
     recomputeConnectivity();
     updateHud();
     draw();
-    if (grid[snkPos.y][snkPos.x].connected) winLevel();
+    if (grid[snkPos.y][snkPos.x].connected) startFlowAnim();
+  }
+
+  // ---------- Win flow animation ----------
+  function startFlowAnim() {
+    const chain = findFlowPath();
+    if (!chain) { winLevel(); return; }
+    // Reset visual fill on every chain cell so the animation starts fresh.
+    for (const node of chain) {
+      const c = grid[node.y][node.x];
+      c.animFill = 0;
+      c.animEntry = node.entry;
+    }
+    // Source pops to full immediately so flow appears to come "from" it.
+    const srcCell = grid[chain[0].y][chain[0].x];
+    srcCell.animFill = 1;
+
+    flowAnim = {
+      chain,
+      idx: 1,
+      t: 0,
+      msPerCell: 160,
+      lastTime: performance.now(),
+    };
+    phase = 'flowing';
+    statusEl.classList.remove('win');
+    statusEl.textContent = 'FLOWING...';
+    requestAnimationFrame(flowTick);
+  }
+
+  function flowTick(now) {
+    if (phase !== 'flowing' || !flowAnim) return;
+    const dt = Math.min(64, now - flowAnim.lastTime);
+    flowAnim.lastTime = now;
+    flowAnim.t += dt / flowAnim.msPerCell;
+    if (flowAnim.t >= 1) flowAnim.t = 1;
+    const node = flowAnim.chain[flowAnim.idx];
+    grid[node.y][node.x].animFill = flowAnim.t;
+    draw();
+    if (flowAnim.t >= 1) {
+      flowAnim.idx++;
+      flowAnim.t = 0;
+      if (flowAnim.idx >= flowAnim.chain.length) {
+        // animation complete — clear overrides and show overlay
+        for (const n of flowAnim.chain) {
+          const c = grid[n.y][n.x];
+          c.animFill = undefined;
+          c.animEntry = undefined;
+        }
+        flowAnim = null;
+        draw();
+        winLevel();
+        return;
+      }
+    }
+    requestAnimationFrame(flowTick);
   }
 
   canvas.addEventListener('click', e => {
