@@ -64,7 +64,7 @@
   <canvas id="game"></canvas>
   <div id="hud">
     <div class="pill">Score: <span id="score">0</span></div>
-    <div class="pill">Round: <span id="round">1</span>/3</div>
+    <div class="pill">Round: <span id="round">1</span>/<span id="roundTotal">5</span></div>
     <div class="pill">Time: <span id="time">0</span>s</div>
     <div class="pill">Ammo: <span id="ammo">6</span></div>
   </div>
@@ -74,7 +74,7 @@
     <h1>Feral Chicken Hunt</h1>
     <p>Da chickens stay running wild all over Hawaii. Tap to shoot 'em!</p>
     <p>Each round spawns <span class="stat">10 chickens</span>. Hit at least
-       <span class="stat">6</span> to advance. Three rounds to clear the hunt.</p>
+       <span class="stat">6</span> to advance. Five rounds to clear the hunt.</p>
     <p>Misses cost <span class="stat">−25</span> points. Finish quick for a
        <span class="stat">time bonus</span> up to <span class="stat">+500</span>.</p>
     <button id="start">Start</button>
@@ -939,10 +939,268 @@
     ctx.restore();
   }
 
+  function drawWaimeaCanyon() {
+    const horizon = H * 0.42;
+    const rimY = H * 0.60;
+    // override default sky with a warm canyon palette
+    const sg = ctx.createLinearGradient(0, 0, 0, horizon);
+    sg.addColorStop(0, '#dba078');
+    sg.addColorStop(1, '#f5d8b0');
+    ctx.fillStyle = sg;
+    ctx.fillRect(0, 0, W, horizon);
+    // distant blue ridge line (across the canyon)
+    ctx.fillStyle = '#7a8a9a';
+    ctx.beginPath();
+    ctx.moveTo(0, horizon);
+    for (let i = 0; i * 80 < W + 80; i++) {
+      const px = i * 80;
+      const py = horizon - 14 - ((px * 7919) % 18);
+      ctx.lineTo(px - 30, horizon);
+      ctx.lineTo(px, py);
+    }
+    ctx.lineTo(W, horizon);
+    ctx.closePath();
+    ctx.fill();
+    // far canyon wall (orange-red, banded)
+    const fwg = ctx.createLinearGradient(0, horizon, 0, horizon + (rimY - horizon) * 0.6);
+    fwg.addColorStop(0, '#c78050');
+    fwg.addColorStop(1, '#9a4f28');
+    ctx.fillStyle = fwg;
+    ctx.fillRect(0, horizon, W, (rimY - horizon) * 0.6);
+    // mid canyon wall (deeper red)
+    const mwg = ctx.createLinearGradient(0, horizon + (rimY - horizon) * 0.55, 0, rimY);
+    mwg.addColorStop(0, '#a8552c');
+    mwg.addColorStop(1, '#6e371b');
+    ctx.fillStyle = mwg;
+    ctx.fillRect(0, horizon + (rimY - horizon) * 0.55, W, (rimY - horizon) * 0.45);
+    // horizontal rock striations
+    ctx.strokeStyle = 'rgba(40,15,5,0.4)';
+    ctx.lineWidth = 1;
+    for (let i = 1; i < 7; i++) {
+      const yL = horizon + (rimY - horizon) * (i / 7);
+      ctx.beginPath();
+      for (let x = 0; x <= W; x += 24) {
+        const yo = Math.sin(x * 0.05 + i * 0.7) * 2;
+        if (x === 0) ctx.moveTo(x, yL + yo);
+        else ctx.lineTo(x, yL + yo);
+      }
+      ctx.stroke();
+    }
+    // sparse pine silhouettes along the mid ridge
+    ctx.fillStyle = '#3a4a30';
+    for (let i = 0; i < 7; i++) {
+      const tx = (i * 0.13 + 0.08) * W;
+      const ty = horizon + (rimY - horizon) * 0.55;
+      ctx.beginPath();
+      ctx.moveTo(tx, ty - 14);
+      ctx.lineTo(tx - 4, ty);
+      ctx.lineTo(tx + 4, ty);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillRect(tx - 0.5, ty, 1, 3);
+    }
+    // foreground rim — red dirt
+    const fg = ctx.createLinearGradient(0, rimY, 0, H);
+    fg.addColorStop(0, '#9a4a26');
+    fg.addColorStop(1, '#5a2812');
+    ctx.fillStyle = fg;
+    ctx.fillRect(0, rimY, W, H - rimY);
+    // dirt pebbles
+    ctx.fillStyle = 'rgba(40,15,5,0.45)';
+    for (let i = 0; i < 60; i++) {
+      const sx = (i * 137) % W;
+      const sy = rimY + 8 + ((i * 53) % (H - rimY - 18));
+      ctx.fillRect(sx, sy, 2, 2);
+    }
+    // sparse green scrub
+    ctx.fillStyle = '#5a7a35';
+    for (let i = 0; i < 30; i++) {
+      const sx = (i * 173) % W;
+      const sy = rimY + 4 + ((i * 47) % (H - rimY - 12));
+      ctx.fillRect(sx, sy, 3, 3);
+      ctx.fillRect(sx + 1, sy - 1, 2, 2);
+    }
+    // wooden viewpoint fence post
+    drawFencePost(W * 0.86, H * 0.78);
+    drawFencePost(W * 0.06, H * 0.82);
+    // tropical shrubs in the foreground
+    drawCanyonShrub(W * 0.18, H * 0.93);
+    drawCanyonShrub(W * 0.50, H * 0.88);
+    drawCanyonShrub(W * 0.72, H * 0.94);
+  }
+
+  function drawFencePost(x, y) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.fillStyle = '#7a5a3a';
+    ctx.fillRect(-3, 0, 6, 22);
+    ctx.fillStyle = '#5a3a20';
+    ctx.fillRect(-4, -3, 8, 4);
+    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+    ctx.fillRect(0, 0, 3, 22);
+    ctx.restore();
+  }
+
+  function drawCanyonShrub(x, y) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.fillStyle = '#3a6a30';
+    for (let i = 0; i < 6; i++) {
+      const ang = (i / 6) * Math.PI - Math.PI / 2;
+      ctx.save();
+      ctx.rotate(ang * 0.7);
+      ctx.beginPath();
+      ctx.ellipse(0, -10, 3, 12, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+    ctx.fillStyle = '#2a4a20';
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 11, 4, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function drawHaleakala() {
+    const horizon = H * 0.42;
+    const cinderTop = H * 0.50;
+    const groundY = H * 0.60;
+    // cool pale-blue sky (high altitude)
+    const sg = ctx.createLinearGradient(0, 0, 0, horizon);
+    sg.addColorStop(0, '#7eb0d4');
+    sg.addColorStop(1, '#cfdde8');
+    ctx.fillStyle = sg;
+    ctx.fillRect(0, 0, W, horizon);
+    // distant cinder cones along the horizon
+    const cones = [
+      { x: 0.10, h: 28, c: '#7a3a26' },
+      { x: 0.22, h: 18, c: '#8a4530' },
+      { x: 0.34, h: 36, c: '#6a2a18' },
+      { x: 0.50, h: 52, c: '#5a2010' },
+      { x: 0.66, h: 40, c: '#6a2a18' },
+      { x: 0.78, h: 22, c: '#8a4530' },
+      { x: 0.90, h: 30, c: '#7a3a26' },
+    ];
+    cones.forEach(c => {
+      const cx = c.x * W;
+      ctx.fillStyle = c.c;
+      ctx.beginPath();
+      ctx.moveTo(cx - c.h * 0.7, horizon);
+      ctx.lineTo(cx, horizon - c.h);
+      ctx.lineTo(cx + c.h * 0.7, horizon);
+      ctx.closePath();
+      ctx.fill();
+      // crater notch
+      ctx.fillStyle = 'rgba(0,0,0,0.35)';
+      ctx.beginPath();
+      ctx.moveTo(cx - c.h * 0.18, horizon - c.h);
+      ctx.lineTo(cx, horizon - c.h + 4);
+      ctx.lineTo(cx + c.h * 0.18, horizon - c.h);
+      ctx.closePath();
+      ctx.fill();
+    });
+    // sea of clouds — chunky horizontal bands hugging the horizon
+    ctx.fillStyle = 'rgba(255,255,255,0.92)';
+    for (let i = 0; i < 16; i++) {
+      const cx = (i * (W / 16)) + ((i * 19) % 26) - 13;
+      const cy = horizon + 4 + ((i * 13) % 8);
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, 42, 7, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.fillStyle = 'rgba(255,255,255,0.65)';
+    for (let i = 0; i < 12; i++) {
+      const cx = (i * (W / 12)) + ((i * 23) % 30);
+      const cy = horizon + 14 + ((i * 17) % 6);
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, 36, 6, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    // mid band: red cinder slope between the clouds and the foreground
+    const mg = ctx.createLinearGradient(0, cinderTop, 0, groundY);
+    mg.addColorStop(0, '#b46044');
+    mg.addColorStop(1, '#6a2818');
+    ctx.fillStyle = mg;
+    ctx.fillRect(0, cinderTop, W, groundY - cinderTop);
+    // cinder texture
+    ctx.fillStyle = 'rgba(20,8,4,0.5)';
+    for (let i = 0; i < 90; i++) {
+      const sx = (i * 137) % W;
+      const sy = cinderTop + ((i * 53) % (groundY - cinderTop));
+      ctx.fillRect(sx, sy, 2, 2);
+    }
+    // foreground volcanic ground (dark)
+    const fg = ctx.createLinearGradient(0, groundY, 0, H);
+    fg.addColorStop(0, '#4a2818');
+    fg.addColorStop(1, '#1f100a');
+    ctx.fillStyle = fg;
+    ctx.fillRect(0, groundY, W, H - groundY);
+    // scattered volcanic rocks
+    for (let i = 0; i < 40; i++) {
+      const rx = (i * 137) % W;
+      const ry = groundY + 4 + ((i * 73) % (H - groundY - 14));
+      const sz = 2 + (i % 3);
+      ctx.fillStyle = '#1a0e08';
+      ctx.beginPath();
+      ctx.arc(rx, ry, sz, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = 'rgba(255,160,120,0.18)';
+      ctx.beginPath();
+      ctx.arc(rx - sz * 0.4, ry - sz * 0.4, sz * 0.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    // silverswords (Haleakala's iconic endemic plant)
+    drawSilversword(W * 0.18, H * 0.93, 0.95);
+    drawSilversword(W * 0.50, H * 0.86, 0.7);
+    drawSilversword(W * 0.82, H * 0.92, 0.85);
+    drawSilversword(W * 0.36, H * 0.82, 0.55);
+  }
+
+  function drawSilversword(x, y, scale) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(scale, scale);
+    // spiky silver-gray rosette of leaves radiating outward
+    ctx.fillStyle = '#c8d4c0';
+    for (let i = 0; i < 16; i++) {
+      const ang = (i / 16) * Math.PI * 2;
+      const len = 9 + ((i * 7) % 4);
+      ctx.save();
+      ctx.rotate(ang);
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(len, -1.6);
+      ctx.lineTo(len + 1, 0);
+      ctx.lineTo(len, 1.6);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+    // brighter silver highlights
+    ctx.fillStyle = '#e8eee0';
+    for (let i = 0; i < 8; i++) {
+      const ang = (i / 8) * Math.PI * 2 + 0.2;
+      const len = 8;
+      const ex = Math.cos(ang) * len;
+      const ey = Math.sin(ang) * len;
+      ctx.beginPath();
+      ctx.ellipse(ex * 0.5, ey * 0.5, 1, 4, ang, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    // central rosette
+    ctx.fillStyle = '#a8b8a0';
+    ctx.beginPath();
+    ctx.arc(0, 0, 4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
   const LEVELS = [
     { name: 'Foodland Parking Lot', draw: drawParkingLot },
     { name: 'Banyan Drive',         draw: drawBanyanDrive },
     { name: 'Ala Moana Beach',      draw: drawBeachPark },
+    { name: 'Waimea Canyon',        draw: drawWaimeaCanyon },
+    { name: 'Haleakala',            draw: drawHaleakala },
   ];
 
   // ---------- Chicken species ----------
@@ -1706,7 +1964,7 @@
   function drawMenuRules() {
     ctx.save();
     const lines = [
-      '10 chickens per round  ·  hit 6 to advance  ·  3 rounds',
+      '10 chickens per round  ·  hit 6 to advance  ·  5 rounds',
       'Misses −25 pts  ·  finish quick for a +500 time bonus',
     ];
     const fs = Math.max(11, Math.min(15, W * 0.028));
@@ -1918,10 +2176,10 @@
     if (won) {
       overlay.querySelector('h1').textContent = 'Hunt Pau! You Win!';
       overlay.querySelector('p').innerHTML =
-        `Cleared all 3 rounds. Final score: <span class="stat">${state.score}</span>.`;
+        `Cleared all ${LEVELS.length} rounds. Final score: <span class="stat">${state.score}</span>.`;
       overlay.querySelectorAll('p')[1].innerHTML =
-        state.score > 1500 ? 'Da kine sharpshooter! 🎯' :
-        state.score > 800  ? 'Solid hunt, bruddah.' :
+        state.score > 2500 ? 'Da kine sharpshooter! 🎯' :
+        state.score > 1300 ? 'Solid hunt, bruddah.' :
         'You did it — barely. 😮‍💨';
     } else {
       const hits = state.roundTargets.filter(t => t === 'hit').length;
