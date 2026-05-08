@@ -39,6 +39,16 @@
     padding-bottom: 2.5vh; }
   #overlay.menu-mode h1,
   #overlay.menu-mode p { display: none; }
+  #muteBtn { position: absolute; bottom: 14px; right: 14px;
+    width: 40px; height: 40px;
+    background: rgba(0,0,0,0.55);
+    border: 1.5px solid rgba(255,255,255,0.18);
+    border-radius: 50%; color: #fff; font-size: 18px;
+    line-height: 1; cursor: pointer; z-index: 30;
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 0.08s; padding: 0;
+    -webkit-tap-highlight-color: transparent; }
+  #muteBtn:active { transform: scale(0.92); }
   #overlay h1 { font-size: clamp(28px, 7vw, 48px); margin-bottom: 8px;
     text-shadow: 3px 3px 0 #b8860b; }
   #overlay p { font-size: clamp(14px, 3.5vw, 18px); margin: 6px 0; max-width: 480px; }
@@ -59,6 +69,7 @@
     <div class="pill">Ammo: <span id="ammo">6</span></div>
   </div>
   <div id="targetsBar" class="hidden"></div>
+  <button id="muteBtn" type="button" aria-label="Toggle music">🔊</button>
   <div id="overlay">
     <h1>Feral Chicken Hunt</h1>
     <p>Da chickens stay running wild all over Hawaii. Tap to shoot 'em!</p>
@@ -1179,6 +1190,115 @@
   const sndReload = () => blip(300, 0.05, 'square', 0.1);
   const sndSuccess = () => { blip(523, 0.1, 'square', 0.14); setTimeout(() => blip(659, 0.1, 'square', 0.14), 90); setTimeout(() => blip(784, 0.18, 'square', 0.14), 180); };
   const sndLaugh = () => { blip(220, 0.12, 'sawtooth', 0.12); setTimeout(() => blip(180, 0.12, 'sawtooth', 0.12), 130); setTimeout(() => blip(140, 0.16, 'sawtooth', 0.12), 260); };
+
+  // ---------- Music (procedural chiptune) ----------
+  // I-vi-IV-V loop in C major, 16 quarter notes at 112 BPM (~8.6s loop).
+  // Lead = arpeggio of each chord. Bass = root + fifth alternation.
+  const MUSIC_LEAD = [
+    523.25, 659.25, 784.00, 659.25,   // I  (C major)
+    440.00, 523.25, 659.25, 523.25,   // vi (A minor)
+    349.23, 440.00, 523.25, 440.00,   // IV (F major)
+    392.00, 493.88, 587.33, 493.88,   // V  (G major)
+  ];
+  const MUSIC_BASS = [
+    130.81, 196.00, 130.81, 196.00,   // C  / G
+    110.00, 164.81, 110.00, 164.81,   // A  / E
+     87.31, 130.81,  87.31, 130.81,   // F  / C
+     98.00, 146.83,  98.00, 146.83,   // G  / D
+  ];
+
+  const music = {
+    on: false, master: null, schedulerId: null,
+    nextStepTime: 0, step: 0, bpm: 112,
+  };
+  const muteBtn = document.getElementById('muteBtn');
+  let musicPref = localStorage.getItem('chickenHuntMusic') !== 'off';
+  function updateMuteIcon() { muteBtn.textContent = musicPref ? '🔊' : '🔇'; }
+  updateMuteIcon();
+
+  function ensureAudio() {
+    if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+    if (actx.state === 'suspended') actx.resume();
+  }
+
+  function playMusicNote(freq, when, dur, type, vol) {
+    const o = actx.createOscillator();
+    const g = actx.createGain();
+    o.type = type;
+    o.frequency.value = freq;
+    g.gain.setValueAtTime(0, when);
+    g.gain.linearRampToValueAtTime(vol, when + 0.008);
+    g.gain.linearRampToValueAtTime(vol * 0.6, when + dur * 0.5);
+    g.gain.exponentialRampToValueAtTime(0.0001, when + dur * 0.95);
+    o.connect(g).connect(music.master);
+    o.start(when);
+    o.stop(when + dur);
+  }
+
+  function musicTick() {
+    if (!music.on) return;
+    const lookAhead = 0.2;
+    const stepDur = 60 / music.bpm;
+    while (music.nextStepTime < actx.currentTime + lookAhead) {
+      const i = music.step % MUSIC_LEAD.length;
+      // staccato lead (square), full bass (triangle for warmth)
+      playMusicNote(MUSIC_LEAD[i], music.nextStepTime, stepDur * 0.55, 'square',   0.09);
+      playMusicNote(MUSIC_BASS[i], music.nextStepTime, stepDur * 0.95, 'triangle', 0.14);
+      // off-beat bass echo for bounce
+      playMusicNote(MUSIC_BASS[i] * 2, music.nextStepTime + stepDur * 0.5, stepDur * 0.3, 'square', 0.04);
+      music.nextStepTime += stepDur;
+      music.step++;
+    }
+    music.schedulerId = setTimeout(musicTick, 40);
+  }
+
+  function startMusic() {
+    if (music.on) return;
+    ensureAudio();
+    music.master = actx.createGain();
+    music.master.gain.value = 0;
+    music.master.connect(actx.destination);
+    music.master.gain.linearRampToValueAtTime(0.42, actx.currentTime + 0.4);
+    music.on = true;
+    music.step = 0;
+    music.nextStepTime = actx.currentTime + 0.05;
+    musicTick();
+  }
+
+  function stopMusic() {
+    if (!music.on) return;
+    music.on = false;
+    if (music.schedulerId) { clearTimeout(music.schedulerId); music.schedulerId = null; }
+    if (music.master) {
+      const t = actx.currentTime;
+      const oldMaster = music.master;
+      oldMaster.gain.cancelScheduledValues(t);
+      oldMaster.gain.setValueAtTime(oldMaster.gain.value, t);
+      oldMaster.gain.exponentialRampToValueAtTime(0.0001, t + 0.18);
+      setTimeout(() => oldMaster.disconnect(), 250);
+      music.master = null;
+    }
+  }
+
+  function toggleMusicPref() {
+    musicPref = !musicPref;
+    localStorage.setItem('chickenHuntMusic', musicPref ? 'on' : 'off');
+    updateMuteIcon();
+    if (musicPref) startMusic(); else stopMusic();
+  }
+  muteBtn.addEventListener('click', toggleMusicPref);
+
+  // Browsers require a user gesture to start audio. Defer the auto-start
+  // until the first pointer interaction anywhere on the page.
+  let firstInteractDone = false;
+  function onFirstInteract(e) {
+    if (firstInteractDone) return;
+    firstInteractDone = true;
+    ensureAudio();
+    if (e && e.target === muteBtn) return;       // let the mute click handler decide
+    if (musicPref) startMusic();
+  }
+  document.addEventListener('pointerdown', onFirstInteract);
 
   // ---------- Input ----------
   function shoot(px, py) {
