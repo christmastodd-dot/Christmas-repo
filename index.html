@@ -650,6 +650,20 @@
     // mountain mist
     ctx.fillStyle = 'rgba(255,255,255,0.22)';
     ctx.fillRect(0, oceanTop - 4, W * 0.6, 6);
+    // far shore: green-tan strip of land where the hotels stand
+    const landTop = oceanTop - 14;
+    ctx.fillStyle = '#5a7240';
+    ctx.fillRect(0, landTop, W, oceanTop - landTop);
+    // a few darker bushes / palms scattered along the far shore
+    ctx.fillStyle = '#3a4a25';
+    for (let i = 0; i < 18; i++) {
+      const lx = (i * 67) % W;
+      const lh = 2 + ((i * 31) % 4);
+      ctx.fillRect(lx, oceanTop - lh, 2, lh);
+    }
+    // shoreline edge shadow where land meets water
+    ctx.fillStyle = 'rgba(20,12,6,0.5)';
+    ctx.fillRect(0, oceanTop - 1, W, 1);
     // wide ocean band — Hilo Bay
     const og = ctx.createLinearGradient(0, oceanTop, 0, oceanBot);
     og.addColorStop(0, '#1f5878');
@@ -664,8 +678,9 @@
       const wy = oceanTop + 12 + ((i * 47) % (oceanBot - oceanTop - 18));
       ctx.fillRect(wx, wy, 16, 1);
     }
-    // hotels on the far shore — bigger, closer-feeling
-    const hotelBase = oceanTop + 4;
+    // hotels on the far shore — bases sit on the land strip,
+    // strictly above the water line
+    const hotelBase = oceanTop - 1;
     drawHotel(W * 0.70, hotelBase,
               Math.min(190, W * 0.26), Math.min(170, H * 0.30),
               '#e8d4b0', 'NANILOA');
