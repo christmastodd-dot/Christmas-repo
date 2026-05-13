@@ -1,0 +1,16 @@
+{
+  "name": "Little Chef",
+  "short_name": "Little Chef",
+  "description": "Cooking adventures for kids — weekly recipes, ingredient lists, and a skill tree.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fff8f1",
+  "theme_color": "#e76f51",
+  "icons": [
+    { "src": "icon-192.png", "type": "image/png", "sizes": "192x192" },
+    { "src": "icon-512.png", "type": "image/png", "sizes": "512x512" },
+    { "src": "icon-512.png", "type": "image/png", "sizes": "512x512", "purpose": "maskable" }
+  ]
+}
