@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Little Chef — Cooking with Kids</title>
+<style>
+  :root {
+    --bg: #fff8f1;
+    --panel: #ffffff;
+    --ink: #2d2a26;
+    --muted: #7a726a;
+    --accent: #e76f51;
+    --accent-soft: #fbe3d8;
+    --good: #2a9d8f;
+    --good-soft: #d5efea;
+    --warn: #f4a261;
+    --line: #ecddd0;
+    --shadow: 0 2px 10px rgba(0,0,0,0.06);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.5;
+  }
+  header {
+    background: var(--accent);
+    color: white;
+    padding: 18px 20px;
+    box-shadow: var(--shadow);
+  }
+  header h1 { margin: 0; font-size: 22px; }
+  header .sub { font-size: 13px; opacity: 0.9; }
+  nav {
+    display: flex;
+    background: var(--panel);
+    border-bottom: 1px solid var(--line);
+    overflow-x: auto;
+  }
+  nav button {
+    flex: 1;
+    min-width: 120px;
+    border: 0;
+    background: transparent;
+    padding: 14px 12px;
+    font-size: 15px;
+    cursor: pointer;
+    color: var(--muted);
+    border-bottom: 3px solid transparent;
+    font-weight: 500;
+  }
+  nav button.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+  main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  .view { display: none; }
+  .view.active { display: block; }
+  h2 { margin: 0 0 6px; font-size: 20px; }
+  .hint { color: var(--muted); font-size: 14px; margin-bottom: 16px; }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+    box-shadow: var(--shadow);
+  }
+  .recipe-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .recipe-title h3 { margin: 0; font-size: 17px; }
+  .badge {
+    display: inline-block;
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    margin-right: 4px;
+    font-weight: 500;
+  }
+  .badge.good { background: var(--good-soft); color: var(--good); }
+  .badge.warn { background: #fdecd1; color: #c47712; }
+  .badge.locked { background: #eee; color: #888; }
+  .meta { font-size: 13px; color: var(--muted); margin-top: 4px; }
+  .row-actions {
+    margin-top: 12px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  button.btn {
+    background: var(--accent);
+    color: white;
+    border: 0;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 14px;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  button.btn.secondary {
+    background: white;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+  }
+  button.btn.ghost {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--line);
+  }
+  button.btn.good { background: var(--good); }
+  button.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .ingredients, .steps {
+    margin: 8px 0 0;
+    padding-left: 20px;
+    font-size: 14px;
+  }
+  .steps li { margin-bottom: 4px; }
+  details summary {
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--accent);
+    margin-top: 8px;
+  }
+  .skill-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 10px;
+  }
+  .skill {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 10px 12px;
+    background: var(--panel);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .skill.learned { background: var(--good-soft); border-color: var(--good); }
+  .skill.locked { opacity: 0.55; }
+  .skill .name { font-weight: 500; font-size: 14px; }
+  .skill .tier { font-size: 11px; color: var(--muted); }
+  .skill button {
+    border: 0;
+    background: var(--accent);
+    color: white;
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .skill.learned button { background: var(--good); }
+  .skill.locked button { background: #bbb; cursor: not-allowed; }
+  .tier-header {
+    margin: 18px 0 8px;
+    font-size: 14px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .shop-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+    border-bottom: 1px dashed var(--line);
+    font-size: 15px;
+  }
+  .shop-item input { width: 18px; height: 18px; }
+  .shop-item.checked label { text-decoration: line-through; color: var(--muted); }
+  .shop-section { margin-top: 14px; }
+  .shop-section h4 { margin: 0 0 4px; font-size: 14px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+  .filter-bar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .filter-bar button {
+    border: 1px solid var(--line);
+    background: white;
+    color: var(--muted);
+    padding: 6px 12px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 13px;
+  }
+  .filter-bar button.active {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+  .empty {
+    text-align: center;
+    color: var(--muted);
+    padding: 30px 10px;
+  }
+  .progress-bar {
+    background: var(--line);
+    border-radius: 999px;
+    height: 8px;
+    overflow: hidden;
+    margin-top: 6px;
+  }
+  .progress-bar > div {
+    background: var(--good);
+    height: 100%;
+    transition: width 0.3s;
+  }
+  .top-summary {
+    background: linear-gradient(135deg, var(--accent-soft), #fff);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+    border: 1px solid var(--accent-soft);
+  }
+  .top-summary .row { display: flex; justify-content: space-between; gap: 12px; align-items: center; }
+  .top-summary .num { font-size: 22px; font-weight: 600; color: var(--accent); }
+  .modal-bg {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.4);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 10;
+  }
+  .modal-bg.open { display: flex; }
+  .modal {
+    background: white;
+    border-radius: 12px;
+    max-width: 500px;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+    padding: 18px;
+  }
+  .modal h3 { margin-top: 0; }
+  .modal .recipe-pick {
+    padding: 10px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    cursor: pointer;
+  }
+  .modal .recipe-pick:hover { background: var(--accent-soft); }
+  .footer-note {
+    text-align: center;
+    color: var(--muted);
+    font-size: 12px;
+    padding: 20px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🍳 Little Chef</h1>
+  <div class="sub">A cooking adventure for kids — learn a new skill each week</div>
+</header>
+
+<nav>
+  <button data-view="week" class="active">This Week</button>
+  <button data-view="recipes">Recipes</button>
+  <button data-view="skills">Skills</button>
+  <button data-view="shopping">Shopping List</button>
+</nav>
+
+<main>
+  <section id="view-week" class="view active">
+    <h2>This week's plan</h2>
+    <div class="hint" id="week-hint">Four recipes picked for the skills you've learned, plus one stretch recipe that teaches something new.</div>
+    <div class="top-summary">
+      <div class="row">
+        <div>
+          <div><strong>Skills learned</strong></div>
+          <div class="num" id="skill-count">0</div>
+        </div>
+        <div>
+          <div><strong>Recipes made</strong></div>
+          <div class="num" id="made-count">0</div>
+        </div>
+        <div>
+          <div><strong>Unlocked</strong></div>
+          <div class="num" id="unlocked-count">0</div>
+        </div>
+      </div>
+      <div class="progress-bar"><div id="skill-progress"></div></div>
+    </div>
+    <div class="row-actions" style="margin-bottom:14px">
+      <button class="btn" id="regenerate-week">🎲 Pick a new week</button>
+      <button class="btn ghost" id="clear-progress">Reset progress</button>
+    </div>
+    <div id="week-list"></div>
+  </section>
+
+  <section id="view-recipes" class="view">
+    <h2>Recipe library</h2>
+    <div class="hint">Filter by what she can make on her own, with a little help, or recipes that need a new skill first.</div>
+    <div class="filter-bar">
+      <button data-filter="all" class="active">All</button>
+      <button data-filter="ready">Ready to make</button>
+      <button data-filter="stretch">Stretch (1 new skill)</button>
+      <button data-filter="locked">Locked</button>
+      <button data-filter="made">Made before</button>
+    </div>
+    <div id="recipes-list"></div>
+  </section>
+
+  <section id="view-skills" class="view">
+    <h2>Skill tree</h2>
+    <div class="hint">Tap a skill when she's practiced it. Higher tiers unlock once the ones below are checked off.</div>
+    <div id="skills-list"></div>
+  </section>
+
+  <section id="view-shopping" class="view">
+    <h2>Shopping list</h2>
+    <div class="hint">Everything you need for this week's recipes, grouped by aisle. Check things off as you go.</div>
+    <div id="shopping-list"></div>
+  </section>
+</main>
+
+<div class="modal-bg" id="swap-modal">
+  <div class="modal">
+    <h3>Swap recipe</h3>
+    <div class="hint">Pick another recipe to put in this slot.</div>
+    <div id="swap-options"></div>
+    <div class="row-actions">
+      <button class="btn ghost" id="swap-cancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="footer-note">Saved on this device. Open the same page tomorrow and your progress will still be here.</div>
+
+<script>
+/* ---------- DATA ---------- */
+
+const SKILLS = [
+  // Tier 0 — anyone can start here
+  { id: "wash",        name: "Wash produce",        tier: 0, prereqs: [] },
+  { id: "measure-dry", name: "Measure dry stuff",   tier: 0, prereqs: [] },
+  { id: "measure-wet", name: "Measure liquids",     tier: 0, prereqs: [] },
+  { id: "crack-egg",   name: "Crack an egg",        tier: 0, prereqs: [] },
+  { id: "stir",        name: "Stir & mix",          tier: 0, prereqs: [] },
+  { id: "pour",        name: "Pour carefully",      tier: 0, prereqs: [] },
+  { id: "peel-banana", name: "Peel a banana",       tier: 0, prereqs: [] },
+  { id: "spread",      name: "Spread with a knife", tier: 0, prereqs: [] },
+  { id: "sprinkle",    name: "Sprinkle toppings",   tier: 0, prereqs: [] },
+
+  // Tier 1 — small tools & appliances
+  { id: "butter-knife",  name: "Butter knife cuts",   tier: 1, prereqs: ["spread"] },
+  { id: "whisk",         name: "Whisk eggs/batter",   tier: 1, prereqs: ["stir", "crack-egg"] },
+  { id: "grease-pan",    name: "Grease a pan",        tier: 1, prereqs: ["spread"] },
+  { id: "toaster",       name: "Use the toaster",     tier: 1, prereqs: [] },
+  { id: "microwave",     name: "Use the microwave",   tier: 1, prereqs: ["pour"] },
+  { id: "grate-cheese",  name: "Grate cheese",        tier: 1, prereqs: [] },
+  { id: "juice-citrus",  name: "Juice a lemon/lime",  tier: 1, prereqs: [] },
+
+  // Tier 2 — knife & oven with adult
+  { id: "paring-knife",  name: "Paring knife (with adult)", tier: 2, prereqs: ["butter-knife"] },
+  { id: "peel-veg",      name: "Peel veggies",        tier: 2, prereqs: ["wash"] },
+  { id: "oven-help",     name: "Use oven (with adult)", tier: 2, prereqs: ["measure-dry"] },
+  { id: "knead",         name: "Knead simple dough",  tier: 2, prereqs: ["measure-dry", "measure-wet"] },
+  { id: "roll-dough",    name: "Roll out dough",      tier: 2, prereqs: ["knead"] },
+
+  // Tier 3 — stovetop with adult
+  { id: "stovetop",      name: "Stovetop (with adult)", tier: 3, prereqs: ["oven-help"] },
+  { id: "flip",          name: "Flip with a spatula", tier: 3, prereqs: ["stovetop"] },
+  { id: "saute",         name: "Sauté & stir-fry",    tier: 3, prereqs: ["stovetop", "stir"] },
+  { id: "boil-water",    name: "Boil water safely",   tier: 3, prereqs: ["stovetop"] },
+  { id: "drain-pasta",   name: "Drain pasta",         tier: 3, prereqs: ["boil-water"] },
+];
+
+const RECIPES = [
+  {
+    id: "fruit-salad",
+    title: "Rainbow Fruit Salad",
+    time: 10,
+    skills: ["wash", "butter-knife", "stir"],
+    teaches: "butter-knife",
+    ingredients: [
+      { name: "Strawberries", qty: "1 cup", aisle: "produce" },
+      { name: "Blueberries", qty: "1 cup", aisle: "produce" },
+      { name: "Banana", qty: "1", aisle: "produce" },
+      { name: "Grapes", qty: "1 cup", aisle: "produce" },
+      { name: "Orange", qty: "1", aisle: "produce" },
+      { name: "Honey", qty: "1 tbsp", aisle: "pantry" },
+    ],
+    steps: [
+      "Wash all the fruit really well.",
+      "Slice strawberries and banana with a butter knife.",
+      "Peel and segment the orange.",
+      "Mix everything together and drizzle with honey.",
+    ],
+  },
+  {
+    id: "yogurt-parfait",
+    title: "Yogurt Berry Parfaits",
+    time: 5,
+    skills: ["measure-dry", "pour", "sprinkle"],
+    teaches: "sprinkle",
+    ingredients: [
+      { name: "Greek yogurt", qty: "2 cups", aisle: "dairy" },
+      { name: "Granola", qty: "1 cup", aisle: "pantry" },
+      { name: "Mixed berries", qty: "1 cup", aisle: "produce" },
+      { name: "Honey", qty: "2 tbsp", aisle: "pantry" },
+    ],
+    steps: [
+      "Spoon yogurt into the bottom of a glass.",
+      "Sprinkle granola on top.",
+      "Add berries.",
+      "Repeat the layers and drizzle with honey.",
+    ],
+  },
+  {
+    id: "avocado-toast",
+    title: "Avocado Toast",
+    time: 10,
+    skills: ["butter-knife", "spread", "toaster"],
+    teaches: "toaster",
+    ingredients: [
+      { name: "Bread", qty: "2 slices", aisle: "bakery" },
+      { name: "Avocado", qty: "1 ripe", aisle: "produce" },
+      { name: "Lemon", qty: "1/2", aisle: "produce" },
+      { name: "Salt", qty: "pinch", aisle: "pantry" },
+    ],
+    steps: [
+      "Toast the bread.",
+      "Scoop avocado into a bowl and squeeze in lemon juice.",
+      "Mash with a fork.",
+      "Spread on toast and sprinkle with salt.",
+    ],
+  },
+  {
+    id: "pb-banana-roll",
+    title: "Peanut Butter Banana Roll-Ups",
+    time: 5,
+    skills: ["peel-banana", "spread", "butter-knife"],
+    teaches: "spread",
+    ingredients: [
+      { name: "Tortillas", qty: "2", aisle: "bakery" },
+      { name: "Peanut butter", qty: "3 tbsp", aisle: "pantry" },
+      { name: "Bananas", qty: "2", aisle: "produce" },
+      { name: "Honey", qty: "1 tbsp", aisle: "pantry" },
+    ],
+    steps: [
+      "Spread peanut butter on each tortilla.",
+      "Peel a banana and put it on top.",
+      "Drizzle with honey.",
+      "Roll up and slice into pieces.",
+    ],
+  },
+  {
+    id: "cinnamon-toast",
+    title: "Cinnamon Sugar Toast",
+    time: 5,
+    skills: ["spread", "sprinkle", "toaster"],
+    teaches: "sprinkle",
+    ingredients: [
+      { name: "Bread", qty: "2 slices", aisle: "bakery" },
+      { name: "Butter", qty: "2 tbsp", aisle: "dairy" },
+      { name: "Sugar", qty: "2 tbsp", aisle: "pantry" },
+      { name: "Cinnamon", qty: "1 tsp", aisle: "pantry" },
+    ],
+    steps: [
+      "Toast the bread.",
+      "Mix sugar and cinnamon in a small bowl.",
+      "Spread butter on the toast.",
+      "Sprinkle with cinnamon sugar.",
+    ],
+  },
+  {
+    id: "veggies-dip",
+    title: "Veggies & Yogurt Ranch Dip",
+    time: 15,
+    skills: ["wash", "peel-veg", "butter-knife", "stir"],
+    teaches: "peel-veg",
+    ingredients: [
+      { name: "Carrots", qty: "3", aisle: "produce" },
+      { name: "Cucumber", qty: "1", aisle: "produce" },
+      { name: "Bell pepper", qty: "1", aisle: "produce" },
+      { name: "Greek yogurt", qty: "1 cup", aisle: "dairy" },
+      { name: "Ranch seasoning", qty: "1 tbsp", aisle: "pantry" },
+    ],
+    steps: [
+      "Wash all veggies.",
+      "Peel the carrots and cucumber.",
+      "Cut everything into sticks with a butter knife.",
+      "Mix yogurt and ranch seasoning for the dip.",
+    ],
+  },
+  {
+    id: "energy-bites",
+    title: "No-Bake Chocolate Energy Bites",
+    time: 15,
+    skills: ["measure-dry", "measure-wet", "stir"],
+    teaches: "measure-dry",
+    ingredients: [
+      { name: "Rolled oats", qty: "1 cup", aisle: "pantry" },
+      { name: "Peanut butter", qty: "1/2 cup", aisle: "pantry" },
+      { name: "Honey", qty: "1/3 cup", aisle: "pantry" },
+      { name: "Mini chocolate chips", qty: "1/3 cup", aisle: "pantry" },
+    ],
+    steps: [
+      "Measure oats and chocolate chips into a bowl.",
+      "Add peanut butter and honey.",
+      "Stir until it all sticks together.",
+      "Roll into small balls and chill 20 minutes.",
+    ],
+  },
+  {
+    id: "pancakes",
+    title: "Fluffy Pancakes",
+    time: 25,
+    skills: ["measure-dry", "measure-wet", "crack-egg", "whisk", "stovetop", "flip"],
+    teaches: "flip",
+    ingredients: [
+      { name: "Flour", qty: "1.5 cups", aisle: "pantry" },
+      { name: "Sugar", qty: "2 tbsp", aisle: "pantry" },
+      { name: "Baking powder", qty: "2 tsp", aisle: "pantry" },
+      { name: "Milk", qty: "1.25 cups", aisle: "dairy" },
+      { name: "Egg", qty: "1", aisle: "dairy" },
+      { name: "Butter (melted)", qty: "3 tbsp", aisle: "dairy" },
+    ],
+    steps: [
+      "Whisk flour, sugar, and baking powder in a bowl.",
+      "In another bowl, whisk milk, egg, and melted butter.",
+      "Pour wet into dry and stir just until combined.",
+      "Cook scoops on a hot greased pan, flip when bubbly.",
+    ],
+  },
+  {
+    id: "scrambled-eggs",
+    title: "Scrambled Eggs",
+    time: 10,
+    skills: ["crack-egg", "whisk", "stovetop", "saute"],
+    teaches: "saute",
+    ingredients: [
+      { name: "Eggs", qty: "4", aisle: "dairy" },
+      { name: "Milk", qty: "2 tbsp", aisle: "dairy" },
+      { name: "Butter", qty: "1 tbsp", aisle: "dairy" },
+      { name: "Salt & pepper", qty: "to taste", aisle: "pantry" },
+    ],
+    steps: [
+      "Crack eggs into a bowl and add milk.",
+      "Whisk until smooth.",
+      "Melt butter in a pan on low heat.",
+      "Pour in eggs and stir gently until just set.",
+    ],
+  },
+  {
+    id: "grilled-cheese",
+    title: "Grilled Cheese",
+    time: 10,
+    skills: ["butter-knife", "spread", "grate-cheese", "stovetop", "flip"],
+    teaches: "grate-cheese",
+    ingredients: [
+      { name: "Bread", qty: "4 slices", aisle: "bakery" },
+      { name: "Cheddar cheese", qty: "1 cup grated", aisle: "dairy" },
+      { name: "Butter", qty: "2 tbsp", aisle: "dairy" },
+    ],
+    steps: [
+      "Butter one side of each slice of bread.",
+      "Grate the cheese.",
+      "Put cheese between two slices, butter-side out.",
+      "Cook in a pan until golden, flipping once.",
+    ],
+  },
+  {
+    id: "quesadillas",
+    title: "Cheesy Quesadillas",
+    time: 10,
+    skills: ["grate-cheese", "stovetop", "flip"],
+    teaches: "flip",
+    ingredients: [
+      { name: "Tortillas", qty: "4", aisle: "bakery" },
+      { name: "Cheddar or Monterey Jack", qty: "1.5 cups grated", aisle: "dairy" },
+      { name: "Salsa (to serve)", qty: "1/2 cup", aisle: "pantry" },
+    ],
+    steps: [
+      "Grate the cheese.",
+      "Sprinkle cheese on half of each tortilla and fold.",
+      "Cook on a dry pan over medium heat.",
+      "Flip when crispy on the bottom and cheese melts.",
+    ],
+  },
+  {
+    id: "buttered-pasta",
+    title: "Buttery Parmesan Spaghetti",
+    time: 15,
+    skills: ["boil-water", "drain-pasta", "grate-cheese"],
+    teaches: "drain-pasta",
+    ingredients: [
+      { name: "Spaghetti", qty: "1/2 lb", aisle: "pantry" },
+      { name: "Butter", qty: "3 tbsp", aisle: "dairy" },
+      { name: "Parmesan", qty: "1/2 cup grated", aisle: "dairy" },
+      { name: "Salt", qty: "for pasta water", aisle: "pantry" },
+    ],
+    steps: [
+      "Boil a big pot of salted water.",
+      "Add spaghetti and cook until tender.",
+      "Drain in a colander (careful, steamy!).",
+      "Toss with butter and grated parmesan.",
+    ],
+  },
+  {
+    id: "mac-cheese",
+    title: "Stovetop Mac & Cheese",
+    time: 20,
+    skills: ["boil-water", "drain-pasta", "measure-wet", "stir", "grate-cheese"],
+    teaches: "boil-water",
+    ingredients: [
+      { name: "Elbow pasta", qty: "1/2 lb", aisle: "pantry" },
+      { name: "Milk", qty: "1 cup", aisle: "dairy" },
+      { name: "Butter", qty: "3 tbsp", aisle: "dairy" },
+      { name: "Sharp cheddar", qty: "2 cups grated", aisle: "dairy" },
+      { name: "Salt & pepper", qty: "to taste", aisle: "pantry" },
+    ],
+    steps: [
+      "Boil and cook the pasta, then drain.",
+      "In the pot, melt butter and stir in milk.",
+      "Add grated cheese a handful at a time, stirring.",
+      "Stir in the pasta and season.",
+    ],
+  },
+  {
+    id: "personal-pizzas",
+    title: "Personal Pita Pizzas",
+    time: 20,
+    skills: ["spread", "sprinkle", "grate-cheese", "oven-help"],
+    teaches: "oven-help",
+    ingredients: [
+      { name: "Pita or naan bread", qty: "4", aisle: "bakery" },
+      { name: "Pizza sauce", qty: "1 cup", aisle: "pantry" },
+      { name: "Mozzarella", qty: "2 cups grated", aisle: "dairy" },
+      { name: "Pepperoni or veggies", qty: "1 cup", aisle: "produce" },
+    ],
+    steps: [
+      "Heat oven to 425°F.",
+      "Spread pizza sauce on each pita.",
+      "Sprinkle on cheese and toppings.",
+      "Bake 8–10 minutes until cheese bubbles.",
+    ],
+  },
+  {
+    id: "smoothies",
+    title: "Berry Banana Smoothies",
+    time: 5,
+    skills: ["peel-banana", "measure-wet", "pour"],
+    teaches: "measure-wet",
+    ingredients: [
+      { name: "Frozen mixed berries", qty: "2 cups", aisle: "frozen" },
+      { name: "Banana", qty: "1", aisle: "produce" },
+      { name: "Greek yogurt", qty: "1 cup", aisle: "dairy" },
+      { name: "Milk or juice", qty: "1 cup", aisle: "dairy" },
+      { name: "Honey", qty: "1 tbsp", aisle: "pantry" },
+    ],
+    steps: [
+      "Peel the banana and break it into the blender.",
+      "Add berries, yogurt, and measured milk.",
+      "Add honey.",
+      "Blend until smooth and pour into glasses.",
+    ],
+  },
+  {
+    id: "french-toast",
+    title: "French Toast Sticks",
+    time: 20,
+    skills: ["crack-egg", "whisk", "measure-wet", "butter-knife", "stovetop", "flip"],
+    teaches: "whisk",
+    ingredients: [
+      { name: "Bread (thick)", qty: "4 slices", aisle: "bakery" },
+      { name: "Eggs", qty: "2", aisle: "dairy" },
+      { name: "Milk", qty: "1/2 cup", aisle: "dairy" },
+      { name: "Cinnamon", qty: "1 tsp", aisle: "pantry" },
+      { name: "Butter", qty: "2 tbsp", aisle: "dairy" },
+      { name: "Maple syrup (to serve)", qty: "1/4 cup", aisle: "pantry" },
+    ],
+    steps: [
+      "Cut each slice of bread into 3 sticks.",
+      "Whisk eggs, milk, and cinnamon.",
+      "Dip each stick in the egg mixture.",
+      "Cook in buttered pan, flipping until golden.",
+    ],
+  },
+  {
+    id: "banana-muffins",
+    title: "Banana Muffins",
+    time: 35,
+    skills: ["peel-banana", "measure-dry", "measure-wet", "crack-egg", "stir", "oven-help"],
+    teaches: "measure-dry",
+    ingredients: [
+      { name: "Ripe bananas", qty: "3", aisle: "produce" },
+      { name: "Flour", qty: "1.5 cups", aisle: "pantry" },
+      { name: "Sugar", qty: "3/4 cup", aisle: "pantry" },
+      { name: "Egg", qty: "1", aisle: "dairy" },
+      { name: "Butter (melted)", qty: "1/3 cup", aisle: "dairy" },
+      { name: "Baking soda", qty: "1 tsp", aisle: "pantry" },
+    ],
+    steps: [
+      "Heat oven to 350°F and line a muffin tin.",
+      "Mash bananas in a bowl.",
+      "Mix in sugar, egg, melted butter.",
+      "Stir in flour and baking soda just until combined.",
+      "Bake 20 minutes until golden.",
+    ],
+  },
+  {
+    id: "choco-cookies",
+    title: "Chocolate Chip Cookies",
+    time: 30,
+    skills: ["measure-dry", "measure-wet", "crack-egg", "stir", "oven-help"],
+    teaches: "oven-help",
+    ingredients: [
+      { name: "Flour", qty: "2 cups", aisle: "pantry" },
+      { name: "Brown sugar", qty: "3/4 cup", aisle: "pantry" },
+      { name: "White sugar", qty: "1/2 cup", aisle: "pantry" },
+      { name: "Butter (softened)", qty: "1 cup", aisle: "dairy" },
+      { name: "Eggs", qty: "2", aisle: "dairy" },
+      { name: "Vanilla", qty: "1 tsp", aisle: "pantry" },
+      { name: "Baking soda", qty: "1 tsp", aisle: "pantry" },
+      { name: "Chocolate chips", qty: "1.5 cups", aisle: "pantry" },
+    ],
+    steps: [
+      "Heat oven to 375°F.",
+      "Cream butter and sugars until fluffy.",
+      "Mix in eggs and vanilla.",
+      "Stir in flour, baking soda, then chocolate chips.",
+      "Bake spoonfuls 9–11 minutes.",
+    ],
+  },
+  {
+    id: "tacos",
+    title: "Family Taco Night",
+    time: 25,
+    skills: ["measure-dry", "grate-cheese", "stovetop", "saute"],
+    teaches: "saute",
+    ingredients: [
+      { name: "Ground beef or turkey", qty: "1 lb", aisle: "meat" },
+      { name: "Taco seasoning", qty: "1 packet", aisle: "pantry" },
+      { name: "Taco shells", qty: "8", aisle: "pantry" },
+      { name: "Cheddar", qty: "1 cup grated", aisle: "dairy" },
+      { name: "Lettuce", qty: "1 head", aisle: "produce" },
+      { name: "Tomato", qty: "1", aisle: "produce" },
+    ],
+    steps: [
+      "Brown the meat in a pan, stirring.",
+      "Add seasoning and water from the packet.",
+      "Grate cheese and tear lettuce.",
+      "Fill shells with meat and toppings.",
+    ],
+  },
+  {
+    id: "fried-rice",
+    title: "Easy Fried Rice",
+    time: 20,
+    skills: ["crack-egg", "stovetop", "saute", "measure-wet"],
+    teaches: "saute",
+    ingredients: [
+      { name: "Cooked rice (cold)", qty: "3 cups", aisle: "pantry" },
+      { name: "Eggs", qty: "2", aisle: "dairy" },
+      { name: "Frozen peas & carrots", qty: "1 cup", aisle: "frozen" },
+      { name: "Soy sauce", qty: "3 tbsp", aisle: "pantry" },
+      { name: "Sesame oil", qty: "1 tbsp", aisle: "pantry" },
+      { name: "Green onion", qty: "2", aisle: "produce" },
+    ],
+    steps: [
+      "Heat oil in a big pan.",
+      "Scramble the eggs and push to one side.",
+      "Add veggies and stir-fry.",
+      "Add rice and soy sauce, stir-fry until hot.",
+    ],
+  },
+  {
+    id: "caprese-skewers",
+    title: "Caprese Skewers",
+    time: 10,
+    skills: ["wash", "paring-knife"],
+    teaches: "paring-knife",
+    ingredients: [
+      { name: "Cherry tomatoes", qty: "1 pint", aisle: "produce" },
+      { name: "Mini mozzarella balls", qty: "1 cup", aisle: "dairy" },
+      { name: "Fresh basil", qty: "1 bunch", aisle: "produce" },
+      { name: "Balsamic glaze", qty: "1/4 cup", aisle: "pantry" },
+      { name: "Wooden skewers", qty: "8", aisle: "pantry" },
+    ],
+    steps: [
+      "Wash tomatoes and basil.",
+      "With a paring knife (adult supervising), trim basil stems.",
+      "Thread tomato, basil, mozzarella onto each skewer.",
+      "Drizzle with balsamic glaze.",
+    ],
+  },
+  {
+    id: "pizza-dough",
+    title: "Homemade Pizza Dough",
+    time: 90,
+    skills: ["measure-dry", "measure-wet", "knead", "roll-dough", "oven-help"],
+    teaches: "knead",
+    ingredients: [
+      { name: "Flour", qty: "3 cups", aisle: "pantry" },
+      { name: "Warm water", qty: "1 cup", aisle: "pantry" },
+      { name: "Yeast", qty: "1 packet", aisle: "pantry" },
+      { name: "Olive oil", qty: "2 tbsp", aisle: "pantry" },
+      { name: "Sugar", qty: "1 tsp", aisle: "pantry" },
+      { name: "Salt", qty: "1 tsp", aisle: "pantry" },
+    ],
+    steps: [
+      "Stir yeast and sugar into warm water, wait 5 min.",
+      "Mix with flour, olive oil, and salt.",
+      "Knead 5–8 minutes until smooth.",
+      "Let it rise 1 hour, then roll out and top.",
+    ],
+  },
+  {
+    id: "garlic-bread",
+    title: "Garlic Bread",
+    time: 15,
+    skills: ["butter-knife", "spread", "oven-help"],
+    teaches: "oven-help",
+    ingredients: [
+      { name: "Baguette or French bread", qty: "1 loaf", aisle: "bakery" },
+      { name: "Butter (softened)", qty: "1/2 cup", aisle: "dairy" },
+      { name: "Garlic powder", qty: "1 tsp", aisle: "pantry" },
+      { name: "Parsley", qty: "1 tbsp", aisle: "produce" },
+    ],
+    steps: [
+      "Heat oven to 400°F.",
+      "Slice the bread in half lengthwise.",
+      "Stir garlic powder and parsley into butter.",
+      "Spread on bread, bake 10 minutes.",
+    ],
+  },
+  {
+    id: "chicken-tenders",
+    title: "Crispy Oven Chicken Tenders",
+    time: 30,
+    skills: ["measure-dry", "crack-egg", "oven-help"],
+    teaches: "oven-help",
+    ingredients: [
+      { name: "Chicken tenders", qty: "1 lb", aisle: "meat" },
+      { name: "Panko breadcrumbs", qty: "1 cup", aisle: "pantry" },
+      { name: "Eggs", qty: "2", aisle: "dairy" },
+      { name: "Flour", qty: "1/2 cup", aisle: "pantry" },
+      { name: "Salt & pepper", qty: "to taste", aisle: "pantry" },
+    ],
+    steps: [
+      "Heat oven to 400°F.",
+      "Set up flour, beaten eggs, and breadcrumbs in 3 bowls.",
+      "Dip each tender in flour, then egg, then crumbs.",
+      "Bake on a sheet pan 15–18 minutes.",
+    ],
+  },
+];
+
+/* ---------- STATE ---------- */
+
+const STORAGE_KEY = "littleChef.v1";
+let state = loadState();
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  // First launch: assume tier-0 skills are already known (uncheck any she
+  // hasn't actually done yet on the Skills tab).
+  return {
+    learned: SKILLS.filter(s => s.tier === 0).map(s => s.id),
+    made: [],
+    week: null,
+    weekDate: null,
+    shopChecked: [],
+  };
+}
+function saveState() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+/* ---------- HELPERS ---------- */
+
+function skillById(id) { return SKILLS.find(s => s.id === id); }
+function recipeById(id) { return RECIPES.find(r => r.id === id); }
+
+function isSkillUnlocked(skill) {
+  return skill.prereqs.every(p => state.learned.includes(p));
+}
+
+function missingSkillsFor(recipe) {
+  return recipe.skills.filter(s => !state.learned.includes(s));
+}
+
+function recipeStatus(recipe) {
+  const missing = missingSkillsFor(recipe);
+  if (missing.length === 0) return { kind: "ready", missing: [] };
+  if (missing.length === 1) return { kind: "stretch", missing };
+  return { kind: "locked", missing };
+}
+
+function generateWeek() {
+  // Try to pick: 1 already-mastered favorite, 2 ready recipes, 1 stretch recipe
+  const ready = RECIPES.filter(r => recipeStatus(r).kind === "ready");
+  const stretch = RECIPES.filter(r => recipeStatus(r).kind === "stretch");
+  const picks = [];
+  const used = new Set();
+
+  function pickRandom(pool, n) {
+    const shuffled = [...pool].sort(() => Math.random() - 0.5);
+    for (const r of shuffled) {
+      if (picks.length >= 4) break;
+      if (used.has(r.id)) continue;
+      picks.push(r.id);
+      used.add(r.id);
+      if (picks.filter(id => pool.includes(recipeById(id))).length >= n) break;
+    }
+  }
+
+  // 1 from "made before & still ready" if possible
+  const favorites = ready.filter(r => state.made.includes(r.id));
+  pickRandom(favorites, 1);
+  // 2 ready recipes
+  pickRandom(ready.filter(r => !used.has(r.id)), 2);
+  // 1 stretch
+  pickRandom(stretch, 1);
+  // Fill to 4 with anything ready
+  pickRandom(ready, 4 - picks.length);
+  // Final fallback: any recipe
+  if (picks.length < 4) {
+    pickRandom(RECIPES, 4 - picks.length);
+  }
+
+  state.week = picks.slice(0, 4);
+  state.weekDate = new Date().toISOString();
+  state.shopChecked = [];
+  saveState();
+}
+
+/* ---------- RENDERING ---------- */
+
+function renderAll() {
+  renderWeek();
+  renderRecipes();
+  renderSkills();
+  renderShopping();
+  renderSummary();
+}
+
+function renderSummary() {
+  document.getElementById("skill-count").textContent = state.learned.length;
+  document.getElementById("made-count").textContent = state.made.length;
+  const unlocked = RECIPES.filter(r => recipeStatus(r).kind === "ready").length;
+  document.getElementById("unlocked-count").textContent = unlocked;
+  const pct = Math.round((state.learned.length / SKILLS.length) * 100);
+  document.getElementById("skill-progress").style.width = pct + "%";
+}
+
+function recipeCard(recipe, opts = {}) {
+  const status = recipeStatus(recipe);
+  const made = state.made.includes(recipe.id);
+  let badgeHtml = "";
+  if (status.kind === "ready") {
+    badgeHtml = `<span class="badge good">Can make</span>`;
+  } else if (status.kind === "stretch") {
+    const missingName = skillById(status.missing[0]).name;
+    badgeHtml = `<span class="badge warn">Needs: ${missingName}</span>`;
+  } else {
+    badgeHtml = `<span class="badge locked">Locked (${status.missing.length} skills)</span>`;
+  }
+  if (made) badgeHtml += `<span class="badge">Made ✓</span>`;
+
+  const ingredientsHtml = recipe.ingredients.map(i =>
+    `<li>${i.qty} ${i.name}</li>`).join("");
+  const stepsHtml = recipe.steps.map(s => `<li>${s}</li>`).join("");
+
+  const teachesSkill = skillById(recipe.teaches);
+  const teachesNote = teachesSkill ? `<div class="meta">🌟 Practices: <strong>${teachesSkill.name}</strong></div>` : "";
+
+  const skillNames = recipe.skills.map(s => skillById(s).name).join(", ");
+
+  const swapBtn = opts.weekSlot !== undefined
+    ? `<button class="btn secondary" onclick="openSwap(${opts.weekSlot})">🔄 Swap</button>`
+    : "";
+
+  const madeBtn = made
+    ? `<button class="btn ghost" onclick="toggleMade('${recipe.id}')">Made ✓</button>`
+    : `<button class="btn good" onclick="toggleMade('${recipe.id}')">Mark as made</button>`;
+
+  return `
+    <div class="card">
+      <div class="recipe-title">
+        <h3>${recipe.title}</h3>
+        <div>${badgeHtml}</div>
+      </div>
+      <div class="meta">⏱ ${recipe.time} min · 🧠 Skills: ${skillNames}</div>
+      ${teachesNote}
+      <details>
+        <summary>Ingredients & steps</summary>
+        <strong>Ingredients</strong>
+        <ul class="ingredients">${ingredientsHtml}</ul>
+        <strong>Steps</strong>
+        <ol class="steps">${stepsHtml}</ol>
+      </details>
+      <div class="row-actions">
+        ${madeBtn}
+        ${swapBtn}
+      </div>
+    </div>
+  `;
+}
+
+function renderWeek() {
+  const list = document.getElementById("week-list");
+  if (!state.week) generateWeek();
+  list.innerHTML = state.week.map((id, idx) => {
+    const r = recipeById(id);
+    if (!r) return "";
+    return recipeCard(r, { weekSlot: idx });
+  }).join("");
+}
+
+let recipeFilter = "all";
+function renderRecipes() {
+  const list = document.getElementById("recipes-list");
+  let recipes = RECIPES.slice();
+  if (recipeFilter === "ready") recipes = recipes.filter(r => recipeStatus(r).kind === "ready");
+  else if (recipeFilter === "stretch") recipes = recipes.filter(r => recipeStatus(r).kind === "stretch");
+  else if (recipeFilter === "locked") recipes = recipes.filter(r => recipeStatus(r).kind === "locked");
+  else if (recipeFilter === "made") recipes = recipes.filter(r => state.made.includes(r.id));
+  if (recipes.length === 0) {
+    list.innerHTML = `<div class="empty">No recipes here yet — try another filter.</div>`;
+    return;
+  }
+  list.innerHTML = recipes.map(r => recipeCard(r)).join("");
+}
+
+function renderSkills() {
+  const list = document.getElementById("skills-list");
+  const tiers = [0, 1, 2, 3];
+  const tierLabels = ["Starter skills", "Small tools", "Knife & oven (with adult)", "Stovetop (with adult)"];
+  let html = "";
+  tiers.forEach((tier, i) => {
+    const skills = SKILLS.filter(s => s.tier === tier);
+    html += `<div class="tier-header">Tier ${tier} — ${tierLabels[i]}</div><div class="skill-grid">`;
+    skills.forEach(skill => {
+      const learned = state.learned.includes(skill.id);
+      const unlocked = isSkillUnlocked(skill);
+      const cls = learned ? "learned" : (unlocked ? "" : "locked");
+      const prereqText = skill.prereqs.length === 0
+        ? "No prereqs"
+        : "After: " + skill.prereqs.map(p => skillById(p).name).join(", ");
+      let action;
+      if (learned) action = `<button onclick="toggleSkill('${skill.id}')">✓ Done</button>`;
+      else if (unlocked) action = `<button onclick="toggleSkill('${skill.id}')">Mark learned</button>`;
+      else action = `<button disabled>Locked</button>`;
+      html += `
+        <div class="skill ${cls}">
+          <div>
+            <div class="name">${skill.name}</div>
+            <div class="tier">${prereqText}</div>
+          </div>
+          ${action}
+        </div>
+      `;
+    });
+    html += `</div>`;
+  });
+  list.innerHTML = html;
+}
+
+function renderShopping() {
+  const list = document.getElementById("shopping-list");
+  if (!state.week) {
+    list.innerHTML = `<div class="empty">Generate this week's plan first.</div>`;
+    return;
+  }
+  // Aggregate ingredients by aisle, combining duplicates
+  const byAisle = {};
+  state.week.forEach(rid => {
+    const r = recipeById(rid);
+    if (!r) return;
+    r.ingredients.forEach(ing => {
+      const aisle = ing.aisle || "other";
+      if (!byAisle[aisle]) byAisle[aisle] = {};
+      const key = ing.name.toLowerCase();
+      if (!byAisle[aisle][key]) {
+        byAisle[aisle][key] = { name: ing.name, qtys: [] };
+      }
+      byAisle[aisle][key].qtys.push(`${ing.qty} (${r.title})`);
+    });
+  });
+  const aisleOrder = ["produce", "dairy", "meat", "bakery", "frozen", "pantry", "other"];
+  const aisleNames = {
+    produce: "🥬 Produce",
+    dairy: "🧀 Dairy & Eggs",
+    meat: "🍗 Meat",
+    bakery: "🥖 Bakery",
+    frozen: "🧊 Frozen",
+    pantry: "🥫 Pantry",
+    other: "📦 Other",
+  };
+  let html = "";
+  aisleOrder.forEach(aisle => {
+    if (!byAisle[aisle]) return;
+    html += `<div class="shop-section"><h4>${aisleNames[aisle]}</h4>`;
+    Object.values(byAisle[aisle]).forEach(item => {
+      const checked = state.shopChecked.includes(item.name);
+      html += `
+        <div class="shop-item ${checked ? "checked" : ""}">
+          <input type="checkbox" id="shop-${item.name}" ${checked ? "checked" : ""}
+            onchange="toggleShop('${item.name.replace(/'/g, "\\'")}')">
+          <label for="shop-${item.name}">
+            <strong>${item.name}</strong>
+            <div class="meta">${item.qtys.join(" · ")}</div>
+          </label>
+        </div>
+      `;
+    });
+    html += `</div>`;
+  });
+  list.innerHTML = html;
+}
+
+/* ---------- ACTIONS ---------- */
+
+function toggleSkill(id) {
+  if (state.learned.includes(id)) {
+    state.learned = state.learned.filter(s => s !== id);
+    // Un-learning a skill may invalidate dependents — drop them too
+    let changed = true;
+    while (changed) {
+      changed = false;
+      for (const s of SKILLS) {
+        if (state.learned.includes(s.id) && !s.prereqs.every(p => state.learned.includes(p))) {
+          state.learned = state.learned.filter(x => x !== s.id);
+          changed = true;
+        }
+      }
+    }
+  } else {
+    state.learned.push(id);
+  }
+  saveState();
+  renderAll();
+}
+
+function toggleMade(id) {
+  if (state.made.includes(id)) {
+    state.made = state.made.filter(x => x !== id);
+  } else {
+    state.made.push(id);
+  }
+  saveState();
+  renderAll();
+}
+
+function toggleShop(name) {
+  if (state.shopChecked.includes(name)) {
+    state.shopChecked = state.shopChecked.filter(x => x !== name);
+  } else {
+    state.shopChecked.push(name);
+  }
+  saveState();
+  renderShopping();
+}
+
+let swapSlot = null;
+function openSwap(slotIdx) {
+  swapSlot = slotIdx;
+  const modal = document.getElementById("swap-modal");
+  const opts = document.getElementById("swap-options");
+  const current = state.week[slotIdx];
+  const candidates = RECIPES.filter(r => {
+    if (state.week.includes(r.id)) return false;
+    const s = recipeStatus(r).kind;
+    return s === "ready" || s === "stretch";
+  });
+  if (candidates.length === 0) {
+    opts.innerHTML = `<div class="empty">No other recipes are ready yet. Learn a new skill to unlock more!</div>`;
+  } else {
+    opts.innerHTML = candidates.map(r => {
+      const s = recipeStatus(r);
+      const tag = s.kind === "ready" ? `<span class="badge good">Ready</span>` : `<span class="badge warn">Stretch</span>`;
+      return `<div class="recipe-pick" onclick="doSwap('${r.id}')">
+        <strong>${r.title}</strong> ${tag}
+        <div class="meta">⏱ ${r.time} min</div>
+      </div>`;
+    }).join("");
+  }
+  modal.classList.add("open");
+}
+function doSwap(newId) {
+  state.week[swapSlot] = newId;
+  state.shopChecked = []; // shopping list changed
+  saveState();
+  document.getElementById("swap-modal").classList.remove("open");
+  renderAll();
+}
+
+document.getElementById("swap-cancel").onclick = () => {
+  document.getElementById("swap-modal").classList.remove("open");
+};
+document.getElementById("regenerate-week").onclick = () => {
+  generateWeek();
+  renderAll();
+};
+document.getElementById("clear-progress").onclick = () => {
+  if (confirm("Reset all progress? This clears learned skills, made recipes, and this week's plan.")) {
+    state = { learned: [], made: [], week: null, weekDate: null, shopChecked: [] };
+    saveState();
+    generateWeek();
+    renderAll();
+  }
+};
+
+document.querySelectorAll("nav button").forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById("view-" + btn.dataset.view).classList.add("active");
+  };
+});
+
+document.querySelectorAll(".filter-bar button").forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll(".filter-bar button").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    recipeFilter = btn.dataset.filter;
+    renderRecipes();
+  };
+});
+
+renderAll();
+</script>
+</body>
+</html>
