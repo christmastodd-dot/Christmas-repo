@@ -272,6 +272,93 @@
     font-size: 12px;
     padding: 20px;
   }
+  .modal.editor { max-width: 640px; }
+  .modal.editor label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    margin-top: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .modal.editor input[type=text],
+  .modal.editor input[type=number],
+  .modal.editor select,
+  .modal.editor textarea {
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 15px;
+    font-family: inherit;
+    margin-top: 4px;
+    color: var(--ink);
+    background: white;
+  }
+  .modal.editor textarea { resize: vertical; min-height: 120px; }
+  .checkbox-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 4px 10px;
+    margin-top: 6px;
+  }
+  .checkbox-grid label {
+    display: flex !important;
+    align-items: center;
+    gap: 6px;
+    margin-top: 0 !important;
+    font-size: 14px;
+    text-transform: none;
+    letter-spacing: normal;
+    color: var(--ink);
+    font-weight: 400;
+  }
+  .checkbox-grid input { margin: 0; }
+  .ing-row {
+    display: grid;
+    grid-template-columns: 90px 1fr 130px 32px;
+    gap: 6px;
+    margin-top: 6px;
+    align-items: center;
+  }
+  .ing-row input, .ing-row select {
+    margin-top: 0 !important;
+    padding: 6px 8px !important;
+    font-size: 14px !important;
+  }
+  .ing-row button {
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    height: 32px;
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 14px;
+  }
+  .btn.danger { background: #c0392b; }
+  .editor-error {
+    color: #c0392b;
+    font-size: 13px;
+    margin-top: 8px;
+    display: none;
+  }
+  .add-recipe-btn {
+    background: var(--good);
+    color: white;
+    border: 0;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 14px;
+    cursor: pointer;
+    font-weight: 500;
+    margin-left: auto;
+  }
+  .filter-bar.with-add { align-items: center; }
+  @media (max-width: 480px) {
+    .ing-row { grid-template-columns: 70px 1fr 32px; }
+    .ing-row .ing-aisle { grid-column: 1 / 4; }
+  }
 </style>
 </head>
 <body>
@@ -319,12 +406,13 @@
   <section id="view-recipes" class="view">
     <h2>Recipe library</h2>
     <div class="hint">Filter by what she can make on her own, with a little help, or recipes that need a new skill first.</div>
-    <div class="filter-bar">
+    <div class="filter-bar with-add">
       <button data-filter="all" class="active">All</button>
       <button data-filter="ready">Ready to make</button>
       <button data-filter="stretch">Stretch (1 new skill)</button>
       <button data-filter="locked">Locked</button>
       <button data-filter="made">Made before</button>
+      <button class="add-recipe-btn" onclick="openEditor(null)">+ Add recipe</button>
     </div>
     <div id="recipes-list"></div>
   </section>
@@ -341,6 +429,34 @@
     <div id="shopping-list"></div>
   </section>
 </main>
+
+<div class="modal-bg" id="editor-modal">
+  <div class="modal editor">
+    <h3 id="editor-title">Add recipe</h3>
+    <label>Title <input type="text" id="ed-title" placeholder="e.g. Banana Pancakes"></label>
+    <label>Time (minutes) <input type="number" id="ed-time" min="1" value="15"></label>
+    <label>Skills needed
+      <div id="ed-skills" class="checkbox-grid"></div>
+    </label>
+    <label>Practices (the new skill this recipe teaches — optional)
+      <select id="ed-teaches"><option value="">— none —</option></select>
+    </label>
+    <label>Ingredients
+      <div id="ed-ingredients"></div>
+      <button type="button" class="btn ghost" style="margin-top:8px" onclick="addIngredientRow()">+ Add ingredient</button>
+    </label>
+    <label>Steps (one step per line)
+      <textarea id="ed-steps" placeholder="Wash the fruit&#10;Slice with a butter knife&#10;..."></textarea>
+    </label>
+    <div class="editor-error" id="ed-error"></div>
+    <div class="row-actions" style="margin-top:18px">
+      <button class="btn" onclick="saveEditor()">Save recipe</button>
+      <button class="btn ghost" onclick="closeEditor()">Cancel</button>
+      <button class="btn ghost" id="ed-reset" onclick="resetCurrent()" style="display:none">Reset to default</button>
+      <button class="btn danger" id="ed-delete" onclick="deleteCurrent()" style="display:none">Delete</button>
+    </div>
+  </div>
+</div>
 
 <div class="modal-bg" id="swap-modal">
   <div class="modal">
@@ -876,6 +992,12 @@ const RECIPES = [
   },
 ];
 
+const AISLES = ["produce", "dairy", "meat", "bakery", "frozen", "pantry", "other"];
+const AISLE_LABELS = {
+  produce: "Produce", dairy: "Dairy & Eggs", meat: "Meat",
+  bakery: "Bakery", frozen: "Frozen", pantry: "Pantry", other: "Other",
+};
+
 /* ---------- STATE ---------- */
 
 const STORAGE_KEY = "littleChef.v1";
@@ -884,7 +1006,13 @@ let state = loadState();
 function loadState() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      const s = JSON.parse(raw);
+      // Migrate older saves that don't have the new fields
+      if (!s.recipes) s.recipes = {};
+      if (!s.deletedBuiltins) s.deletedBuiltins = [];
+      return s;
+    }
   } catch (e) {}
   // First launch: assume tier-0 skills are already known (uncheck any she
   // hasn't actually done yet on the Skills tab).
@@ -894,6 +1022,8 @@ function loadState() {
     week: null,
     weekDate: null,
     shopChecked: [],
+    recipes: {},          // id -> recipe (overrides built-ins, holds custom)
+    deletedBuiltins: [],  // ids of built-in recipes the user hid
   };
 }
 function saveState() {
@@ -902,8 +1032,30 @@ function saveState() {
 
 /* ---------- HELPERS ---------- */
 
+function escapeHtml(s) {
+  return String(s == null ? "" : s).replace(/[&<>"']/g,
+    c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+}
+
 function skillById(id) { return SKILLS.find(s => s.id === id); }
-function recipeById(id) { return RECIPES.find(r => r.id === id); }
+
+function getAllRecipes() {
+  const overrides = state.recipes || {};
+  const hidden = state.deletedBuiltins || [];
+  const result = [];
+  for (const r of RECIPES) {
+    if (hidden.includes(r.id)) continue;
+    result.push(overrides[r.id] || r);
+  }
+  for (const id in overrides) {
+    if (!RECIPES.some(r => r.id === id)) result.push(overrides[id]);
+  }
+  return result;
+}
+
+function recipeById(id) { return getAllRecipes().find(r => r.id === id); }
+function isBuiltin(id) { return RECIPES.some(r => r.id === id); }
+function isEdited(id) { return isBuiltin(id) && !!(state.recipes && state.recipes[id]); }
 
 function isSkillUnlocked(skill) {
   return skill.prereqs.every(p => state.learned.includes(p));
@@ -921,36 +1073,31 @@ function recipeStatus(recipe) {
 }
 
 function generateWeek() {
-  // Try to pick: 1 already-mastered favorite, 2 ready recipes, 1 stretch recipe
-  const ready = RECIPES.filter(r => recipeStatus(r).kind === "ready");
-  const stretch = RECIPES.filter(r => recipeStatus(r).kind === "stretch");
+  const all = getAllRecipes();
+  const ready = all.filter(r => recipeStatus(r).kind === "ready");
+  const stretch = all.filter(r => recipeStatus(r).kind === "stretch");
   const picks = [];
   const used = new Set();
 
   function pickRandom(pool, n) {
     const shuffled = [...pool].sort(() => Math.random() - 0.5);
+    let takenFromPool = 0;
     for (const r of shuffled) {
       if (picks.length >= 4) break;
       if (used.has(r.id)) continue;
       picks.push(r.id);
       used.add(r.id);
-      if (picks.filter(id => pool.includes(recipeById(id))).length >= n) break;
+      takenFromPool++;
+      if (takenFromPool >= n) break;
     }
   }
 
-  // 1 from "made before & still ready" if possible
   const favorites = ready.filter(r => state.made.includes(r.id));
   pickRandom(favorites, 1);
-  // 2 ready recipes
   pickRandom(ready.filter(r => !used.has(r.id)), 2);
-  // 1 stretch
   pickRandom(stretch, 1);
-  // Fill to 4 with anything ready
   pickRandom(ready, 4 - picks.length);
-  // Final fallback: any recipe
-  if (picks.length < 4) {
-    pickRandom(RECIPES, 4 - picks.length);
-  }
+  if (picks.length < 4) pickRandom(all, 4 - picks.length);
 
   state.week = picks.slice(0, 4);
   state.weekDate = new Date().toISOString();
@@ -971,7 +1118,7 @@ function renderAll() {
 function renderSummary() {
   document.getElementById("skill-count").textContent = state.learned.length;
   document.getElementById("made-count").textContent = state.made.length;
-  const unlocked = RECIPES.filter(r => recipeStatus(r).kind === "ready").length;
+  const unlocked = getAllRecipes().filter(r => recipeStatus(r).kind === "ready").length;
   document.getElementById("unlocked-count").textContent = unlocked;
   const pct = Math.round((state.learned.length / SKILLS.length) * 100);
   document.getElementById("skill-progress").style.width = pct + "%";
@@ -992,8 +1139,8 @@ function recipeCard(recipe, opts = {}) {
   if (made) badgeHtml += `<span class="badge">Made ✓</span>`;
 
   const ingredientsHtml = recipe.ingredients.map(i =>
-    `<li>${i.qty} ${i.name}</li>`).join("");
-  const stepsHtml = recipe.steps.map(s => `<li>${s}</li>`).join("");
+    `<li>${escapeHtml(i.qty)} ${escapeHtml(i.name)}</li>`).join("");
+  const stepsHtml = recipe.steps.map(s => `<li>${escapeHtml(s)}</li>`).join("");
 
   const teachesSkill = skillById(recipe.teaches);
   const teachesNote = teachesSkill ? `<div class="meta">🌟 Practices: <strong>${teachesSkill.name}</strong></div>` : "";
@@ -1008,13 +1155,17 @@ function recipeCard(recipe, opts = {}) {
     ? `<button class="btn ghost" onclick="toggleMade('${recipe.id}')">Made ✓</button>`
     : `<button class="btn good" onclick="toggleMade('${recipe.id}')">Mark as made</button>`;
 
+  const editBtn = `<button class="btn ghost" onclick="openEditor('${recipe.id}')">✏️ Edit</button>`;
+  const editedBadge = isEdited(recipe.id) ? `<span class="badge">Edited</span>` : "";
+  const customBadge = !isBuiltin(recipe.id) ? `<span class="badge">Custom</span>` : "";
+
   return `
     <div class="card">
       <div class="recipe-title">
-        <h3>${recipe.title}</h3>
-        <div>${badgeHtml}</div>
+        <h3>${escapeHtml(recipe.title)}</h3>
+        <div>${badgeHtml}${editedBadge}${customBadge}</div>
       </div>
-      <div class="meta">⏱ ${recipe.time} min · 🧠 Skills: ${skillNames}</div>
+      <div class="meta">⏱ ${recipe.time} min · 🧠 Skills: ${escapeHtml(skillNames)}</div>
       ${teachesNote}
       <details>
         <summary>Ingredients & steps</summary>
@@ -1026,6 +1177,7 @@ function recipeCard(recipe, opts = {}) {
       <div class="row-actions">
         ${madeBtn}
         ${swapBtn}
+        ${editBtn}
       </div>
     </div>
   `;
@@ -1044,7 +1196,7 @@ function renderWeek() {
 let recipeFilter = "all";
 function renderRecipes() {
   const list = document.getElementById("recipes-list");
-  let recipes = RECIPES.slice();
+  let recipes = getAllRecipes();
   if (recipeFilter === "ready") recipes = recipes.filter(r => recipeStatus(r).kind === "ready");
   else if (recipeFilter === "stretch") recipes = recipes.filter(r => recipeStatus(r).kind === "stretch");
   else if (recipeFilter === "locked") recipes = recipes.filter(r => recipeStatus(r).kind === "locked");
@@ -1111,20 +1263,14 @@ function renderShopping() {
       byAisle[aisle][key].qtys.push(`${ing.qty} (${r.title})`);
     });
   });
-  const aisleOrder = ["produce", "dairy", "meat", "bakery", "frozen", "pantry", "other"];
-  const aisleNames = {
-    produce: "🥬 Produce",
-    dairy: "🧀 Dairy & Eggs",
-    meat: "🍗 Meat",
-    bakery: "🥖 Bakery",
-    frozen: "🧊 Frozen",
-    pantry: "🥫 Pantry",
-    other: "📦 Other",
+  const aisleIcons = {
+    produce: "🥬", dairy: "🧀", meat: "🍗",
+    bakery: "🥖", frozen: "🧊", pantry: "🥫", other: "📦",
   };
   let html = "";
-  aisleOrder.forEach(aisle => {
+  AISLES.forEach(aisle => {
     if (!byAisle[aisle]) return;
-    html += `<div class="shop-section"><h4>${aisleNames[aisle]}</h4>`;
+    html += `<div class="shop-section"><h4>${aisleIcons[aisle]} ${AISLE_LABELS[aisle]}</h4>`;
     Object.values(byAisle[aisle]).forEach(item => {
       const checked = state.shopChecked.includes(item.name);
       html += `
@@ -1192,7 +1338,7 @@ function openSwap(slotIdx) {
   const modal = document.getElementById("swap-modal");
   const opts = document.getElementById("swap-options");
   const current = state.week[slotIdx];
-  const candidates = RECIPES.filter(r => {
+  const candidates = getAllRecipes().filter(r => {
     if (state.week.includes(r.id)) return false;
     const s = recipeStatus(r).kind;
     return s === "ready" || s === "stretch";
@@ -1222,6 +1368,157 @@ function doSwap(newId) {
 document.getElementById("swap-cancel").onclick = () => {
   document.getElementById("swap-modal").classList.remove("open");
 };
+
+/* ---------- RECIPE EDITOR ---------- */
+
+let editingId = null; // id being edited; null means new recipe
+
+function openEditor(recipeId) {
+  editingId = recipeId;
+  const isNew = recipeId === null;
+  const recipe = isNew ? null : recipeById(recipeId);
+  document.getElementById("editor-title").textContent =
+    isNew ? "Add a new recipe" : `Edit: ${recipe.title}`;
+  document.getElementById("ed-title").value = recipe ? recipe.title : "";
+  document.getElementById("ed-time").value = recipe ? recipe.time : 15;
+
+  // Skills checkboxes, grouped by tier
+  const skillsBox = document.getElementById("ed-skills");
+  const tierNames = ["Starter", "Small tools", "Knife & oven", "Stovetop"];
+  let skillsHtml = "";
+  for (let t = 0; t <= 3; t++) {
+    skillsHtml += `<div style="grid-column:1/-1;font-size:12px;color:var(--muted);margin-top:6px;font-weight:600;text-transform:uppercase;">Tier ${t} — ${tierNames[t]}</div>`;
+    for (const s of SKILLS.filter(s => s.tier === t)) {
+      const checked = recipe && recipe.skills.includes(s.id) ? "checked" : "";
+      skillsHtml += `<label><input type="checkbox" class="ed-skill-cb" value="${s.id}" ${checked}>${escapeHtml(s.name)}</label>`;
+    }
+  }
+  skillsBox.innerHTML = skillsHtml;
+
+  // Teaches dropdown
+  const teaches = document.getElementById("ed-teaches");
+  teaches.innerHTML = `<option value="">— none —</option>` +
+    SKILLS.map(s => `<option value="${s.id}" ${recipe && recipe.teaches === s.id ? "selected" : ""}>${escapeHtml(s.name)}</option>`).join("");
+
+  // Ingredient rows
+  const ingBox = document.getElementById("ed-ingredients");
+  ingBox.innerHTML = "";
+  const ings = recipe ? recipe.ingredients : [{ qty: "", name: "", aisle: "pantry" }];
+  ings.forEach(i => ingBox.insertAdjacentHTML("beforeend", ingredientRowHtml(i)));
+
+  // Steps as plain text
+  document.getElementById("ed-steps").value =
+    recipe ? recipe.steps.join("\n") : "";
+
+  // Show/hide reset and delete buttons
+  document.getElementById("ed-reset").style.display =
+    !isNew && isBuiltin(recipeId) && isEdited(recipeId) ? "" : "none";
+  document.getElementById("ed-delete").style.display =
+    !isNew ? "" : "none";
+
+  document.getElementById("ed-error").style.display = "none";
+  document.getElementById("editor-modal").classList.add("open");
+}
+
+function ingredientRowHtml(ing) {
+  const qty = escapeHtml(ing.qty || "");
+  const name = escapeHtml(ing.name || "");
+  const opts = AISLES.map(a =>
+    `<option value="${a}" ${a === (ing.aisle || "pantry") ? "selected" : ""}>${AISLE_LABELS[a]}</option>`).join("");
+  return `<div class="ing-row">
+    <input type="text" class="ing-qty" placeholder="1 cup" value="${qty}">
+    <input type="text" class="ing-name" placeholder="Flour" value="${name}">
+    <select class="ing-aisle">${opts}</select>
+    <button type="button" title="Remove" onclick="this.parentNode.remove()">✕</button>
+  </div>`;
+}
+
+function addIngredientRow() {
+  document.getElementById("ed-ingredients")
+    .insertAdjacentHTML("beforeend", ingredientRowHtml({ qty: "", name: "", aisle: "pantry" }));
+}
+
+function closeEditor() {
+  document.getElementById("editor-modal").classList.remove("open");
+  editingId = null;
+}
+
+function showEditorError(msg) {
+  const el = document.getElementById("ed-error");
+  el.textContent = msg;
+  el.style.display = "block";
+}
+
+function readEditor() {
+  const title = document.getElementById("ed-title").value.trim();
+  const time = parseInt(document.getElementById("ed-time").value, 10);
+  const skills = [...document.querySelectorAll(".ed-skill-cb:checked")].map(cb => cb.value);
+  const teaches = document.getElementById("ed-teaches").value || null;
+  const ingredients = [...document.querySelectorAll("#ed-ingredients .ing-row")]
+    .map(row => ({
+      qty: row.querySelector(".ing-qty").value.trim(),
+      name: row.querySelector(".ing-name").value.trim(),
+      aisle: row.querySelector(".ing-aisle").value,
+    }))
+    .filter(i => i.name);
+  const steps = document.getElementById("ed-steps").value
+    .split("\n").map(s => s.trim()).filter(Boolean);
+  return { title, time, skills, teaches, ingredients, steps };
+}
+
+function saveEditor() {
+  const data = readEditor();
+  if (!data.title) return showEditorError("Give the recipe a title.");
+  if (!data.time || data.time < 1) return showEditorError("Time should be at least 1 minute.");
+  if (data.skills.length === 0) return showEditorError("Pick at least one skill the recipe uses.");
+  if (data.ingredients.length === 0) return showEditorError("Add at least one ingredient.");
+  if (data.steps.length === 0) return showEditorError("Add at least one step.");
+  if (data.teaches && !data.skills.includes(data.teaches)) {
+    return showEditorError('"Practices" must be one of the skills you ticked above.');
+  }
+
+  const id = editingId || ("custom-" + Date.now());
+  const recipe = { id, ...data };
+  state.recipes[id] = recipe;
+  saveState();
+  closeEditor();
+  renderAll();
+}
+
+function deleteCurrent() {
+  if (!editingId) return;
+  const recipe = recipeById(editingId);
+  if (!confirm(`Delete "${recipe.title}"?`)) return;
+  if (isBuiltin(editingId)) {
+    state.deletedBuiltins.push(editingId);
+    delete state.recipes[editingId];
+  } else {
+    delete state.recipes[editingId];
+  }
+  // Remove from week & made if present
+  if (state.week) state.week = state.week.filter(id => id !== editingId);
+  state.made = state.made.filter(id => id !== editingId);
+  // Refill week if we deleted one of its recipes
+  if (state.week && state.week.length < 4) {
+    const all = getAllRecipes();
+    const used = new Set(state.week);
+    const fillers = all.filter(r => !used.has(r.id) && recipeStatus(r).kind !== "locked");
+    while (state.week.length < 4 && fillers.length) {
+      state.week.push(fillers.shift().id);
+    }
+  }
+  saveState();
+  closeEditor();
+  renderAll();
+}
+
+function resetCurrent() {
+  if (!editingId || !isBuiltin(editingId)) return;
+  delete state.recipes[editingId];
+  saveState();
+  closeEditor();
+  renderAll();
+}
 document.getElementById("regenerate-week").onclick = () => {
   generateWeek();
   renderAll();
