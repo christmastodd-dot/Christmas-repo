@@ -359,6 +359,59 @@
     .ing-row { grid-template-columns: 70px 1fr 32px; }
     .ing-row .ing-aisle { grid-column: 1 / 4; }
   }
+  .photo-strip {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 8px 0 4px;
+    margin-top: 8px;
+  }
+  .photo-thumb {
+    width: 90px;
+    height: 90px;
+    flex: 0 0 auto;
+    border-radius: 8px;
+    background: var(--accent-soft) center/cover no-repeat;
+    border: 1px solid var(--line);
+    cursor: pointer;
+    position: relative;
+  }
+  .photo-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+    display: block;
+  }
+  .photo-count {
+    display: inline-block;
+    font-size: 12px;
+    color: var(--muted);
+    margin-left: 4px;
+  }
+  .lightbox-modal {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.9);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    z-index: 20;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .lightbox-modal.open { display: flex; }
+  .lightbox-modal img {
+    max-width: 100%;
+    max-height: 80vh;
+    border-radius: 8px;
+    background: white;
+  }
+  .lightbox-modal .lb-actions {
+    display: flex;
+    gap: 8px;
+  }
+  .photo-input { display: none; }
 </style>
 </head>
 <body>
@@ -468,6 +521,16 @@
     </div>
   </div>
 </div>
+
+<div class="lightbox-modal" id="lightbox">
+  <img id="lb-img" alt="">
+  <div class="lb-actions">
+    <button class="btn ghost" onclick="closeLightbox()">Close</button>
+    <button class="btn danger" onclick="deleteLightboxPhoto()">Delete photo</button>
+  </div>
+</div>
+
+<input type="file" accept="image/*" capture="environment" id="photo-input" class="photo-input">
 
 <div class="footer-note">Saved on this device. Open the same page tomorrow and your progress will still be here.</div>
 
@@ -1011,6 +1074,7 @@ function loadState() {
       // Migrate older saves that don't have the new fields
       if (!s.recipes) s.recipes = {};
       if (!s.deletedBuiltins) s.deletedBuiltins = [];
+      if (!s.photos) s.photos = {};
       return s;
     }
   } catch (e) {}
@@ -1024,7 +1088,100 @@ function loadState() {
     shopChecked: [],
     recipes: {},          // id -> recipe (overrides built-ins, holds custom)
     deletedBuiltins: [],  // ids of built-in recipes the user hid
+    photos: {},           // recipeId -> [{ id, date }]; blobs live in IndexedDB
   };
+}
+
+/* ---------- PHOTO STORAGE (IndexedDB for blobs) ---------- */
+
+const PHOTO_DB = "littleChef-photos";
+const PHOTO_STORE = "photos";
+let _photoDb = null;
+
+function openPhotoDb() {
+  if (_photoDb) return Promise.resolve(_photoDb);
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(PHOTO_DB, 1);
+    req.onupgradeneeded = () => req.result.createObjectStore(PHOTO_STORE);
+    req.onsuccess = () => { _photoDb = req.result; resolve(_photoDb); };
+    req.onerror = () => reject(req.error);
+  });
+}
+
+async function putPhotoBlob(id, blob) {
+  const db = await openPhotoDb();
+  return new Promise((res, rej) => {
+    const tx = db.transaction(PHOTO_STORE, "readwrite");
+    tx.objectStore(PHOTO_STORE).put(blob, id);
+    tx.oncomplete = () => res();
+    tx.onerror = () => rej(tx.error);
+  });
+}
+
+async function getPhotoBlob(id) {
+  const db = await openPhotoDb();
+  return new Promise((res, rej) => {
+    const tx = db.transaction(PHOTO_STORE, "readonly");
+    const req = tx.objectStore(PHOTO_STORE).get(id);
+    req.onsuccess = () => res(req.result || null);
+    req.onerror = () => rej(req.error);
+  });
+}
+
+async function deletePhotoBlob(id) {
+  const db = await openPhotoDb();
+  return new Promise((res, rej) => {
+    const tx = db.transaction(PHOTO_STORE, "readwrite");
+    tx.objectStore(PHOTO_STORE).delete(id);
+    tx.oncomplete = () => res();
+    tx.onerror = () => rej(tx.error);
+  });
+}
+
+async function clearAllPhotos() {
+  const db = await openPhotoDb();
+  return new Promise((res, rej) => {
+    const tx = db.transaction(PHOTO_STORE, "readwrite");
+    tx.objectStore(PHOTO_STORE).clear();
+    tx.oncomplete = () => res();
+    tx.onerror = () => rej(tx.error);
+  });
+}
+
+const photoUrlCache = {};
+async function photoUrl(id) {
+  if (photoUrlCache[id]) return photoUrlCache[id];
+  const blob = await getPhotoBlob(id);
+  if (!blob) return null;
+  const url = URL.createObjectURL(blob);
+  photoUrlCache[id] = url;
+  return url;
+}
+
+function resizeImage(file, maxDim = 1280, quality = 0.82) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const ratio = Math.min(1, maxDim / Math.max(img.width, img.height));
+        const w = Math.max(1, Math.round(img.width * ratio));
+        const h = Math.max(1, Math.round(img.height * ratio));
+        const canvas = document.createElement("canvas");
+        canvas.width = w;
+        canvas.height = h;
+        canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+        canvas.toBlob(
+          b => b ? resolve(b) : reject(new Error("Could not encode image")),
+          "image/jpeg", quality
+        );
+      };
+      img.onerror = () => reject(new Error("Could not read image"));
+      img.src = reader.result;
+    };
+    reader.onerror = () => reject(new Error("Could not read file"));
+    reader.readAsDataURL(file);
+  });
 }
 function saveState() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -1113,6 +1270,7 @@ function renderAll() {
   renderSkills();
   renderShopping();
   renderSummary();
+  loadPhotoThumbs();
 }
 
 function renderSummary() {
@@ -1156,17 +1314,31 @@ function recipeCard(recipe, opts = {}) {
     : `<button class="btn good" onclick="toggleMade('${recipe.id}')">Mark as made</button>`;
 
   const editBtn = `<button class="btn ghost" onclick="openEditor('${recipe.id}')">✏️ Edit</button>`;
+  const photoBtn = `<button class="btn secondary" onclick="pickPhotoFor('${recipe.id}')">📷 Add photo</button>`;
   const editedBadge = isEdited(recipe.id) ? `<span class="badge">Edited</span>` : "";
   const customBadge = !isBuiltin(recipe.id) ? `<span class="badge">Custom</span>` : "";
+
+  const photos = (state.photos && state.photos[recipe.id]) || [];
+  const photoCountBadge = photos.length
+    ? `<span class="photo-count">📷 ${photos.length}</span>` : "";
+  const photoStrip = photos.length ? `
+    <div class="photo-strip">
+      ${photos.map(p => `
+        <div class="photo-thumb" onclick="openLightbox('${p.id}','${recipe.id}')">
+          <img data-photo-id="${p.id}" alt="">
+        </div>
+      `).join("")}
+    </div>` : "";
 
   return `
     <div class="card">
       <div class="recipe-title">
         <h3>${escapeHtml(recipe.title)}</h3>
-        <div>${badgeHtml}${editedBadge}${customBadge}</div>
+        <div>${badgeHtml}${editedBadge}${customBadge}${photoCountBadge}</div>
       </div>
       <div class="meta">⏱ ${recipe.time} min · 🧠 Skills: ${escapeHtml(skillNames)}</div>
       ${teachesNote}
+      ${photoStrip}
       <details>
         <summary>Ingredients & steps</summary>
         <strong>Ingredients</strong>
@@ -1176,11 +1348,21 @@ function recipeCard(recipe, opts = {}) {
       </details>
       <div class="row-actions">
         ${madeBtn}
+        ${photoBtn}
         ${swapBtn}
         ${editBtn}
       </div>
     </div>
   `;
+}
+
+async function loadPhotoThumbs() {
+  const imgs = document.querySelectorAll("img[data-photo-id]");
+  for (const img of imgs) {
+    if (img.src && img.src.startsWith("blob:")) continue;
+    const url = await photoUrl(img.dataset.photoId);
+    if (url) img.src = url;
+  }
 }
 
 function renderWeek() {
@@ -1495,6 +1677,17 @@ function deleteCurrent() {
   } else {
     delete state.recipes[editingId];
   }
+  // Drop any photos attached to this recipe
+  if (state.photos[editingId]) {
+    for (const p of state.photos[editingId]) {
+      deletePhotoBlob(p.id).catch(() => {});
+      if (photoUrlCache[p.id]) {
+        URL.revokeObjectURL(photoUrlCache[p.id]);
+        delete photoUrlCache[p.id];
+      }
+    }
+    delete state.photos[editingId];
+  }
   // Remove from week & made if present
   if (state.week) state.week = state.week.filter(id => id !== editingId);
   state.made = state.made.filter(id => id !== editingId);
@@ -1519,17 +1712,91 @@ function resetCurrent() {
   closeEditor();
   renderAll();
 }
+
+/* ---------- PHOTO UPLOAD & LIGHTBOX ---------- */
+
+let pendingPhotoRecipeId = null;
+const photoInput = document.getElementById("photo-input");
+
+function pickPhotoFor(recipeId) {
+  pendingPhotoRecipeId = recipeId;
+  photoInput.value = "";
+  photoInput.click();
+}
+
+photoInput.onchange = async () => {
+  const file = photoInput.files && photoInput.files[0];
+  const recipeId = pendingPhotoRecipeId;
+  pendingPhotoRecipeId = null;
+  if (!file || !recipeId) return;
+  try {
+    const blob = await resizeImage(file);
+    const photoId = `${recipeId}-${Date.now()}`;
+    await putPhotoBlob(photoId, blob);
+    if (!state.photos[recipeId]) state.photos[recipeId] = [];
+    state.photos[recipeId].push({ id: photoId, date: new Date().toISOString() });
+    if (!state.made.includes(recipeId)) state.made.push(recipeId);
+    saveState();
+    renderAll();
+  } catch (e) {
+    alert("Couldn't save that photo: " + (e.message || e));
+  }
+};
+
+let lightboxState = null; // { photoId, recipeId }
+async function openLightbox(photoId, recipeId) {
+  const url = await photoUrl(photoId);
+  if (!url) return;
+  lightboxState = { photoId, recipeId };
+  document.getElementById("lb-img").src = url;
+  document.getElementById("lightbox").classList.add("open");
+}
+
+function closeLightbox() {
+  document.getElementById("lightbox").classList.remove("open");
+  lightboxState = null;
+}
+
+async function deleteLightboxPhoto() {
+  if (!lightboxState) return;
+  const { photoId, recipeId } = lightboxState;
+  if (!confirm("Delete this photo?")) return;
+  await deletePhotoBlob(photoId);
+  if (photoUrlCache[photoId]) {
+    URL.revokeObjectURL(photoUrlCache[photoId]);
+    delete photoUrlCache[photoId];
+  }
+  if (state.photos[recipeId]) {
+    state.photos[recipeId] = state.photos[recipeId].filter(p => p.id !== photoId);
+    if (state.photos[recipeId].length === 0) delete state.photos[recipeId];
+  }
+  saveState();
+  closeLightbox();
+  renderAll();
+}
+
+// Click-outside-image closes the lightbox
+document.getElementById("lightbox").addEventListener("click", (e) => {
+  if (e.target.id === "lightbox") closeLightbox();
+});
 document.getElementById("regenerate-week").onclick = () => {
   generateWeek();
   renderAll();
 };
-document.getElementById("clear-progress").onclick = () => {
-  if (confirm("Reset all progress? This clears learned skills, made recipes, and this week's plan.")) {
-    state = { learned: [], made: [], week: null, weekDate: null, shopChecked: [] };
-    saveState();
-    generateWeek();
-    renderAll();
+document.getElementById("clear-progress").onclick = async () => {
+  if (!confirm("Reset all progress? This clears learned skills, made recipes, photos, custom recipes, and this week's plan.")) return;
+  try { await clearAllPhotos(); } catch (e) {}
+  for (const id in photoUrlCache) {
+    URL.revokeObjectURL(photoUrlCache[id]);
+    delete photoUrlCache[id];
   }
+  state = {
+    learned: [], made: [], week: null, weekDate: null, shopChecked: [],
+    recipes: {}, deletedBuiltins: [], photos: {},
+  };
+  saveState();
+  generateWeek();
+  renderAll();
 };
 
 document.querySelectorAll("nav button").forEach(btn => {
