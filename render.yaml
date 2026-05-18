@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: glow-tracker
+    runtime: static
+    buildCommand: echo "no build step"
+    staticPublishPath: .
+    pullRequestPreviewsEnabled: true
+    headers:
+      - path: /sw.js
+        name: Cache-Control
+        value: no-cache, no-store, must-revalidate
+      - path: /index.html
+        name: Cache-Control
+        value: no-cache
+      - path: /manifest.webmanifest
+        name: Content-Type
+        value: application/manifest+json
+      - path: /icon.svg
+        name: Cache-Control
+        value: public, max-age=86400
