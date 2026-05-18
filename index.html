@@ -192,6 +192,37 @@
     min-height: 36px;
   }
   .del:hover { color: var(--bad); }
+  .edit {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 15px;
+    padding: 6px 8px;
+    min-width: 36px;
+    min-height: 36px;
+  }
+  .edit:hover { color: var(--accent); }
+  .edit-input {
+    flex: 1;
+    background: var(--panel2);
+    border: 1px solid var(--accent);
+    color: var(--text);
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 15px;
+    min-height: 32px;
+  }
+  .edit-days {
+    width: 70px;
+    background: var(--panel2);
+    border: 1px solid var(--accent);
+    color: var(--text);
+    padding: 6px 8px;
+    border-radius: 6px;
+    font-size: 15px;
+    min-height: 32px;
+  }
   .row { display: flex; gap: 12px; flex-wrap: wrap; }
   .row > * { flex: 1; min-width: 130px; }
   input[type=number], input[type=date], input[type=text], input[type=time] {
@@ -541,6 +572,52 @@ function render() {
   renderPhotos();
 }
 
+function startEdit(li, item, group, isMonthly) {
+  const label = li.querySelector(".label");
+  if (!label) return;
+  const due = li.querySelector(".due");
+  const input = document.createElement("input");
+  input.type = "text";
+  input.className = "edit-input";
+  input.value = item.name;
+  let daysInput = null;
+  if (isMonthly) {
+    daysInput = document.createElement("input");
+    daysInput.type = "number";
+    daysInput.min = "1";
+    daysInput.className = "edit-days";
+    daysInput.value = item.days;
+  }
+  label.replaceWith(input);
+  if (due && daysInput) due.replaceWith(daysInput);
+  input.focus();
+  input.select();
+  let saved = false;
+  const commit = () => {
+    if (saved) return;
+    saved = true;
+    const name = input.value.trim();
+    if (name) item.name = name;
+    if (daysInput) {
+      const d = parseInt(daysInput.value, 10);
+      if (d > 0) item.days = d;
+    }
+    save(); render();
+  };
+  const cancel = () => { if (saved) return; saved = true; render(); };
+  const onKey = (e) => {
+    e.stopPropagation();
+    if (e.key === "Enter") commit();
+    else if (e.key === "Escape") cancel();
+  };
+  input.addEventListener("keydown", onKey);
+  input.addEventListener("blur", commit);
+  if (daysInput) {
+    daysInput.addEventListener("keydown", onKey);
+    daysInput.addEventListener("blur", commit);
+  }
+}
+
 function renderList(group) {
   const ul = document.querySelector(`ul[data-group="${group}"]`);
   if (!ul) return;
@@ -548,12 +625,16 @@ function renderList(group) {
   for (const item of data.items[group]) {
     const li = document.createElement("li");
     if (isDone(item, group)) li.classList.add("done");
-    li.innerHTML = `<span class="box"></span><span class="label"></span><button class="del" title="Remove">&times;</button>`;
+    li.innerHTML = `<span class="box"></span><span class="label"></span><button class="edit" title="Edit">&#9998;</button><button class="del" title="Remove">&times;</button>`;
     li.querySelector(".label").textContent = item.name;
     li.addEventListener("click", (e) => {
-      if (e.target.classList.contains("del")) return;
+      if (e.target.closest(".del") || e.target.closest(".edit") || e.target.classList.contains("edit-input")) return;
       item.last = isDone(item, group) ? 0 : Date.now();
       save(); render();
+    });
+    li.querySelector(".edit").addEventListener("click", (e) => {
+      e.stopPropagation();
+      startEdit(li, item, group, false);
     });
     li.querySelector(".del").addEventListener("click", (e) => {
       e.stopPropagation();
@@ -577,14 +658,18 @@ function renderMonthly() {
     else if (left <= 3) { dueText = `due in ${left}d`; cls = "soon"; }
     else { dueText = `due in ${left}d`; }
     if (cls) li.classList.add(cls);
-    li.innerHTML = `<span class="box"></span><span class="label"></span><span class="due"></span><button class="del">&times;</button>`;
+    li.innerHTML = `<span class="box"></span><span class="label"></span><span class="due"></span><button class="edit" title="Edit">&#9998;</button><button class="del" title="Remove">&times;</button>`;
     li.querySelector(".label").textContent = `${item.name} (every ${item.days}d)`;
     li.querySelector(".due").textContent = dueText;
     if (item.last && since < 1) li.classList.add("done");
     li.addEventListener("click", (e) => {
-      if (e.target.classList.contains("del")) return;
+      if (e.target.closest(".del") || e.target.closest(".edit") || e.target.classList.contains("edit-input") || e.target.classList.contains("edit-days")) return;
       item.last = Date.now();
       save(); render();
+    });
+    li.querySelector(".edit").addEventListener("click", (e) => {
+      e.stopPropagation();
+      startEdit(li, item, "monthly", true);
     });
     li.querySelector(".del").addEventListener("click", (e) => {
       e.stopPropagation();
