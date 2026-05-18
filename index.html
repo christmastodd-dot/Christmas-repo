@@ -2,7 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Glow" />
+<meta name="theme-color" content="#0f1115" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%237cc4ff'/%3E%3Cpath d='M20 34l8 8 16-18' stroke='%230b0d12' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
 <title>Glow Tracker</title>
 <style>
   :root {
@@ -17,37 +23,76 @@
     --bad: #f08a8a;
     --border: #2a2f3a;
   }
-  * { box-sizing: border-box; }
+  body.light {
+    --bg: #f5f6f8;
+    --panel: #ffffff;
+    --panel2: #eef0f4;
+    --text: #1a1d23;
+    --muted: #5a6270;
+    --accent: #2c7be5;
+    --good: #2ea44f;
+    --warn: #b45309;
+    --bad: #c53030;
+    --border: #d9dde3;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { overscroll-behavior-y: contain; }
   body {
     margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     background: var(--bg);
     color: var(--text);
     line-height: 1.4;
+    padding-bottom: env(safe-area-inset-bottom);
   }
   header {
-    padding: 20px 24px;
+    padding: 16px 16px 12px;
+    padding-top: calc(env(safe-area-inset-top) + 14px);
     border-bottom: 1px solid var(--border);
+    background: var(--bg);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .header-top {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    flex-wrap: wrap;
     gap: 12px;
+    margin-bottom: 10px;
   }
-  h1 { margin: 0; font-size: 22px; font-weight: 600; }
-  .sub { color: var(--muted); font-size: 13px; }
-  nav { display: flex; gap: 4px; flex-wrap: wrap; }
+  h1 { margin: 0; font-size: 20px; font-weight: 600; }
+  .sub { color: var(--muted); font-size: 12px; }
+  nav {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    margin: 0 -16px;
+    padding: 0 16px 2px;
+  }
+  nav::-webkit-scrollbar { display: none; }
   nav button {
     background: var(--panel);
     color: var(--text);
     border: 1px solid var(--border);
-    padding: 8px 14px;
+    padding: 9px 14px;
     border-radius: 999px;
     cursor: pointer;
     font-size: 13px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    min-height: 38px;
   }
   nav button.active { background: var(--accent); color: #0b0d12; border-color: var(--accent); }
-  main { padding: 20px 24px 60px; max-width: 900px; margin: 0 auto; }
+  main { padding: 16px 16px 60px; max-width: 900px; margin: 0 auto; }
+  @media (min-width: 640px) {
+    header { padding: 20px 24px; }
+    main { padding: 20px 24px 60px; }
+    h1 { font-size: 22px; }
+    nav { margin: 0; padding: 0; }
+  }
   section { display: none; }
   section.active { display: block; }
   .card {
@@ -75,15 +120,17 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 8px 6px;
+    padding: 12px 8px;
     border-radius: 8px;
     cursor: pointer;
     user-select: none;
+    min-height: 44px;
   }
   ul.checklist li:hover { background: var(--panel2); }
+  ul.checklist li:active { background: var(--panel2); }
   ul.checklist li.done .label { text-decoration: line-through; color: var(--muted); }
   .box {
-    width: 20px; height: 20px;
+    width: 24px; height: 24px;
     border: 2px solid var(--border);
     border-radius: 6px;
     display: inline-flex;
@@ -92,8 +139,8 @@
     flex-shrink: 0;
   }
   li.done .box { background: var(--good); border-color: var(--good); }
-  li.done .box::after { content: "\2713"; color: #0b0d12; font-weight: 700; font-size: 14px; }
-  .label { flex: 1; font-size: 14px; }
+  li.done .box::after { content: "\2713"; color: #0b0d12; font-weight: 700; font-size: 15px; }
+  .label { flex: 1; font-size: 15px; }
   .due {
     font-size: 11px;
     color: var(--muted);
@@ -103,53 +150,88 @@
   }
   li.overdue .due { color: var(--bad); }
   li.soon .due { color: var(--warn); }
-  .add-row { display: flex; gap: 8px; margin-top: 10px; }
+  .add-row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
   .add-row input[type=text] {
     flex: 1;
+    min-width: 0;
     background: var(--panel2);
     border: 1px solid var(--border);
     color: var(--text);
-    padding: 8px 12px;
+    padding: 10px 12px;
     border-radius: 8px;
-    font-size: 13px;
+    font-size: 16px;
+    min-height: 42px;
   }
   button.btn {
     background: var(--accent);
     color: #0b0d12;
     border: none;
-    padding: 8px 14px;
+    padding: 10px 16px;
     border-radius: 8px;
     font-weight: 600;
     cursor: pointer;
-    font-size: 13px;
+    font-size: 14px;
+    min-height: 42px;
   }
   button.ghost {
     background: transparent;
-    color: var(--muted);
+    color: var(--text);
     border: 1px solid var(--border);
   }
+  button.danger { background: var(--bad); color: #fff; }
   .del {
     background: transparent;
     border: none;
     color: var(--muted);
     cursor: pointer;
-    font-size: 16px;
-    padding: 2px 6px;
+    font-size: 20px;
+    padding: 6px 10px;
+    min-width: 36px;
+    min-height: 36px;
   }
   .del:hover { color: var(--bad); }
   .row { display: flex; gap: 12px; flex-wrap: wrap; }
-  .row > * { flex: 1; min-width: 140px; }
-  input[type=number], input[type=date], input[type=text] {
+  .row > * { flex: 1; min-width: 130px; }
+  input[type=number], input[type=date], input[type=text], input[type=time] {
     background: var(--panel2);
     border: 1px solid var(--border);
     color: var(--text);
-    padding: 8px 10px;
+    padding: 10px 12px;
     border-radius: 8px;
-    font-size: 13px;
+    font-size: 16px;
     width: 100%;
+    min-height: 42px;
   }
   label { font-size: 12px; color: var(--muted); display: block; margin-bottom: 4px; }
-  canvas { width: 100%; height: 220px; background: var(--panel2); border-radius: 10px; }
+  canvas { width: 100%; height: 220px; background: var(--panel2); border-radius: 10px; display: block; }
+  .toggle {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 0; cursor: pointer;
+  }
+  .toggle input { width: 20px; height: 20px; accent-color: var(--accent); }
+  .toggle span { font-size: 14px; }
+  .settings-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 0; border-bottom: 1px solid var(--border); gap: 12px;
+  }
+  .settings-row:last-child { border-bottom: none; }
+  .settings-row .label-block { flex: 1; min-width: 0; }
+  .settings-row .label-block .t { font-size: 14px; }
+  .settings-row .label-block .d { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .settings-row .ctrl { flex-shrink: 0; }
+  .switch {
+    position: relative; width: 44px; height: 26px;
+    background: var(--panel2); border-radius: 999px;
+    border: 1px solid var(--border); cursor: pointer;
+    transition: background 0.15s;
+  }
+  .switch::after {
+    content: ""; position: absolute; top: 2px; left: 2px;
+    width: 20px; height: 20px; border-radius: 50%;
+    background: var(--muted); transition: transform 0.15s, background 0.15s;
+  }
+  .switch.on { background: var(--accent); border-color: var(--accent); }
+  .switch.on::after { transform: translateX(18px); background: #0b0d12; }
   .photos {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
@@ -192,9 +274,11 @@
 </head>
 <body>
 <header>
-  <div>
-    <h1>Glow Tracker</h1>
-    <div class="sub" id="today"></div>
+  <div class="header-top">
+    <div>
+      <h1>Glow Tracker</h1>
+      <div class="sub" id="today"></div>
+    </div>
   </div>
   <nav id="nav">
     <button data-tab="today" class="active">Today</button>
@@ -202,6 +286,7 @@
     <button data-tab="monthly">Monthly</button>
     <button data-tab="body">Body</button>
     <button data-tab="photos">Photos</button>
+    <button data-tab="settings">Settings</button>
   </nav>
 </header>
 
@@ -294,9 +379,68 @@
       <h2>Progress photos</h2>
       <div class="meta">Stored locally in your browser only. Nothing is uploaded.</div>
       <div class="add-row">
-        <input type="file" id="photoIn" accept="image/*" />
+        <input type="file" id="photoIn" accept="image/*" capture="environment" />
       </div>
       <div class="photos" id="photoGrid"></div>
+    </div>
+  </section>
+
+  <section id="tab-settings">
+    <div class="card">
+      <h2>Appearance</h2>
+      <div class="settings-row">
+        <div class="label-block">
+          <div class="t">Light theme</div>
+          <div class="d">Switch between dark and light colors</div>
+        </div>
+        <div class="ctrl"><div class="switch" id="themeSwitch"></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Reminders</h2>
+      <div class="settings-row">
+        <div class="label-block">
+          <div class="t">Daily reminder</div>
+          <div class="d">Notifies you if anything's still undone (requires permission; works while the app is open)</div>
+        </div>
+        <div class="ctrl"><div class="switch" id="remindSwitch"></div></div>
+      </div>
+      <div class="settings-row">
+        <div class="label-block">
+          <div class="t">Reminder time</div>
+          <div class="d">When to nudge you each day</div>
+        </div>
+        <div class="ctrl"><input type="time" id="remindTime" style="width:120px" /></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Data</h2>
+      <div class="settings-row">
+        <div class="label-block">
+          <div class="t">Export</div>
+          <div class="d">Download all your data as JSON</div>
+        </div>
+        <div class="ctrl"><button class="btn ghost" id="exportBtn">Export</button></div>
+      </div>
+      <div class="settings-row">
+        <div class="label-block">
+          <div class="t">Import</div>
+          <div class="d">Replace current data with a backup file</div>
+        </div>
+        <div class="ctrl"><button class="btn ghost" id="importBtn">Import</button></div>
+      </div>
+      <div class="settings-row">
+        <div class="label-block">
+          <div class="t">Reset everything</div>
+          <div class="d">Wipe all habits, body log, and photos</div>
+        </div>
+        <div class="ctrl"><button class="btn danger" id="resetBtn">Reset</button></div>
+      </div>
+      <input type="file" id="importFile" accept="application/json" style="display:none" />
+    </div>
+    <div class="card">
+      <h2>Install</h2>
+      <div class="meta">On iPhone: Share &rarr; Add to Home Screen. On Android/Chrome: tap the install prompt or use the browser menu &rarr; Install app. Once installed, it works offline.</div>
     </div>
   </section>
 </main>
@@ -357,9 +501,14 @@ function seed() {
   items.monthly = DEFAULTS.monthly.map((m, i) => ({
     id: "m-"+i+"-"+Date.now(), name: m.name, days: m.days, last: 0
   }));
-  return { items, body: [], photos: [], streak: { count: 0, lastDay: null } };
+  return {
+    items, body: [], photos: [],
+    streak: { count: 0, lastDay: null },
+    settings: { theme: "dark", remind: false, remindTime: "21:00", lastNotified: null }
+  };
 }
 function save() { localStorage.setItem(KEY, JSON.stringify(data)); }
+if (!data.settings) data.settings = { theme: "dark", remind: false, remindTime: "21:00", lastNotified: null };
 
 function todayStr() {
   const d = new Date();
@@ -621,7 +770,113 @@ function renderPhotos() {
 }
 
 window.addEventListener("resize", drawChart);
+
+function applyTheme() {
+  document.body.classList.toggle("light", data.settings.theme === "light");
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute("content", data.settings.theme === "light" ? "#f5f6f8" : "#0f1115");
+  document.getElementById("themeSwitch").classList.toggle("on", data.settings.theme === "light");
+}
+document.getElementById("themeSwitch").addEventListener("click", () => {
+  data.settings.theme = data.settings.theme === "light" ? "dark" : "light";
+  save(); applyTheme();
+});
+
+function applyRemindUI() {
+  document.getElementById("remindSwitch").classList.toggle("on", !!data.settings.remind);
+  document.getElementById("remindTime").value = data.settings.remindTime || "21:00";
+}
+document.getElementById("remindSwitch").addEventListener("click", async () => {
+  if (!data.settings.remind) {
+    if ("Notification" in window && Notification.permission !== "granted") {
+      const r = await Notification.requestPermission();
+      if (r !== "granted") { alert("Notification permission denied."); return; }
+    }
+    data.settings.remind = true;
+  } else {
+    data.settings.remind = false;
+  }
+  save(); applyRemindUI();
+});
+document.getElementById("remindTime").addEventListener("change", e => {
+  data.settings.remindTime = e.target.value || "21:00";
+  save();
+});
+
+function checkReminder() {
+  if (!data.settings.remind) return;
+  if (!("Notification" in window) || Notification.permission !== "granted") return;
+  const now = new Date();
+  const [h, m] = (data.settings.remindTime || "21:00").split(":").map(Number);
+  const today = todayStr();
+  if (data.settings.lastNotified === today) return;
+  if (now.getHours() > h || (now.getHours() === h && now.getMinutes() >= m)) {
+    const allDaily = [...data.items.morning, ...data.items.evening, ...data.items.fitness];
+    const undone = allDaily.filter(i => i.last < startOfDay(Date.now())).length;
+    const overdue = data.items.monthly.filter(i => i.last && (daysBetween(i.last, Date.now()) > i.days)).length;
+    if (undone === 0 && overdue === 0) {
+      data.settings.lastNotified = today; save(); return;
+    }
+    const parts = [];
+    if (undone) parts.push(`${undone} habit${undone>1?"s":""} left today`);
+    if (overdue) parts.push(`${overdue} overdue maintenance task${overdue>1?"s":""}`);
+    try {
+      new Notification("Glow Tracker", { body: parts.join(" • "), icon: document.querySelector('link[rel="icon"]').href });
+    } catch (e) {}
+    data.settings.lastNotified = today; save();
+  }
+}
+setInterval(checkReminder, 60000);
+
+document.getElementById("exportBtn").addEventListener("click", () => {
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `glow-tracker-${todayStr()}.json`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+});
+document.getElementById("importBtn").addEventListener("click", () => {
+  document.getElementById("importFile").click();
+});
+document.getElementById("importFile").addEventListener("change", e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const parsed = JSON.parse(ev.target.result);
+      if (!parsed.items) throw new Error("missing items");
+      if (!confirm("Replace all current data with this backup?")) return;
+      data = parsed;
+      if (!data.settings) data.settings = { theme: "dark", remind: false, remindTime: "21:00", lastNotified: null };
+      save(); applyTheme(); applyRemindUI(); render();
+      alert("Imported successfully.");
+    } catch (err) {
+      alert("Couldn't import: " + err.message);
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = "";
+});
+document.getElementById("resetBtn").addEventListener("click", () => {
+  if (!confirm("Wipe ALL habits, body log, photos, and settings? This cannot be undone.")) return;
+  localStorage.removeItem(KEY);
+  data = seed();
+  save(); applyTheme(); applyRemindUI(); render();
+});
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("sw.js").catch(() => {});
+  });
+}
+
+applyTheme();
+applyRemindUI();
 render();
+checkReminder();
 </script>
 </body>
 </html>
