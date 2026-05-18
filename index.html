@@ -8,7 +8,9 @@
 <meta name="apple-mobile-web-app-title" content="Glow" />
 <meta name="theme-color" content="#0f1115" />
 <link rel="manifest" href="manifest.webmanifest" />
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%237cc4ff'/%3E%3Cpath d='M20 34l8 8 16-18' stroke='%230b0d12' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png" />
+<link rel="apple-touch-icon" href="icon-180.png" />
 <title>Glow Tracker</title>
 <style>
   :root {
@@ -821,7 +823,7 @@ function checkReminder() {
     if (undone) parts.push(`${undone} habit${undone>1?"s":""} left today`);
     if (overdue) parts.push(`${overdue} overdue maintenance task${overdue>1?"s":""}`);
     try {
-      new Notification("Glow Tracker", { body: parts.join(" • "), icon: document.querySelector('link[rel="icon"]').href });
+      new Notification("Glow Tracker", { body: parts.join(" • "), icon: "icon-192.png" });
     } catch (e) {}
     data.settings.lastNotified = today; save();
   }
