@@ -431,7 +431,7 @@
 <main>
   <section id="view-week" class="view active">
     <h2>This week's plan</h2>
-    <div class="hint" id="week-hint">Four recipes picked for the skills you've learned, plus one stretch recipe that teaches something new.</div>
+    <div class="hint" id="week-hint">Recipes picked for the skills you've learned, plus a stretch recipe that teaches something new. Add any others you like from the Recipes tab.</div>
     <div class="top-summary">
       <div class="row">
         <div>
@@ -1822,9 +1822,21 @@ function recipeCard(recipe, opts = {}) {
 
   const skillNames = recipe.skills.map(s => skillById(s).name).join(", ");
 
-  const swapBtn = opts.weekSlot !== undefined
+  const onWeekCard = opts.weekSlot !== undefined;
+  const inWeek = !!(state.week && state.week.includes(recipe.id));
+
+  const swapBtn = onWeekCard
     ? `<button class="btn secondary" onclick="openSwap(${opts.weekSlot})">🔄 Swap</button>`
     : "";
+
+  let weekBtn;
+  if (onWeekCard) {
+    weekBtn = `<button class="btn ghost" onclick="removeFromWeek('${recipe.id}')">✕ Remove from week</button>`;
+  } else if (inWeek) {
+    weekBtn = `<button class="btn ghost" onclick="removeFromWeek('${recipe.id}')">✓ In this week</button>`;
+  } else {
+    weekBtn = `<button class="btn good" onclick="addToWeek('${recipe.id}')">➕ Add to week</button>`;
+  }
 
   const madeBtn = made
     ? `<button class="btn ghost" onclick="toggleMade('${recipe.id}')">Made ✓</button>`
@@ -1865,6 +1877,7 @@ function recipeCard(recipe, opts = {}) {
       </details>
       <div class="row-actions">
         ${madeBtn}
+        ${weekBtn}
         ${photoBtn}
         ${swapBtn}
         ${editBtn}
@@ -1885,6 +1898,10 @@ async function loadPhotoThumbs() {
 function renderWeek() {
   const list = document.getElementById("week-list");
   if (!state.week) generateWeek();
+  if (state.week.length === 0) {
+    list.innerHTML = `<div class="empty">No recipes in this week yet. Add some from the Recipes tab, or pick a new week above.</div>`;
+    return;
+  }
   list.innerHTML = state.week.map((id, idx) => {
     const r = recipeById(id);
     if (!r) return "";
@@ -1943,7 +1960,7 @@ function renderSkills() {
 
 function renderShopping() {
   const list = document.getElementById("shopping-list");
-  if (!state.week) {
+  if (!state.week || state.week.length === 0) {
     list.innerHTML = `<div class="empty">Generate this week's plan first.</div>`;
     return;
   }
@@ -2067,6 +2084,24 @@ function doSwap(newId) {
 document.getElementById("swap-cancel").onclick = () => {
   document.getElementById("swap-modal").classList.remove("open");
 };
+
+function addToWeek(id) {
+  if (!state.week) generateWeek();
+  if (!state.week.includes(id)) {
+    state.week.push(id);
+    state.shopChecked = []; // shopping list changed
+    saveState();
+    renderAll();
+  }
+}
+
+function removeFromWeek(id) {
+  if (!state.week) return;
+  state.week = state.week.filter(x => x !== id);
+  state.shopChecked = []; // shopping list changed
+  saveState();
+  renderAll();
+}
 
 /* ---------- RECIPE EDITOR ---------- */
 
