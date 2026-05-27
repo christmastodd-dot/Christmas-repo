@@ -303,6 +303,34 @@
   .streak-row { display: flex; gap: 20px; margin-bottom: 4px; }
   .streak-row div { text-align: center; flex: 1; }
   .streak-row .lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .date-nav { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+  .date-nav .btn { padding: 6px 14px; font-size: 18px; }
+  .totals { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; text-align: center; }
+  .totals .v { font-size: 22px; font-weight: 700; color: var(--accent); }
+  .totals .k { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .meal {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+  }
+  .meal-head { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
+  .meal-name { flex: 1; font-weight: 600; }
+  .macro-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .macro-grid label {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px; margin-bottom: 4px;
+  }
+  .cal-reset {
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    color: var(--accent);
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 999px;
+    cursor: pointer;
+  }
 </style>
 </head>
 <body>
@@ -317,6 +345,7 @@
     <button data-tab="today" class="active">Today</button>
     <button data-tab="weekly">Weekly</button>
     <button data-tab="monthly">Monthly</button>
+    <button data-tab="food">Food</button>
     <button data-tab="body">Body</button>
     <button data-tab="photos">Photos</button>
     <button data-tab="settings">Settings</button>
@@ -381,6 +410,27 @@
         <button class="btn" id="monthlyAdd">Add</button>
       </div>
     </div>
+  </section>
+
+  <section id="tab-food">
+    <div class="card">
+      <div class="date-nav">
+        <button class="btn ghost" id="foodPrev">&lsaquo;</button>
+        <div style="text-align:center;flex:1">
+          <div id="foodDateLabel" style="font-weight:600"></div>
+          <button class="btn ghost" id="foodToday" style="margin-top:4px;padding:4px 10px;min-height:0;font-size:12px">Jump to today</button>
+        </div>
+        <button class="btn ghost" id="foodNext">&rsaquo;</button>
+      </div>
+      <div class="totals">
+        <div><div class="v" id="totCal">0</div><div class="k">kcal</div></div>
+        <div><div class="v" id="totP">0g</div><div class="k">protein</div></div>
+        <div><div class="v" id="totC">0g</div><div class="k">carbs</div></div>
+        <div><div class="v" id="totF">0g</div><div class="k">fat</div></div>
+      </div>
+    </div>
+    <div id="mealList"></div>
+    <button class="btn ghost" id="addMeal" style="width:100%">+ Add meal</button>
   </section>
 
   <section id="tab-body">
@@ -535,13 +585,14 @@ function seed() {
     id: "m-"+i+"-"+Date.now(), name: m.name, days: m.days, last: 0
   }));
   return {
-    items, body: [], photos: [],
+    items, body: [], photos: [], food: {},
     streak: { count: 0, lastDay: null },
     settings: { theme: "dark", remind: false, remindTime: "21:00", lastNotified: null }
   };
 }
 function save() { localStorage.setItem(KEY, JSON.stringify(data)); }
 if (!data.settings) data.settings = { theme: "dark", remind: false, remindTime: "21:00", lastNotified: null };
+if (!data.food) data.food = {};
 
 function todayStr() {
   const d = new Date();
@@ -568,8 +619,113 @@ function render() {
   for (const g of ["morning","evening","fitness","weekly"]) renderList(g);
   renderMonthly();
   renderStreaks();
+  renderFood();
   renderBody();
   renderPhotos();
+}
+
+let foodDate = todayStr();
+
+function mealSeed(name) {
+  return { id: "meal-" + Math.random().toString(36).slice(2) + Date.now(),
+           name, protein: 0, carbs: 0, fat: 0, cal: 0, calOverride: false };
+}
+function autoCal(m) {
+  return Math.round((+m.protein||0)*4 + (+m.carbs||0)*4 + (+m.fat||0)*9);
+}
+function ensureFoodDay(d) {
+  if (!data.food) data.food = {};
+  if (!data.food[d]) {
+    data.food[d] = ["Breakfast","Lunch","Dinner","Snack 1","Snack 2"].map(mealSeed);
+    save();
+  }
+  return data.food[d];
+}
+function foodDateLabel(d) {
+  if (d === todayStr()) return "Today";
+  return new Date(d + "T00:00:00").toLocaleDateString(undefined,
+    { weekday:"short", month:"short", day:"numeric" });
+}
+function shiftFoodDate(delta) {
+  const dt = new Date(foodDate + "T00:00:00");
+  dt.setDate(dt.getDate() + delta);
+  foodDate = dt.getFullYear()+"-"+String(dt.getMonth()+1).padStart(2,"0")+"-"+String(dt.getDate()).padStart(2,"0");
+  renderFood();
+}
+function updateFoodTotals() {
+  const meals = data.food[foodDate] || [];
+  let p=0,c=0,f=0,cal=0;
+  for (const m of meals) {
+    p += +m.protein||0; c += +m.carbs||0; f += +m.fat||0;
+    cal += m.calOverride ? (+m.cal||0) : autoCal(m);
+  }
+  document.getElementById("totCal").textContent = Math.round(cal);
+  document.getElementById("totP").textContent = Math.round(p)+"g";
+  document.getElementById("totC").textContent = Math.round(c)+"g";
+  document.getElementById("totF").textContent = Math.round(f)+"g";
+}
+function mealNode(m) {
+  const div = document.createElement("div");
+  div.className = "meal";
+  const head = document.createElement("div");
+  head.className = "meal-head";
+  const name = document.createElement("input");
+  name.type = "text"; name.className = "meal-name"; name.value = m.name;
+  name.addEventListener("input", () => { m.name = name.value; save(); });
+  const del = document.createElement("button");
+  del.className = "del"; del.innerHTML = "&times;"; del.title = "Remove meal";
+  del.addEventListener("click", () => {
+    data.food[foodDate] = data.food[foodDate].filter(x => x.id !== m.id);
+    save(); renderFood();
+  });
+  head.appendChild(name); head.appendChild(del);
+
+  const grid = document.createElement("div");
+  grid.className = "macro-grid";
+  const inputs = {};
+  for (const [key, labelTxt] of [["protein","Protein (g)"],["carbs","Carbs (g)"],["fat","Fat (g)"],["cal","Calories"]]) {
+    const cell = document.createElement("div");
+    const lab = document.createElement("label");
+    lab.appendChild(document.createTextNode(labelTxt));
+    const inp = document.createElement("input");
+    inp.type = "number"; inp.min = "0"; inp.inputMode = "decimal";
+    inp.value = key === "cal" ? (m.calOverride ? (+m.cal||0) : autoCal(m)) : (+m[key]||0);
+    inputs[key] = inp;
+    if (key === "cal") {
+      const reset = document.createElement("button");
+      reset.type = "button"; reset.className = "cal-reset"; reset.textContent = "auto";
+      reset.title = "Recalculate from macros";
+      reset.addEventListener("click", () => {
+        m.calOverride = false; m.cal = autoCal(m); inp.value = m.cal;
+        save(); updateFoodTotals();
+      });
+      lab.appendChild(reset);
+    }
+    cell.appendChild(lab); cell.appendChild(inp);
+    grid.appendChild(cell);
+  }
+  for (const key of ["protein","carbs","fat"]) {
+    inputs[key].addEventListener("input", () => {
+      m[key] = parseFloat(inputs[key].value) || 0;
+      if (!m.calOverride) { m.cal = autoCal(m); inputs.cal.value = m.cal; }
+      save(); updateFoodTotals();
+    });
+  }
+  inputs.cal.addEventListener("input", () => {
+    m.cal = parseFloat(inputs.cal.value) || 0;
+    m.calOverride = true;
+    save(); updateFoodTotals();
+  });
+  div.appendChild(head); div.appendChild(grid);
+  return div;
+}
+function renderFood() {
+  const meals = ensureFoodDay(foodDate);
+  document.getElementById("foodDateLabel").textContent = foodDateLabel(foodDate);
+  const list = document.getElementById("mealList");
+  list.innerHTML = "";
+  for (const m of meals) list.appendChild(mealNode(m));
+  updateFoodTotals();
 }
 
 function startEdit(li, item, group, isMonthly) {
@@ -726,6 +882,15 @@ document.getElementById("monthlyAdd").addEventListener("click", () => {
     document.getElementById("monthlyName").value = "";
     document.getElementById("monthlyDays").value = "";
   }
+});
+
+document.getElementById("foodPrev").addEventListener("click", () => shiftFoodDate(-1));
+document.getElementById("foodNext").addEventListener("click", () => shiftFoodDate(1));
+document.getElementById("foodToday").addEventListener("click", () => { foodDate = todayStr(); renderFood(); });
+document.getElementById("addMeal").addEventListener("click", () => {
+  const meals = ensureFoodDay(foodDate);
+  meals.push(mealSeed("Meal " + (meals.length + 1)));
+  save(); renderFood();
 });
 
 document.getElementById("nav").addEventListener("click", e => {
