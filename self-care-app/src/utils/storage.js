@@ -212,6 +212,52 @@ export function getWeekInteractions(dates) {
   return (data.interactions || []).filter((i) => dates.includes(i.date))
 }
 
+// --- Macro Tracker ---
+
+export function getMealsForDate(date) {
+  const data = loadData()
+  return (data.meals || []).filter((m) => m.date === date)
+}
+
+export function addMeal(meal) {
+  const data = loadData()
+  if (!data.meals) data.meals = []
+  data.meals.push(meal)
+  saveData(data)
+}
+
+export function deleteMeal(mealId) {
+  const data = loadData()
+  data.meals = (data.meals || []).filter((m) => m.id !== mealId)
+  saveData(data)
+}
+
+export function getMacroGoals() {
+  try {
+    const raw = localStorage.getItem('selfcare_macro_goals')
+    return raw ? JSON.parse(raw) : { calories: 2000, protein: 150, carbs: 200, fat: 65 }
+  } catch {
+    return { calories: 2000, protein: 150, carbs: 200, fat: 65 }
+  }
+}
+
+export function saveMacroGoals(goals) {
+  localStorage.setItem('selfcare_macro_goals', JSON.stringify(goals))
+}
+
+export function getDayMacroTotals(date) {
+  const meals = getMealsForDate(date)
+  return meals.reduce(
+    (totals, m) => ({
+      calories: totals.calories + (m.calories || 0),
+      protein: totals.protein + (m.protein || 0),
+      carbs: totals.carbs + (m.carbs || 0),
+      fat: totals.fat + (m.fat || 0),
+    }),
+    { calories: 0, protein: 0, carbs: 0, fat: 0 }
+  )
+}
+
 export function getWeekCompletionCount(habitId) {
   const data = loadData()
   const completions = data.completions || {}

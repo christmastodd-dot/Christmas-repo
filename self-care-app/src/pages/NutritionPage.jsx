@@ -1,6 +1,7 @@
 import HabitTracker from '../components/HabitTracker'
 import ActivityLog from '../components/ActivityLog'
 import PillarInsights from '../components/PillarInsights'
+import MacroTracker from '../components/MacroTracker'
 
 export default function NutritionPage() {
   return (
@@ -18,6 +19,7 @@ export default function NutritionPage() {
         </div>
       </div>
 
+      <MacroTracker />
       <PillarInsights pillar="nutrition" color="var(--color-nutrition)" />
       <HabitTracker pillar="nutrition" color="var(--color-nutrition)" />
 
