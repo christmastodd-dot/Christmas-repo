@@ -34,17 +34,23 @@ export default function MacroTracker() {
     setMeals(getMealsForDate(todayKey))
   }
 
+  const p = parseInt(protein, 10) || 0
+  const c = parseInt(carbs, 10) || 0
+  const f = parseInt(fat, 10) || 0
+  const computedCalories = p * 4 + c * 4 + f * 9
+  const displayCalories = (p || c || f) ? computedCalories : (parseInt(calories, 10) || 0)
+
   function handleAdd() {
-    if (!calories && !protein && !carbs && !fat) return
+    if (!protein && !carbs && !fat && !calories) return
     addMeal({
       id: generateId(),
       date: todayKey,
       slot: mealSlot,
       name: mealName.trim() || mealSlot,
-      calories: parseInt(calories, 10) || 0,
-      protein: parseInt(protein, 10) || 0,
-      carbs: parseInt(carbs, 10) || 0,
-      fat: parseInt(fat, 10) || 0,
+      calories: displayCalories,
+      protein: p,
+      carbs: c,
+      fat: f,
       createdAt: new Date().toISOString(),
     })
     setMealName('')
@@ -149,11 +155,31 @@ export default function MacroTracker() {
             className="w-full p-2.5 rounded-xl bg-[var(--color-bg)] border border-[var(--color-border)] text-[var(--color-text)] text-sm outline-none focus:border-[var(--color-primary-light)] mb-2"
           />
 
-          <div className="grid grid-cols-4 gap-2 mb-3">
-            <MacroInput label="Calories" value={calories} onChange={setCalories} color="var(--color-nutrition)" />
-            <MacroInput label="Protein" value={protein} onChange={setProtein} color="#3b82f6" />
-            <MacroInput label="Carbs" value={carbs} onChange={setCarbs} color="#f59e0b" />
-            <MacroInput label="Fat" value={fat} onChange={setFat} color="#ec4899" />
+          <div className="grid grid-cols-3 gap-2 mb-2">
+            <MacroInput label="Protein (g)" value={protein} onChange={setProtein} color="#3b82f6" />
+            <MacroInput label="Carbs (g)" value={carbs} onChange={setCarbs} color="#f59e0b" />
+            <MacroInput label="Fat (g)" value={fat} onChange={setFat} color="#ec4899" />
+          </div>
+
+          <div className="px-1 mb-3">
+            {(p || c || f) ? (
+              <p className="text-xs text-[var(--color-text-muted)] m-0">
+                Calories: <span className="font-bold text-[var(--color-nutrition)]">{computedCalories}</span>
+                <span className="opacity-60"> (P:{p}x4 + C:{c}x4 + F:{f}x9)</span>
+              </p>
+            ) : (
+              <div className="flex items-center gap-2">
+                <label className="text-[9px] font-medium text-[var(--color-nutrition)]">Calories only:</label>
+                <input
+                  type="number"
+                  value={calories}
+                  onChange={(e) => setCalories(e.target.value)}
+                  placeholder="0"
+                  min="0"
+                  className="w-20 p-2 rounded-lg bg-[var(--color-bg)] border border-[var(--color-border)] text-[var(--color-text)] text-xs text-center outline-none focus:border-[var(--color-primary-light)]"
+                />
+              </div>
+            )}
           </div>
 
           <div className="flex gap-2">
