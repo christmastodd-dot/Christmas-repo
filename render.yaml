@@ -2,9 +2,4 @@ services:
   - type: web
     name: pizza-empire
     env: static
-    buildCommand: ""
     staticPublishPath: pizza-empire
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
