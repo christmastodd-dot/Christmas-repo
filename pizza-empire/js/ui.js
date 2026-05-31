@@ -441,6 +441,36 @@ const UI = {
       </button>
 
       ${hoodRatings}
+
+      <div class="sec-label">House Recipes</div>
+      <div style="font-size:12px;color:var(--dim);margin-bottom:10px">Ready-made classics — tap to add to your lab.</div>
+      ${D.DEFAULT_RECIPES.map((dr, i) => {
+        const alreadySaved = S.recipes.some(r => r.name === dr.name);
+        const cost = S.calcRecipeCost(dr);
+        const margin = dr.price - cost;
+        return `
+          <div class="card" style="margin-bottom:8px">
+            <div class="card-row">
+              <div>
+                <div style="font-size:15px;font-weight:700">${dr.name}</div>
+                <div class="card-sub">${dr.desc}</div>
+                <div style="font-size:11px;color:var(--muted);margin-top:4px">${dr.dough} · ${dr.sauce} · ${dr.toppings.join(', ')}</div>
+              </div>
+              <div style="text-align:right;flex-shrink:0;margin-left:12px">
+                <div style="font-size:14px;font-weight:700;color:var(--gold)">$${dr.price}</div>
+                <div style="font-size:11px;color:${margin > 0 ? 'var(--green)' : 'var(--red)'}">$${margin.toFixed(1)} margin</div>
+              </div>
+            </div>
+            <div style="margin-top:10px">
+              ${alreadySaved
+                ? `<span class="badge badge-green">✓ In your lab</span>`
+                : `<button class="btn btn-sm btn-gold" data-action="add-default" data-idx="${i}">+ Add to Lab</button>`
+              }
+            </div>
+          </div>
+        `;
+      }).join('')}
+
       ${savedRecipes}
     `;
   },
@@ -582,6 +612,14 @@ const UI = {
 
     if (action === 'price-down') { this.recipe.price = Math.max(8, this.recipe.price - 1); this.render(); }
     if (action === 'price-up')   { this.recipe.price = Math.min(50, this.recipe.price + 1); this.render(); }
+
+    if (action === 'add-default') {
+      const dr = D.DEFAULT_RECIPES[+el.dataset.idx];
+      if (dr) {
+        S.saveRecipe({ ...dr, toppings: [...dr.toppings] });
+        this._toast(`"${dr.name}" added to your lab!`, 'success');
+      }
+    }
 
     if (action === 'save-recipe') {
       const nameEl = document.getElementById('recipe-name');

@@ -81,4 +81,37 @@ const D = {
   ],
 
   DAYS_IN_MONTH: 30,
+
+  DEFAULT_RECIPES: [
+    {
+      name: 'The Classic',
+      dough: 'thin', sauce: 'tomato', toppings: ['mozzarella', 'pepperoni'],
+      price: 13,
+      desc: 'You can\'t go wrong. Universally loved.',
+    },
+    {
+      name: 'Meat Feast',
+      dough: 'thick', sauce: 'tomato', toppings: ['pepperoni', 'sausage', 'ham', 'mozzarella'],
+      price: 17,
+      desc: 'Blue-collar favourite. Industrial & University goldmine.',
+    },
+    {
+      name: 'BBQ Chicken',
+      dough: 'thick', sauce: 'bbq', toppings: ['chicken', 'cheddar', 'onion', 'pepper'],
+      price: 16,
+      desc: 'Families love it. Suburbs staple.',
+    },
+    {
+      name: 'The Mediterranean',
+      dough: 'thin', sauce: 'white', toppings: ['anchovies', 'olive', 'gorgonzola', 'shrimp'],
+      price: 22,
+      desc: 'Premium profile. Built for Uptown & Downtown.',
+    },
+    {
+      name: 'Garden Deluxe',
+      dough: 'wholegrain', sauce: 'pesto', toppings: ['mushroom', 'pepper', 'olive', 'onion'],
+      price: 14,
+      desc: 'Healthy and distinctive. Works everywhere.',
+    },
+  ],
 };
