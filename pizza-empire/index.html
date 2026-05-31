@@ -1,48 +1,66 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Pizza Empire</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: #111; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
-    #game-container canvas { display: block; }
-    #name-input-overlay {
-      display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-      background: #1a1a2e; border: 2px solid #e74c3c; border-radius: 8px;
-      padding: 20px; z-index: 1000; text-align: center;
-    }
-    #name-input-overlay input {
-      display: block; width: 250px; padding: 10px; margin: 10px auto;
-      background: #0d0d1a; border: 1px solid #555; color: #fff;
-      font-size: 18px; border-radius: 4px; text-align: center;
-    }
-    #name-input-overlay label { color: #aaa; font-family: monospace; font-size: 14px; }
-    #name-input-overlay button {
-      padding: 8px 24px; background: #e74c3c; color: #fff;
-      border: none; border-radius: 4px; cursor: pointer; font-size: 16px; margin: 5px;
-    }
-    #name-input-overlay button.cancel { background: #555; }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="game-container"></div>
-  <div id="name-input-overlay">
-    <label>RECIPE NAME</label>
-    <input id="recipe-name-input" type="text" maxlength="24" placeholder="e.g. The Godfather">
-    <br>
-    <button id="name-confirm-btn">SAVE</button>
-    <button class="cancel" id="name-cancel-btn">CANCEL</button>
+  <div id="app">
+
+    <!-- SPLASH -->
+    <div id="splash">
+      <div class="splash-pizza">🍕</div>
+      <h1 class="splash-title">PIZZA EMPIRE</h1>
+      <p class="splash-sub">Build it. Own it. Bury the competition.</p>
+      <button class="btn btn-primary btn-block" id="start-btn">NEW GAME</button>
+    </div>
+
+    <!-- GAME (hidden until started) -->
+    <div id="game" style="display:none; height:100%; display:none; flex-direction:column;">
+
+      <header id="hdr">
+        <div>
+          <div id="hdr-cash">$100,000</div>
+          <div id="hdr-date" class="hdr-sub">Day 1 · Month 1 · Year 1</div>
+        </div>
+        <div id="hdr-right">
+          <div id="hdr-heat" class="heat-pill">🌡 0%</div>
+        </div>
+      </header>
+
+      <main id="main"></main>
+
+      <nav id="nav">
+        <button class="nav-btn active" data-screen="city">
+          <span class="nav-icon">🏙️</span>
+          <span class="nav-label">City</span>
+        </button>
+        <button class="nav-btn" data-screen="kitchen">
+          <span class="nav-icon">🍳</span>
+          <span class="nav-label">Kitchen</span>
+          <span class="nav-dot" id="dot-kitchen" style="display:none"></span>
+        </button>
+        <button class="nav-btn" data-screen="lab">
+          <span class="nav-icon">🍕</span>
+          <span class="nav-label">Lab</span>
+        </button>
+        <button class="nav-btn" data-screen="crime">
+          <span class="nav-icon">🔪</span>
+          <span class="nav-label">Crime</span>
+          <span class="nav-dot" id="dot-crime" style="display:none"></span>
+        </button>
+      </nav>
+
+    </div>
+
+    <div id="toast-area"></div>
   </div>
-  <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
-  <script src="js/Data.js"></script>
-  <script src="js/GameState.js"></script>
-  <script src="js/scenes/MenuScene.js"></script>
-  <script src="js/scenes/CityScene.js"></script>
-  <script src="js/scenes/RestaurantScene.js"></script>
-  <script src="js/scenes/PizzaScene.js"></script>
-  <script src="js/scenes/CrimeScene.js"></script>
+
+  <script src="js/data.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/ui.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>
