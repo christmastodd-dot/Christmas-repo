@@ -184,16 +184,17 @@ button:disabled {
   color: white;
 }
 
-.remove-profile {
-  font-weight: 700;
-  opacity: 0.6;
-  line-height: 1;
-  padding: 0 2px;
+.online-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #999;
 }
 
-.remove-profile:hover {
-  opacity: 1;
-  color: var(--christmas-red);
+.online-dot.online {
+  background: #2ecc71;
+  box-shadow: 0 0 4px #2ecc71;
 }
 
 .player-name-input {

@@ -26,49 +26,104 @@
     return CANDIES[Math.floor(Math.random() * CANDIES.length)];
   }
 
-  // ---------------- USERNAME PROFILES (localStorage) ----------------
+  // ---------------- SHARED LOGIN API ----------------
 
-  const PROFILES_KEY = 'candyGuessingGameProfiles';
+  const POLL_INTERVAL_MS = 5000;
+  const HEARTBEAT_INTERVAL_MS = 15000;
 
-  function loadProfiles() {
+  // Usernames "logged in" from this browser tab (heartbeats keep them online).
+  const loggedInUsers = new Set();
+  let pollTimer = null;
+  let heartbeatTimer = null;
+
+  async function apiPost(path, body) {
     try {
-      const raw = localStorage.getItem(PROFILES_KEY);
-      const parsed = raw ? JSON.parse(raw) : [];
-      return Array.isArray(parsed) ? parsed : [];
+      const res = await fetch(path, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      return await res.json();
+    } catch (e) {
+      return { error: 'Could not reach the server.' };
+    }
+  }
+
+  async function fetchOnlineUsers() {
+    try {
+      const res = await fetch('/api/users');
+      if (!res.ok) return [];
+      return await res.json();
     } catch (e) {
       return [];
     }
   }
 
-  function saveProfiles(profiles) {
-    try {
-      localStorage.setItem(PROFILES_KEY, JSON.stringify(profiles));
-    } catch (e) {
-      // localStorage unavailable - usernames just won't persist
+  function startHeartbeat() {
+    if (heartbeatTimer) return;
+    heartbeatTimer = setInterval(() => {
+      loggedInUsers.forEach((name) => apiPost('/api/heartbeat', { username: name }));
+    }, HEARTBEAT_INTERVAL_MS);
+  }
+
+  function stopHeartbeatIfIdle() {
+    if (loggedInUsers.size === 0 && heartbeatTimer) {
+      clearInterval(heartbeatTimer);
+      heartbeatTimer = null;
     }
   }
+
+  function logoutAllOnUnload() {
+    loggedInUsers.forEach((name) => {
+      const blob = new Blob([JSON.stringify({ username: name })], { type: 'application/json' });
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon('/api/logout', blob);
+      } else {
+        apiPost('/api/logout', { username: name });
+      }
+    });
+  }
+
+  window.addEventListener('beforeunload', logoutAllOnUnload);
 
   // ---------------- PLAYER SELECT SCREEN ----------------
 
   function initSetup() {
     state = {
       phase: 'player-select',
-      profiles: loadProfiles(),
+      allUsers: [],
       selected: [],
       addingPlayer: false,
+      loading: true,
+      errorMessage: '',
     };
     renderPlayerSelect();
+    refreshUsers().then(() => {
+      state.loading = false;
+      renderPlayerSelect();
+    });
+
+    if (pollTimer) clearInterval(pollTimer);
+    pollTimer = setInterval(async () => {
+      if (state.phase !== 'player-select') return;
+      await refreshUsers();
+      renderPlayerSelect();
+    }, POLL_INTERVAL_MS);
+  }
+
+  async function refreshUsers() {
+    state.allUsers = await fetchOnlineUsers();
   }
 
   function renderPlayerSelect() {
-    const { profiles, selected, addingPlayer } = state;
-    const isFirstTime = profiles.length === 0;
+    const { allUsers, selected, addingPlayer, loading, errorMessage } = state;
+    const isFirstTime = allUsers.length === 0 && !loading;
 
-    const profileButtons = profiles
-      .map((name) => `
-        <button class="profile-btn ${selected.includes(name) ? 'selected' : ''}" data-name="${escapeHtml(name)}">
-          ${escapeHtml(name)}
-          <span class="remove-profile" data-remove="${escapeHtml(name)}" title="Remove username">&times;</span>
+    const userButtons = allUsers
+      .map((u) => `
+        <button class="profile-btn ${selected.includes(u.username) ? 'selected' : ''}" data-name="${escapeHtml(u.username)}">
+          <span class="online-dot ${u.online ? 'online' : 'offline'}" title="${u.online ? 'Online' : 'Offline'}"></span>
+          ${escapeHtml(u.username)}
         </button>
       `)
       .join('');
@@ -77,8 +132,8 @@
       ? `
         <input type="text" class="player-name-input" id="new-username-input" maxlength="20" placeholder="Enter a username..." autocomplete="off">
         <div class="actions">
-          <button class="btn-secondary" id="confirm-add-btn">Save Username</button>
-          ${profiles.length > 0 ? '<button class="btn-secondary" id="cancel-add-btn">Cancel</button>' : ''}
+          <button class="btn-secondary" id="confirm-add-btn">Log In</button>
+          ${allUsers.length > 0 ? '<button class="btn-secondary" id="cancel-add-btn">Cancel</button>' : ''}
         </div>
       `
       : `
@@ -91,10 +146,12 @@
       <h2>${isFirstTime ? 'Welcome!' : 'Who\'s Playing?'}</h2>
       ${
         isFirstTime
-          ? '<p>Looks like this is your first time here. Create a username to get started &mdash; it\'ll be remembered on this device next time!</p>'
-          : '<p>Select 1-4 players, or create a new username if this is your first time on this device.</p>'
+          ? '<p>Looks like no one has logged in yet. Create a username to get started &mdash; no password needed!</p>'
+          : '<p>Select 1-4 players. Pick an existing username to log in, or create a new one. The green dot shows who\'s currently online.</p>'
       }
-      ${profileButtons ? `<div class="player-count-row" style="flex-wrap: wrap;">${profileButtons}</div>` : ''}
+      ${errorMessage ? `<p class="status-line">${escapeHtml(errorMessage)}</p>` : ''}
+      ${loading ? '<p class="status-line">Loading players...</p>' : ''}
+      ${userButtons ? `<div class="player-count-row" style="flex-wrap: wrap;">${userButtons}</div>` : ''}
       ${addPlayerSection}
       <p class="status-line">${selected.length}/${MAX_PLAYERS} players selected</p>
       <div class="actions">
@@ -103,28 +160,7 @@
     `);
 
     document.querySelectorAll('.profile-btn').forEach((btn) => {
-      btn.addEventListener('click', (e) => {
-        if (e.target.classList.contains('remove-profile')) return;
-        const name = btn.dataset.name;
-        const idx = state.selected.indexOf(name);
-        if (idx >= 0) {
-          state.selected.splice(idx, 1);
-        } else if (state.selected.length < MAX_PLAYERS) {
-          state.selected.push(name);
-        }
-        renderPlayerSelect();
-      });
-    });
-
-    document.querySelectorAll('.remove-profile').forEach((btn) => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const name = btn.dataset.remove;
-        state.profiles = state.profiles.filter((p) => p !== name);
-        state.selected = state.selected.filter((p) => p !== name);
-        saveProfiles(state.profiles);
-        renderPlayerSelect();
-      });
+      btn.addEventListener('click', () => toggleSelection(btn.dataset.name));
     });
 
     if (addingPlayer) {
@@ -151,24 +187,58 @@
     document.getElementById('start-btn').addEventListener('click', startGame);
   }
 
-  function addUsername() {
+  async function toggleSelection(name) {
+    const idx = state.selected.indexOf(name);
+    if (idx >= 0) {
+      state.selected.splice(idx, 1);
+      loggedInUsers.delete(name);
+      stopHeartbeatIfIdle();
+      apiPost('/api/logout', { username: name });
+      await refreshUsers();
+      renderPlayerSelect();
+      return;
+    }
+
+    if (state.selected.length >= MAX_PLAYERS) return;
+
+    const result = await apiPost('/api/login', { username: name });
+    if (result.error) {
+      state.errorMessage = result.error;
+      renderPlayerSelect();
+      return;
+    }
+
+    state.selected.push(result.username);
+    loggedInUsers.add(result.username);
+    startHeartbeat();
+    await refreshUsers();
+    renderPlayerSelect();
+  }
+
+  async function addUsername() {
     const input = document.getElementById('new-username-input');
     const name = input.value.trim();
     if (!name) return;
 
-    const exists = state.profiles.some((p) => p.toLowerCase() === name.toLowerCase());
-    if (exists) {
-      input.value = '';
-      input.placeholder = 'That username is taken - try another';
+    if (state.selected.length >= MAX_PLAYERS) {
+      state.errorMessage = `Only ${MAX_PLAYERS} players can play at once.`;
+      renderPlayerSelect();
       return;
     }
 
-    state.profiles.push(name);
-    saveProfiles(state.profiles);
-    if (state.selected.length < MAX_PLAYERS) {
-      state.selected.push(name);
+    const result = await apiPost('/api/login', { username: name });
+    if (result.error) {
+      state.errorMessage = result.error;
+      renderPlayerSelect();
+      return;
     }
+
+    state.selected.push(result.username);
+    loggedInUsers.add(result.username);
     state.addingPlayer = false;
+    state.errorMessage = '';
+    startHeartbeat();
+    await refreshUsers();
     renderPlayerSelect();
   }
 
