@@ -8,6 +8,7 @@
   const STORAGE_KEY = 'chatUsername';
 
   const app = document.getElementById('app');
+  const ORIGINAL_TITLE = document.title;
 
   let state = {
     phase: 'login',
@@ -16,6 +17,8 @@
     activeConv: 'global',
     messages: {},
     topics: {},
+    messageCounts: {},
+    unread: {},
   };
 
   let usersPollTimer = null;
@@ -169,6 +172,8 @@
     state.activeConv = 'global';
     state.messages = {};
     state.topics = {};
+    state.messageCounts = {};
+    state.unread = {};
 
     if (usersPollTimer) clearInterval(usersPollTimer);
 
@@ -237,7 +242,10 @@
       activeConv: 'global',
       messages: {},
       topics: {},
+      messageCounts: {},
+      unread: {},
     };
+    updateTitle();
     renderLogin();
   }
 
@@ -273,14 +281,29 @@
   function startConvPolling() {
     if (convPollTimer) clearInterval(convPollTimer);
     convPollTimer = setInterval(() => {
-      fetchMessages(state.activeConv);
       fetchTopics(state.activeConv);
+      getAllConversationIds().forEach((convId) => fetchMessages(convId));
     }, POLL_CONV_MS);
   }
 
   async function refreshUsers() {
     const users = await apiGet('/api/users');
     if (users) state.users = users;
+  }
+
+  function getAllConversationIds() {
+    const ids = ['global'];
+    state.users.forEach((u) => {
+      if (u.username.toLowerCase() !== state.username.toLowerCase()) {
+        ids.push(dmConversationId(state.username, u.username));
+      }
+    });
+    return ids;
+  }
+
+  function updateTitle() {
+    const total = Object.values(state.unread).reduce((sum, n) => sum + n, 0);
+    document.title = total > 0 ? `(${total > 99 ? '99+' : total}) ${ORIGINAL_TITLE}` : ORIGINAL_TITLE;
   }
 
   // ---------------- CONVERSATION LIST ----------------
@@ -293,17 +316,21 @@
       (u) => u.username.toLowerCase() !== state.username.toLowerCase()
     );
 
+    const globalUnread = state.unread['global'] || 0;
     let html = `
       <button class="conversation-item ${state.activeConv === 'global' ? 'active' : ''}" data-conv="global" data-label="Global Room">
         <span class="online-dot online"></span> Global Room
+        ${globalUnread > 0 ? `<span class="unread-badge">${globalUnread > 9 ? '9+' : globalUnread}</span>` : ''}
       </button>
     `;
 
     others.forEach((u) => {
       const convId = dmConversationId(state.username, u.username);
+      const unread = state.unread[convId] || 0;
       html += `
         <button class="conversation-item ${state.activeConv === convId ? 'active' : ''}" data-conv="${escapeHtml(convId)}" data-label="${escapeHtml(u.username)}">
           <span class="online-dot ${u.online ? 'online' : ''}"></span> ${escapeHtml(u.username)}
+          ${unread > 0 ? `<span class="unread-badge">${unread > 9 ? '9+' : unread}</span>` : ''}
         </button>
       `;
     });
@@ -318,6 +345,8 @@
   function switchConversation(convId, label) {
     if (convId === state.activeConv) return;
     state.activeConv = convId;
+    state.unread[convId] = 0;
+    updateTitle();
 
     document.getElementById('conv-title').textContent = convId === 'global' ? 'Global Room' : `DM with ${label}`;
     document.getElementById('message-input').value = '';
@@ -335,8 +364,18 @@
   async function fetchMessages(convId) {
     const data = await apiGet(`/api/conversations/${encodeURIComponent(convId)}/messages?username=${encodeURIComponent(state.username)}`);
     if (!data) return;
+
+    const prevCount = state.messageCounts[convId];
     state.messages[convId] = data;
-    if (convId === state.activeConv) renderMessages();
+    state.messageCounts[convId] = data.length;
+
+    if (convId === state.activeConv) {
+      renderMessages();
+    } else if (prevCount !== undefined && data.length > prevCount) {
+      state.unread[convId] = (state.unread[convId] || 0) + (data.length - prevCount);
+      renderConversationList();
+      updateTitle();
+    }
   }
 
   function renderMessages() {
