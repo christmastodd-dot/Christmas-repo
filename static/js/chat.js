@@ -451,23 +451,6 @@
     await fetchTopics(state.activeConv);
   }
 
-  // ---------------- SNOWFALL ----------------
-
-  function initSnowfall() {
-    const container = document.querySelector('.snowfall');
-    if (!container) return;
-    const flakeCount = 30;
-    for (let i = 0; i < flakeCount; i++) {
-      const flake = document.createElement('span');
-      flake.textContent = '❄';
-      flake.style.left = `${Math.random() * 100}vw`;
-      flake.style.fontSize = `${10 + Math.random() * 16}px`;
-      flake.style.animationDuration = `${8 + Math.random() * 12}s`;
-      flake.style.animationDelay = `${Math.random() * 10}s`;
-      container.appendChild(flake);
-    }
-  }
-
   // ---------------- LOGOUT ON UNLOAD ----------------
 
   window.addEventListener('beforeunload', () => {
@@ -480,8 +463,6 @@
   // ---------------- INIT ----------------
 
   async function init() {
-    initSnowfall();
-
     const savedUsername = localStorage.getItem(STORAGE_KEY);
     if (savedUsername) {
       const result = await apiPost('/api/login', { username: savedUsername });

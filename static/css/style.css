@@ -1,11 +1,12 @@
 :root {
-  --christmas-red: #c0392b;
-  --christmas-dark-red: #962d22;
-  --christmas-green: #1b6b3a;
-  --christmas-dark-green: #0f4327;
-  --christmas-gold: #f1c40f;
-  --christmas-cream: #fffdf7;
-  --text-dark: #2c2c2c;
+  --chat-primary: #00a884;
+  --chat-primary-dark: #008069;
+  --chat-accent: #34b7f1;
+  --chat-danger: #e74c3c;
+  --chat-bg: #f0f2f5;
+  --chat-bubble-mine: #d9fdd3;
+  --chat-cream: #ffffff;
+  --text-dark: #111b21;
 }
 
 * {
@@ -15,8 +16,8 @@
 body {
   margin: 0;
   min-height: 100vh;
-  font-family: 'Quicksand', 'Segoe UI', sans-serif;
-  background: linear-gradient(180deg, var(--christmas-dark-green) 0%, var(--christmas-green) 60%, #2e8b57 100%);
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #075e54 0%, #128c7e 60%, #25d366 100%);
   color: var(--text-dark);
   position: relative;
   overflow-x: hidden;
@@ -32,15 +33,14 @@ body {
 
 .site-header {
   text-align: center;
-  color: var(--christmas-cream);
+  color: var(--chat-cream);
   margin-bottom: 24px;
 }
 
 .site-header h1 {
-  font-family: 'Mountains of Christmas', cursive;
+  font-family: 'Poppins', sans-serif;
   font-size: 3rem;
   margin: 0;
-  text-shadow: 2px 2px 0 var(--christmas-dark-red);
 }
 
 .subtitle {
@@ -50,16 +50,15 @@ body {
 }
 
 .card {
-  background: var(--christmas-cream);
+  background: var(--chat-cream);
   border-radius: 16px;
   padding: 24px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
-  border: 4px solid var(--christmas-gold);
 }
 
 .site-footer {
   text-align: center;
-  color: var(--christmas-cream);
+  color: var(--chat-cream);
   margin-top: 24px;
   font-weight: 600;
   opacity: 0.85;
@@ -68,13 +67,13 @@ body {
 /* --- Headings & text --- */
 h2 {
   margin-top: 0;
-  color: var(--christmas-dark-red);
-  font-family: 'Mountains of Christmas', cursive;
+  color: var(--chat-primary-dark);
+  font-family: 'Poppins', sans-serif;
   font-size: 2rem;
 }
 
 h3 {
-  color: var(--christmas-dark-green);
+  color: var(--chat-primary-dark);
   margin-bottom: 8px;
 }
 
@@ -104,9 +103,9 @@ button:disabled {
 }
 
 .btn-primary {
-  background: var(--christmas-red);
+  background: var(--chat-primary);
   color: white;
-  box-shadow: 0 4px 0 var(--christmas-dark-red);
+  box-shadow: 0 4px 0 var(--chat-primary-dark);
 }
 
 .btn-primary:hover {
@@ -114,9 +113,9 @@ button:disabled {
 }
 
 .btn-secondary {
-  background: var(--christmas-green);
+  background: #54656f;
   color: white;
-  box-shadow: 0 4px 0 var(--christmas-dark-green);
+  box-shadow: 0 4px 0 #3b4a51;
 }
 
 .actions {
@@ -132,14 +131,14 @@ button:disabled {
   align-items: center;
   gap: 8px;
   background: white;
-  border: 2px solid var(--christmas-green);
-  color: var(--christmas-dark-green);
+  border: 2px solid var(--chat-primary);
+  color: var(--chat-primary-dark);
   font-size: 1rem;
   padding: 10px 14px;
 }
 
 .profile-btn.selected {
-  background: var(--christmas-green);
+  background: var(--chat-primary);
   color: white;
 }
 
@@ -153,8 +152,8 @@ button:disabled {
 }
 
 .online-dot.online {
-  background: #2ecc71;
-  box-shadow: 0 0 4px #2ecc71;
+  background: #25d366;
+  box-shadow: 0 0 4px #25d366;
 }
 
 .player-count-row {
@@ -168,7 +167,7 @@ button:disabled {
   width: 100%;
   padding: 10px 14px;
   margin-bottom: 10px;
-  border: 2px solid var(--christmas-green);
+  border: 2px solid var(--chat-primary);
   border-radius: 8px;
   font-size: 1rem;
   font-family: inherit;
@@ -189,7 +188,7 @@ button:disabled {
 
 .chat-sidebar {
   flex: 0 0 200px;
-  background: #f5f5e6;
+  background: var(--chat-bg);
   border-radius: 10px;
   padding: 12px;
 }
@@ -213,8 +212,8 @@ button:disabled {
   width: 100%;
   text-align: left;
   background: white;
-  border: 2px solid var(--christmas-green);
-  color: var(--christmas-dark-green);
+  border: 2px solid var(--chat-primary);
+  color: var(--chat-primary-dark);
   border-radius: 8px;
   padding: 8px 10px;
   margin-bottom: 6px;
@@ -222,7 +221,7 @@ button:disabled {
 }
 
 .conversation-item.active {
-  background: var(--christmas-green);
+  background: var(--chat-primary);
   color: white;
 }
 
@@ -234,7 +233,7 @@ button:disabled {
 }
 
 .topics-panel {
-  background: #f5f5e6;
+  background: var(--chat-bg);
   border-radius: 10px;
   padding: 12px 16px;
   margin-bottom: 16px;
@@ -246,7 +245,7 @@ button:disabled {
   align-items: center;
   gap: 8px;
   padding: 6px 0;
-  border-bottom: 1px solid #e0ddc8;
+  border-bottom: 1px solid #dde1e4;
 }
 
 .topic-item:last-child {
@@ -265,7 +264,7 @@ button:disabled {
 .topic-remove {
   background: transparent;
   box-shadow: none;
-  color: var(--christmas-red);
+  color: var(--chat-danger);
   font-weight: 700;
   padding: 0 6px;
   font-size: 1.1rem;
@@ -282,7 +281,7 @@ button:disabled {
 .message-input-row input {
   flex: 1;
   padding: 10px 14px;
-  border: 2px solid var(--christmas-green);
+  border: 2px solid var(--chat-primary);
   border-radius: 8px;
   font-size: 1rem;
   font-family: inherit;
@@ -290,7 +289,7 @@ button:disabled {
 
 .message-list {
   flex: 1;
-  background: #f5f5e6;
+  background: var(--chat-bg);
   border-radius: 10px;
   padding: 12px 16px;
   min-height: 240px;
@@ -306,14 +305,13 @@ button:disabled {
   padding: 8px 12px;
   border-radius: 10px;
   background: white;
-  border: 2px solid var(--christmas-green);
+  border: 1px solid #dde1e4;
 }
 
 .message.mine {
   align-self: flex-end;
-  background: var(--christmas-green);
-  color: white;
-  border-color: var(--christmas-dark-green);
+  background: var(--chat-bubble-mine);
+  border-color: #c5edc0;
 }
 
 .message-author {
@@ -321,6 +319,11 @@ button:disabled {
   font-weight: 700;
   font-size: 0.8rem;
   margin-bottom: 2px;
+  color: var(--chat-primary-dark);
+}
+
+.message.mine .message-author {
+  color: var(--chat-primary-dark);
 }
 
 .message-time {
@@ -335,29 +338,6 @@ button:disabled {
   font-style: italic;
   text-align: center;
   padding: 16px 0;
-}
-
-/* --- Snowfall decoration --- */
-.snowfall {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  overflow: hidden;
-  z-index: 0;
-}
-
-.snowfall span {
-  position: absolute;
-  top: -10px;
-  color: white;
-  opacity: 0.8;
-  animation: fall linear infinite;
-}
-
-@keyframes fall {
-  to {
-    transform: translateY(110vh) rotate(360deg);
-  }
 }
 
 @media (max-width: 640px) {
