@@ -1,0 +1,359 @@
+:root {
+  --christmas-red: #c0392b;
+  --christmas-dark-red: #962d22;
+  --christmas-green: #1b6b3a;
+  --christmas-dark-green: #0f4327;
+  --christmas-gold: #f1c40f;
+  --christmas-cream: #fffdf7;
+  --text-dark: #2c2c2c;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: 'Quicksand', 'Segoe UI', sans-serif;
+  background: linear-gradient(180deg, var(--christmas-dark-green) 0%, var(--christmas-green) 60%, #2e8b57 100%);
+  color: var(--text-dark);
+  position: relative;
+  overflow-x: hidden;
+}
+
+.page {
+  position: relative;
+  z-index: 1;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+.site-header {
+  text-align: center;
+  color: var(--christmas-cream);
+  margin-bottom: 24px;
+}
+
+.site-header h1 {
+  font-family: 'Mountains of Christmas', cursive;
+  font-size: 3rem;
+  margin: 0;
+  text-shadow: 2px 2px 0 var(--christmas-dark-red);
+}
+
+.subtitle {
+  margin: 8px 0 0;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.card {
+  background: var(--christmas-cream);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  border: 4px solid var(--christmas-gold);
+}
+
+.site-footer {
+  text-align: center;
+  color: var(--christmas-cream);
+  margin-top: 24px;
+  font-weight: 600;
+  opacity: 0.85;
+}
+
+/* --- Headings & text --- */
+h2 {
+  margin-top: 0;
+  color: var(--christmas-dark-red);
+  font-family: 'Mountains of Christmas', cursive;
+  font-size: 2rem;
+}
+
+h3 {
+  color: var(--christmas-dark-green);
+  margin-bottom: 8px;
+}
+
+p {
+  line-height: 1.5;
+}
+
+/* --- Buttons --- */
+button {
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  border: none;
+  border-radius: 999px;
+  padding: 12px 24px;
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+button:active {
+  transform: scale(0.97);
+}
+
+.btn-primary {
+  background: var(--christmas-red);
+  color: white;
+  box-shadow: 0 4px 0 var(--christmas-dark-red);
+}
+
+.btn-primary:hover {
+  filter: brightness(1.05);
+}
+
+.btn-secondary {
+  background: var(--christmas-green);
+  color: white;
+  box-shadow: 0 4px 0 var(--christmas-dark-green);
+}
+
+.btn-question {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: white;
+  border: 2px solid var(--christmas-green);
+  color: var(--christmas-dark-green);
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 8px;
+}
+
+.btn-question:hover {
+  background: var(--christmas-green);
+  color: white;
+}
+
+.btn-question:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.actions {
+  margin-top: 20px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* --- Setup screen --- */
+.player-count-row {
+  display: flex;
+  gap: 8px;
+  margin: 16px 0;
+}
+
+.count-btn {
+  flex: 1;
+  background: white;
+  border: 2px solid var(--christmas-green);
+  color: var(--christmas-dark-green);
+  font-size: 1.2rem;
+}
+
+.count-btn.selected {
+  background: var(--christmas-green);
+  color: white;
+}
+
+.player-name-input {
+  display: block;
+  width: 100%;
+  padding: 10px 14px;
+  margin-bottom: 10px;
+  border: 2px solid var(--christmas-green);
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: inherit;
+}
+
+/* --- Game info --- */
+.scoreboard {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.score-pill {
+  background: var(--christmas-dark-green);
+  color: white;
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.score-pill.current {
+  background: var(--christmas-red);
+}
+
+.round-banner {
+  text-align: center;
+  font-weight: 700;
+  color: var(--christmas-dark-red);
+  margin-bottom: 12px;
+}
+
+.qa-log {
+  background: #f5f5e6;
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin: 16px 0;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.qa-log .qa-item {
+  padding: 6px 0;
+  border-bottom: 1px solid #e0ddc8;
+}
+
+.qa-log .qa-item:last-child {
+  border-bottom: none;
+}
+
+.answer-yes {
+  color: var(--christmas-green);
+  font-weight: 700;
+}
+
+.answer-no {
+  color: var(--christmas-red);
+  font-weight: 700;
+}
+
+.status-line {
+  font-style: italic;
+  color: #555;
+  margin-bottom: 8px;
+}
+
+/* --- Pass device / guess screens --- */
+.pass-screen {
+  text-align: center;
+  padding: 32px 0;
+}
+
+.pass-screen .player-name {
+  font-size: 1.6rem;
+  color: var(--christmas-dark-red);
+  font-weight: 700;
+}
+
+.guess-input {
+  display: block;
+  width: 100%;
+  padding: 12px 14px;
+  margin: 16px 0;
+  border: 2px solid var(--christmas-green);
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-family: inherit;
+}
+
+/* --- Reveal screen --- */
+.candy-reveal {
+  text-align: center;
+  padding: 8px 0 16px;
+}
+
+.candy-reveal .candy-name {
+  font-size: 1.8rem;
+  color: var(--christmas-dark-red);
+  font-weight: 700;
+}
+
+.results-list {
+  list-style: none;
+  padding: 0;
+  margin: 16px 0;
+}
+
+.results-list li {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.results-list li.correct {
+  background: #e3f3e6;
+  color: var(--christmas-dark-green);
+}
+
+.results-list li.incorrect {
+  background: #fbe6e4;
+  color: var(--christmas-dark-red);
+}
+
+/* --- Final results --- */
+.final-list {
+  list-style: none;
+  padding: 0;
+}
+
+.final-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  background: #f5f5e6;
+}
+
+.final-list li.winner {
+  background: var(--christmas-gold);
+  color: var(--christmas-dark-red);
+  font-size: 1.3rem;
+}
+
+/* --- Snowfall decoration --- */
+.snowfall {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.snowfall span {
+  position: absolute;
+  top: -10px;
+  color: white;
+  opacity: 0.8;
+  animation: fall linear infinite;
+}
+
+@keyframes fall {
+  to {
+    transform: translateY(110vh) rotate(360deg);
+  }
+}
+
+@media (max-width: 480px) {
+  .site-header h1 {
+    font-size: 2.2rem;
+  }
+
+  .card {
+    padding: 16px;
+  }
+}
