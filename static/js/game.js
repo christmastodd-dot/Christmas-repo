@@ -36,17 +36,22 @@
   let pollTimer = null;
   let heartbeatTimer = null;
 
-  async function apiPost(path, body) {
-    try {
-      const res = await fetch(path, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
-      return await res.json();
-    } catch (e) {
-      return { error: 'Could not reach the server.' };
+  async function apiPost(path, body, retries = 2) {
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      try {
+        const res = await fetch(path, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        return await res.json();
+      } catch (e) {
+        if (attempt < retries) {
+          await new Promise((resolve) => setTimeout(resolve, 1000 * (attempt + 1)));
+        }
+      }
     }
+    return { error: 'Could not reach the server. Please try again.' };
   }
 
   async function fetchOnlineUsers() {
@@ -107,6 +112,9 @@
     pollTimer = setInterval(async () => {
       if (state.phase !== 'player-select') return;
       await refreshUsers();
+      // Don't re-render while the user is typing a username - it would
+      // wipe out the input field mid-keystroke.
+      if (state.addingPlayer) return;
       renderPlayerSelect();
     }, POLL_INTERVAL_MS);
   }
@@ -201,6 +209,7 @@
 
     if (state.selected.length >= MAX_PLAYERS) return;
 
+    state.errorMessage = '';
     const result = await apiPost('/api/login', { username: name });
     if (result.error) {
       state.errorMessage = result.error;
@@ -226,6 +235,7 @@
       return;
     }
 
+    state.errorMessage = '';
     const result = await apiPost('/api/login', { username: name });
     if (result.error) {
       state.errorMessage = result.error;
