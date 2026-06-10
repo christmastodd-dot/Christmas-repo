@@ -168,6 +168,34 @@ button:disabled {
   color: white;
 }
 
+.profile-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: white;
+  border: 2px solid var(--christmas-green);
+  color: var(--christmas-dark-green);
+  font-size: 1rem;
+  padding: 10px 14px;
+}
+
+.profile-btn.selected {
+  background: var(--christmas-green);
+  color: white;
+}
+
+.remove-profile {
+  font-weight: 700;
+  opacity: 0.6;
+  line-height: 1;
+  padding: 0 2px;
+}
+
+.remove-profile:hover {
+  opacity: 1;
+  color: var(--christmas-red);
+}
+
 .player-name-input {
   display: block;
   width: 100%;

@@ -26,71 +26,154 @@
     return CANDIES[Math.floor(Math.random() * CANDIES.length)];
   }
 
-  // ---------------- SETUP SCREEN ----------------
+  // ---------------- USERNAME PROFILES (localStorage) ----------------
 
-  function initSetup() {
-    const previousNames = (state && state.players) ? state.players.map((p) => p.name) : [];
-    state = {
-      phase: 'setup',
-      numPlayers: previousNames.length || 1,
-      names: [
-        previousNames[0] || 'Player 1',
-        previousNames[1] || 'Player 2',
-        previousNames[2] || 'Player 3',
-        previousNames[3] || 'Player 4',
-      ],
-    };
-    renderSetup();
+  const PROFILES_KEY = 'candyGuessingGameProfiles';
+
+  function loadProfiles() {
+    try {
+      const raw = localStorage.getItem(PROFILES_KEY);
+      const parsed = raw ? JSON.parse(raw) : [];
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      return [];
+    }
   }
 
-  function renderSetup() {
-    let countButtons = '';
-    for (let n = MIN_PLAYERS; n <= MAX_PLAYERS; n++) {
-      countButtons += `<button class="count-btn ${n === state.numPlayers ? 'selected' : ''}" data-count="${n}">${n}</button>`;
+  function saveProfiles(profiles) {
+    try {
+      localStorage.setItem(PROFILES_KEY, JSON.stringify(profiles));
+    } catch (e) {
+      // localStorage unavailable - usernames just won't persist
     }
+  }
 
-    let nameInputs = '';
-    for (let i = 0; i < state.numPlayers; i++) {
-      nameInputs += `<input class="player-name-input" data-player-index="${i}" type="text" maxlength="20" placeholder="Player ${i + 1} name" value="${escapeHtml(state.names[i])}">`;
-    }
+  // ---------------- PLAYER SELECT SCREEN ----------------
+
+  function initSetup() {
+    state = {
+      phase: 'player-select',
+      profiles: loadProfiles(),
+      selected: [],
+      addingPlayer: false,
+    };
+    renderPlayerSelect();
+  }
+
+  function renderPlayerSelect() {
+    const { profiles, selected, addingPlayer } = state;
+    const isFirstTime = profiles.length === 0;
+
+    const profileButtons = profiles
+      .map((name) => `
+        <button class="profile-btn ${selected.includes(name) ? 'selected' : ''}" data-name="${escapeHtml(name)}">
+          ${escapeHtml(name)}
+          <span class="remove-profile" data-remove="${escapeHtml(name)}" title="Remove username">&times;</span>
+        </button>
+      `)
+      .join('');
+
+    const addPlayerSection = addingPlayer
+      ? `
+        <input type="text" class="player-name-input" id="new-username-input" maxlength="20" placeholder="Enter a username..." autocomplete="off">
+        <div class="actions">
+          <button class="btn-secondary" id="confirm-add-btn">Save Username</button>
+          ${profiles.length > 0 ? '<button class="btn-secondary" id="cancel-add-btn">Cancel</button>' : ''}
+        </div>
+      `
+      : `
+        <div class="actions">
+          <button class="btn-secondary" id="add-player-btn">+ New Username</button>
+        </div>
+      `;
 
     render(`
-      <h2>Get Ready!</h2>
-      <p>A secret candy will be chosen each round. Take turns asking yes/no
-      questions, then everyone privately guesses the candy. Most points after
-      ${TOTAL_ROUNDS} rounds wins!</p>
-      <p><strong>How many players? (1-4)</strong></p>
-      <div class="player-count-row">${countButtons}</div>
-      <h3>Player Names</h3>
-      ${nameInputs}
+      <h2>${isFirstTime ? 'Welcome!' : 'Who\'s Playing?'}</h2>
+      ${
+        isFirstTime
+          ? '<p>Looks like this is your first time here. Create a username to get started &mdash; it\'ll be remembered on this device next time!</p>'
+          : '<p>Select 1-4 players, or create a new username if this is your first time on this device.</p>'
+      }
+      ${profileButtons ? `<div class="player-count-row" style="flex-wrap: wrap;">${profileButtons}</div>` : ''}
+      ${addPlayerSection}
+      <p class="status-line">${selected.length}/${MAX_PLAYERS} players selected</p>
       <div class="actions">
-        <button class="btn-primary" id="start-btn">Start Game &#127876;</button>
+        <button class="btn-primary" id="start-btn" ${selected.length < MIN_PLAYERS ? 'disabled' : ''}>Start Game &#127876;</button>
       </div>
     `);
 
-    document.querySelectorAll('.count-btn').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        state.numPlayers = parseInt(btn.dataset.count, 10);
-        renderSetup();
+    document.querySelectorAll('.profile-btn').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        if (e.target.classList.contains('remove-profile')) return;
+        const name = btn.dataset.name;
+        const idx = state.selected.indexOf(name);
+        if (idx >= 0) {
+          state.selected.splice(idx, 1);
+        } else if (state.selected.length < MAX_PLAYERS) {
+          state.selected.push(name);
+        }
+        renderPlayerSelect();
       });
     });
 
-    document.querySelectorAll('.player-name-input').forEach((input) => {
-      input.addEventListener('input', () => {
-        const idx = parseInt(input.dataset.playerIndex, 10);
-        state.names[idx] = input.value;
+    document.querySelectorAll('.remove-profile').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const name = btn.dataset.remove;
+        state.profiles = state.profiles.filter((p) => p !== name);
+        state.selected = state.selected.filter((p) => p !== name);
+        saveProfiles(state.profiles);
+        renderPlayerSelect();
       });
     });
+
+    if (addingPlayer) {
+      const input = document.getElementById('new-username-input');
+      input.focus();
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') addUsername();
+      });
+      document.getElementById('confirm-add-btn').addEventListener('click', addUsername);
+      const cancelBtn = document.getElementById('cancel-add-btn');
+      if (cancelBtn) {
+        cancelBtn.addEventListener('click', () => {
+          state.addingPlayer = false;
+          renderPlayerSelect();
+        });
+      }
+    } else {
+      document.getElementById('add-player-btn').addEventListener('click', () => {
+        state.addingPlayer = true;
+        renderPlayerSelect();
+      });
+    }
 
     document.getElementById('start-btn').addEventListener('click', startGame);
   }
 
-  function startGame() {
-    const players = [];
-    for (let i = 0; i < state.numPlayers; i++) {
-      const name = (state.names[i] || '').trim() || `Player ${i + 1}`;
-      players.push({ name, score: 0 });
+  function addUsername() {
+    const input = document.getElementById('new-username-input');
+    const name = input.value.trim();
+    if (!name) return;
+
+    const exists = state.profiles.some((p) => p.toLowerCase() === name.toLowerCase());
+    if (exists) {
+      input.value = '';
+      input.placeholder = 'That username is taken - try another';
+      return;
     }
+
+    state.profiles.push(name);
+    saveProfiles(state.profiles);
+    if (state.selected.length < MAX_PLAYERS) {
+      state.selected.push(name);
+    }
+    state.addingPlayer = false;
+    renderPlayerSelect();
+  }
+
+  function startGame() {
+    const players = state.selected.map((name) => ({ name, score: 0 }));
 
     state = {
       phase: 'asking',
