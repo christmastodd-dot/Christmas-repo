@@ -6,6 +6,7 @@
   const POLL_CONV_MS = 3000;
   const HEARTBEAT_MS = 15000;
   const STORAGE_KEY = 'chatUsername';
+  const MAX_GAME_QUESTIONS = 5;
 
   const app = document.getElementById('app');
   const ORIGINAL_TITLE = document.title;
@@ -19,6 +20,7 @@
     topics: {},
     messageCounts: {},
     unread: {},
+    games: {},
   };
 
   let usersPollTimer = null;
@@ -174,6 +176,7 @@
     state.topics = {};
     state.messageCounts = {};
     state.unread = {};
+    state.games = {};
 
     if (usersPollTimer) clearInterval(usersPollTimer);
 
@@ -197,6 +200,7 @@
               <button class="btn-secondary" id="topic-submit">Suggest</button>
             </div>
           </div>
+          <div id="game-panel"></div>
           <div id="message-list" class="message-list"></div>
           <div class="message-input-row">
             <input id="message-input" class="text-input" placeholder="Type a message..." maxlength="1000" autocomplete="off">
@@ -223,6 +227,7 @@
     refreshUsers().then(() => renderConversationList());
     fetchMessages(state.activeConv);
     fetchTopics(state.activeConv);
+    renderGamePanel();
 
     startHeartbeat();
     startConvPolling();
@@ -244,6 +249,7 @@
       topics: {},
       messageCounts: {},
       unread: {},
+      games: {},
     };
     updateTitle();
     renderLogin();
@@ -283,6 +289,7 @@
     convPollTimer = setInterval(() => {
       fetchTopics(state.activeConv);
       getAllConversationIds().forEach((convId) => fetchMessages(convId));
+      if (state.activeConv.startsWith('dm:')) fetchGame(state.activeConv);
     }, POLL_CONV_MS);
   }
 
@@ -355,8 +362,10 @@
     renderConversationList();
     renderMessages();
     renderTopics();
+    renderGamePanel();
     fetchMessages(convId);
     fetchTopics(convId);
+    if (convId.startsWith('dm:')) fetchGame(convId);
   }
 
   // ---------------- MESSAGES ----------------
@@ -488,6 +497,209 @@
       `/api/conversations/${encodeURIComponent(state.activeConv)}/topics/${topicId}?username=${encodeURIComponent(state.username)}`
     );
     await fetchTopics(state.activeConv);
+  }
+
+  // ---------------- DM MINI-GAME: GUESS A COUNTRY ----------------
+
+  async function fetchGame(convId) {
+    const data = await apiGet(`/api/conversations/${encodeURIComponent(convId)}/game?username=${encodeURIComponent(state.username)}`);
+    if (!data) return;
+    state.games[convId] = data;
+    if (convId === state.activeConv) renderGamePanel();
+  }
+
+  function renderGamePanel() {
+    const container = document.getElementById('game-panel');
+    if (!container) return;
+
+    if (!state.activeConv.startsWith('dm:')) {
+      container.innerHTML = '';
+      return;
+    }
+
+    const game = state.games[state.activeConv] || { status: 'none' };
+    const isHost = game.host && game.host.toLowerCase() === state.username.toLowerCase();
+
+    if (game.status === 'none') {
+      container.innerHTML = `
+        <div class="game-card">
+          <button class="btn-secondary" id="game-invite-btn">&#127918; Play "Guess a Country"</button>
+        </div>
+      `;
+      document.getElementById('game-invite-btn').addEventListener('click', inviteGame);
+      return;
+    }
+
+    if (game.status === 'invited') {
+      if (isHost) {
+        container.innerHTML = `
+          <div class="game-card">
+            <p>Waiting for ${escapeHtml(game.guest)} to respond to your "Guess a Country" invite...</p>
+          </div>
+        `;
+      } else {
+        container.innerHTML = `
+          <div class="game-card">
+            <p>${escapeHtml(game.host)} invited you to play <strong>Guess a Country</strong>! You can ask up to ${MAX_GAME_QUESTIONS} yes/no questions before guessing.</p>
+            <div class="actions">
+              <button class="btn-primary" id="game-accept-btn">Accept</button>
+              <button class="btn-secondary" id="game-decline-btn">Decline</button>
+            </div>
+          </div>
+        `;
+        document.getElementById('game-accept-btn').addEventListener('click', () => respondGame(true));
+        document.getElementById('game-decline-btn').addEventListener('click', () => respondGame(false));
+      }
+      return;
+    }
+
+    if (game.status === 'declined') {
+      if (isHost) {
+        container.innerHTML = `
+          <div class="game-card">
+            <p>${escapeHtml(game.declined_by)} declined your "Guess a Country" invite.</p>
+            <div class="actions">
+              <button class="btn-secondary" id="game-dismiss-btn">Dismiss</button>
+            </div>
+          </div>
+        `;
+        document.getElementById('game-dismiss-btn').addEventListener('click', dismissGame);
+      } else {
+        container.innerHTML = '';
+      }
+      return;
+    }
+
+    if (game.status === 'active') {
+      renderActiveGame(container, game);
+      return;
+    }
+
+    if (game.status === 'finished') {
+      renderFinishedGame(container, game);
+    }
+  }
+
+  function renderActiveGame(container, game) {
+    const askedHtml = game.questions_asked.length
+      ? game.questions_asked
+          .map(
+            (q) => `
+            <div class="game-qa">
+              <span>${escapeHtml(q.text)}</span>
+              <span class="${q.answer ? 'answer-yes' : 'answer-no'}">${q.answer ? 'Yes' : 'No'}</span>
+            </div>
+          `
+          )
+          .join('')
+      : '<p class="empty-state">No questions asked yet.</p>';
+
+    const availableHtml = game.available_questions
+      .map((q) => `<button class="btn-question" data-id="${q.id}">${escapeHtml(q.text)}</button>`)
+      .join('');
+
+    const questionsLeft = game.max_questions - game.questions_asked.length;
+
+    let guessSection;
+    if (game.my_guess) {
+      guessSection = `<p class="status-line">Your guess: <strong>${escapeHtml(game.my_guess.text)}</strong>${game.partner_has_guessed ? '' : ' &mdash; waiting for your partner to guess...'}</p>`;
+    } else {
+      guessSection = `
+        <div class="topic-input-row">
+          <input id="game-guess-input" class="text-input" placeholder="Your guess..." maxlength="100" autocomplete="off">
+          <button class="btn-primary" id="game-guess-btn">Guess</button>
+        </div>
+      `;
+    }
+
+    container.innerHTML = `
+      <div class="game-card">
+        <h3>Guess a Country &mdash; ${questionsLeft} question${questionsLeft === 1 ? '' : 's'} left</h3>
+        <div class="game-qa-log">${askedHtml}</div>
+        ${availableHtml ? `<div class="game-question-bank">${availableHtml}</div>` : ''}
+        ${guessSection}
+      </div>
+    `;
+
+    container.querySelectorAll('.btn-question').forEach((btn) => {
+      btn.addEventListener('click', () => askGameQuestion(parseInt(btn.dataset.id, 10)));
+    });
+
+    const guessBtn = document.getElementById('game-guess-btn');
+    if (guessBtn) {
+      guessBtn.addEventListener('click', submitGameGuess);
+      document.getElementById('game-guess-input').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') submitGameGuess();
+      });
+    }
+  }
+
+  function renderFinishedGame(container, game) {
+    let resultText;
+    if (game.winner) {
+      const youWon = game.winner.toLowerCase() === state.username.toLowerCase();
+      resultText = youWon ? '&#127881; You guessed it!' : `&#127881; ${escapeHtml(game.winner)} guessed it!`;
+    } else {
+      resultText = 'Nobody guessed it this time!';
+    }
+
+    const guessesHtml = Object.values(game.guesses)
+      .map((g) => `<li class="${g.correct ? 'correct' : 'incorrect'}">${escapeHtml(g.username)}: ${escapeHtml(g.text)}</li>`)
+      .join('');
+
+    container.innerHTML = `
+      <div class="game-card">
+        <h3>Guess a Country &mdash; Results</h3>
+        <p>The country was <strong>${escapeHtml(game.secret_country)}</strong>.</p>
+        <p>${resultText}</p>
+        <ul class="game-results-list">${guessesHtml}</ul>
+        <div class="actions">
+          <button class="btn-primary" id="game-play-again-btn">Play Again</button>
+        </div>
+      </div>
+    `;
+
+    document.getElementById('game-play-again-btn').addEventListener('click', async () => {
+      await dismissGame();
+      await inviteGame();
+    });
+  }
+
+  async function inviteGame() {
+    await apiPost(`/api/conversations/${encodeURIComponent(state.activeConv)}/game/invite`, { username: state.username });
+    await fetchGame(state.activeConv);
+  }
+
+  async function respondGame(accept) {
+    await apiPost(`/api/conversations/${encodeURIComponent(state.activeConv)}/game/respond`, { username: state.username, accept });
+    await fetchGame(state.activeConv);
+  }
+
+  async function dismissGame() {
+    await apiPost(`/api/conversations/${encodeURIComponent(state.activeConv)}/game/reset`, { username: state.username });
+    await fetchGame(state.activeConv);
+  }
+
+  async function askGameQuestion(questionId) {
+    await apiPost(`/api/conversations/${encodeURIComponent(state.activeConv)}/game/question`, {
+      username: state.username,
+      question_id: questionId,
+    });
+    await fetchGame(state.activeConv);
+  }
+
+  async function submitGameGuess() {
+    const input = document.getElementById('game-guess-input');
+    const text = input.value.trim();
+    if (!text) return;
+
+    input.disabled = true;
+    await apiPost(`/api/conversations/${encodeURIComponent(state.activeConv)}/game/guess`, {
+      username: state.username,
+      guess: text,
+    });
+    input.disabled = false;
+    await fetchGame(state.activeConv);
   }
 
   // ---------------- LOGOUT ON UNLOAD ----------------

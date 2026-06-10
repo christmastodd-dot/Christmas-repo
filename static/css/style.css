@@ -314,6 +314,87 @@ button:disabled {
   gap: 8px;
 }
 
+/* --- DM mini-game: Guess a Country --- */
+.game-card {
+  background: var(--chat-bg);
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+}
+
+.game-qa-log {
+  margin: 10px 0;
+}
+
+.game-qa {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid #dde1e4;
+}
+
+.game-qa:last-child {
+  border-bottom: none;
+}
+
+.answer-yes {
+  color: var(--chat-primary-dark);
+  font-weight: 700;
+}
+
+.answer-no {
+  color: var(--chat-danger);
+  font-weight: 700;
+}
+
+.game-question-bank {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 10px 0;
+}
+
+.btn-question {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: white;
+  border: 2px solid var(--chat-primary);
+  color: var(--chat-primary-dark);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 0.9rem;
+}
+
+.btn-question:hover {
+  background: var(--chat-primary);
+  color: white;
+}
+
+.game-results-list {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0;
+}
+
+.game-results-list li {
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.game-results-list li.correct {
+  background: var(--chat-bubble-mine);
+  color: var(--chat-primary-dark);
+}
+
+.game-results-list li.incorrect {
+  background: #fbe6e4;
+  color: var(--chat-danger);
+}
+
 .message {
   max-width: 80%;
   padding: 8px 12px;
