@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: couch-to-tri
+    runtime: static
+    staticPublishPath: .
+    headers:
+      - path: /service-worker.js
+        name: Cache-Control
+        value: no-cache
+      - path: /data/plan.json
+        name: Cache-Control
+        value: no-cache
