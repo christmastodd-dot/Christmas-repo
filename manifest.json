@@ -1,0 +1,17 @@
+{
+  "name": "Couch to Tri — 16-Month Plan",
+  "short_name": "C2T",
+  "description": "A 16-month, 70-week training plan from couch to full-distance Ironman triathlon, with Sprint, Olympic, and Half-Iron benchmark races along the way.",
+  "id": "/",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0b1422",
+  "theme_color": "#0ea5e9",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

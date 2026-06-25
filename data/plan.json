@@ -1,0 +1,5069 @@
+{
+  "totalWeeks": 70,
+  "totalMonths": 16,
+  "phases": [
+    {
+      "key": "A",
+      "name": "Foundation",
+      "startWeek": 1,
+      "endWeek": 13
+    },
+    {
+      "key": "B",
+      "name": "Sprint Build",
+      "startWeek": 14,
+      "endWeek": 26
+    },
+    {
+      "key": "C",
+      "name": "Olympic Build",
+      "startWeek": 27,
+      "endWeek": 39
+    },
+    {
+      "key": "D",
+      "name": "Half-Iron Build",
+      "startWeek": 40,
+      "endWeek": 52
+    },
+    {
+      "key": "E",
+      "name": "Ironman Build",
+      "startWeek": 53,
+      "endWeek": 65
+    },
+    {
+      "key": "F",
+      "name": "Taper & Race",
+      "startWeek": 66,
+      "endWeek": 70
+    }
+  ],
+  "milestones": [
+    {
+      "week": 26,
+      "label": "Sprint Triathlon",
+      "emoji": "\ud83c\udfc1",
+      "distances": "750m swim / 20km bike / 5km run",
+      "note": "Your first triathlon finish line! Race at an easy-hard effort and enjoy it \u2014 everything since week 1 has led here."
+    },
+    {
+      "week": 39,
+      "label": "Olympic Triathlon",
+      "emoji": "\ud83c\udfc1",
+      "distances": "1.5km swim / 40km bike / 10km run",
+      "note": "Double the sprint distance. Pace the bike conservatively so the 10K run doesn't fall apart."
+    },
+    {
+      "week": 52,
+      "label": "Half-Iron Triathlon (70.3)",
+      "emoji": "\ud83c\udfc1",
+      "distances": "1.9km swim / 90km bike / 21.1km run",
+      "note": "A huge benchmark \u2014 if you finish this feeling strong, the full distance is a question of patience, not fitness."
+    },
+    {
+      "week": 70,
+      "label": "Full Ironman (140.6)",
+      "emoji": "\ud83e\udd47",
+      "distances": "3.86km swim / 180km bike / 42.2km run",
+      "note": "Race day. Sixteen months of work for this one. Trust your pacing, fuel early and often, and smile at mile 20 \u2014 you earned it."
+    }
+  ],
+  "weeks": [
+    {
+      "week": 1,
+      "month": 1,
+      "phase": "Foundation",
+      "phaseKey": "A",
+      "isRecoveryWeek": false,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Easy Run",
+              "detail": "15 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 15
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Technique Swim",
+              "detail": "400m total in the pool \u2014 mix of drills (catch-up, kick sets) and short easy swims with rest as needed. Technique over speed.",
+              "distanceM": 400
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": []
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Easy Bike",
+              "detail": "20 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "durationMin": 20
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "strength",
+              "title": "Strength & Mobility",
+              "detail": "20 min strength & mobility \u2014 core, glutes, hips, plus 5-10 min stretching or foam rolling.",
+              "durationMin": 20
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 2,
+      "month": 1,
+      "phase": "Foundation",
+      "phaseKey": "A",
+      "isRecoveryWeek": false,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Easy Run",
+              "detail": "15 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 15
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Technique Swim",
+              "detail": "450m total in the pool \u2014 mix of drills (catch-up, kick sets) and short easy swims with rest as needed. Technique over speed.",
+              "distanceM": 450
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": []
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Easy Bike",
+              "detail": "20 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "durationMin": 20
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "strength",
+              "title": "Strength & Mobility",
+              "detail": "20 min strength & mobility \u2014 core, glutes, hips, plus 5-10 min stretching or foam rolling.",
+              "durationMin": 20
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 3,
+      "month": 1,
+      "phase": "Foundation",
+      "phaseKey": "A",
+      "isRecoveryWeek": false,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Easy Run",
+              "detail": "20 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 20
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Technique Swim",
+              "detail": "450m total in the pool \u2014 mix of drills (catch-up, kick sets) and short easy swims with rest as needed. Technique over speed.",
+              "distanceM": 450
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": []
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Easy Bike",
+              "detail": "25 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "durationMin": 25
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "strength",
+              "title": "Strength & Mobility",
+              "detail": "20 min strength & mobility \u2014 core, glutes, hips, plus 5-10 min stretching or foam rolling.",
+              "durationMin": 20
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 4,
+      "month": 1,
+      "phase": "Foundation",
+      "phaseKey": "A",
+      "isRecoveryWeek": true,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Easy Run",
+              "detail": "15 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 15
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Technique Swim",
+              "detail": "400m total in the pool \u2014 mix of drills (catch-up, kick sets) and short easy swims with rest as needed. Technique over speed.",
+              "distanceM": 400
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": []
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Easy Bike",
+              "detail": "20 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "durationMin": 20
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "strength",
+              "title": "Strength & Mobility",
+              "detail": "20 min strength & mobility \u2014 core, glutes, hips, plus 5-10 min stretching or foam rolling.",
+              "durationMin": 20
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 5,
+      "month": 2,
+      "phase": "Foundation",
+      "phaseKey": "A",
+      "isRecoveryWeek": false,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Easy Run",
+              "detail": "20 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 20
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Technique Swim",
+              "detail": "550m total in the pool \u2014 mix of drills (catch-up, kick sets) and short easy swims with rest as needed. Technique over speed.",
+              "distanceM": 550
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": []
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Easy Bike",
+              "detail": "30 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "durationMin": 30
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "strength",
+              "title": "Strength & Mobility",
+              "detail": "25 min strength & mobility \u2014 core, glutes, hips, plus 5-10 min stretching or foam rolling.",
+              "durationMin": 25
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 6,
+      "month": 2,
+      "phase": "Foundation",
+      "phaseKey": "A",
+      "isRecoveryWeek": false,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Easy Run",
+              "detail": "20 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 20
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Technique Swim",
+              "detail": "550m total in the pool \u2014 mix of drills (catch-up, kick sets) and short easy swims with rest as needed. Technique over speed.",
+              "distanceM": 550
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": []
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Easy Bike",
+              "detail": "30 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "durationMin": 30
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "strength",
+              "title": "Strength & Mobility",
+              "detail": "25 min strength & mobility \u2014 core, glutes, hips, plus 5-10 min stretching or foam rolling.",
+              "durationMin": 25
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 7,
+      "month": 2,
+      "phase": "Foundation",
+      "phaseKey": "A",
+      "isRecoveryWeek": false,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Easy Run",
+              "detail": "20 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 20
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Technique Swim",
+              "detail": "600m total in the pool \u2014 mix of drills (catch-up, kick sets) and short easy swims with rest as needed. Technique over speed.",
+              "distanceM": 600
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": []
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Easy Bike",
+              "detail": "35 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "durationMin": 35
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "strength",
+              "title": "Strength & Mobility",
+              "detail": "25 min strength & mobility \u2014 core, glutes, hips, plus 5-10 min stretching or foam rolling.",
+              "durationMin": 25
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 8,
+      "month": 2,
+      "phase": "Foundation",
+      "phaseKey": "A",
+      "isRecoveryWeek": true,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Easy Run",
+              "detail": "20 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 20
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Technique Swim",
+              "detail": "500m total in the pool \u2014 mix of drills (catch-up, kick sets) and short easy swims with rest as needed. Technique over speed.",
+              "distanceM": 500
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": []
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Easy Bike",
+              "detail": "30 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "durationMin": 30
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "strength",
+              "title": "Strength & Mobility",
+              "detail": "25 min strength & mobility \u2014 core, glutes, hips, plus 5-10 min stretching or foam rolling.",
+              "durationMin": 25
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 9,
+      "month": 3,
+      "phase": "Foundation",
+      "phaseKey": "A",
+      "isRecoveryWeek": false,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Easy Run",
+              "detail": "25 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 25
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Technique Swim",
+              "detail": "650m total in the pool \u2014 mix of drills (catch-up, kick sets) and short easy swims with rest as needed. Technique over speed.",
+              "distanceM": 650
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": []
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Easy Bike",
+              "detail": "40 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "durationMin": 40
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "strength",
+              "title": "Strength & Mobility",
+              "detail": "25 min strength & mobility \u2014 core, glutes, hips, plus 5-10 min stretching or foam rolling.",
+              "durationMin": 25
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 10,
+      "month": 3,
+      "phase": "Foundation",
+      "phaseKey": "A",
+      "isRecoveryWeek": false,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Easy Run",
+              "detail": "25 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 25
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Technique Swim",
+              "detail": "700m total in the pool \u2014 mix of drills (catch-up, kick sets) and short easy swims with rest as needed. Technique over speed.",
+              "distanceM": 700
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": []
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Easy Bike",
+              "detail": "40 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "durationMin": 40
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "strength",
+              "title": "Strength & Mobility",
+              "detail": "30 min strength & mobility \u2014 core, glutes, hips, plus 5-10 min stretching or foam rolling.",
+              "durationMin": 30
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 11,
+      "month": 3,
+      "phase": "Foundation",
+      "phaseKey": "A",
+      "isRecoveryWeek": false,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Easy Run",
+              "detail": "30 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 30
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Technique Swim",
+              "detail": "750m total in the pool \u2014 mix of drills (catch-up, kick sets) and short easy swims with rest as needed. Technique over speed.",
+              "distanceM": 750
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": []
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Easy Bike",
+              "detail": "45 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "durationMin": 45
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "strength",
+              "title": "Strength & Mobility",
+              "detail": "30 min strength & mobility \u2014 core, glutes, hips, plus 5-10 min stretching or foam rolling.",
+              "durationMin": 30
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 12,
+      "month": 3,
+      "phase": "Foundation",
+      "phaseKey": "A",
+      "isRecoveryWeek": true,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Easy Run",
+              "detail": "20 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 20
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Technique Swim",
+              "detail": "600m total in the pool \u2014 mix of drills (catch-up, kick sets) and short easy swims with rest as needed. Technique over speed.",
+              "distanceM": 600
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": []
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Easy Bike",
+              "detail": "35 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "durationMin": 35
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "strength",
+              "title": "Strength & Mobility",
+              "detail": "30 min strength & mobility \u2014 core, glutes, hips, plus 5-10 min stretching or foam rolling.",
+              "durationMin": 30
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 13,
+      "month": 3,
+      "phase": "Foundation",
+      "phaseKey": "A",
+      "isRecoveryWeek": false,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Easy Run",
+              "detail": "30 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 30
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Technique Swim",
+              "detail": "800m total in the pool \u2014 mix of drills (catch-up, kick sets) and short easy swims with rest as needed. Technique over speed.",
+              "distanceM": 800
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": []
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Easy Bike",
+              "detail": "50 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "durationMin": 50
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "strength",
+              "title": "Strength & Mobility",
+              "detail": "30 min strength & mobility \u2014 core, glutes, hips, plus 5-10 min stretching or foam rolling.",
+              "durationMin": 30
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 14,
+      "month": 4,
+      "phase": "Sprint Build",
+      "phaseKey": "B",
+      "isRecoveryWeek": false,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Run + Core",
+              "detail": "30 min easy run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
+              "durationMin": 30
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Endurance Swim",
+              "detail": "800m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
+              "distanceM": 800
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Tempo Bike",
+              "detail": "40 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "durationMin": 40
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Steady Bike",
+              "detail": "45 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "durationMin": 45
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Long Run",
+              "detail": "30 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day.",
+              "durationMin": 30
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 15,
+      "month": 4,
+      "phase": "Sprint Build",
+      "phaseKey": "B",
+      "isRecoveryWeek": false,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Run + Core",
+              "detail": "30 min easy run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
+              "durationMin": 30
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Endurance Swim",
+              "detail": "850m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
+              "distanceM": 850
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Tempo Bike",
+              "detail": "40 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "durationMin": 40
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Steady Bike",
+              "detail": "45 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "durationMin": 45
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Long Run",
+              "detail": "30 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day.",
+              "durationMin": 30
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 16,
+      "month": 4,
+      "phase": "Sprint Build",
+      "phaseKey": "B",
+      "isRecoveryWeek": true,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Run + Core",
+              "detail": "25 min easy run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
+              "durationMin": 25
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Endurance Swim",
+              "detail": "650m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
+              "distanceM": 650
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Tempo Bike",
+              "detail": "30 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "durationMin": 30
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Steady Bike",
+              "detail": "35 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "durationMin": 35
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Long Run",
+              "detail": "25 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day.",
+              "durationMin": 25
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 17,
+      "month": 4,
+      "phase": "Sprint Build",
+      "phaseKey": "B",
+      "isRecoveryWeek": false,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Run + Core",
+              "detail": "30 min easy run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
+              "durationMin": 30
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Endurance Swim",
+              "detail": "900m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
+              "distanceM": 900
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Tempo Bike",
+              "detail": "45 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "durationMin": 45
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Steady Bike",
+              "detail": "50 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "durationMin": 50
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Long Run",
+              "detail": "35 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day.",
+              "durationMin": 35
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 18,
+      "month": 5,
+      "phase": "Sprint Build",
+      "phaseKey": "B",
+      "isRecoveryWeek": false,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Run + Core",
+              "detail": "35 min easy run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
+              "durationMin": 35
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Endurance Swim",
+              "detail": "950m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
+              "distanceM": 950
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Tempo Bike",
+              "detail": "45 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "durationMin": 45
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "brick",
+              "title": "Brick: Bike + Run",
+              "detail": "Bike 60 min steady, then Run 15 min immediately off the bike. Practice the transition \u2014 the first few minutes of the run will feel heavy on tired legs; that's normal."
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Long Run",
+              "detail": "40 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day.",
+              "durationMin": 40
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 19,
+      "month": 5,
+      "phase": "Sprint Build",
+      "phaseKey": "B",
+      "isRecoveryWeek": false,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Run + Core",
+              "detail": "35 min easy run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
+              "durationMin": 35
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Endurance Swim",
+              "detail": "950m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
+              "distanceM": 950
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Tempo Bike",
+              "detail": "50 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "durationMin": 50
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "brick",
+              "title": "Brick: Bike + Run",
+              "detail": "Bike 60 min steady, then Run 15 min immediately off the bike. Practice the transition \u2014 the first few minutes of the run will feel heavy on tired legs; that's normal."
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Long Run",
+              "detail": "40 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day.",
+              "durationMin": 40
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 20,
+      "month": 5,
+      "phase": "Sprint Build",
+      "phaseKey": "B",
+      "isRecoveryWeek": true,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Run + Core",
+              "detail": "25 min easy run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
+              "durationMin": 25
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Endurance Swim",
+              "detail": "750m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
+              "distanceM": 750
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Tempo Bike",
+              "detail": "40 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "durationMin": 40
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "brick",
+              "title": "Brick: Bike + Run",
+              "detail": "Bike 45 min steady, then Run 10 min immediately off the bike. Practice the transition \u2014 the first few minutes of the run will feel heavy on tired legs; that's normal."
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Long Run",
+              "detail": "30 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day.",
+              "durationMin": 30
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 21,
+      "month": 5,
+      "phase": "Sprint Build",
+      "phaseKey": "B",
+      "isRecoveryWeek": false,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Run + Core",
+              "detail": "35 min easy run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
+              "durationMin": 35
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Endurance Swim",
+              "detail": "1050m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
+              "distanceM": 1050
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Tempo Bike",
+              "detail": "50 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "durationMin": 50
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "brick",
+              "title": "Brick: Bike + Run",
+              "detail": "Bike 65 min steady, then Run 15 min immediately off the bike. Practice the transition \u2014 the first few minutes of the run will feel heavy on tired legs; that's normal."
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Long Run",
+              "detail": "45 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day.",
+              "durationMin": 45
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 22,
+      "month": 6,
+      "phase": "Sprint Build",
+      "phaseKey": "B",
+      "isRecoveryWeek": false,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Run + Core",
+              "detail": "35 min easy run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
+              "durationMin": 35
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Endurance Swim",
+              "detail": "1050m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
+              "distanceM": 1050
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Tempo Bike",
+              "detail": "55 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "durationMin": 55
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "brick",
+              "title": "Brick: Bike + Run",
+              "detail": "Bike 65 min steady, then Run 15 min immediately off the bike. Practice the transition \u2014 the first few minutes of the run will feel heavy on tired legs; that's normal."
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Long Run",
+              "detail": "45 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day.",
+              "durationMin": 45
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 23,
+      "month": 6,
+      "phase": "Sprint Build",
+      "phaseKey": "B",
+      "isRecoveryWeek": false,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Run + Core",
+              "detail": "40 min easy run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
+              "durationMin": 40
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Endurance Swim",
+              "detail": "1100m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
+              "distanceM": 1100
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Tempo Bike",
+              "detail": "55 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "durationMin": 55
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "brick",
+              "title": "Brick: Bike + Run",
+              "detail": "Bike 65 min steady, then Run 20 min immediately off the bike. Practice the transition \u2014 the first few minutes of the run will feel heavy on tired legs; that's normal."
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Long Run",
+              "detail": "50 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day.",
+              "durationMin": 50
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 24,
+      "month": 6,
+      "phase": "Sprint Build",
+      "phaseKey": "B",
+      "isRecoveryWeek": true,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Run + Core",
+              "detail": "30 min easy run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
+              "durationMin": 30
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Endurance Swim",
+              "detail": "850m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
+              "distanceM": 850
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Tempo Bike",
+              "detail": "40 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "durationMin": 40
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "brick",
+              "title": "Brick: Bike + Run",
+              "detail": "Bike 50 min steady, then Run 15 min immediately off the bike. Practice the transition \u2014 the first few minutes of the run will feel heavy on tired legs; that's normal."
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Long Run",
+              "detail": "40 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day.",
+              "durationMin": 40
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 25,
+      "month": 6,
+      "phase": "Sprint Build",
+      "phaseKey": "B",
+      "isRecoveryWeek": false,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Run + Core",
+              "detail": "40 min easy run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
+              "durationMin": 40
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Endurance Swim",
+              "detail": "1150m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
+              "distanceM": 1150
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Tempo Bike",
+              "detail": "60 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "durationMin": 60
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "brick",
+              "title": "Brick: Bike + Run",
+              "detail": "Bike 70 min steady, then Run 20 min immediately off the bike. Practice the transition \u2014 the first few minutes of the run will feel heavy on tired legs; that's normal."
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Long Run",
+              "detail": "55 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day.",
+              "durationMin": 55
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 26,
+      "month": 6,
+      "phase": "Sprint Build",
+      "phaseKey": "B",
+      "isRecoveryWeek": false,
+      "milestone": {
+        "week": 26,
+        "label": "Sprint Triathlon",
+        "emoji": "\ud83c\udfc1",
+        "distances": "750m swim / 20km bike / 5km run",
+        "note": "Your first triathlon finish line! Race at an easy-hard effort and enjoy it \u2014 everything since week 1 has led here."
+      },
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Run + Core",
+              "detail": "40 min easy run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
+              "durationMin": 40
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Endurance Swim",
+              "detail": "1200m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
+              "distanceM": 1200
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Tempo Bike",
+              "detail": "60 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "durationMin": 60
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "brick",
+              "title": "Brick: Bike + Run",
+              "detail": "Bike 70 min steady, then Run 20 min immediately off the bike. Practice the transition \u2014 the first few minutes of the run will feel heavy on tired legs; that's normal."
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "race",
+              "title": "RACE DAY: Sprint Triathlon",
+              "detail": "750m swim / 20km bike / 5km run. Your first triathlon finish line! Race at an easy-hard effort and enjoy it \u2014 everything since week 1 has led here."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 27,
+      "month": 7,
+      "phase": "Olympic Build",
+      "phaseKey": "C",
+      "isRecoveryWeek": false,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Tempo Run",
+              "detail": "40 min run \u2014 10 min easy warm-up, then steady-hard tempo effort, 5 min easy cool-down.",
+              "durationMin": 40
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Endurance Swim",
+              "detail": "1200m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
+              "distanceM": 1200
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Tempo Bike",
+              "detail": "60 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "durationMin": 60
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "brick",
+              "title": "Brick: Bike + Run",
+              "detail": "Bike 70 min steady, then Run 20 min immediately off the bike. Practice the transition \u2014 the first few minutes of the run will feel heavy on tired legs; that's normal."
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Long Run",
+              "detail": "55 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day.",
+              "durationMin": 55
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 28,
+      "month": 7,
+      "phase": "Olympic Build",
+      "phaseKey": "C",
+      "isRecoveryWeek": true,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Tempo Run",
+              "detail": "30 min run \u2014 10 min easy warm-up, then steady-hard tempo effort, 5 min easy cool-down.",
+              "durationMin": 30
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Endurance Swim",
+              "detail": "950m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
+              "distanceM": 950
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Tempo Bike",
+              "detail": "45 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "durationMin": 45
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "brick",
+              "title": "Brick: Bike + Run",
+              "detail": "Bike 55 min steady, then Run 15 min immediately off the bike. Practice the transition \u2014 the first few minutes of the run will feel heavy on tired legs; that's normal."
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Long Run",
+              "detail": "40 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day.",
+              "durationMin": 40
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 29,
+      "month": 7,
+      "phase": "Olympic Build",
+      "phaseKey": "C",
+      "isRecoveryWeek": false,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Tempo Run",
+              "detail": "40 min run \u2014 10 min easy warm-up, then steady-hard tempo effort, 5 min easy cool-down.",
+              "durationMin": 40
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Endurance Swim",
+              "detail": "1300m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
+              "distanceM": 1300
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Tempo Bike",
+              "detail": "60 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "durationMin": 60
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "brick",
+              "title": "Brick: Bike + Run",
+              "detail": "Bike 75 min steady, then Run 20 min immediately off the bike. Practice the transition \u2014 the first few minutes of the run will feel heavy on tired legs; that's normal."
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Long Run",
+              "detail": "60 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day.",
+              "durationMin": 60
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 30,
+      "month": 7,
+      "phase": "Olympic Build",
+      "phaseKey": "C",
+      "isRecoveryWeek": false,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Tempo Run",
+              "detail": "40 min run \u2014 10 min easy warm-up, then steady-hard tempo effort, 5 min easy cool-down.",
+              "durationMin": 40
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Endurance Swim",
+              "detail": "1350m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
+              "distanceM": 1350
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Tempo Bike",
+              "detail": "65 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "durationMin": 65
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "brick",
+              "title": "Brick: Bike + Run",
+              "detail": "Bike 75 min steady, then Run 20 min immediately off the bike. Practice the transition \u2014 the first few minutes of the run will feel heavy on tired legs; that's normal."
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Long Run",
+              "detail": "60 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day.",
+              "durationMin": 60
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 31,
+      "month": 8,
+      "phase": "Olympic Build",
+      "phaseKey": "C",
+      "isRecoveryWeek": false,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Tempo Run",
+              "detail": "45 min run \u2014 10 min easy warm-up, then steady-hard tempo effort, 5 min easy cool-down.",
+              "durationMin": 45
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Endurance Swim",
+              "detail": "1400m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
+              "distanceM": 1400
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Tempo Bike",
+              "detail": "65 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "durationMin": 65
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "brick",
+              "title": "Brick: Bike + Run",
+              "detail": "Bike 80 min steady, then Run 25 min immediately off the bike. Practice the transition \u2014 the first few minutes of the run will feel heavy on tired legs; that's normal."
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Long Run",
+              "detail": "60 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day.",
+              "durationMin": 60
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 32,
+      "month": 8,
+      "phase": "Olympic Build",
+      "phaseKey": "C",
+      "isRecoveryWeek": true,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Tempo Run",
+              "detail": "35 min run \u2014 10 min easy warm-up, then steady-hard tempo effort, 5 min easy cool-down.",
+              "durationMin": 35
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Endurance Swim",
+              "detail": "1100m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
+              "distanceM": 1100
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Tempo Bike",
+              "detail": "50 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "durationMin": 50
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "brick",
+              "title": "Brick: Bike + Run",
+              "detail": "Bike 60 min steady, then Run 20 min immediately off the bike. Practice the transition \u2014 the first few minutes of the run will feel heavy on tired legs; that's normal."
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Long Run",
+              "detail": "50 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day.",
+              "durationMin": 50
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 33,
+      "month": 8,
+      "phase": "Olympic Build",
+      "phaseKey": "C",
+      "isRecoveryWeek": false,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Tempo Run",
+              "detail": "45 min run \u2014 10 min easy warm-up, then steady-hard tempo effort, 5 min easy cool-down.",
+              "durationMin": 45
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Endurance Swim",
+              "detail": "1500m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
+              "distanceM": 1500
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Tempo Bike",
+              "detail": "70 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "durationMin": 70
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "brick",
+              "title": "Brick: Bike + Run",
+              "detail": "Bike 80 min steady, then Run 25 min immediately off the bike. Practice the transition \u2014 the first few minutes of the run will feel heavy on tired legs; that's normal."
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Long Run",
+              "detail": "65 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day.",
+              "durationMin": 65
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 34,
+      "month": 8,
+      "phase": "Olympic Build",
+      "phaseKey": "C",
+      "isRecoveryWeek": false,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Tempo Run",
+              "detail": "45 min run \u2014 10 min easy warm-up, then steady-hard tempo effort, 5 min easy cool-down.",
+              "durationMin": 45
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Endurance Swim",
+              "detail": "1550m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
+              "distanceM": 1550
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Tempo Bike",
+              "detail": "70 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "durationMin": 70
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "brick",
+              "title": "Brick: Bike + Run",
+              "detail": "Bike 85 min steady, then Run 25 min immediately off the bike. Practice the transition \u2014 the first few minutes of the run will feel heavy on tired legs; that's normal."
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Long Run",
+              "detail": "65 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day.",
+              "durationMin": 65
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 35,
+      "month": 9,
+      "phase": "Olympic Build",
+      "phaseKey": "C",
+      "isRecoveryWeek": false,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Tempo Run",
+              "detail": "45 min run \u2014 10 min easy warm-up, then steady-hard tempo effort, 5 min easy cool-down.",
+              "durationMin": 45
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Endurance Swim",
+              "detail": "1600m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
+              "distanceM": 1600
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Tempo Bike",
+              "detail": "70 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "durationMin": 70
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "brick",
+              "title": "Brick: Bike + Run",
+              "detail": "Bike 85 min steady, then Run 25 min immediately off the bike. Practice the transition \u2014 the first few minutes of the run will feel heavy on tired legs; that's normal."
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Long Run",
+              "detail": "70 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day.",
+              "durationMin": 70
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 36,
+      "month": 9,
+      "phase": "Olympic Build",
+      "phaseKey": "C",
+      "isRecoveryWeek": true,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Tempo Run",
+              "detail": "35 min run \u2014 10 min easy warm-up, then steady-hard tempo effort, 5 min easy cool-down.",
+              "durationMin": 35
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Endurance Swim",
+              "detail": "1250m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
+              "distanceM": 1250
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Tempo Bike",
+              "detail": "55 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "durationMin": 55
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "brick",
+              "title": "Brick: Bike + Run",
+              "detail": "Bike 65 min steady, then Run 20 min immediately off the bike. Practice the transition \u2014 the first few minutes of the run will feel heavy on tired legs; that's normal."
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Long Run",
+              "detail": "50 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day.",
+              "durationMin": 50
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 37,
+      "month": 9,
+      "phase": "Olympic Build",
+      "phaseKey": "C",
+      "isRecoveryWeek": false,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Tempo Run",
+              "detail": "50 min run \u2014 10 min easy warm-up, then steady-hard tempo effort, 5 min easy cool-down.",
+              "durationMin": 50
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Endurance Swim",
+              "detail": "1700m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
+              "distanceM": 1700
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Tempo Bike",
+              "detail": "70 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "durationMin": 70
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "brick",
+              "title": "Brick: Bike + Run",
+              "detail": "Bike 90 min steady, then Run 30 min immediately off the bike. Practice the transition \u2014 the first few minutes of the run will feel heavy on tired legs; that's normal."
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Long Run",
+              "detail": "70 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day.",
+              "durationMin": 70
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 38,
+      "month": 9,
+      "phase": "Olympic Build",
+      "phaseKey": "C",
+      "isRecoveryWeek": false,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Tempo Run",
+              "detail": "50 min run \u2014 10 min easy warm-up, then steady-hard tempo effort, 5 min easy cool-down.",
+              "durationMin": 50
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Endurance Swim",
+              "detail": "1750m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
+              "distanceM": 1750
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Tempo Bike",
+              "detail": "75 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "durationMin": 75
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "brick",
+              "title": "Brick: Bike + Run",
+              "detail": "Bike 95 min steady, then Run 30 min immediately off the bike. Practice the transition \u2014 the first few minutes of the run will feel heavy on tired legs; that's normal."
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Long Run",
+              "detail": "75 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day.",
+              "durationMin": 75
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 39,
+      "month": 9,
+      "phase": "Olympic Build",
+      "phaseKey": "C",
+      "isRecoveryWeek": false,
+      "milestone": {
+        "week": 39,
+        "label": "Olympic Triathlon",
+        "emoji": "\ud83c\udfc1",
+        "distances": "1.5km swim / 40km bike / 10km run",
+        "note": "Double the sprint distance. Pace the bike conservatively so the 10K run doesn't fall apart."
+      },
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Tempo Run",
+              "detail": "50 min run \u2014 10 min easy warm-up, then steady-hard tempo effort, 5 min easy cool-down.",
+              "durationMin": 50
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Endurance Swim",
+              "detail": "1800m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
+              "distanceM": 1800
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Tempo Bike",
+              "detail": "75 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "durationMin": 75
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "brick",
+              "title": "Brick: Bike + Run",
+              "detail": "Bike 95 min steady, then Run 30 min immediately off the bike. Practice the transition \u2014 the first few minutes of the run will feel heavy on tired legs; that's normal."
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "race",
+              "title": "RACE DAY: Olympic Triathlon",
+              "detail": "1.5km swim / 40km bike / 10km run. Double the sprint distance. Pace the bike conservatively so the 10K run doesn't fall apart."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 40,
+      "month": 10,
+      "phase": "Half-Iron Build",
+      "phaseKey": "D",
+      "isRecoveryWeek": true,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Tempo Run",
+              "detail": "35 min run \u2014 10 min easy warm-up, then steady-hard tempo effort, 5 min easy cool-down.",
+              "durationMin": 35
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Endurance Swim",
+              "detail": "1350m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
+              "distanceM": 1350
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Tempo Bike",
+              "detail": "45 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "durationMin": 45
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Long Bike",
+              "detail": "70 min long ride \u2014 steady aerobic effort; practice race nutrition/hydration every 20-30 min.",
+              "durationMin": 70
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Long Run",
+              "detail": "55 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day.",
+              "durationMin": 55
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 41,
+      "month": 10,
+      "phase": "Half-Iron Build",
+      "phaseKey": "D",
+      "isRecoveryWeek": false,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Tempo Run",
+              "detail": "45 min run \u2014 10 min easy warm-up, then steady-hard tempo effort, 5 min easy cool-down.",
+              "durationMin": 45
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Endurance Swim",
+              "detail": "1850m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
+              "distanceM": 1850
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Tempo Bike",
+              "detail": "60 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "durationMin": 60
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Long Bike",
+              "detail": "100 min long ride \u2014 steady aerobic effort; practice race nutrition/hydration every 20-30 min.",
+              "durationMin": 100
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Long Run",
+              "detail": "75 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day.",
+              "durationMin": 75
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 42,
+      "month": 10,
+      "phase": "Half-Iron Build",
+      "phaseKey": "D",
+      "isRecoveryWeek": false,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Tempo Run",
+              "detail": "45 min run \u2014 10 min easy warm-up, then steady-hard tempo effort, 5 min easy cool-down.",
+              "durationMin": 45
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Endurance Swim",
+              "detail": "1900m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
+              "distanceM": 1900
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Tempo Bike",
+              "detail": "60 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "durationMin": 60
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Long Bike",
+              "detail": "110 min long ride \u2014 steady aerobic effort; practice race nutrition/hydration every 20-30 min.",
+              "durationMin": 110
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Long Run",
+              "detail": "80 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day.",
+              "durationMin": 80
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 43,
+      "month": 10,
+      "phase": "Half-Iron Build",
+      "phaseKey": "D",
+      "isRecoveryWeek": false,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Tempo Run",
+              "detail": "50 min run \u2014 10 min easy warm-up, then steady-hard tempo effort, 5 min easy cool-down.",
+              "durationMin": 50
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Endurance Swim",
+              "detail": "1950m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
+              "distanceM": 1950
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Tempo Bike",
+              "detail": "65 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "durationMin": 65
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "brick",
+              "title": "Long Bike + Run Finisher",
+              "detail": "115 min long ride \u2014 steady aerobic effort; practice race nutrition/hydration every 20-30 min. Finish with a 15 min easy run straight off the bike."
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Long Run",
+              "detail": "80 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day.",
+              "durationMin": 80
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 44,
+      "month": 11,
+      "phase": "Half-Iron Build",
+      "phaseKey": "D",
+      "isRecoveryWeek": true,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Tempo Run",
+              "detail": "35 min run \u2014 10 min easy warm-up, then steady-hard tempo effort, 5 min easy cool-down.",
+              "durationMin": 35
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Endurance Swim",
+              "detail": "1500m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
+              "distanceM": 1500
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Tempo Bike",
+              "detail": "50 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "durationMin": 50
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "brick",
+              "title": "Long Bike + Run Finisher",
+              "detail": "90 min long ride \u2014 steady aerobic effort; practice race nutrition/hydration every 20-30 min. Finish with a 10 min easy run straight off the bike."
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Long Run",
+              "detail": "60 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day.",
+              "durationMin": 60
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 45,
+      "month": 11,
+      "phase": "Half-Iron Build",
+      "phaseKey": "D",
+      "isRecoveryWeek": false,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Tempo Run",
+              "detail": "50 min run \u2014 10 min easy warm-up, then steady-hard tempo effort, 5 min easy cool-down.",
+              "durationMin": 50
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Endurance Swim",
+              "detail": "2050m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
+              "distanceM": 2050
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Tempo Bike",
+              "detail": "65 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "durationMin": 65
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "brick",
+              "title": "Long Bike + Run Finisher",
+              "detail": "130 min long ride \u2014 steady aerobic effort; practice race nutrition/hydration every 20-30 min. Finish with a 15 min easy run straight off the bike."
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Long Run",
+              "detail": "85 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day.",
+              "durationMin": 85
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 46,
+      "month": 11,
+      "phase": "Half-Iron Build",
+      "phaseKey": "D",
+      "isRecoveryWeek": false,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Tempo Run",
+              "detail": "50 min run \u2014 10 min easy warm-up, then steady-hard tempo effort, 5 min easy cool-down.",
+              "durationMin": 50
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Endurance Swim",
+              "detail": "2100m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes. If you have access to open water, this is a great week to practice in it.",
+              "distanceM": 2100
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Tempo Bike",
+              "detail": "70 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "durationMin": 70
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "brick",
+              "title": "Long Bike + Run Finisher",
+              "detail": "140 min long ride \u2014 steady aerobic effort; practice race nutrition/hydration every 20-30 min. Finish with a 20 min easy run straight off the bike."
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Long Run",
+              "detail": "90 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day.",
+              "durationMin": 90
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 47,
+      "month": 11,
+      "phase": "Half-Iron Build",
+      "phaseKey": "D",
+      "isRecoveryWeek": false,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Tempo Run",
+              "detail": "50 min run \u2014 10 min easy warm-up, then steady-hard tempo effort, 5 min easy cool-down.",
+              "durationMin": 50
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Endurance Swim",
+              "detail": "2150m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes. If you have access to open water, this is a great week to practice in it.",
+              "distanceM": 2150
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Tempo Bike",
+              "detail": "70 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "durationMin": 70
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "brick",
+              "title": "Long Bike + Run Finisher",
+              "detail": "145 min long ride \u2014 steady aerobic effort; practice race nutrition/hydration every 20-30 min. Finish with a 20 min easy run straight off the bike."
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Long Run",
+              "detail": "90 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day.",
+              "durationMin": 90
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 48,
+      "month": 12,
+      "phase": "Half-Iron Build",
+      "phaseKey": "D",
+      "isRecoveryWeek": true,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Tempo Run",
+              "detail": "40 min run \u2014 10 min easy warm-up, then steady-hard tempo effort, 5 min easy cool-down.",
+              "durationMin": 40
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Endurance Swim",
+              "detail": "1650m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes. If you have access to open water, this is a great week to practice in it.",
+              "distanceM": 1650
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Tempo Bike",
+              "detail": "50 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "durationMin": 50
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "brick",
+              "title": "Long Bike + Run Finisher",
+              "detail": "115 min long ride \u2014 steady aerobic effort; practice race nutrition/hydration every 20-30 min. Finish with a 15 min easy run straight off the bike."
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Long Run",
+              "detail": "70 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day.",
+              "durationMin": 70
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 49,
+      "month": 12,
+      "phase": "Half-Iron Build",
+      "phaseKey": "D",
+      "isRecoveryWeek": false,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Tempo Run",
+              "detail": "50 min run \u2014 10 min easy warm-up, then steady-hard tempo effort, 5 min easy cool-down.",
+              "durationMin": 50
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Endurance Swim",
+              "detail": "2250m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes. If you have access to open water, this is a great week to practice in it.",
+              "distanceM": 2250
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Tempo Bike",
+              "detail": "70 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "durationMin": 70
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "brick",
+              "title": "Long Bike + Run Finisher",
+              "detail": "160 min long ride \u2014 steady aerobic effort; practice race nutrition/hydration every 20-30 min. Finish with a 20 min easy run straight off the bike."
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Long Run",
+              "detail": "95 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day.",
+              "durationMin": 95
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 50,
+      "month": 12,
+      "phase": "Half-Iron Build",
+      "phaseKey": "D",
+      "isRecoveryWeek": false,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Tempo Run",
+              "detail": "55 min run \u2014 10 min easy warm-up, then steady-hard tempo effort, 5 min easy cool-down.",
+              "durationMin": 55
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Endurance Swim",
+              "detail": "2300m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes. If you have access to open water, this is a great week to practice in it.",
+              "distanceM": 2300
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Tempo Bike",
+              "detail": "70 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "durationMin": 70
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "brick",
+              "title": "Long Bike + Run Finisher",
+              "detail": "165 min long ride \u2014 steady aerobic effort; practice race nutrition/hydration every 20-30 min. Finish with a 20 min easy run straight off the bike."
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Long Run",
+              "detail": "95 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day.",
+              "durationMin": 95
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 51,
+      "month": 12,
+      "phase": "Half-Iron Build",
+      "phaseKey": "D",
+      "isRecoveryWeek": false,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Tempo Run",
+              "detail": "55 min run \u2014 10 min easy warm-up, then steady-hard tempo effort, 5 min easy cool-down.",
+              "durationMin": 55
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Endurance Swim",
+              "detail": "2350m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes. If you have access to open water, this is a great week to practice in it.",
+              "distanceM": 2350
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Tempo Bike",
+              "detail": "75 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "durationMin": 75
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "brick",
+              "title": "Long Bike + Run Finisher",
+              "detail": "175 min long ride \u2014 steady aerobic effort; practice race nutrition/hydration every 20-30 min. Finish with a 20 min easy run straight off the bike."
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Long Run",
+              "detail": "100 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day.",
+              "durationMin": 100
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 52,
+      "month": 12,
+      "phase": "Half-Iron Build",
+      "phaseKey": "D",
+      "isRecoveryWeek": true,
+      "milestone": {
+        "week": 52,
+        "label": "Half-Iron Triathlon (70.3)",
+        "emoji": "\ud83c\udfc1",
+        "distances": "1.9km swim / 90km bike / 21.1km run",
+        "note": "A huge benchmark \u2014 if you finish this feeling strong, the full distance is a question of patience, not fitness."
+      },
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Tempo Run",
+              "detail": "40 min run \u2014 10 min easy warm-up, then steady-hard tempo effort, 5 min easy cool-down.",
+              "durationMin": 40
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Endurance Swim",
+              "detail": "1800m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes. If you have access to open water, this is a great week to practice in it.",
+              "distanceM": 1800
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Tempo Bike",
+              "detail": "55 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "durationMin": 55
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "brick",
+              "title": "Long Bike + Run Finisher",
+              "detail": "135 min long ride \u2014 steady aerobic effort; practice race nutrition/hydration every 20-30 min. Finish with a 15 min easy run straight off the bike."
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "race",
+              "title": "RACE DAY: Half-Iron Triathlon (70.3)",
+              "detail": "1.9km swim / 90km bike / 21.1km run. A huge benchmark \u2014 if you finish this feeling strong, the full distance is a question of patience, not fitness."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 53,
+      "month": 13,
+      "phase": "Ironman Build",
+      "phaseKey": "E",
+      "isRecoveryWeek": false,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Tempo/Hills Run",
+              "detail": "45 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 45
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Long Swim",
+              "detail": "2400m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
+              "distanceM": 2400
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Steady Bike",
+              "detail": "60 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "durationMin": 60
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Long Bike",
+              "detail": "180 min long ride \u2014 steady aerobic effort; practice race nutrition/hydration every 20-30 min.",
+              "durationMin": 180
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Long Run",
+              "detail": "100 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day. This is Ironman-specific endurance work \u2014 patience over pace.",
+              "durationMin": 100
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 54,
+      "month": 13,
+      "phase": "Ironman Build",
+      "phaseKey": "E",
+      "isRecoveryWeek": false,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Tempo/Hills Run",
+              "detail": "45 min run with rolling hills or 4-6 short hill efforts \u2014 steady effort on the climbs, relaxed on the descents.",
+              "durationMin": 45
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Long Swim",
+              "detail": "2550m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
+              "distanceM": 2550
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Steady Bike",
+              "detail": "60 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "durationMin": 60
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Long Bike",
+              "detail": "195 min long ride \u2014 steady aerobic effort; practice race nutrition/hydration every 20-30 min.",
+              "durationMin": 195
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Long Run",
+              "detail": "110 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day. This is Ironman-specific endurance work \u2014 patience over pace.",
+              "durationMin": 110
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 55,
+      "month": 13,
+      "phase": "Ironman Build",
+      "phaseKey": "E",
+      "isRecoveryWeek": false,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Tempo/Hills Run",
+              "detail": "50 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 50
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Long Swim",
+              "detail": "2700m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
+              "distanceM": 2700
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Steady Bike",
+              "detail": "65 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "durationMin": 65
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Long Bike",
+              "detail": "210 min long ride \u2014 steady aerobic effort; practice race nutrition/hydration every 20-30 min.",
+              "durationMin": 210
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Long Run",
+              "detail": "115 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day. This is Ironman-specific endurance work \u2014 patience over pace.",
+              "durationMin": 115
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 56,
+      "month": 13,
+      "phase": "Ironman Build",
+      "phaseKey": "E",
+      "isRecoveryWeek": true,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Tempo/Hills Run",
+              "detail": "35 min run with rolling hills or 4-6 short hill efforts \u2014 steady effort on the climbs, relaxed on the descents.",
+              "durationMin": 35
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Long Swim",
+              "detail": "2100m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
+              "distanceM": 2100
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Steady Bike",
+              "detail": "50 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "durationMin": 50
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Long Bike",
+              "detail": "170 min long ride \u2014 steady aerobic effort; practice race nutrition/hydration every 20-30 min.",
+              "durationMin": 170
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Long Run",
+              "detail": "95 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day. This is Ironman-specific endurance work \u2014 patience over pace.",
+              "durationMin": 95
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 57,
+      "month": 14,
+      "phase": "Ironman Build",
+      "phaseKey": "E",
+      "isRecoveryWeek": false,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Tempo/Hills Run",
+              "detail": "50 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 50
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Long Swim",
+              "detail": "2950m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
+              "distanceM": 2950
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Steady Bike",
+              "detail": "65 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "durationMin": 65
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Long Bike",
+              "detail": "240 min long ride \u2014 steady aerobic effort; practice race nutrition/hydration every 20-30 min.",
+              "durationMin": 240
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Long Run",
+              "detail": "130 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day. This is Ironman-specific endurance work \u2014 patience over pace.",
+              "durationMin": 130
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 58,
+      "month": 14,
+      "phase": "Ironman Build",
+      "phaseKey": "E",
+      "isRecoveryWeek": false,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Tempo/Hills Run",
+              "detail": "50 min run with rolling hills or 4-6 short hill efforts \u2014 steady effort on the climbs, relaxed on the descents.",
+              "durationMin": 50
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Long Swim",
+              "detail": "3100m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
+              "distanceM": 3100
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Steady Bike",
+              "detail": "70 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "durationMin": 70
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Long Bike",
+              "detail": "255 min long ride \u2014 steady aerobic effort; practice race nutrition/hydration every 20-30 min.",
+              "durationMin": 255
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Long Run",
+              "detail": "140 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day. This is Ironman-specific endurance work \u2014 patience over pace.",
+              "durationMin": 140
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 59,
+      "month": 14,
+      "phase": "Ironman Build",
+      "phaseKey": "E",
+      "isRecoveryWeek": false,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Tempo/Hills Run",
+              "detail": "55 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 55
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Long Swim",
+              "detail": "3250m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
+              "distanceM": 3250
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Steady Bike",
+              "detail": "70 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "durationMin": 70
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Long Bike",
+              "detail": "270 min long ride \u2014 steady aerobic effort; practice race nutrition/hydration every 20-30 min.",
+              "durationMin": 270
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Long Run",
+              "detail": "150 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day. This is Ironman-specific endurance work \u2014 patience over pace.",
+              "durationMin": 150
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 60,
+      "month": 14,
+      "phase": "Ironman Build",
+      "phaseKey": "E",
+      "isRecoveryWeek": true,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Tempo/Hills Run",
+              "detail": "40 min run with rolling hills or 4-6 short hill efforts \u2014 steady effort on the climbs, relaxed on the descents.",
+              "durationMin": 40
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Long Swim",
+              "detail": "2550m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
+              "distanceM": 2550
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Steady Bike",
+              "detail": "55 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "durationMin": 55
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Long Bike",
+              "detail": "215 min long ride \u2014 steady aerobic effort; practice race nutrition/hydration every 20-30 min.",
+              "durationMin": 215
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Long Run",
+              "detail": "115 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day. This is Ironman-specific endurance work \u2014 patience over pace.",
+              "durationMin": 115
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 61,
+      "month": 15,
+      "phase": "Ironman Build",
+      "phaseKey": "E",
+      "isRecoveryWeek": false,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Tempo/Hills Run",
+              "detail": "55 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 55
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Long Swim",
+              "detail": "3500m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
+              "distanceM": 3500
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Steady Bike",
+              "detail": "70 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "durationMin": 70
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Long Bike",
+              "detail": "300 min long ride \u2014 steady aerobic effort; practice race nutrition/hydration every 20-30 min.",
+              "durationMin": 300
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Long Run",
+              "detail": "165 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day. This is Ironman-specific endurance work \u2014 patience over pace.",
+              "durationMin": 165
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 62,
+      "month": 15,
+      "phase": "Ironman Build",
+      "phaseKey": "E",
+      "isRecoveryWeek": false,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Tempo/Hills Run",
+              "detail": "60 min run with rolling hills or 4-6 short hill efforts \u2014 steady effort on the climbs, relaxed on the descents.",
+              "durationMin": 60
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Long Swim",
+              "detail": "3650m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
+              "distanceM": 3650
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Steady Bike",
+              "detail": "75 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "durationMin": 75
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Long Bike",
+              "detail": "315 min long ride \u2014 steady aerobic effort; practice race nutrition/hydration every 20-30 min.",
+              "durationMin": 315
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Long Run",
+              "detail": "170 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day. This is Ironman-specific endurance work \u2014 patience over pace.",
+              "durationMin": 170
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 63,
+      "month": 15,
+      "phase": "Ironman Build",
+      "phaseKey": "E",
+      "isRecoveryWeek": false,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Tempo/Hills Run",
+              "detail": "60 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 60
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Long Swim",
+              "detail": "3800m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
+              "distanceM": 3800
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Steady Bike",
+              "detail": "75 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "durationMin": 75
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Long Bike",
+              "detail": "330 min long ride \u2014 steady aerobic effort; practice race nutrition/hydration every 20-30 min.",
+              "durationMin": 330
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Long Run",
+              "detail": "180 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day. This is Ironman-specific endurance work \u2014 patience over pace.",
+              "durationMin": 180
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 64,
+      "month": 15,
+      "phase": "Ironman Build",
+      "phaseKey": "E",
+      "isRecoveryWeek": true,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Tempo/Hills Run",
+              "detail": "45 min run with rolling hills or 4-6 short hill efforts \u2014 steady effort on the climbs, relaxed on the descents.",
+              "durationMin": 45
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Long Swim",
+              "detail": "2850m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
+              "distanceM": 2850
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Steady Bike",
+              "detail": "55 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "durationMin": 55
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Long Bike",
+              "detail": "250 min long ride \u2014 steady aerobic effort; practice race nutrition/hydration every 20-30 min.",
+              "durationMin": 250
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Long Run",
+              "detail": "135 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day. This is Ironman-specific endurance work \u2014 patience over pace.",
+              "durationMin": 135
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 65,
+      "month": 15,
+      "phase": "Ironman Build",
+      "phaseKey": "E",
+      "isRecoveryWeek": false,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Tempo/Hills Run",
+              "detail": "60 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 60
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Long Swim",
+              "detail": "3800m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
+              "distanceM": 3800
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Steady Bike",
+              "detail": "75 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "durationMin": 75
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Long Bike",
+              "detail": "330 min long ride \u2014 steady aerobic effort; practice race nutrition/hydration every 20-30 min.",
+              "durationMin": 330
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Long Run",
+              "detail": "180 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day. This is Ironman-specific endurance work \u2014 patience over pace.",
+              "durationMin": 180
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 66,
+      "month": 16,
+      "phase": "Taper & Race",
+      "phaseKey": "F",
+      "isRecoveryWeek": false,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Taper Run",
+              "detail": "35 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 35
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Taper Swim",
+              "detail": "2000m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
+              "distanceM": 2000
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Taper Bike",
+              "detail": "50 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "durationMin": 50
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "brick",
+              "title": "Long Bike + Run Finisher",
+              "detail": "150 min long ride \u2014 steady aerobic effort; practice race nutrition/hydration every 20-30 min. Finish with a 15 min easy run straight off the bike."
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Long Run",
+              "detail": "90 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 67,
+      "month": 16,
+      "phase": "Taper & Race",
+      "phaseKey": "F",
+      "isRecoveryWeek": false,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Taper Run",
+              "detail": "30 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 30
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Taper Swim",
+              "detail": "1500m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
+              "distanceM": 1500
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Taper Bike",
+              "detail": "45 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "durationMin": 45
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Easy Long Bike",
+              "detail": "100 min long ride \u2014 steady aerobic effort; practice race nutrition/hydration every 20-30 min.",
+              "durationMin": 100
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Long Run",
+              "detail": "60 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 68,
+      "month": 16,
+      "phase": "Taper & Race",
+      "phaseKey": "F",
+      "isRecoveryWeek": false,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Taper Run",
+              "detail": "20 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 20
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Taper Swim",
+              "detail": "1000m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
+              "distanceM": 1000
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Taper Bike",
+              "detail": "30 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "durationMin": 30
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Easy Long Bike",
+              "detail": "60 min long ride \u2014 steady aerobic effort; practice race nutrition/hydration every 20-30 min.",
+              "durationMin": 60
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Long Run",
+              "detail": "40 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 69,
+      "month": 16,
+      "phase": "Taper & Race",
+      "phaseKey": "F",
+      "isRecoveryWeek": false,
+      "milestone": null,
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Taper Run",
+              "detail": "15 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 15
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Taper Swim",
+              "detail": "800m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
+              "distanceM": 800
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Taper Bike",
+              "detail": "20 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "durationMin": 20
+            }
+          ]
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Easy Long Bike",
+              "detail": "30 min long ride \u2014 steady aerobic effort; practice race nutrition/hydration every 20-30 min.",
+              "durationMin": 30
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Long Run",
+              "detail": "20 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "week": 70,
+      "month": 16,
+      "phase": "Taper & Race",
+      "phaseKey": "F",
+      "isRecoveryWeek": false,
+      "milestone": {
+        "week": 70,
+        "label": "Full Ironman (140.6)",
+        "emoji": "\ud83e\udd47",
+        "distances": "3.86km swim / 180km bike / 42.2km run",
+        "note": "Race day. Sixteen months of work for this one. Trust your pacing, fuel early and often, and smile at mile 20 \u2014 you earned it."
+      },
+      "days": [
+        {
+          "label": "Day 1",
+          "sessions": []
+        },
+        {
+          "label": "Day 2",
+          "sessions": [
+            {
+              "discipline": "bike",
+              "title": "Easy Spin",
+              "detail": "15 min easy spin, just to keep the legs loose. Should feel like nothing.",
+              "durationMin": 15
+            }
+          ]
+        },
+        {
+          "label": "Day 3",
+          "sessions": []
+        },
+        {
+          "label": "Day 4",
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Shakeout Jog",
+              "detail": "10-15 min easy jog + a few strides. Check that race-day shoes/gear feel good.",
+              "durationMin": 15
+            }
+          ]
+        },
+        {
+          "label": "Day 5",
+          "sessions": []
+        },
+        {
+          "label": "Day 6",
+          "sessions": [
+            {
+              "discipline": "swim",
+              "title": "Pre-Race Loosener",
+              "detail": "10 min easy swim, just to feel the water. Lay out gear and review your nutrition plan.",
+              "distanceM": 400
+            }
+          ]
+        },
+        {
+          "label": "Day 7",
+          "sessions": [
+            {
+              "discipline": "race",
+              "title": "RACE DAY: Full Ironman (140.6)",
+              "detail": "3.86km swim / 180km bike / 42.2km run. Race day. Sixteen months of work for this one. Trust your pacing, fuel early and often, and smile at mile 20 \u2014 you earned it."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

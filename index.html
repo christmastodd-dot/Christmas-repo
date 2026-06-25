@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Couch to Tri</title>
+<meta name="description" content="A 16-month couch-to-Ironman triathlon training plan you can carry in your pocket.">
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0ea5e9">
+
+<!-- iOS home screen support -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="C2T">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/icon-192.png">
+
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header__title">
+    <span class="app-header__logo" aria-hidden="true">C2T</span>
+    <span class="app-header__name">Couch to Tri</span>
+  </div>
+  <div id="header-chip" class="app-header__chip" hidden></div>
+</header>
+
+<main id="view-today" class="view" data-view="today">
+  <div id="today-content"></div>
+</main>
+
+<main id="view-plan" class="view" data-view="plan" hidden>
+  <div class="plan-toolbar">
+    <button id="jump-to-current" class="btn btn--ghost">Jump to current week</button>
+  </div>
+  <div id="plan-content"></div>
+</main>
+
+<main id="view-progress" class="view" data-view="progress" hidden>
+  <div id="progress-content"></div>
+</main>
+
+<main id="view-settings" class="view" data-view="settings" hidden>
+  <div id="settings-content"></div>
+</main>
+
+<nav class="bottom-nav" aria-label="Main navigation">
+  <button class="bottom-nav__btn is-active" data-target="today">
+    <span class="bottom-nav__icon" aria-hidden="true">&#9679;</span>
+    <span>Today</span>
+  </button>
+  <button class="bottom-nav__btn" data-target="plan">
+    <span class="bottom-nav__icon" aria-hidden="true">&#9776;</span>
+    <span>Plan</span>
+  </button>
+  <button class="bottom-nav__btn" data-target="progress">
+    <span class="bottom-nav__icon" aria-hidden="true">&#9650;</span>
+    <span>Progress</span>
+  </button>
+  <button class="bottom-nav__btn" data-target="settings">
+    <span class="bottom-nav__icon" aria-hidden="true">&#9881;</span>
+    <span>Settings</span>
+  </button>
+</nav>
+
+<template id="tmpl-onboarding">
+  <div class="card onboarding">
+    <h2>Welcome to your 16-month plan</h2>
+    <p>This plan runs 70 weeks: a Foundation phase, then builds through a Sprint, Olympic, and Half-Iron triathlon on the way to a full-distance Ironman finish.</p>
+    <p>Pick the date you want Week 1, Day 1 to start:</p>
+    <label class="field">
+      <span>Plan start date</span>
+      <input type="date" id="onboarding-date">
+    </label>
+    <button id="onboarding-submit" class="btn btn--primary">Start my plan</button>
+  </div>
+</template>
+
+<script src="js/app.js" defer></script>
+</body>
+</html>
