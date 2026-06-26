@@ -43,6 +43,7 @@
   let deferredInstallPrompt = null;
   let expandedLogKey = null;
   let sessionByKey = {};
+  let manualPRFormOpen = false;
 
   // ---------- date helpers (local time, no UTC surprises) ----------
 
@@ -184,9 +185,9 @@
     return best;
   }
 
-  function recordPRs(session, { actualDurationMin, actualDistanceM }) {
+  function recordPRs(session, { actualDurationMin, actualDistanceM }, dateOverride) {
     const discipline = session.discipline;
-    const today = toISODate(new Date());
+    const today = dateOverride || toISODate(new Date());
     const achieved = [];
     let changed = false;
 
@@ -694,20 +695,67 @@
 
     const hasAny =
       Object.keys(prs.standard).length || Object.keys(prs.longestDistance).length || Object.keys(prs.longestDuration).length;
+
+    const manualSection = `<div class="card">
+      <h3>Personal bests</h3>
+      ${manualPRFormHTML()}
+    </div>`;
+
     if (!hasAny) {
-      return `<div class="card">
-        <h3>Personal bests</h3>
-        <p class="rest-note">Log a time and distance on a run, swim, or bike session to start tracking PRs.</p>
+      return `${manualSection}
+      <div class="card">
+        <p class="rest-note">Log a time and distance on a run, swim, or bike session — or add one manually above — to start tracking PRs.</p>
       </div>`;
     }
 
-    return `<div class="card">
-      <h3>Personal bests · race distances</h3>
+    return `${manualSection}
+    <div class="card">
+      <h3>Race distances</h3>
       ${raceRows}
     </div>
     <div class="card">
-      <h3>Personal bests · longest efforts</h3>
+      <h3>Longest efforts</h3>
       ${longestRows || `<p class="rest-note">No logged sessions yet.</p>`}
+    </div>`;
+  }
+
+  function manualPRFormHTML() {
+    if (!manualPRFormOpen) {
+      return `<button class="link-btn" data-manual-pr-toggle="1">+ Add a PR manually</button>`;
+    }
+    const todayStr = toISODate(new Date());
+    return `<div class="log-form">
+      <label class="field">
+        <span>Discipline</span>
+        <select id="manual-pr-discipline">
+          <option value="run">Run</option>
+          <option value="bike">Bike</option>
+          <option value="swim">Swim</option>
+          <option value="brick">Brick</option>
+        </select>
+      </label>
+      <label class="field">
+        <span>Time (mm:ss)</span>
+        <input type="text" inputmode="numeric" placeholder="e.g. 52:30" id="manual-pr-time">
+      </label>
+      <label class="field">
+        <span>Distance</span>
+        <div style="display:flex; gap:8px;">
+          <input type="number" step="0.01" min="0" placeholder="e.g. 10" id="manual-pr-distance" style="flex:1;">
+          <select id="manual-pr-unit" style="flex:none; width:auto;">
+            <option value="km">km</option>
+            <option value="m">m</option>
+          </select>
+        </div>
+      </label>
+      <label class="field">
+        <span>Date achieved</span>
+        <input type="date" id="manual-pr-date" value="${todayStr}" max="${todayStr}">
+      </label>
+      <div class="log-form__actions">
+        <button class="btn btn--primary" data-manual-pr-save="1">Save PR</button>
+        <button class="btn btn--ghost" data-manual-pr-cancel="1">Cancel</button>
+      </div>
     </div>`;
   }
 
@@ -815,10 +863,11 @@
 
   // ---------- toast ----------
 
-  function showToast(messages) {
+  function showToast(messages, title) {
+    const heading = title || `New PR${messages.length > 1 ? "s" : ""}!`;
     const el = document.createElement("div");
     el.className = "toast";
-    el.innerHTML = `<strong>New PR${messages.length > 1 ? "s" : ""}!</strong><br>${messages.map(escapeHtml).join("<br>")}`;
+    el.innerHTML = `<strong>${escapeHtml(heading)}</strong><br>${messages.map(escapeHtml).join("<br>")}`;
     document.body.appendChild(el);
     requestAnimationFrame(() => el.classList.add("is-visible"));
     setTimeout(() => {
@@ -866,6 +915,42 @@
         expandedLogKey = null;
         renderAll();
         if (newPRs.length) showToast(newPRs);
+        return;
+      }
+      const manualPRToggleBtn = e.target.closest("[data-manual-pr-toggle]");
+      if (manualPRToggleBtn) {
+        manualPRFormOpen = true;
+        renderProgress();
+        return;
+      }
+      const manualPRCancelBtn = e.target.closest("[data-manual-pr-cancel]");
+      if (manualPRCancelBtn) {
+        manualPRFormOpen = false;
+        renderProgress();
+        return;
+      }
+      const manualPRSaveBtn = e.target.closest("[data-manual-pr-save]");
+      if (manualPRSaveBtn) {
+        const discipline = document.getElementById("manual-pr-discipline").value;
+        const timeInput = document.getElementById("manual-pr-time");
+        const distInput = document.getElementById("manual-pr-distance");
+        const unitSel = document.getElementById("manual-pr-unit");
+        const dateInput = document.getElementById("manual-pr-date");
+
+        const actualDurationMin = timeInput.value ? parseTimeToMinutes(timeInput.value) : null;
+        const actualDistanceM = distInput.value ? distanceInputToMeters(unitSel.value === "km" ? "run" : "swim", distInput.value) : null;
+
+        if (actualDurationMin == null && actualDistanceM == null) {
+          showToast(["Enter a time and/or distance first."], "Nothing to save");
+          return;
+        }
+
+        const date = dateInput.value || toISODate(new Date());
+        const achieved = recordPRs({ discipline }, { actualDurationMin, actualDistanceM }, date);
+        manualPRFormOpen = false;
+        renderProgress();
+        if (achieved.length) showToast(achieved);
+        else showToast(["That result didn't beat your current personal best."], "No new PR");
         return;
       }
       if (e.target.id === "onboarding-submit") {
