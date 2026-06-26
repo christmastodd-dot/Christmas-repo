@@ -4,9 +4,9 @@ A installable, offline-capable web app for a 16-month (70-week) training plan
 that goes from couch to a full-distance Ironman triathlon — with Sprint,
 Olympic, and Half-Iron triathlons as benchmark races along the way.
 
-No backend, no build step, no account. Your start date and checked-off
-workouts are stored locally on your phone (`localStorage`); nothing is sent
-anywhere.
+No backend, no build step, no account. Your start date, checked-off workouts,
+logged times/distances, and personal bests are stored locally on your phone
+(`localStorage`); nothing is sent anywhere.
 
 ## Run it locally
 
