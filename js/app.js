@@ -503,19 +503,35 @@
         const done = isDone(key);
         const date = startDate ? dateForWeekDay(startDate, week.week, dayIdx) : null;
         const dateStr = date ? date.toLocaleDateString(undefined, { month: "short", day: "numeric" }) : day.label;
-        if (!day.sessions.length) {
-          return `<div class="day-row"><span class="day-row__label">${dateStr}</span><span class="day-row__title rest-note">Rest</span><span class="day-row__meta"></span></div>`;
-        }
-        const s = day.sessions[0];
-        const meta = formatSessionMeta(s);
-        return `<div class="day-row">
-          <span class="day-row__label">${dateStr}</span>
-          <span class="day-row__title">${sessionIcon(s.discipline)} ${escapeHtml(s.title)}</span>
-          <span class="day-row__meta">${meta}</span>
-          <button class="session-check ${done ? "is-checked" : ""}" data-key="${key}" aria-label="Mark complete" style="margin-left:8px;">${done ? "✓" : ""}</button>
-        </div>`;
+
+        const plannedRowHTML = !day.sessions.length
+          ? `<div class="day-row"><span class="day-row__label">${dateStr}</span><span class="day-row__title rest-note">Rest</span><span class="day-row__meta"></span></div>`
+          : (() => {
+              const s = day.sessions[0];
+              const meta = formatSessionMeta(s);
+              return `<div class="day-row">
+                <span class="day-row__label">${dateStr}</span>
+                <span class="day-row__title">${sessionIcon(s.discipline)} ${escapeHtml(s.title)}</span>
+                <span class="day-row__meta">${meta}</span>
+                <button class="session-check ${done ? "is-checked" : ""}" data-key="${key}" aria-label="Mark complete" style="margin-left:8px;">${done ? "✓" : ""}</button>
+              </div>`;
+            })();
+
+        const extras = date ? extraWorkouts[toISODate(date)] || [] : [];
+        const extraRowsHTML = extras.map((w) => extraWorkoutDayRowHTML(w)).join("");
+
+        return plannedRowHTML + extraRowsHTML;
       })
       .join("");
+  }
+
+  function extraWorkoutDayRowHTML(w) {
+    return `<div class="day-row">
+      <span class="day-row__label"></span>
+      <span class="day-row__title">${sessionIcon(w.discipline)} ${escapeHtml(w.label || DISCIPLINE_LABEL[w.discipline])}</span>
+      <span class="day-row__meta">${escapeHtml(extraWorkoutSummary(w))}</span>
+      <span class="day-row__check-static" aria-label="Logged">✓</span>
+    </div>`;
   }
 
   // ---------- Today view: extra / off-plan workouts ----------
@@ -543,17 +559,21 @@
     </div>`;
   }
 
-  function extraWorkoutRowHTML(w) {
+  function extraWorkoutSummary(w) {
     const pace = formatPace(w.discipline, w.actualDurationMin, w.actualDistanceM);
     const parts = [
       w.actualDurationMin != null ? formatRaceTime(w.actualDurationMin) : "",
       w.actualDistanceM != null ? formatDistance(w.actualDistanceM) : "",
       pace,
     ].filter(Boolean);
+    return parts.join(" · ");
+  }
+
+  function extraWorkoutRowHTML(w) {
     return `<div class="milestone-row">
       <span>${sessionIcon(w.discipline)} ${escapeHtml(w.label || DISCIPLINE_LABEL[w.discipline])}</span>
       <span class="day-row__meta">
-        ${escapeHtml(parts.join(" · "))}
+        ${escapeHtml(extraWorkoutSummary(w))}
         <button class="row-edit-btn" data-extra-workout-edit="${w.id}" aria-label="Edit workout">✎</button>
         <button class="row-delete-btn" data-extra-workout-remove="${w.id}" aria-label="Remove workout">✕</button>
       </span>
