@@ -331,6 +331,36 @@
     border-radius: 999px;
     cursor: pointer;
   }
+  .chip-row {
+    display: flex; gap: 8px;
+    overflow-x: auto; -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 4px; margin-top: 10px;
+  }
+  .chip-row::-webkit-scrollbar { display: none; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--panel2); border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 999px; padding: 8px 12px;
+    font-size: 13px; cursor: pointer;
+    flex-shrink: 0; min-height: 38px; white-space: nowrap;
+  }
+  .chip:active { background: var(--accent); color: #0b0d12; }
+  .chip-x {
+    background: transparent; border: none;
+    color: var(--muted); cursor: pointer;
+    padding: 0 4px; font-size: 16px; line-height: 1;
+  }
+  .chip-x:hover { color: var(--bad); }
+  .save-meal {
+    background: transparent; border: none;
+    color: var(--muted); font-size: 18px;
+    cursor: pointer; padding: 4px 8px;
+    min-width: 36px; min-height: 36px;
+  }
+  .save-meal:hover { color: var(--warn); }
+  .save-meal.saved { color: var(--good); }
   .empty {
     color: var(--muted);
     font-size: 13px;
@@ -487,6 +517,11 @@
         <div><div class="v" id="totF">0g</div><div class="k">fat</div></div>
       </div>
     </div>
+    <div class="card">
+      <h2>Saved meals</h2>
+      <div class="meta">Tap a chip to add it to today; tap &#9733; on a meal below to save one.</div>
+      <div id="savedMealList" class="chip-row"></div>
+    </div>
     <div id="mealList"></div>
     <button class="btn ghost" id="addMeal" style="width:100%">+ Add meal</button>
   </section>
@@ -638,7 +673,7 @@ function seed() {
     id: "m-"+i+"-"+Date.now(), name: m.name, days: m.days, last: 0
   }));
   return {
-    items, body: [], photos: [], food: {},
+    items, body: [], photos: [], food: {}, savedMeals: [],
     streak: { count: 0, lastDay: null },
     settings: { theme: "dark", remind: false, remindTime: "21:00", lastNotified: null }
   };
@@ -647,6 +682,7 @@ function save() { localStorage.setItem(KEY, JSON.stringify(data)); }
 if (!data.settings) data.settings = { theme: "dark", remind: false, remindTime: "21:00", lastNotified: null };
 if (!data.food) data.food = {};
 if (!data.items.midday) data.items.midday = [];
+if (!data.savedMeals) data.savedMeals = [];
 
 function todayStr() {
   const d = new Date();
@@ -723,13 +759,32 @@ function mealNode(m) {
   const name = document.createElement("input");
   name.type = "text"; name.className = "meal-name"; name.value = m.name;
   name.addEventListener("input", () => { m.name = name.value; save(); });
+  const star = document.createElement("button");
+  star.className = "save-meal"; star.type = "button";
+  star.title = "Save meal for later"; star.textContent = "★";
+  star.addEventListener("click", () => {
+    if (!m.name.trim()) { alert("Name the meal before saving."); return; }
+    if (!data.savedMeals) data.savedMeals = [];
+    data.savedMeals.push({
+      id: "sm-" + Math.random().toString(36).slice(2) + Date.now(),
+      name: m.name.trim(),
+      protein: +m.protein || 0,
+      carbs: +m.carbs || 0,
+      fat: +m.fat || 0,
+      cal: m.calOverride ? (+m.cal || 0) : autoCal(m),
+      calOverride: !!m.calOverride
+    });
+    save(); renderSavedMeals();
+    star.classList.add("saved");
+    setTimeout(() => star.classList.remove("saved"), 1200);
+  });
   const del = document.createElement("button");
   del.className = "del"; del.innerHTML = "&times;"; del.title = "Remove meal";
   del.addEventListener("click", () => {
     data.food[foodDate] = data.food[foodDate].filter(x => x.id !== m.id);
     save(); renderFood();
   });
-  head.appendChild(name); head.appendChild(del);
+  head.appendChild(name); head.appendChild(star); head.appendChild(del);
 
   const grid = document.createElement("div");
   grid.className = "macro-grid";
@@ -770,9 +825,55 @@ function mealNode(m) {
   div.appendChild(head); div.appendChild(grid);
   return div;
 }
+function renderSavedMeals() {
+  const wrap = document.getElementById("savedMealList");
+  if (!wrap) return;
+  if (!data.savedMeals) data.savedMeals = [];
+  wrap.innerHTML = "";
+  if (data.savedMeals.length === 0) {
+    const e = document.createElement("div");
+    e.className = "empty"; e.style.flex = "1";
+    e.textContent = "No saved meals yet.";
+    wrap.appendChild(e);
+    return;
+  }
+  for (const sm of data.savedMeals) {
+    const cal = sm.calOverride ? (+sm.cal||0) : autoCal(sm);
+    const chip = document.createElement("button");
+    chip.className = "chip"; chip.type = "button";
+    chip.title = `P${Math.round(sm.protein)} C${Math.round(sm.carbs)} F${Math.round(sm.fat)} · ${Math.round(cal)} kcal`;
+    const lbl = document.createElement("span");
+    lbl.textContent = `${sm.name} · ${Math.round(cal)} kcal`;
+    const x = document.createElement("span");
+    x.className = "chip-x"; x.innerHTML = "&times;"; x.title = "Remove from library";
+    x.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (!confirm(`Remove "${sm.name}" from saved meals?`)) return;
+      data.savedMeals = data.savedMeals.filter(z => z.id !== sm.id);
+      save(); renderSavedMeals();
+    });
+    chip.appendChild(lbl); chip.appendChild(x);
+    chip.addEventListener("click", () => {
+      const meals = ensureFoodDay(foodDate);
+      meals.push({
+        id: "meal-" + Math.random().toString(36).slice(2) + Date.now(),
+        name: sm.name,
+        protein: +sm.protein || 0,
+        carbs: +sm.carbs || 0,
+        fat: +sm.fat || 0,
+        cal: +sm.cal || 0,
+        calOverride: !!sm.calOverride
+      });
+      save(); renderFood();
+    });
+    wrap.appendChild(chip);
+  }
+}
+
 function renderFood() {
   const meals = ensureFoodDay(foodDate);
   document.getElementById("foodDateLabel").textContent = foodDateLabel(foodDate);
+  renderSavedMeals();
   const list = document.getElementById("mealList");
   list.innerHTML = "";
   if (meals.length === 0) {
