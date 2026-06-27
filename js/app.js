@@ -6,6 +6,7 @@
   const STORAGE_PRS = "c2t_prs";
   const STORAGE_CUSTOM_RACES = "c2t_custom_races";
   const STORAGE_MILESTONE_OVERRIDES = "c2t_milestone_overrides";
+  const STORAGE_EXTRA_WORKOUTS = "c2t_extra_workouts";
 
   const DISCIPLINE_ICON = {
     run: "\u{1F3C3}",
@@ -16,12 +17,14 @@
     race: "\u{1F3C1}",
   };
 
-  const DISCIPLINE_LABEL = { run: "Run", bike: "Bike", swim: "Swim", brick: "Brick" };
+  const DISCIPLINE_LABEL = { run: "Run", bike: "Bike", swim: "Swim", brick: "Brick", strength: "Strength" };
 
   // Disciplines that can log an actual time/distance result.
   const LOGGABLE_DISCIPLINES = ["run", "bike", "swim", "brick"];
   const DISTANCE_PR_DISCIPLINES = ["run", "bike", "swim"];
   const DURATION_PR_DISCIPLINES = ["run", "bike", "swim", "brick"];
+  // Disciplines selectable when logging a workout outside the plan (rest day, or different from what's planned).
+  const EXTRA_WORKOUT_DISCIPLINES = ["run", "bike", "swim", "brick", "strength"];
 
   // Standard race-distance checkpoints, matched within a tolerance against a logged distance.
   const STANDARD_DISTANCES = [
@@ -60,12 +63,14 @@
   let prs = null;
   let customRaces = [];
   let milestoneOverrides = {};
+  let extraWorkouts = {};
   let activeView = "today";
   let deferredInstallPrompt = null;
   let expandedLogKey = null;
   let sessionByKey = {};
   let manualPRFormOpen = false;
   let raceFormState = null; // null | { mode: "add" } | { mode: "edit", key }
+  let extraWorkoutFormState = null; // null | { mode: "add" } | { mode: "edit", id }
 
   // ---------- date helpers (local time, no UTC surprises) ----------
 
@@ -208,7 +213,7 @@
     localStorage.setItem(STORAGE_CUSTOM_RACES, JSON.stringify(customRaces));
   }
 
-  function makeRaceId() {
+  function makeId() {
     return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
   }
 
@@ -226,6 +231,21 @@
 
   function saveMilestoneOverrides() {
     localStorage.setItem(STORAGE_MILESTONE_OVERRIDES, JSON.stringify(milestoneOverrides));
+  }
+
+  // ---------- extra workouts (off-plan activity logged on a given date) ----------
+
+  function loadExtraWorkouts() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(STORAGE_EXTRA_WORKOUTS) || "null");
+      return raw && typeof raw === "object" ? raw : {};
+    } catch (e) {
+      return {};
+    }
+  }
+
+  function saveExtraWorkouts() {
+    localStorage.setItem(STORAGE_EXTRA_WORKOUTS, JSON.stringify(extraWorkouts));
   }
 
   function findStandardMatch(discipline, distanceM) {
@@ -477,6 +497,89 @@
       .join("");
   }
 
+  // ---------- Today view: extra / off-plan workouts ----------
+
+  function extraWorkoutsSectionHTML(dateISO) {
+    const items = extraWorkouts[dateISO] || [];
+    const rowsHTML = items
+      .map((w) => {
+        if (extraWorkoutFormState && extraWorkoutFormState.mode === "edit" && extraWorkoutFormState.id === w.id) {
+          return extraWorkoutFormHTML(w);
+        }
+        return extraWorkoutRowHTML(w);
+      })
+      .join("");
+
+    const formOrToggle =
+      extraWorkoutFormState && extraWorkoutFormState.mode === "add"
+        ? extraWorkoutFormHTML(null)
+        : `<button class="link-btn" data-extra-workout-toggle="1">+ Log a different workout</button>`;
+
+    return `<div class="card">
+      <h3>Other activity today</h3>
+      ${rowsHTML}
+      ${formOrToggle}
+    </div>`;
+  }
+
+  function extraWorkoutRowHTML(w) {
+    const pace = formatPace(w.discipline, w.actualDurationMin, w.actualDistanceM);
+    const parts = [
+      w.actualDurationMin != null ? formatRaceTime(w.actualDurationMin) : "",
+      w.actualDistanceM != null ? formatDistance(w.actualDistanceM) : "",
+      pace,
+    ].filter(Boolean);
+    return `<div class="milestone-row">
+      <span>${sessionIcon(w.discipline)} ${escapeHtml(w.label || DISCIPLINE_LABEL[w.discipline])}</span>
+      <span class="day-row__meta">
+        ${escapeHtml(parts.join(" · "))}
+        <button class="row-edit-btn" data-extra-workout-edit="${w.id}" aria-label="Edit workout">✎</button>
+        <button class="row-delete-btn" data-extra-workout-remove="${w.id}" aria-label="Remove workout">✕</button>
+      </span>
+    </div>`;
+  }
+
+  function extraWorkoutFormHTML(prefill) {
+    const disciplineOptions = EXTRA_WORKOUT_DISCIPLINES.map(
+      (d) => `<option value="${d}" ${prefill && prefill.discipline === d ? "selected" : ""}>${DISCIPLINE_LABEL[d]}</option>`
+    ).join("");
+    const labelVal = prefill ? escapeHtml(prefill.label || "") : "";
+    const durationVal = prefill && prefill.actualDurationMin != null ? formatRaceTime(prefill.actualDurationMin) : "";
+    const unitVal = prefill && prefill.discipline === "swim" ? "m" : "km";
+    const distanceVal =
+      prefill && prefill.actualDistanceM != null ? metersToDistanceInputValue(unitVal === "m" ? "swim" : "run", prefill.actualDistanceM) : "";
+    const idAttr = prefill ? prefill.id : "";
+    return `<div class="log-form">
+      <label class="field">
+        <span>Activity</span>
+        <select id="extra-workout-discipline">${disciplineOptions}</select>
+      </label>
+      <label class="field">
+        <span>Description (optional)</span>
+        <input type="text" placeholder="e.g. Easy bike instead of run" id="extra-workout-label" value="${labelVal}">
+      </label>
+      <label class="field">
+        <span>Time (mm:ss)</span>
+        <input type="text" inputmode="numeric" placeholder="e.g. 30:00" id="extra-workout-time" value="${durationVal}">
+      </label>
+      <label class="field">
+        <span>Distance (optional)</span>
+        <div style="display:flex; gap:8px;">
+          <input type="number" step="0.01" min="0" placeholder="e.g. 5" id="extra-workout-distance" style="flex:1;" value="${distanceVal}">
+          <select id="extra-workout-unit" style="flex:none; width:auto;">
+            <option value="km" ${unitVal === "km" ? "selected" : ""}>km</option>
+            <option value="m" ${unitVal === "m" ? "selected" : ""}>m</option>
+          </select>
+        </div>
+      </label>
+      <div class="log-form__actions">
+        <button class="btn btn--primary" data-extra-workout-save="${idAttr}">Save</button>
+        ${prefill ? `<button class="btn btn--danger" data-extra-workout-remove="${idAttr}">Remove</button>` : ""}
+        <button class="btn btn--ghost" data-extra-workout-cancel="1">Cancel</button>
+      </div>
+    </div>`;
+  }
+
   // ---------- Today view ----------
 
   function buildOnboardingCard() {
@@ -555,6 +658,7 @@
         ${countdownHTML}
       </div>
       ${sessionsHTML}
+      ${extraWorkoutsSectionHTML(toISODate(today))}
       <div class="card">
         <h3>This week</h3>
         ${dayRowsHTML(week, startDate)}
@@ -1134,7 +1238,7 @@
         const label = labelInput.value.trim();
 
         if (!key) {
-          customRaces.push({ id: makeRaceId(), typeId, label, date: dateInput.value });
+          customRaces.push({ id: makeId(), typeId, label, date: dateInput.value });
           saveCustomRaces();
         } else if (key.startsWith("c:")) {
           const id = key.slice(2);
@@ -1178,6 +1282,77 @@
         renderProgress();
         return;
       }
+      const extraWorkoutToggleBtn = e.target.closest("[data-extra-workout-toggle]");
+      if (extraWorkoutToggleBtn) {
+        extraWorkoutFormState = { mode: "add" };
+        renderToday();
+        return;
+      }
+      const extraWorkoutEditBtn = e.target.closest("[data-extra-workout-edit]");
+      if (extraWorkoutEditBtn) {
+        extraWorkoutFormState = { mode: "edit", id: extraWorkoutEditBtn.getAttribute("data-extra-workout-edit") };
+        renderToday();
+        return;
+      }
+      const extraWorkoutCancelBtn = e.target.closest("[data-extra-workout-cancel]");
+      if (extraWorkoutCancelBtn) {
+        extraWorkoutFormState = null;
+        renderToday();
+        return;
+      }
+      const extraWorkoutSaveBtn = e.target.closest("[data-extra-workout-save]");
+      if (extraWorkoutSaveBtn) {
+        const id = extraWorkoutSaveBtn.getAttribute("data-extra-workout-save");
+        const discipline = document.getElementById("extra-workout-discipline").value;
+        const labelInput = document.getElementById("extra-workout-label");
+        const timeInput = document.getElementById("extra-workout-time");
+        const distInput = document.getElementById("extra-workout-distance");
+        const unitSel = document.getElementById("extra-workout-unit");
+
+        const actualDurationMin = timeInput.value ? parseTimeToMinutes(timeInput.value) : null;
+        const actualDistanceM = distInput.value ? distanceInputToMeters(unitSel.value === "km" ? "run" : "swim", distInput.value) : null;
+
+        if (actualDurationMin == null && actualDistanceM == null) {
+          showToast(["Enter a time and/or distance first."], "Nothing to save");
+          return;
+        }
+
+        const label = labelInput.value.trim();
+        const dateISO = toISODate(startOfDay(new Date()));
+        const list = extraWorkouts[dateISO] || (extraWorkouts[dateISO] = []);
+
+        if (id) {
+          const w = list.find((x) => x.id === id);
+          if (w) {
+            w.discipline = discipline;
+            w.label = label;
+            w.actualDurationMin = actualDurationMin;
+            w.actualDistanceM = actualDistanceM;
+          }
+        } else {
+          list.push({ id: makeId(), discipline, label, actualDurationMin, actualDistanceM });
+        }
+        saveExtraWorkouts();
+        const achieved = recordPRs({ discipline }, { actualDurationMin, actualDistanceM });
+
+        extraWorkoutFormState = null;
+        renderToday();
+        if (achieved.length) showToast(achieved);
+        return;
+      }
+      const extraWorkoutRemoveBtn = e.target.closest("[data-extra-workout-remove]");
+      if (extraWorkoutRemoveBtn) {
+        const id = extraWorkoutRemoveBtn.getAttribute("data-extra-workout-remove");
+        const dateISO = toISODate(startOfDay(new Date()));
+        if (extraWorkouts[dateISO]) {
+          extraWorkouts[dateISO] = extraWorkouts[dateISO].filter((x) => x.id !== id);
+          if (!extraWorkouts[dateISO].length) delete extraWorkouts[dateISO];
+          saveExtraWorkouts();
+        }
+        if (extraWorkoutFormState && extraWorkoutFormState.id === id) extraWorkoutFormState = null;
+        renderToday();
+        return;
+      }
       if (e.target.id === "onboarding-submit") {
         const input = document.getElementById("onboarding-date");
         if (input && input.value) {
@@ -1218,6 +1393,7 @@
     prs = loadPRs();
     customRaces = loadCustomRaces();
     milestoneOverrides = loadMilestoneOverrides();
+    extraWorkouts = loadExtraWorkouts();
     const res = await fetch("data/plan.json");
     plan = await res.json();
     setupEventListeners();
