@@ -360,6 +360,28 @@
     return Number.isFinite(n) && n > 0 ? n : null;
   }
 
+  // Renders a minutes/seconds time entry as two numeric-keypad inputs with a static
+  // ":" separator, since mobile numeric keypads don't offer a colon key to type "mm:ss".
+  function timeInputsHTML(id, durationMin) {
+    const totalSec = durationMin != null ? Math.round(durationMin * 60) : null;
+    const minVal = totalSec != null ? Math.floor(totalSec / 60) : "";
+    const secVal = totalSec != null ? totalSec % 60 : "";
+    return `<div style="display:flex; gap:8px; align-items:center;">
+      <input type="number" inputmode="numeric" min="0" placeholder="mm" id="${id}-min" value="${minVal}" style="flex:1;">
+      <span style="font-weight:700;">:</span>
+      <input type="number" inputmode="numeric" min="0" max="59" placeholder="ss" id="${id}-sec" value="${secVal}" style="flex:1;">
+    </div>`;
+  }
+
+  function readTimeInputs(id) {
+    const minInput = document.getElementById(`${id}-min`);
+    const secInput = document.getElementById(`${id}-sec`);
+    const m = minInput.value.trim();
+    const s = secInput.value.trim();
+    if (!m && !s) return null;
+    return parseTimeToMinutes(`${m || "0"}:${s || "0"}`);
+  }
+
   function formatSecToMinSec(totalSec) {
     totalSec = Math.round(totalSec);
     const m = Math.floor(totalSec / 60);
@@ -440,15 +462,14 @@
     }
 
     const unit = disciplineDistanceUnit(session.discipline);
-    const durationVal = log && log.actualDurationMin != null ? formatRaceTime(log.actualDurationMin) : "";
     const distanceVal = log && log.actualDistanceM != null ? metersToDistanceInputValue(session.discipline, log.actualDistanceM) : "";
     const hasDistanceField = session.discipline !== "brick";
 
     return `<div class="log-block">
       <div class="log-form">
         <label class="field">
-          <span>Time (mm:ss)</span>
-          <input type="text" inputmode="numeric" placeholder="e.g. 24:30" id="log-time-${key}" value="${durationVal}">
+          <span>Time (min : sec)</span>
+          ${timeInputsHTML(`log-time-${key}`, log && log.actualDurationMin)}
         </label>
         ${hasDistanceField ? `<label class="field">
           <span>Distance (${unit})</span>
@@ -544,7 +565,6 @@
       (d) => `<option value="${d}" ${prefill && prefill.discipline === d ? "selected" : ""}>${DISCIPLINE_LABEL[d]}</option>`
     ).join("");
     const labelVal = prefill ? escapeHtml(prefill.label || "") : "";
-    const durationVal = prefill && prefill.actualDurationMin != null ? formatRaceTime(prefill.actualDurationMin) : "";
     const unitVal = prefill && prefill.discipline === "swim" ? "m" : "km";
     const distanceVal =
       prefill && prefill.actualDistanceM != null ? metersToDistanceInputValue(unitVal === "m" ? "swim" : "run", prefill.actualDistanceM) : "";
@@ -559,8 +579,8 @@
         <input type="text" placeholder="e.g. Easy bike instead of run" id="extra-workout-label" value="${labelVal}">
       </label>
       <label class="field">
-        <span>Time (mm:ss)</span>
-        <input type="text" inputmode="numeric" placeholder="e.g. 30:00" id="extra-workout-time" value="${durationVal}">
+        <span>Time (min : sec)</span>
+        ${timeInputsHTML("extra-workout-time", prefill && prefill.actualDurationMin)}
       </label>
       <label class="field">
         <span>Distance (optional)</span>
@@ -988,8 +1008,8 @@
         </select>
       </label>
       <label class="field">
-        <span>Time (mm:ss)</span>
-        <input type="text" inputmode="numeric" placeholder="e.g. 52:30" id="manual-pr-time">
+        <span>Time (min : sec)</span>
+        ${timeInputsHTML("manual-pr-time", null)}
       </label>
       <label class="field">
         <span>Distance</span>
@@ -1160,9 +1180,8 @@
           renderAll();
           return;
         }
-        const timeInput = document.getElementById(`log-time-${key}`);
         const distInput = document.getElementById(`log-distance-${key}`);
-        const actualDurationMin = timeInput ? parseTimeToMinutes(timeInput.value) : null;
+        const actualDurationMin = readTimeInputs(`log-time-${key}`);
         const actualDistanceM = distInput && distInput.value ? distanceInputToMeters(session.discipline, distInput.value) : null;
         const newPRs = saveLog(key, session, { actualDurationMin, actualDistanceM });
         expandedLogKey = null;
@@ -1185,12 +1204,11 @@
       const manualPRSaveBtn = e.target.closest("[data-manual-pr-save]");
       if (manualPRSaveBtn) {
         const discipline = document.getElementById("manual-pr-discipline").value;
-        const timeInput = document.getElementById("manual-pr-time");
         const distInput = document.getElementById("manual-pr-distance");
         const unitSel = document.getElementById("manual-pr-unit");
         const dateInput = document.getElementById("manual-pr-date");
 
-        const actualDurationMin = timeInput.value ? parseTimeToMinutes(timeInput.value) : null;
+        const actualDurationMin = readTimeInputs("manual-pr-time");
         const actualDistanceM = distInput.value ? distanceInputToMeters(unitSel.value === "km" ? "run" : "swim", distInput.value) : null;
 
         if (actualDurationMin == null && actualDistanceM == null) {
@@ -1305,11 +1323,10 @@
         const id = extraWorkoutSaveBtn.getAttribute("data-extra-workout-save");
         const discipline = document.getElementById("extra-workout-discipline").value;
         const labelInput = document.getElementById("extra-workout-label");
-        const timeInput = document.getElementById("extra-workout-time");
         const distInput = document.getElementById("extra-workout-distance");
         const unitSel = document.getElementById("extra-workout-unit");
 
-        const actualDurationMin = timeInput.value ? parseTimeToMinutes(timeInput.value) : null;
+        const actualDurationMin = readTimeInputs("extra-workout-time");
         const actualDistanceM = distInput.value ? distanceInputToMeters(unitSel.value === "km" ? "run" : "swim", distInput.value) : null;
 
         if (actualDurationMin == null && actualDistanceM == null) {
