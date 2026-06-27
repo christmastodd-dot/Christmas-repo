@@ -477,7 +477,8 @@ a { color: var(--blue); }
 
 .milestone-row.is-done { opacity: 0.55; }
 
-.row-delete-btn {
+.row-delete-btn,
+.row-edit-btn {
   background: none;
   border: none;
   color: var(--text-dim);
@@ -487,6 +488,15 @@ a { color: var(--blue); }
   cursor: pointer;
 }
 .row-delete-btn:hover { color: #fca5a5; }
+.row-edit-btn:hover { color: var(--blue); }
+
+.hidden-races {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+.hidden-races .link-btn { font-weight: 400; color: var(--text-dim); }
 
 .empty-state {
   text-align: center;

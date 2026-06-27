@@ -5,6 +5,7 @@
   const STORAGE_COMPLETED = "c2t_completed";
   const STORAGE_PRS = "c2t_prs";
   const STORAGE_CUSTOM_RACES = "c2t_custom_races";
+  const STORAGE_MILESTONE_OVERRIDES = "c2t_milestone_overrides";
 
   const DISCIPLINE_ICON = {
     run: "\u{1F3C3}",
@@ -52,17 +53,19 @@
     { id: "other", label: "Other", emoji: "\u{1F3C6}" },
   ];
   const RACE_TYPE_BY_ID = Object.fromEntries(RACE_TYPES.map((t) => [t.id, t]));
+  const RACE_TYPE_BY_LABEL = Object.fromEntries(RACE_TYPES.map((t) => [t.label, t.id]));
 
   let plan = null;
   let completedMap = {};
   let prs = null;
   let customRaces = [];
+  let milestoneOverrides = {};
   let activeView = "today";
   let deferredInstallPrompt = null;
   let expandedLogKey = null;
   let sessionByKey = {};
   let manualPRFormOpen = false;
-  let manualRaceFormOpen = false;
+  let raceFormState = null; // null | { mode: "add" } | { mode: "edit", key }
 
   // ---------- date helpers (local time, no UTC surprises) ----------
 
@@ -207,6 +210,22 @@
 
   function makeRaceId() {
     return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
+  }
+
+  // Per-week edits to the plan's built-in milestone races (date/label/type override,
+  // or hidden entirely). The underlying plan data and its RACE DAY session are untouched —
+  // this only affects how the milestone is displayed in the Race countdown card.
+  function loadMilestoneOverrides() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(STORAGE_MILESTONE_OVERRIDES) || "null");
+      return raw && typeof raw === "object" ? raw : {};
+    } catch (e) {
+      return {};
+    }
+  }
+
+  function saveMilestoneOverrides() {
+    localStorage.setItem(STORAGE_MILESTONE_OVERRIDES, JSON.stringify(milestoneOverrides));
   }
 
   function findStandardMatch(discipline, distanceM) {
@@ -671,86 +690,116 @@
       <div class="card">
         <h3>Race countdown</h3>
         ${milestonesHTML}
-        ${manualRaceFormHTML(today)}
+        ${
+          raceFormState && raceFormState.mode === "add"
+            ? raceFormHTML(today, null)
+            : `<button class="link-btn" data-manual-race-toggle="1">+ Add a race</button>`
+        }
       </div>
       ${personalBestsHTML()}`;
   }
 
   function raceCountdownRowsHTML(startDate, today) {
-    const planItems = plan.milestones.map((m) => {
-      const mDate = dateForWeekDay(startDate, m.week, 6);
-      const daysOut = daysBetween(today, mDate);
-      const key = dayKey(m.week, 6);
-      const statusText = isDone(key)
-        ? "Done ✓"
-        : daysOut < 0
-        ? "Date passed"
-        : daysOut === 0
-        ? "Today!"
-        : `${daysOut} days`;
-      return {
-        date: mDate,
-        emoji: m.emoji,
-        label: m.label,
-        done: isDone(key) || daysOut < 0,
-        statusText,
-        deletable: false,
-      };
-    });
+    const planItems = plan.milestones
+      .map((m) => {
+        const key = `m:${m.week}`;
+        const override = milestoneOverrides[m.week];
+        if (override && override.hidden) return null;
+        const overrideType = override && override.typeId ? RACE_TYPE_BY_ID[override.typeId] : null;
+        const mDate = override && override.date ? parseISODate(override.date) : dateForWeekDay(startDate, m.week, 6);
+        const daysOut = daysBetween(today, mDate);
+        const sessionKey = dayKey(m.week, 6);
+        const statusText = isDone(sessionKey)
+          ? "Done ✓"
+          : daysOut < 0
+          ? "Date passed"
+          : daysOut === 0
+          ? "Today!"
+          : `${daysOut} days`;
+        return {
+          key,
+          date: mDate,
+          emoji: (overrideType && overrideType.emoji) || m.emoji,
+          label: (override && override.label) || m.label,
+          typeId: (override && override.typeId) || RACE_TYPE_BY_LABEL[m.label] || "other",
+          done: isDone(sessionKey) || daysOut < 0,
+          statusText,
+        };
+      })
+      .filter(Boolean);
 
     const customItems = customRaces.map((r) => {
+      const key = `c:${r.id}`;
       const rDate = parseISODate(r.date);
       const daysOut = daysBetween(today, rDate);
       const type = RACE_TYPE_BY_ID[r.typeId] || RACE_TYPE_BY_ID.other;
       const statusText = daysOut < 0 ? "Date passed" : daysOut === 0 ? "Today!" : `${daysOut} days`;
       return {
+        key,
         date: rDate,
         emoji: type.emoji,
         label: r.label || type.label,
+        typeId: r.typeId,
         done: daysOut < 0,
         statusText,
-        deletable: true,
-        id: r.id,
       };
     });
 
     const items = [...planItems, ...customItems].sort((a, b) => a.date - b.date);
 
-    return items
+    const rowsHTML = items
       .map((it) => {
-        const deleteBtn = it.deletable
-          ? `<button class="row-delete-btn" data-race-delete="${escapeHtml(it.id)}" aria-label="Delete race">✕</button>`
-          : "";
+        if (raceFormState && raceFormState.mode === "edit" && raceFormState.key === it.key) {
+          return raceFormHTML(today, { key: it.key, typeId: it.typeId, label: it.label, date: toISODate(it.date) });
+        }
         return `<div class="milestone-row ${it.done ? "is-done" : ""}">
           <span>${it.emoji} ${escapeHtml(it.label)}</span>
-          <span class="day-row__meta">${it.statusText}${deleteBtn}</span>
+          <span class="day-row__meta">
+            ${it.statusText}
+            <button class="row-edit-btn" data-race-edit="${escapeHtml(it.key)}" aria-label="Edit race">✎</button>
+            <button class="row-delete-btn" data-race-remove="${escapeHtml(it.key)}" aria-label="Remove race">✕</button>
+          </span>
         </div>`;
       })
       .join("");
+
+    const hiddenMilestones = plan.milestones.filter((m) => milestoneOverrides[m.week] && milestoneOverrides[m.week].hidden);
+    const hiddenHTML = hiddenMilestones.length
+      ? `<div class="hidden-races">
+          ${hiddenMilestones
+            .map((m) => `<button class="link-btn" data-race-restore="${m.week}">↺ Restore ${escapeHtml(m.label)}</button>`)
+            .join("")}
+        </div>`
+      : "";
+
+    return rowsHTML + hiddenHTML;
   }
 
-  function manualRaceFormHTML(today) {
-    if (!manualRaceFormOpen) {
-      return `<button class="link-btn" data-manual-race-toggle="1">+ Add a race</button>`;
-    }
+  function raceFormHTML(today, prefill) {
     const todayStr = toISODate(today);
-    const typeOptions = RACE_TYPES.map((t) => `<option value="${t.id}">${escapeHtml(t.label)}</option>`).join("");
+    const typeOptions = RACE_TYPES.map(
+      (t) => `<option value="${t.id}" ${prefill && prefill.typeId === t.id ? "selected" : ""}>${escapeHtml(t.label)}</option>`
+    ).join("");
+    const labelVal = prefill ? escapeHtml(prefill.label || "") : "";
+    const dateVal = prefill ? prefill.date : todayStr;
+    const keyAttr = prefill ? escapeHtml(prefill.key) : "";
     return `<div class="log-form">
       <label class="field">
         <span>Race type</span>
-        <select id="manual-race-type">${typeOptions}</select>
+        <select id="race-form-type">${typeOptions}</select>
       </label>
       <label class="field">
         <span>Custom name (optional)</span>
-        <input type="text" placeholder="e.g. Lake Tahoe Olympic" id="manual-race-label">
+        <input type="text" placeholder="e.g. Lake Tahoe Olympic" id="race-form-label" value="${labelVal}">
       </label>
       <label class="field">
         <span>Race date</span>
-        <input type="date" id="manual-race-date" value="${todayStr}">
+        <input type="date" id="race-form-date" value="${dateVal}">
       </label>
       <div class="log-form__actions">
-        <button class="btn btn--primary" data-manual-race-save="1">Save race</button>
-        <button class="btn btn--ghost" data-manual-race-cancel="1">Cancel</button>
+        <button class="btn btn--primary" data-race-form-save="${keyAttr}">Save race</button>
+        ${prefill ? `<button class="btn btn--danger" data-race-remove="${keyAttr}">Remove</button>` : ""}
+        <button class="btn btn--ghost" data-race-form-cancel="1">Cancel</button>
       </div>
     </div>`;
   }
@@ -1055,43 +1104,77 @@
       }
       const manualRaceToggleBtn = e.target.closest("[data-manual-race-toggle]");
       if (manualRaceToggleBtn) {
-        manualRaceFormOpen = true;
+        raceFormState = { mode: "add" };
         renderProgress();
         return;
       }
-      const manualRaceCancelBtn = e.target.closest("[data-manual-race-cancel]");
-      if (manualRaceCancelBtn) {
-        manualRaceFormOpen = false;
+      const raceEditBtn = e.target.closest("[data-race-edit]");
+      if (raceEditBtn) {
+        raceFormState = { mode: "edit", key: raceEditBtn.getAttribute("data-race-edit") };
         renderProgress();
         return;
       }
-      const manualRaceSaveBtn = e.target.closest("[data-manual-race-save]");
-      if (manualRaceSaveBtn) {
-        const typeId = document.getElementById("manual-race-type").value;
-        const labelInput = document.getElementById("manual-race-label");
-        const dateInput = document.getElementById("manual-race-date");
+      const raceFormCancelBtn = e.target.closest("[data-race-form-cancel]");
+      if (raceFormCancelBtn) {
+        raceFormState = null;
+        renderProgress();
+        return;
+      }
+      const raceFormSaveBtn = e.target.closest("[data-race-form-save]");
+      if (raceFormSaveBtn) {
+        const key = raceFormSaveBtn.getAttribute("data-race-form-save");
+        const typeId = document.getElementById("race-form-type").value;
+        const labelInput = document.getElementById("race-form-label");
+        const dateInput = document.getElementById("race-form-date");
 
         if (!dateInput.value) {
           showToast(["Pick a date for the race first."], "Nothing to save");
           return;
         }
+        const label = labelInput.value.trim();
 
-        customRaces.push({
-          id: makeRaceId(),
-          typeId,
-          label: labelInput.value.trim(),
-          date: dateInput.value,
-        });
-        saveCustomRaces();
-        manualRaceFormOpen = false;
+        if (!key) {
+          customRaces.push({ id: makeRaceId(), typeId, label, date: dateInput.value });
+          saveCustomRaces();
+        } else if (key.startsWith("c:")) {
+          const id = key.slice(2);
+          const race = customRaces.find((r) => r.id === id);
+          if (race) {
+            race.typeId = typeId;
+            race.label = label;
+            race.date = dateInput.value;
+            saveCustomRaces();
+          }
+        } else if (key.startsWith("m:")) {
+          const week = Number(key.slice(2));
+          milestoneOverrides[week] = { typeId, label: label || null, date: dateInput.value };
+          saveMilestoneOverrides();
+        }
+        raceFormState = null;
         renderProgress();
         return;
       }
-      const raceDeleteBtn = e.target.closest("[data-race-delete]");
-      if (raceDeleteBtn) {
-        const id = raceDeleteBtn.getAttribute("data-race-delete");
-        customRaces = customRaces.filter((r) => r.id !== id);
-        saveCustomRaces();
+      const raceRemoveBtn = e.target.closest("[data-race-remove]");
+      if (raceRemoveBtn) {
+        const key = raceRemoveBtn.getAttribute("data-race-remove");
+        if (key.startsWith("c:")) {
+          const id = key.slice(2);
+          customRaces = customRaces.filter((r) => r.id !== id);
+          saveCustomRaces();
+        } else if (key.startsWith("m:")) {
+          const week = Number(key.slice(2));
+          milestoneOverrides[week] = { ...milestoneOverrides[week], hidden: true };
+          saveMilestoneOverrides();
+        }
+        if (raceFormState && raceFormState.key === key) raceFormState = null;
+        renderProgress();
+        return;
+      }
+      const raceRestoreBtn = e.target.closest("[data-race-restore]");
+      if (raceRestoreBtn) {
+        const week = Number(raceRestoreBtn.getAttribute("data-race-restore"));
+        delete milestoneOverrides[week];
+        saveMilestoneOverrides();
         renderProgress();
         return;
       }
@@ -1134,6 +1217,7 @@
     completedMap = loadCompleted();
     prs = loadPRs();
     customRaces = loadCustomRaces();
+    milestoneOverrides = loadMilestoneOverrides();
     const res = await fetch("data/plan.json");
     plan = await res.json();
     setupEventListeners();
