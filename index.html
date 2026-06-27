@@ -331,6 +331,14 @@
     border-radius: 999px;
     cursor: pointer;
   }
+  .empty {
+    color: var(--muted);
+    font-size: 13px;
+    text-align: center;
+    padding: 14px 8px;
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+  }
 </style>
 </head>
 <body>
@@ -530,40 +538,7 @@
 
 <script>
 const KEY = "glowtracker.v1";
-const DEFAULTS = {
-  morning: [
-    "Brush teeth", "Floss", "Tongue scrape",
-    "Wash face (cleanser)", "Moisturizer", "Sunscreen SPF 30+",
-    "Deodorant", "Hair: brush/style", "8 hrs sleep last night"
-  ],
-  evening: [
-    "Wash face", "Moisturizer (night)", "Eye cream",
-    "Lip balm", "Brush teeth", "Floss",
-    "Hands & feet moisturizer", "Posture check / stretch",
-    "Phone down 30 min before bed"
-  ],
-  fitness: [
-    "Workout (30 min+)", "10k steps", "Water 2L+",
-    "Protein 100g+", "5 servings fruit/veg", "No sugary drinks"
-  ],
-  weekly: [
-    "Exfoliate face", "Hair mask / deep condition", "Trim nails",
-    "Shave / beard trim", "Eyebrow groom", "Wash bedsheets",
-    "Wash pillowcase", "Body scrub", "Plan workouts",
-    "Weigh-in + measurements"
-  ],
-  monthly: [
-    { name: "Haircut", days: 30 },
-    { name: "Replace toothbrush", days: 90 },
-    { name: "Replace razor blades", days: 30 },
-    { name: "Wash makeup brushes", days: 14 },
-    { name: "Pedicure / foot care", days: 30 },
-    { name: "Wash gym shoes", days: 30 },
-    { name: "Audit skincare expiry", days: 60 },
-    { name: "Progress photos", days: 30 },
-    { name: "Dental checkup (every 6mo)", days: 180 }
-  ]
-};
+const DEFAULTS = { morning: [], evening: [], fitness: [], weekly: [], monthly: [] };
 
 let data = load();
 
@@ -635,10 +610,7 @@ function autoCal(m) {
 }
 function ensureFoodDay(d) {
   if (!data.food) data.food = {};
-  if (!data.food[d]) {
-    data.food[d] = ["Breakfast","Lunch","Dinner","Snack 1","Snack 2"].map(mealSeed);
-    save();
-  }
+  if (!data.food[d]) { data.food[d] = []; save(); }
   return data.food[d];
 }
 function foodDateLabel(d) {
@@ -724,7 +696,15 @@ function renderFood() {
   document.getElementById("foodDateLabel").textContent = foodDateLabel(foodDate);
   const list = document.getElementById("mealList");
   list.innerHTML = "";
-  for (const m of meals) list.appendChild(mealNode(m));
+  if (meals.length === 0) {
+    const div = document.createElement("div");
+    div.className = "empty";
+    div.style.marginBottom = "10px";
+    div.textContent = "No meals logged yet — tap +Add meal to start.";
+    list.appendChild(div);
+  } else {
+    for (const m of meals) list.appendChild(mealNode(m));
+  }
   updateFoodTotals();
 }
 
@@ -778,6 +758,13 @@ function renderList(group) {
   const ul = document.querySelector(`ul[data-group="${group}"]`);
   if (!ul) return;
   ul.innerHTML = "";
+  if (data.items[group].length === 0) {
+    const li = document.createElement("li");
+    li.className = "empty";
+    li.textContent = "Nothing here yet — add your first habit below.";
+    ul.appendChild(li);
+    return;
+  }
   for (const item of data.items[group]) {
     const li = document.createElement("li");
     if (isDone(item, group)) li.classList.add("done");
@@ -804,6 +791,13 @@ function renderList(group) {
 function renderMonthly() {
   const ul = document.querySelector(`ul[data-group="monthly"]`);
   ul.innerHTML = "";
+  if (data.items.monthly.length === 0) {
+    const li = document.createElement("li");
+    li.className = "empty";
+    li.textContent = "No tasks yet — add one below (e.g. Haircut, every 30 days).";
+    ul.appendChild(li);
+    return;
+  }
   for (const item of data.items.monthly) {
     const since = item.last ? daysBetween(item.last, Date.now()) : null;
     const left = item.last ? item.days - since : null;
