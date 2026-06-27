@@ -339,6 +339,48 @@
     border: 1px dashed var(--border);
     border-radius: 8px;
   }
+  .bell {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 15px;
+    padding: 6px 8px;
+    min-width: 36px;
+    min-height: 36px;
+  }
+  .bell.on { color: var(--accent); }
+  .bell:hover { color: var(--accent); }
+  .alarm-badge {
+    font-size: 11px;
+    color: var(--accent);
+    background: var(--panel2);
+    padding: 2px 8px;
+    border-radius: 999px;
+    margin-left: 6px;
+    white-space: nowrap;
+  }
+  .modal {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 100; padding: 20px;
+  }
+  .modal.hidden { display: none; }
+  .modal-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px;
+    max-width: 400px;
+    width: 100%;
+  }
+  .modal-card h3 { margin: 0 0 14px; font-size: 16px; }
+  .modal-actions {
+    display: flex; gap: 8px; justify-content: flex-end;
+    margin-top: 14px; flex-wrap: wrap;
+  }
+  .modal-actions .btn { flex: 0 1 auto; }
 </style>
 </head>
 <body>
@@ -530,11 +572,36 @@
       <input type="file" id="importFile" accept="application/json" style="display:none" />
     </div>
     <div class="card">
+      <h2>Calendar alarms</h2>
+      <div class="meta">Tap the bell on any task to set a reminder time and download a .ics file. Open it on iPhone &rarr; Apple Calendar gives you native lock-screen alarms.</div>
+      <div class="settings-row">
+        <div class="label-block">
+          <div class="t">Export all alarms</div>
+          <div class="d">One .ics file with every task that has an alarm set</div>
+        </div>
+        <div class="ctrl"><button class="btn ghost" id="exportAlarmsBtn">Export</button></div>
+      </div>
+    </div>
+    <div class="card">
       <h2>Install</h2>
       <div class="meta">On iPhone: Share &rarr; Add to Home Screen. On Android/Chrome: tap the install prompt or use the browser menu &rarr; Install app. Once installed, it works offline.</div>
     </div>
   </section>
 </main>
+
+<div id="alarmModal" class="modal hidden">
+  <div class="modal-card">
+    <h3 id="alarmTitle"></h3>
+    <div id="alarmFields"></div>
+    <div class="meta" style="margin-top:10px">In-app reminder while the Glow Tracker is open. For lock-screen alarms on iPhone, tap "Add to Calendar".</div>
+    <div class="modal-actions">
+      <button class="btn ghost" id="alarmCancel">Cancel</button>
+      <button class="btn ghost" id="alarmRemove">Remove</button>
+      <button class="btn" id="alarmSave">Save</button>
+    </div>
+    <button class="btn ghost" id="alarmIcs" style="width:100%;margin-top:10px">Add to iPhone Calendar (.ics)</button>
+  </div>
+</div>
 
 <script>
 const KEY = "glowtracker.v1";
@@ -768,16 +835,28 @@ function renderList(group) {
   for (const item of data.items[group]) {
     const li = document.createElement("li");
     if (isDone(item, group)) li.classList.add("done");
-    li.innerHTML = `<span class="box"></span><span class="label"></span><button class="edit" title="Edit">&#9998;</button><button class="del" title="Remove">&times;</button>`;
-    li.querySelector(".label").textContent = item.name;
+    li.innerHTML = `<span class="box"></span><span class="label"></span><button class="bell" title="Reminder">&#128276;</button><button class="edit" title="Edit">&#9998;</button><button class="del" title="Remove">&times;</button>`;
+    const labelEl = li.querySelector(".label");
+    labelEl.textContent = item.name;
+    if (item.alarm && item.alarm.time) {
+      const badge = document.createElement("span");
+      badge.className = "alarm-badge";
+      badge.textContent = "⏰ " + alarmLabel(item, group);
+      labelEl.appendChild(badge);
+      li.querySelector(".bell").classList.add("on");
+    }
     li.addEventListener("click", (e) => {
-      if (e.target.closest(".del") || e.target.closest(".edit") || e.target.classList.contains("edit-input")) return;
+      if (e.target.closest(".del") || e.target.closest(".edit") || e.target.closest(".bell") || e.target.classList.contains("edit-input")) return;
       item.last = isDone(item, group) ? 0 : Date.now();
       save(); render();
     });
     li.querySelector(".edit").addEventListener("click", (e) => {
       e.stopPropagation();
       startEdit(li, item, group, false);
+    });
+    li.querySelector(".bell").addEventListener("click", (e) => {
+      e.stopPropagation();
+      openAlarm(item, group);
     });
     li.querySelector(".del").addEventListener("click", (e) => {
       e.stopPropagation();
@@ -808,18 +887,30 @@ function renderMonthly() {
     else if (left <= 3) { dueText = `due in ${left}d`; cls = "soon"; }
     else { dueText = `due in ${left}d`; }
     if (cls) li.classList.add(cls);
-    li.innerHTML = `<span class="box"></span><span class="label"></span><span class="due"></span><button class="edit" title="Edit">&#9998;</button><button class="del" title="Remove">&times;</button>`;
-    li.querySelector(".label").textContent = `${item.name} (every ${item.days}d)`;
+    li.innerHTML = `<span class="box"></span><span class="label"></span><span class="due"></span><button class="bell" title="Reminder">&#128276;</button><button class="edit" title="Edit">&#9998;</button><button class="del" title="Remove">&times;</button>`;
+    const labelEl = li.querySelector(".label");
+    labelEl.textContent = `${item.name} (every ${item.days}d)`;
+    if (item.alarm && item.alarm.time) {
+      const badge = document.createElement("span");
+      badge.className = "alarm-badge";
+      badge.textContent = "⏰ " + alarmLabel(item, "monthly");
+      labelEl.appendChild(badge);
+      li.querySelector(".bell").classList.add("on");
+    }
     li.querySelector(".due").textContent = dueText;
     if (item.last && since < 1) li.classList.add("done");
     li.addEventListener("click", (e) => {
-      if (e.target.closest(".del") || e.target.closest(".edit") || e.target.classList.contains("edit-input") || e.target.classList.contains("edit-days")) return;
+      if (e.target.closest(".del") || e.target.closest(".edit") || e.target.closest(".bell") || e.target.classList.contains("edit-input") || e.target.classList.contains("edit-days")) return;
       item.last = Date.now();
       save(); render();
     });
     li.querySelector(".edit").addEventListener("click", (e) => {
       e.stopPropagation();
       startEdit(li, item, "monthly", true);
+    });
+    li.querySelector(".bell").addEventListener("click", (e) => {
+      e.stopPropagation();
+      openAlarm(item, "monthly");
     });
     li.querySelector(".del").addEventListener("click", (e) => {
       e.stopPropagation();
@@ -1049,27 +1140,198 @@ document.getElementById("remindTime").addEventListener("change", e => {
   save();
 });
 
+const DAYNAMES_SHORT = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const DAYNAMES_ICS = ["SU","MO","TU","WE","TH","FR","SA"];
+
+function alarmLabel(item, group) {
+  const t = item.alarm.time;
+  if (group === "weekly" && item.alarm.weekday !== undefined) {
+    return DAYNAMES_SHORT[item.alarm.weekday] + " " + t;
+  }
+  return t;
+}
+
+function pad(n) { return String(n).padStart(2, "0"); }
+function fmtICSLocal(d) {
+  return d.getFullYear() + pad(d.getMonth()+1) + pad(d.getDate()) + "T" +
+         pad(d.getHours()) + pad(d.getMinutes()) + "00";
+}
+function fmtICSUtc(d) {
+  return d.getUTCFullYear() + pad(d.getUTCMonth()+1) + pad(d.getUTCDate()) + "T" +
+         pad(d.getUTCHours()) + pad(d.getUTCMinutes()) + "00Z";
+}
+function nextAlarmDate(item, group) {
+  const [h, m] = item.alarm.time.split(":").map(Number);
+  const now = new Date();
+  const target = new Date(now);
+  target.setHours(h, m, 0, 0);
+  if (group === "weekly" && item.alarm.weekday !== undefined) {
+    const diff = (item.alarm.weekday - target.getDay() + 7) % 7;
+    if (diff === 0 && target <= now) target.setDate(target.getDate() + 7);
+    else target.setDate(target.getDate() + diff);
+  } else if (target <= now) {
+    target.setDate(target.getDate() + 1);
+  }
+  return target;
+}
+function escIcs(s) { return String(s).replace(/[\\;,]/g, x => "\\" + x).replace(/\n/g, "\\n"); }
+function buildVEvent(item, group) {
+  if (!item.alarm || !item.alarm.time) return null;
+  const start = nextAlarmDate(item, group);
+  let rrule;
+  if (group === "weekly") {
+    const day = item.alarm.weekday !== undefined ? DAYNAMES_ICS[item.alarm.weekday] : DAYNAMES_ICS[start.getDay()];
+    rrule = `RRULE:FREQ=WEEKLY;BYDAY=${day}`;
+  } else if (group === "monthly") {
+    rrule = `RRULE:FREQ=DAILY;INTERVAL=${item.days || 30}`;
+  } else {
+    rrule = "RRULE:FREQ=DAILY";
+  }
+  const uid = `glow-${item.id}@glowtracker.local`;
+  return [
+    "BEGIN:VEVENT",
+    `UID:${uid}`,
+    `DTSTAMP:${fmtICSUtc(new Date())}`,
+    `DTSTART:${fmtICSLocal(start)}`,
+    "DURATION:PT5M",
+    rrule,
+    `SUMMARY:${escIcs(item.name)}`,
+    "BEGIN:VALARM",
+    "ACTION:DISPLAY",
+    "TRIGGER:PT0M",
+    `DESCRIPTION:${escIcs(item.name)}`,
+    "END:VALARM",
+    "END:VEVENT"
+  ].join("\r\n");
+}
+function buildICS(events) {
+  return [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//Glow Tracker//EN",
+    "CALSCALE:GREGORIAN",
+    ...events,
+    "END:VCALENDAR"
+  ].join("\r\n");
+}
+function downloadFile(filename, body, type) {
+  const blob = new Blob([body], { type });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+let alarmCtx = null;
+function openAlarm(item, group) {
+  alarmCtx = { item, group };
+  document.getElementById("alarmTitle").textContent = "Reminder · " + item.name;
+  const fields = document.getElementById("alarmFields");
+  fields.innerHTML = "";
+  const timeLabel = document.createElement("label");
+  timeLabel.textContent = "Time";
+  const time = document.createElement("input");
+  time.type = "time"; time.id = "alarmTime";
+  time.value = (item.alarm && item.alarm.time) || "08:00";
+  fields.appendChild(timeLabel); fields.appendChild(time);
+  if (group === "weekly") {
+    const wlabel = document.createElement("label");
+    wlabel.textContent = "Day of week"; wlabel.style.marginTop = "10px";
+    const sel = document.createElement("select");
+    sel.id = "alarmDay";
+    sel.style.cssText = "background:var(--panel2);border:1px solid var(--border);color:var(--text);padding:10px;border-radius:8px;font-size:16px;width:100%;min-height:42px";
+    ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"].forEach((n, i) => {
+      const o = document.createElement("option");
+      o.value = i; o.textContent = n;
+      if ((item.alarm && item.alarm.weekday) === i) o.selected = true;
+      sel.appendChild(o);
+    });
+    fields.appendChild(wlabel); fields.appendChild(sel);
+  }
+  document.getElementById("alarmRemove").style.display = item.alarm ? "" : "none";
+  document.getElementById("alarmIcs").style.display = item.alarm ? "" : "none";
+  document.getElementById("alarmModal").classList.remove("hidden");
+}
+function closeAlarm() {
+  document.getElementById("alarmModal").classList.add("hidden");
+  alarmCtx = null;
+}
+document.getElementById("alarmCancel").addEventListener("click", closeAlarm);
+document.getElementById("alarmModal").addEventListener("click", e => {
+  if (e.target.id === "alarmModal") closeAlarm();
+});
+document.getElementById("alarmRemove").addEventListener("click", () => {
+  if (!alarmCtx) return;
+  delete alarmCtx.item.alarm;
+  save(); render(); closeAlarm();
+});
+document.getElementById("alarmSave").addEventListener("click", async () => {
+  if (!alarmCtx) return;
+  const t = document.getElementById("alarmTime").value;
+  if (!t) return;
+  const a = { time: t };
+  const dayEl = document.getElementById("alarmDay");
+  if (dayEl) a.weekday = parseInt(dayEl.value, 10);
+  alarmCtx.item.alarm = a;
+  if ("Notification" in window && Notification.permission === "default") {
+    try { await Notification.requestPermission(); } catch(e) {}
+  }
+  save(); render(); closeAlarm();
+});
+document.getElementById("alarmIcs").addEventListener("click", () => {
+  if (!alarmCtx || !alarmCtx.item.alarm) return;
+  const ev = buildVEvent(alarmCtx.item, alarmCtx.group);
+  if (!ev) return;
+  const slug = alarmCtx.item.name.replace(/[^a-z0-9]+/gi, "-").slice(0, 40) || "task";
+  downloadFile(`glow-${slug}.ics`, buildICS([ev]), "text/calendar");
+});
+document.getElementById("exportAlarmsBtn").addEventListener("click", () => {
+  const events = [];
+  for (const g of ["morning","evening","fitness","weekly","monthly"]) {
+    for (const it of data.items[g] || []) {
+      const ev = buildVEvent(it, g);
+      if (ev) events.push(ev);
+    }
+  }
+  if (events.length === 0) { alert("No alarms set yet. Tap the bell on any task first."); return; }
+  downloadFile("glow-tracker-alarms.ics", buildICS(events), "text/calendar");
+});
+
 function checkReminder() {
-  if (!data.settings.remind) return;
   if (!("Notification" in window) || Notification.permission !== "granted") return;
   const now = new Date();
-  const [h, m] = (data.settings.remindTime || "21:00").split(":").map(Number);
   const today = todayStr();
-  if (data.settings.lastNotified === today) return;
-  if (now.getHours() > h || (now.getHours() === h && now.getMinutes() >= m)) {
-    const allDaily = [...data.items.morning, ...data.items.evening, ...data.items.fitness];
-    const undone = allDaily.filter(i => i.last < startOfDay(Date.now())).length;
-    const overdue = data.items.monthly.filter(i => i.last && (daysBetween(i.last, Date.now()) > i.days)).length;
-    if (undone === 0 && overdue === 0) {
-      data.settings.lastNotified = today; save(); return;
+  if (!checkReminder._fired) checkReminder._fired = {};
+  const fired = checkReminder._fired;
+  for (const g of ["morning","evening","fitness","weekly","monthly"]) {
+    for (const it of data.items[g] || []) {
+      if (!it.alarm || !it.alarm.time) continue;
+      if (g === "weekly" && it.alarm.weekday !== undefined && now.getDay() !== it.alarm.weekday) continue;
+      if (g === "monthly" && it.last && daysBetween(it.last, Date.now()) < it.days) continue;
+      const [h, m] = it.alarm.time.split(":").map(Number);
+      const due = new Date(now); due.setHours(h, m, 0, 0);
+      if (now < due) continue;
+      if (isDone(it, g)) continue;
+      const key = `${it.id}@${today}`;
+      if (fired[key]) continue;
+      try { new Notification("Glow Tracker · " + it.name, { body: "Time for: " + it.name, icon: "icon-192.png" }); } catch (e) {}
+      fired[key] = true;
     }
-    const parts = [];
-    if (undone) parts.push(`${undone} habit${undone>1?"s":""} left today`);
-    if (overdue) parts.push(`${overdue} overdue maintenance task${overdue>1?"s":""}`);
-    try {
-      new Notification("Glow Tracker", { body: parts.join(" • "), icon: "icon-192.png" });
-    } catch (e) {}
-    data.settings.lastNotified = today; save();
+  }
+  if (data.settings.remind) {
+    const [h, m] = (data.settings.remindTime || "21:00").split(":").map(Number);
+    if (data.settings.lastNotified !== today &&
+        (now.getHours() > h || (now.getHours() === h && now.getMinutes() >= m))) {
+      const allDaily = [...(data.items.morning||[]), ...(data.items.evening||[]), ...(data.items.fitness||[])];
+      const undone = allDaily.filter(i => i.last < startOfDay(Date.now())).length;
+      const overdue = (data.items.monthly||[]).filter(i => i.last && (daysBetween(i.last, Date.now()) > i.days)).length;
+      if (undone === 0 && overdue === 0) { data.settings.lastNotified = today; save(); return; }
+      const parts = [];
+      if (undone) parts.push(`${undone} habit${undone>1?"s":""} left today`);
+      if (overdue) parts.push(`${overdue} overdue maintenance task${overdue>1?"s":""}`);
+      try { new Notification("Glow Tracker", { body: parts.join(" • "), icon: "icon-192.png" }); } catch (e) {}
+      data.settings.lastNotified = today; save();
+    }
   }
 }
 setInterval(checkReminder, 60000);
