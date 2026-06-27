@@ -420,6 +420,14 @@
       </div>
     </div>
     <div class="card">
+      <h2>Mid-day</h2>
+      <ul class="checklist" data-group="midday"></ul>
+      <div class="add-row">
+        <input type="text" placeholder="Add mid-day habit..." data-add="midday" />
+        <button class="btn" data-addbtn="midday">Add</button>
+      </div>
+    </div>
+    <div class="card">
       <h2>Evening</h2>
       <ul class="checklist" data-group="evening"></ul>
       <div class="add-row">
@@ -608,7 +616,7 @@
 
 <script>
 const KEY = "glowtracker.v1";
-const DEFAULTS = { morning: [], evening: [], fitness: [], weekly: [], monthly: [] };
+const DEFAULTS = { morning: [], midday: [], evening: [], fitness: [], weekly: [], monthly: [] };
 
 let data = load();
 
@@ -623,7 +631,7 @@ function load() {
 }
 function seed() {
   const items = {};
-  for (const g of ["morning","evening","fitness","weekly"]) {
+  for (const g of ["morning","midday","evening","fitness","weekly"]) {
     items[g] = DEFAULTS[g].map((name, i) => ({ id: g+"-"+i+"-"+Date.now(), name, last: 0 }));
   }
   items.monthly = DEFAULTS.monthly.map((m, i) => ({
@@ -638,6 +646,7 @@ function seed() {
 function save() { localStorage.setItem(KEY, JSON.stringify(data)); }
 if (!data.settings) data.settings = { theme: "dark", remind: false, remindTime: "21:00", lastNotified: null };
 if (!data.food) data.food = {};
+if (!data.items.midday) data.items.midday = [];
 
 function todayStr() {
   const d = new Date();
@@ -925,7 +934,7 @@ function renderMonthly() {
 }
 
 function renderStreaks() {
-  const allDaily = [...data.items.morning, ...data.items.evening, ...data.items.fitness];
+  const allDaily = [...data.items.morning, ...(data.items.midday||[]), ...data.items.evening, ...data.items.fitness];
   const doneToday = allDaily.filter(i => i.last >= startOfDay(Date.now())).length;
   document.getElementById("todayDone").textContent = `${doneToday}/${allDaily.length}`;
   const today = todayStr();
@@ -1290,7 +1299,7 @@ document.getElementById("alarmIcs").addEventListener("click", () => {
 });
 document.getElementById("exportAlarmsBtn").addEventListener("click", () => {
   const events = [];
-  for (const g of ["morning","evening","fitness","weekly","monthly"]) {
+  for (const g of ["morning","midday","evening","fitness","weekly","monthly"]) {
     for (const it of data.items[g] || []) {
       const ev = buildVEvent(it, g);
       if (ev) events.push(ev);
@@ -1306,7 +1315,7 @@ function checkReminder() {
   const today = todayStr();
   if (!checkReminder._fired) checkReminder._fired = {};
   const fired = checkReminder._fired;
-  for (const g of ["morning","evening","fitness","weekly","monthly"]) {
+  for (const g of ["morning","midday","evening","fitness","weekly","monthly"]) {
     for (const it of data.items[g] || []) {
       if (!it.alarm || !it.alarm.time) continue;
       if (g === "weekly" && it.alarm.weekday !== undefined && now.getDay() !== it.alarm.weekday) continue;
@@ -1325,7 +1334,7 @@ function checkReminder() {
     const [h, m] = (data.settings.remindTime || "21:00").split(":").map(Number);
     if (data.settings.lastNotified !== today &&
         (now.getHours() > h || (now.getHours() === h && now.getMinutes() >= m))) {
-      const allDaily = [...(data.items.morning||[]), ...(data.items.evening||[]), ...(data.items.fitness||[])];
+      const allDaily = [...(data.items.morning||[]), ...(data.items.midday||[]), ...(data.items.evening||[]), ...(data.items.fitness||[])];
       const undone = allDaily.filter(i => i.last < startOfDay(Date.now())).length;
       const overdue = (data.items.monthly||[]).filter(i => i.last && (daysBetween(i.last, Date.now()) > i.days)).length;
       if (undone === 0 && overdue === 0) { data.settings.lastNotified = today; save(); return; }
