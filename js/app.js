@@ -4,6 +4,7 @@
   const STORAGE_START_DATE = "c2t_start_date";
   const STORAGE_COMPLETED = "c2t_completed";
   const STORAGE_PRS = "c2t_prs";
+  const STORAGE_CUSTOM_RACES = "c2t_custom_races";
 
   const DISCIPLINE_ICON = {
     run: "\u{1F3C3}",
@@ -36,14 +37,32 @@
     { id: "bike-180k", discipline: "bike", label: "180K (Full Iron bike)", meters: 180000, tolerance: 0.05 },
   ];
 
+  // Race types selectable when manually adding a race to the countdown.
+  const RACE_TYPES = [
+    { id: "sprint", label: "Sprint Triathlon", emoji: "\u{1F3C1}" },
+    { id: "olympic", label: "Olympic Triathlon", emoji: "\u{1F3C1}" },
+    { id: "half-iron", label: "Half-Iron Triathlon (70.3)", emoji: "\u{1F3C1}" },
+    { id: "ironman", label: "Full Ironman (140.6)", emoji: "\u{1F947}" },
+    { id: "5k", label: "5K Run", emoji: "\u{1F3C3}" },
+    { id: "10k", label: "10K Run", emoji: "\u{1F3C3}" },
+    { id: "half-marathon", label: "Half Marathon", emoji: "\u{1F3C3}" },
+    { id: "marathon", label: "Marathon", emoji: "\u{1F3C3}" },
+    { id: "open-water-swim", label: "Open Water Swim", emoji: "\u{1F3CA}" },
+    { id: "century-ride", label: "Century Ride", emoji: "\u{1F6B4}" },
+    { id: "other", label: "Other", emoji: "\u{1F3C6}" },
+  ];
+  const RACE_TYPE_BY_ID = Object.fromEntries(RACE_TYPES.map((t) => [t.id, t]));
+
   let plan = null;
   let completedMap = {};
   let prs = null;
+  let customRaces = [];
   let activeView = "today";
   let deferredInstallPrompt = null;
   let expandedLogKey = null;
   let sessionByKey = {};
   let manualPRFormOpen = false;
+  let manualRaceFormOpen = false;
 
   // ---------- date helpers (local time, no UTC surprises) ----------
 
@@ -169,6 +188,25 @@
 
   function savePRs() {
     localStorage.setItem(STORAGE_PRS, JSON.stringify(prs));
+  }
+
+  // ---------- custom races ----------
+
+  function loadCustomRaces() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(STORAGE_CUSTOM_RACES) || "null");
+      return Array.isArray(raw) ? raw : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function saveCustomRaces() {
+    localStorage.setItem(STORAGE_CUSTOM_RACES, JSON.stringify(customRaces));
+  }
+
+  function makeRaceId() {
+    return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
   }
 
   function findStandardMatch(discipline, distanceM) {
@@ -618,25 +656,7 @@
       else break;
     }
 
-    const milestonesHTML = plan.milestones
-      .map((m) => {
-        const mDate = dateForWeekDay(startDate, m.week, 6);
-        const daysOut = daysBetween(today, mDate);
-        const key = dayKey(m.week, 6);
-        const done = isDone(key) || daysOut < 0;
-        const statusText = isDone(key)
-          ? "Done ✓"
-          : daysOut < 0
-          ? "Date passed"
-          : daysOut === 0
-          ? "Today!"
-          : `${daysOut} days`;
-        return `<div class="milestone-row ${done ? "is-done" : ""}">
-          <span>${m.emoji} ${escapeHtml(m.label)}</span>
-          <span class="day-row__meta">${statusText}</span>
-        </div>`;
-      })
-      .join("");
+    const milestonesHTML = raceCountdownRowsHTML(startDate, today);
 
     container.innerHTML = `
       <div class="card">
@@ -651,8 +671,88 @@
       <div class="card">
         <h3>Race countdown</h3>
         ${milestonesHTML}
+        ${manualRaceFormHTML(today)}
       </div>
       ${personalBestsHTML()}`;
+  }
+
+  function raceCountdownRowsHTML(startDate, today) {
+    const planItems = plan.milestones.map((m) => {
+      const mDate = dateForWeekDay(startDate, m.week, 6);
+      const daysOut = daysBetween(today, mDate);
+      const key = dayKey(m.week, 6);
+      const statusText = isDone(key)
+        ? "Done ✓"
+        : daysOut < 0
+        ? "Date passed"
+        : daysOut === 0
+        ? "Today!"
+        : `${daysOut} days`;
+      return {
+        date: mDate,
+        emoji: m.emoji,
+        label: m.label,
+        done: isDone(key) || daysOut < 0,
+        statusText,
+        deletable: false,
+      };
+    });
+
+    const customItems = customRaces.map((r) => {
+      const rDate = parseISODate(r.date);
+      const daysOut = daysBetween(today, rDate);
+      const type = RACE_TYPE_BY_ID[r.typeId] || RACE_TYPE_BY_ID.other;
+      const statusText = daysOut < 0 ? "Date passed" : daysOut === 0 ? "Today!" : `${daysOut} days`;
+      return {
+        date: rDate,
+        emoji: type.emoji,
+        label: r.label || type.label,
+        done: daysOut < 0,
+        statusText,
+        deletable: true,
+        id: r.id,
+      };
+    });
+
+    const items = [...planItems, ...customItems].sort((a, b) => a.date - b.date);
+
+    return items
+      .map((it) => {
+        const deleteBtn = it.deletable
+          ? `<button class="row-delete-btn" data-race-delete="${escapeHtml(it.id)}" aria-label="Delete race">✕</button>`
+          : "";
+        return `<div class="milestone-row ${it.done ? "is-done" : ""}">
+          <span>${it.emoji} ${escapeHtml(it.label)}</span>
+          <span class="day-row__meta">${it.statusText}${deleteBtn}</span>
+        </div>`;
+      })
+      .join("");
+  }
+
+  function manualRaceFormHTML(today) {
+    if (!manualRaceFormOpen) {
+      return `<button class="link-btn" data-manual-race-toggle="1">+ Add a race</button>`;
+    }
+    const todayStr = toISODate(today);
+    const typeOptions = RACE_TYPES.map((t) => `<option value="${t.id}">${escapeHtml(t.label)}</option>`).join("");
+    return `<div class="log-form">
+      <label class="field">
+        <span>Race type</span>
+        <select id="manual-race-type">${typeOptions}</select>
+      </label>
+      <label class="field">
+        <span>Custom name (optional)</span>
+        <input type="text" placeholder="e.g. Lake Tahoe Olympic" id="manual-race-label">
+      </label>
+      <label class="field">
+        <span>Race date</span>
+        <input type="date" id="manual-race-date" value="${todayStr}">
+      </label>
+      <div class="log-form__actions">
+        <button class="btn btn--primary" data-manual-race-save="1">Save race</button>
+        <button class="btn btn--ghost" data-manual-race-cancel="1">Cancel</button>
+      </div>
+    </div>`;
   }
 
   function personalBestsHTML() {
@@ -953,6 +1053,48 @@
         else showToast(["That result didn't beat your current personal best."], "No new PR");
         return;
       }
+      const manualRaceToggleBtn = e.target.closest("[data-manual-race-toggle]");
+      if (manualRaceToggleBtn) {
+        manualRaceFormOpen = true;
+        renderProgress();
+        return;
+      }
+      const manualRaceCancelBtn = e.target.closest("[data-manual-race-cancel]");
+      if (manualRaceCancelBtn) {
+        manualRaceFormOpen = false;
+        renderProgress();
+        return;
+      }
+      const manualRaceSaveBtn = e.target.closest("[data-manual-race-save]");
+      if (manualRaceSaveBtn) {
+        const typeId = document.getElementById("manual-race-type").value;
+        const labelInput = document.getElementById("manual-race-label");
+        const dateInput = document.getElementById("manual-race-date");
+
+        if (!dateInput.value) {
+          showToast(["Pick a date for the race first."], "Nothing to save");
+          return;
+        }
+
+        customRaces.push({
+          id: makeRaceId(),
+          typeId,
+          label: labelInput.value.trim(),
+          date: dateInput.value,
+        });
+        saveCustomRaces();
+        manualRaceFormOpen = false;
+        renderProgress();
+        return;
+      }
+      const raceDeleteBtn = e.target.closest("[data-race-delete]");
+      if (raceDeleteBtn) {
+        const id = raceDeleteBtn.getAttribute("data-race-delete");
+        customRaces = customRaces.filter((r) => r.id !== id);
+        saveCustomRaces();
+        renderProgress();
+        return;
+      }
       if (e.target.id === "onboarding-submit") {
         const input = document.getElementById("onboarding-date");
         if (input && input.value) {
@@ -991,6 +1133,7 @@
   async function boot() {
     completedMap = loadCompleted();
     prs = loadPRs();
+    customRaces = loadCustomRaces();
     const res = await fetch("data/plan.json");
     plan = await res.json();
     setupEventListeners();
