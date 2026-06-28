@@ -361,6 +361,15 @@
   }
   .save-meal:hover { color: var(--warn); }
   .save-meal.saved { color: var(--good); }
+  .metric-tabs { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+  .metric-tabs button {
+    background: var(--panel2); border: 1px solid var(--border);
+    color: var(--text); padding: 6px 12px; border-radius: 999px;
+    cursor: pointer; font-size: 12px; min-height: 32px;
+  }
+  .metric-tabs button.active {
+    background: var(--accent); color: #0b0d12; border-color: var(--accent);
+  }
   .empty {
     color: var(--muted);
     font-size: 13px;
@@ -524,6 +533,23 @@
     </div>
     <div id="mealList"></div>
     <button class="btn ghost" id="addMeal" style="width:100%">+ Add meal</button>
+    <div class="card" style="margin-top:16px">
+      <h2>Trend</h2>
+      <div class="metric-tabs" id="foodMetricTabs">
+        <button data-metric="cal" class="active">Calories</button>
+        <button data-metric="p">Protein</button>
+        <button data-metric="c">Carbs</button>
+        <button data-metric="f">Fat</button>
+      </div>
+      <canvas id="foodChart"></canvas>
+    </div>
+    <div class="card">
+      <h2>Daily history</h2>
+      <table id="foodHistoryTable">
+        <thead><tr><th>Date</th><th>kcal</th><th>P</th><th>C</th><th>F</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
   </section>
 
   <section id="tab-body">
@@ -750,6 +776,8 @@ function updateFoodTotals() {
   document.getElementById("totP").textContent = Math.round(p)+"g";
   document.getElementById("totC").textContent = Math.round(c)+"g";
   document.getElementById("totF").textContent = Math.round(f)+"g";
+  drawFoodChart();
+  renderFoodHistory();
 }
 function mealNode(m) {
   const div = document.createElement("div");
@@ -870,6 +898,100 @@ function renderSavedMeals() {
   }
 }
 
+function dayTotals(dayMeals) {
+  let p=0,c=0,f=0,cal=0;
+  for (const m of dayMeals||[]) {
+    p += +m.protein||0; c += +m.carbs||0; f += +m.fat||0;
+    cal += m.calOverride ? (+m.cal||0) : autoCal(m);
+  }
+  return { p, c, f, cal };
+}
+function foodHistoryDays() {
+  if (!data.food) return [];
+  return Object.keys(data.food)
+    .filter(d => (data.food[d]||[]).length > 0)
+    .sort();
+}
+let foodTrendMetric = "cal";
+const METRIC_LABEL = { cal: "kcal", p: "g protein", c: "g carbs", f: "g fat" };
+const METRIC_KEY   = { cal: "cal", p: "p", c: "c", f: "f" };
+
+function drawFoodChart() {
+  const c = document.getElementById("foodChart");
+  if (!c) return;
+  const dpr = window.devicePixelRatio || 1;
+  const rect = c.getBoundingClientRect();
+  c.width = rect.width * dpr; c.height = rect.height * dpr;
+  const ctx = c.getContext("2d");
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, rect.width, rect.height);
+  const days = foodHistoryDays();
+  if (days.length === 0) {
+    ctx.fillStyle = "#8a93a3"; ctx.font = "13px sans-serif"; ctx.textAlign = "center";
+    ctx.fillText("Log meals to see the trend", rect.width/2, rect.height/2);
+    return;
+  }
+  const series = days.map(d => ({
+    t: new Date(d + "T00:00:00").getTime(),
+    v: dayTotals(data.food[d])[METRIC_KEY[foodTrendMetric]]
+  }));
+  const pad = 30;
+  const xMin = Math.min(...series.map(s=>s.t));
+  const xMax = Math.max(...series.map(s=>s.t));
+  const yMax = Math.max(...series.map(s=>s.v), 1) * 1.1;
+  const xScale = x => pad + ((x - xMin) / Math.max(1, xMax - xMin)) * (rect.width - pad*2);
+  const yScale = y => rect.height - pad - (y / Math.max(0.1, yMax)) * (rect.height - pad*2);
+  ctx.strokeStyle = "#2a2f3a"; ctx.lineWidth = 1;
+  for (let i = 0; i < 5; i++) {
+    const y = pad + i * (rect.height - pad*2) / 4;
+    ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(rect.width-pad, y); ctx.stroke();
+  }
+  ctx.strokeStyle = "#7cc4ff"; ctx.lineWidth = 2;
+  ctx.beginPath();
+  series.forEach((s, i) => {
+    const x = xScale(s.t), y = yScale(s.v);
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  });
+  ctx.stroke();
+  ctx.fillStyle = "#7cc4ff";
+  series.forEach(s => {
+    const x = xScale(s.t), y = yScale(s.v);
+    ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI*2); ctx.fill();
+  });
+  ctx.fillStyle = "#8a93a3"; ctx.font = "11px sans-serif"; ctx.textAlign = "right";
+  ctx.fillText(Math.round(yMax), pad-4, pad+4);
+  ctx.fillText("0", pad-4, rect.height-pad+4);
+  ctx.textAlign = "left";
+  ctx.fillText(METRIC_LABEL[foodTrendMetric], pad, 14);
+}
+
+function renderFoodHistory() {
+  const tbody = document.querySelector("#foodHistoryTable tbody");
+  if (!tbody) return;
+  tbody.innerHTML = "";
+  const days = foodHistoryDays().reverse();
+  if (days.length === 0) {
+    const tr = document.createElement("tr");
+    const td = document.createElement("td");
+    td.colSpan = 5; td.style.color = "var(--muted)"; td.style.textAlign = "center"; td.style.padding = "12px 0";
+    td.textContent = "No days logged yet.";
+    tr.appendChild(td); tbody.appendChild(tr);
+    return;
+  }
+  for (const d of days) {
+    const t = dayTotals(data.food[d]);
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td></td><td></td><td></td><td></td><td></td>`;
+    const cells = tr.querySelectorAll("td");
+    cells[0].textContent = d === todayStr() ? "Today" : d;
+    cells[1].textContent = Math.round(t.cal);
+    cells[2].textContent = Math.round(t.p) + "g";
+    cells[3].textContent = Math.round(t.c) + "g";
+    cells[4].textContent = Math.round(t.f) + "g";
+    tbody.appendChild(tr);
+  }
+}
+
 function renderFood() {
   const meals = ensureFoodDay(foodDate);
   document.getElementById("foodDateLabel").textContent = foodDateLabel(foodDate);
@@ -886,6 +1008,8 @@ function renderFood() {
     for (const m of meals) list.appendChild(mealNode(m));
   }
   updateFoodTotals();
+  drawFoodChart();
+  renderFoodHistory();
 }
 
 function startEdit(li, item, group, isMonthly) {
@@ -1219,7 +1343,15 @@ function renderPhotos() {
   }
 }
 
-window.addEventListener("resize", drawChart);
+window.addEventListener("resize", () => { drawChart(); drawFoodChart(); });
+document.querySelectorAll("#foodMetricTabs button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("#foodMetricTabs button").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    foodTrendMetric = btn.dataset.metric;
+    drawFoodChart();
+  });
+});
 
 function applyTheme() {
   document.body.classList.toggle("light", data.settings.theme === "light");
