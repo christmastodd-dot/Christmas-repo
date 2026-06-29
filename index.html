@@ -444,10 +444,17 @@
 <main>
   <section id="tab-today" class="active">
     <div class="card">
-      <h2>Streaks</h2>
+      <div class="date-nav">
+        <button class="btn ghost" id="todayPrev">&lsaquo;</button>
+        <div style="text-align:center;flex:1">
+          <div id="todayDateLabel" style="font-weight:600"></div>
+          <button class="btn ghost" id="todayToToday" style="margin-top:4px;padding:4px 10px;min-height:0;font-size:12px">Jump to today</button>
+        </div>
+        <button class="btn ghost" id="todayNext">&rsaquo;</button>
+      </div>
       <div class="streak-row">
         <div><div class="streak" id="streakDaily">0</div><div class="lbl">Daily streak</div></div>
-        <div><div class="streak" id="todayDone">0/0</div><div class="lbl">Today done</div></div>
+        <div><div class="streak" id="todayDone">0/0</div><div class="lbl">Done</div></div>
       </div>
     </div>
     <div class="card">
@@ -709,6 +716,16 @@ if (!data.settings) data.settings = { theme: "dark", remind: false, remindTime: 
 if (!data.food) data.food = {};
 if (!data.items.midday) data.items.midday = [];
 if (!data.savedMeals) data.savedMeals = [];
+for (const g of ["morning","midday","evening","fitness"]) {
+  for (const it of (data.items[g] || [])) {
+    if (!it.done) it.done = {};
+    if (it.last && it.last > 0) {
+      const d = new Date(it.last);
+      const ds = d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+      it.done[ds] = true;
+    }
+  }
+}
 
 function todayStr() {
   const d = new Date();
@@ -723,16 +740,36 @@ function startOfWeek() {
 }
 function daysBetween(a, b) { return Math.floor((b - a) / 86400000); }
 
-function isDone(item, group) {
+const DAILY_GROUPS = ["morning","midday","evening","fitness"];
+let todayViewDate = todayStr();
+
+function dateStrOf(d) {
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+function shiftTodayDate(delta) {
+  const d = new Date(todayViewDate + "T00:00:00");
+  d.setDate(d.getDate() + delta);
+  todayViewDate = dateStrOf(d);
+  render();
+}
+function todayDateLabel(d) {
+  if (d === todayStr()) return "Today";
+  const dt = new Date(d + "T00:00:00");
+  return dt.toLocaleDateString(undefined, { weekday:"short", month:"short", day:"numeric" });
+}
+
+function isDone(item, group, dateStr) {
   if (group === "weekly") return item.last >= startOfWeek();
   if (group === "monthly") return false;
-  return item.last >= startOfDay(Date.now());
+  const ds = dateStr || todayViewDate;
+  return !!(item.done && item.done[ds]);
 }
 
 function render() {
   document.getElementById("today").textContent =
     new Date().toLocaleDateString(undefined, { weekday:"long", month:"long", day:"numeric" });
-  for (const g of ["morning","evening","fitness","weekly"]) renderList(g);
+  document.getElementById("todayDateLabel").textContent = todayDateLabel(todayViewDate);
+  for (const g of ["morning","midday","evening","fitness","weekly"]) renderList(g);
   renderMonthly();
   renderStreaks();
   renderFood();
@@ -1084,7 +1121,13 @@ function renderList(group) {
     }
     li.addEventListener("click", (e) => {
       if (e.target.closest(".del") || e.target.closest(".edit") || e.target.closest(".bell") || e.target.classList.contains("edit-input")) return;
-      item.last = isDone(item, group) ? 0 : Date.now();
+      if (DAILY_GROUPS.includes(group)) {
+        if (!item.done) item.done = {};
+        if (item.done[todayViewDate]) delete item.done[todayViewDate];
+        else item.done[todayViewDate] = true;
+      } else {
+        item.last = isDone(item, group) ? 0 : Date.now();
+      }
       save(); render();
     });
     li.querySelector(".edit").addEventListener("click", (e) => {
@@ -1158,25 +1201,33 @@ function renderMonthly() {
   }
 }
 
+function computeDailyStreak() {
+  const allDaily = [...data.items.morning, ...(data.items.midday||[]), ...data.items.evening, ...data.items.fitness];
+  if (allDaily.length === 0) return 0;
+  const allDoneOn = (ds) => allDaily.every(it => it.done && it.done[ds]);
+  let streak = 0;
+  const d = new Date();
+  if (allDoneOn(dateStrOf(d))) streak++;
+  d.setDate(d.getDate() - 1);
+  for (let i = 0; i < 365; i++) {
+    if (allDoneOn(dateStrOf(d))) { streak++; d.setDate(d.getDate() - 1); }
+    else break;
+  }
+  return streak;
+}
+
 function renderStreaks() {
   const allDaily = [...data.items.morning, ...(data.items.midday||[]), ...data.items.evening, ...data.items.fitness];
-  const doneToday = allDaily.filter(i => i.last >= startOfDay(Date.now())).length;
-  document.getElementById("todayDone").textContent = `${doneToday}/${allDaily.length}`;
-  const today = todayStr();
-  const allDone = allDaily.length > 0 && doneToday === allDaily.length;
-  if (allDone && data.streak.lastDay !== today) {
-    const yest = new Date(); yest.setDate(yest.getDate()-1);
-    const yStr = yest.getFullYear()+"-"+String(yest.getMonth()+1).padStart(2,"0")+"-"+String(yest.getDate()).padStart(2,"0");
-    data.streak.count = data.streak.lastDay === yStr ? data.streak.count + 1 : 1;
-    data.streak.lastDay = today;
-    save();
-  }
-  document.getElementById("streakDaily").textContent = data.streak.count;
+  const doneOn = allDaily.filter(i => i.done && i.done[todayViewDate]).length;
+  document.getElementById("todayDone").textContent = `${doneOn}/${allDaily.length}`;
+  document.getElementById("streakDaily").textContent = computeDailyStreak();
 }
 
 function addItem(group, name, extra = {}) {
   const id = group + "-" + Date.now();
-  data.items[group].push({ id, name, last: 0, ...extra });
+  const base = { id, name, last: 0 };
+  if (DAILY_GROUPS.includes(group)) base.done = {};
+  data.items[group].push({ ...base, ...extra });
   save(); render();
 }
 
@@ -1206,6 +1257,9 @@ document.getElementById("monthlyAdd").addEventListener("click", () => {
   }
 });
 
+document.getElementById("todayPrev").addEventListener("click", () => shiftTodayDate(-1));
+document.getElementById("todayNext").addEventListener("click", () => shiftTodayDate(1));
+document.getElementById("todayToToday").addEventListener("click", () => { todayViewDate = todayStr(); render(); });
 document.getElementById("foodPrev").addEventListener("click", () => shiftFoodDate(-1));
 document.getElementById("foodNext").addEventListener("click", () => shiftFoodDate(1));
 document.getElementById("foodToday").addEventListener("click", () => { foodDate = todayStr(); renderFood(); });
@@ -1556,7 +1610,7 @@ function checkReminder() {
       const [h, m] = it.alarm.time.split(":").map(Number);
       const due = new Date(now); due.setHours(h, m, 0, 0);
       if (now < due) continue;
-      if (isDone(it, g)) continue;
+      if (isDone(it, g, todayStr())) continue;
       const key = `${it.id}@${today}`;
       if (fired[key]) continue;
       try { new Notification("Glow Tracker · " + it.name, { body: "Time for: " + it.name, icon: "icon-192.png" }); } catch (e) {}
