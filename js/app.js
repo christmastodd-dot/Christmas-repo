@@ -69,7 +69,6 @@
   let activeView = "today";
   let deferredInstallPrompt = null;
   let expandedLogKey = null;
-  let sessionByKey = {};
   let manualPRFormOpen = false;
   let raceFormState = null; // null | { mode: "add" } | { mode: "edit", key }
   let extraWorkoutFormState = null; // null | { mode: "add" } | { mode: "edit", id }
@@ -432,6 +431,18 @@
     return parseTimeToMinutes(`${m || "0"}:${s || "0"}`);
   }
 
+  // A given session can appear in more than one place at once (e.g. today's main
+  // session card and its row in the "This week" list), so a log-form's inputs can't
+  // be looked up by id alone — scope the read to the exact form the user is editing.
+  function readTimeInputsFromContainer(container) {
+    const minInput = container.querySelector('input[id$="-min"]');
+    const secInput = container.querySelector('input[id$="-sec"]');
+    const m = minInput ? minInput.value.trim() : "";
+    const s = secInput ? secInput.value.trim() : "";
+    if (!m && !s) return null;
+    return parseTimeToMinutes(`${m || "0"}:${s || "0"}`);
+  }
+
   function formatSecToMinSec(totalSec) {
     totalSec = Math.round(totalSec);
     const m = Math.floor(totalSec / 60);
@@ -477,7 +488,6 @@
   function sessionCardHTML(session, key, movedFromISO) {
     const meta = formatSessionMeta(session);
     const done = isDone(key);
-    sessionByKey[key] = session;
     const movedNoteHTML = movedFromISO
       ? `<div class="day-row__meta" style="margin-bottom:6px;">↪ Moved from ${escapeHtml(formatShortDate(parseISODate(movedFromISO)))}</div>`
       : "";
@@ -492,6 +502,28 @@
         </div>
         <button class="session-check ${done ? "is-checked" : ""}" data-key="${key}" aria-label="Mark complete">${done ? "✓" : ""}</button>
       </div>`;
+  }
+
+  function sessionLogFormHTML(session, key) {
+    const log = getLog(key);
+    const unit = disciplineDistanceUnit(session.discipline);
+    const distanceVal = log && log.actualDistanceM != null ? metersToDistanceInputValue(session.discipline, log.actualDistanceM) : "";
+    const hasDistanceField = session.discipline !== "brick";
+
+    return `<div class="log-form">
+      <label class="field">
+        <span>Time (min : sec)</span>
+        ${timeInputsHTML(`log-time-${key}`, log && log.actualDurationMin)}
+      </label>
+      ${hasDistanceField ? `<label class="field">
+        <span>Distance (${unit})</span>
+        <input type="number" step="0.01" min="0" placeholder="e.g. ${unit === "m" ? "1500" : "5"}" id="log-distance-${key}" value="${distanceVal}">
+      </label>` : ""}
+      <div class="log-form__actions">
+        <button class="btn btn--primary" data-log-save="${key}">Save</button>
+        <button class="btn btn--ghost" data-log-cancel="${key}">Cancel</button>
+      </div>
+    </div>`;
   }
 
   function logFormHTML(session, key) {
@@ -515,26 +547,7 @@
       return `<div class="log-block"><button class="link-btn" data-log-toggle="${key}">Log result</button></div>`;
     }
 
-    const unit = disciplineDistanceUnit(session.discipline);
-    const distanceVal = log && log.actualDistanceM != null ? metersToDistanceInputValue(session.discipline, log.actualDistanceM) : "";
-    const hasDistanceField = session.discipline !== "brick";
-
-    return `<div class="log-block">
-      <div class="log-form">
-        <label class="field">
-          <span>Time (min : sec)</span>
-          ${timeInputsHTML(`log-time-${key}`, log && log.actualDurationMin)}
-        </label>
-        ${hasDistanceField ? `<label class="field">
-          <span>Distance (${unit})</span>
-          <input type="number" step="0.01" min="0" placeholder="e.g. ${unit === "m" ? "1500" : "5"}" id="log-distance-${key}" value="${distanceVal}">
-        </label>` : ""}
-        <div class="log-form__actions">
-          <button class="btn btn--primary" data-log-save="${key}">Save</button>
-          <button class="btn btn--ghost" data-log-cancel="${key}">Cancel</button>
-        </div>
-      </div>
-    </div>`;
+    return `<div class="log-block">${sessionLogFormHTML(session, key)}</div>`;
   }
 
   function escapeHtml(str) {
@@ -550,11 +563,34 @@
     return pills;
   }
 
+  function plannedSessionRowHTML(session, key, dateStr, extraNoteHTML, showMoveBtn) {
+    const done = isDone(key);
+    const meta = formatSessionMeta(session);
+    const loggable = LOGGABLE_DISCIPLINES.includes(session.discipline);
+    const log = loggable ? getLog(key) : null;
+    const hasLog = log && (log.actualDurationMin != null || log.actualDistanceM != null);
+    const logBtnHTML = loggable
+      ? `<button class="row-edit-btn" data-log-toggle="${key}" aria-label="${hasLog ? "Edit logged result" : "Log result"}">${hasLog ? "✎" : "📝"}</button>`
+      : "";
+    const moveBtnHTML = showMoveBtn
+      ? `<button class="row-edit-btn" data-move-toggle="${key}" aria-label="Move this workout">↪</button>`
+      : `<button class="row-edit-btn" data-move-undo="${key}" aria-label="Move back">Undo</button>`;
+    const rowHTML = `<div class="day-row">
+      <span class="day-row__label">${dateStr}</span>
+      <span class="day-row__title">${sessionIcon(session.discipline)} ${escapeHtml(session.title)}${extraNoteHTML}</span>
+      <span class="day-row__meta">${meta}</span>
+      ${logBtnHTML}
+      ${moveBtnHTML}
+      <button class="session-check ${done ? "is-checked" : ""}" data-key="${key}" aria-label="Mark complete" style="margin-left:8px;">${done ? "✓" : ""}</button>
+    </div>`;
+    const logFormRowHTML = loggable && expandedLogKey === key ? sessionLogFormHTML(session, key) : "";
+    return rowHTML + logFormRowHTML;
+  }
+
   function dayRowsHTML(week, startDate) {
     return week.days
       .map((day, dayIdx) => {
         const key = dayKey(week.week, dayIdx);
-        const done = isDone(key);
         const date = startDate ? dateForWeekDay(startDate, week.week, dayIdx) : null;
         const dateStr = date ? formatShortDate(date) : day.label;
         const movedTo = day.sessions.length ? sessionMoves[key] : null;
@@ -571,15 +607,7 @@
             <button class="row-edit-btn" data-move-undo="${key}" aria-label="Undo move">Undo</button>
           </div>`;
         } else {
-          const s = day.sessions[0];
-          const meta = formatSessionMeta(s);
-          plannedRowHTML = `<div class="day-row">
-            <span class="day-row__label">${dateStr}</span>
-            <span class="day-row__title">${sessionIcon(s.discipline)} ${escapeHtml(s.title)}</span>
-            <span class="day-row__meta">${meta}</span>
-            <button class="row-edit-btn" data-move-toggle="${key}" aria-label="Move this workout">↪</button>
-            <button class="session-check ${done ? "is-checked" : ""}" data-key="${key}" aria-label="Mark complete" style="margin-left:8px;">${done ? "✓" : ""}</button>
-          </div>`;
+          plannedRowHTML = plannedSessionRowHTML(day.sessions[0], key, dateStr, "", true);
         }
 
         const moveFormRowHTML = moveFormKey === key ? moveFormHTML(key, movedTo) : "";
@@ -614,17 +642,10 @@
 
   function movedInDayRowHTML(move, startDate) {
     const { key, session } = move;
-    const done = isDone(key);
-    const meta = formatSessionMeta(session);
     const origISO = getOriginalDateISO(key, startDate);
     const origLabel = origISO ? formatShortDate(parseISODate(origISO)) : "";
-    return `<div class="day-row">
-      <span class="day-row__label"></span>
-      <span class="day-row__title">${sessionIcon(session.discipline)} ${escapeHtml(session.title)} <span class="day-row__meta">(from ${escapeHtml(origLabel)})</span></span>
-      <span class="day-row__meta">${meta}</span>
-      <button class="row-edit-btn" data-move-undo="${key}" aria-label="Move back">Undo</button>
-      <button class="session-check ${done ? "is-checked" : ""}" data-key="${key}" aria-label="Mark complete" style="margin-left:8px;">${done ? "✓" : ""}</button>
-    </div>`;
+    const extraNoteHTML = ` <span class="day-row__meta">(from ${escapeHtml(origLabel)})</span>`;
+    return plannedSessionRowHTML(session, key, "", extraNoteHTML, false);
   }
 
   function extraWorkoutDayRowHTML(w) {
@@ -735,7 +756,6 @@
   function renderToday() {
     const container = document.getElementById("today-content");
     const startDate = getStartDate();
-    sessionByKey = {};
 
     if (!startDate) {
       container.innerHTML = "";
@@ -1310,14 +1330,15 @@
       const logSaveBtn = e.target.closest("[data-log-save]");
       if (logSaveBtn) {
         const key = logSaveBtn.dataset.logSave;
-        const session = sessionByKey[key];
+        const session = getSessionForKey(key);
         if (!session) {
           expandedLogKey = null;
           renderAll();
           return;
         }
-        const distInput = document.getElementById(`log-distance-${key}`);
-        const actualDurationMin = readTimeInputs(`log-time-${key}`);
+        const formEl = logSaveBtn.closest(".log-form");
+        const distInput = formEl.querySelector('input[id^="log-distance-"]');
+        const actualDurationMin = readTimeInputsFromContainer(formEl);
         const actualDistanceM = distInput && distInput.value ? distanceInputToMeters(session.discipline, distInput.value) : null;
         const newPRs = saveLog(key, session, { actualDurationMin, actualDistanceM });
         expandedLogKey = null;
