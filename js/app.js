@@ -7,6 +7,7 @@
   const STORAGE_CUSTOM_RACES = "c2t_custom_races";
   const STORAGE_MILESTONE_OVERRIDES = "c2t_milestone_overrides";
   const STORAGE_EXTRA_WORKOUTS = "c2t_extra_workouts";
+  const STORAGE_SESSION_MOVES = "c2t_session_moves";
 
   const DISCIPLINE_ICON = {
     run: "\u{1F3C3}",
@@ -64,6 +65,7 @@
   let customRaces = [];
   let milestoneOverrides = {};
   let extraWorkouts = {};
+  let sessionMoves = {};
   let activeView = "today";
   let deferredInstallPrompt = null;
   let expandedLogKey = null;
@@ -71,6 +73,7 @@
   let manualPRFormOpen = false;
   let raceFormState = null; // null | { mode: "add" } | { mode: "edit", key }
   let extraWorkoutFormState = null; // null | { mode: "add" } | { mode: "edit", id }
+  let moveFormKey = null; // dayKey of the planned session currently showing its "move to another day" form
 
   // ---------- date helpers (local time, no UTC surprises) ----------
 
@@ -104,6 +107,10 @@
     return date.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric", year: "numeric" });
   }
 
+  function formatShortDate(date) {
+    return date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  }
+
   // ---------- storage ----------
 
   function getStartDate() {
@@ -129,6 +136,11 @@
 
   function dayKey(week, dayIdx) {
     return `w${week}d${dayIdx}`;
+  }
+
+  function parseDayKey(key) {
+    const m = /^w(\d+)d(\d+)$/.exec(key);
+    return m ? { week: Number(m[1]), dayIdx: Number(m[2]) } : null;
   }
 
   // A completedMap entry is either a legacy boolean (done, no log) or an
@@ -246,6 +258,44 @@
 
   function saveExtraWorkouts() {
     localStorage.setItem(STORAGE_EXTRA_WORKOUTS, JSON.stringify(extraWorkouts));
+  }
+
+  // ---------- session moves (reschedule a planned workout to a different date) ----------
+  // Maps a session's original dayKey -> the ISO date it's been moved to. The session's
+  // identity (and its completedMap entry) stays keyed by the original dayKey; only where
+  // it's displayed changes.
+
+  function loadSessionMoves() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(STORAGE_SESSION_MOVES) || "null");
+      return raw && typeof raw === "object" ? raw : {};
+    } catch (e) {
+      return {};
+    }
+  }
+
+  function saveSessionMoves() {
+    localStorage.setItem(STORAGE_SESSION_MOVES, JSON.stringify(sessionMoves));
+  }
+
+  function getSessionForKey(key) {
+    const parsed = parseDayKey(key);
+    if (!parsed) return null;
+    const week = plan.weeks[parsed.week - 1];
+    const day = week && week.days[parsed.dayIdx];
+    return day && day.sessions.length ? day.sessions[0] : null;
+  }
+
+  function getOriginalDateISO(key, startDate) {
+    const parsed = parseDayKey(key);
+    return parsed ? toISODate(dateForWeekDay(startDate, parsed.week, parsed.dayIdx)) : null;
+  }
+
+  function incomingMovesForDate(dateISO) {
+    return Object.keys(sessionMoves)
+      .filter((k) => sessionMoves[k] === dateISO)
+      .map((k) => ({ key: k, session: getSessionForKey(k) }))
+      .filter((m) => m.session);
   }
 
   function findStandardMatch(discipline, distanceM) {
@@ -424,15 +474,19 @@
 
   // ---------- rendering: shared session/day markup ----------
 
-  function sessionCardHTML(session, key) {
+  function sessionCardHTML(session, key, movedFromISO) {
     const meta = formatSessionMeta(session);
     const done = isDone(key);
     sessionByKey[key] = session;
+    const movedNoteHTML = movedFromISO
+      ? `<div class="day-row__meta" style="margin-bottom:6px;">↪ Moved from ${escapeHtml(formatShortDate(parseISODate(movedFromISO)))}</div>`
+      : "";
     return `
       <div class="session-card ${done ? "is-done" : ""} ${session.discipline === "race" ? "is-race" : ""}">
         <div class="session-icon">${sessionIcon(session.discipline)}</div>
         <div class="session-body">
           <div class="session-title">${escapeHtml(session.title)}${meta ? `<span class="session-meta">${meta}</span>` : ""}</div>
+          ${movedNoteHTML}
           <div class="session-detail">${escapeHtml(session.detail)}</div>
           ${logFormHTML(session, key)}
         </div>
@@ -502,27 +556,75 @@
         const key = dayKey(week.week, dayIdx);
         const done = isDone(key);
         const date = startDate ? dateForWeekDay(startDate, week.week, dayIdx) : null;
-        const dateStr = date ? date.toLocaleDateString(undefined, { month: "short", day: "numeric" }) : day.label;
+        const dateStr = date ? formatShortDate(date) : day.label;
+        const movedTo = day.sessions.length ? sessionMoves[key] : null;
 
-        const plannedRowHTML = !day.sessions.length
-          ? `<div class="day-row"><span class="day-row__label">${dateStr}</span><span class="day-row__title rest-note">Rest</span><span class="day-row__meta"></span></div>`
-          : (() => {
-              const s = day.sessions[0];
-              const meta = formatSessionMeta(s);
-              return `<div class="day-row">
-                <span class="day-row__label">${dateStr}</span>
-                <span class="day-row__title">${sessionIcon(s.discipline)} ${escapeHtml(s.title)}</span>
-                <span class="day-row__meta">${meta}</span>
-                <button class="session-check ${done ? "is-checked" : ""}" data-key="${key}" aria-label="Mark complete" style="margin-left:8px;">${done ? "✓" : ""}</button>
-              </div>`;
-            })();
+        let plannedRowHTML;
+        if (!day.sessions.length) {
+          plannedRowHTML = `<div class="day-row"><span class="day-row__label">${dateStr}</span><span class="day-row__title rest-note">Rest</span><span class="day-row__meta"></span></div>`;
+        } else if (movedTo) {
+          plannedRowHTML = `<div class="day-row">
+            <span class="day-row__label">${dateStr}</span>
+            <span class="day-row__title rest-note">${sessionIcon(day.sessions[0].discipline)} ${escapeHtml(day.sessions[0].title)} — moved to ${escapeHtml(formatShortDate(parseISODate(movedTo)))}</span>
+            <span class="day-row__meta"></span>
+            <button class="row-edit-btn" data-move-toggle="${key}" aria-label="Change move date">↪</button>
+            <button class="row-edit-btn" data-move-undo="${key}" aria-label="Undo move">Undo</button>
+          </div>`;
+        } else {
+          const s = day.sessions[0];
+          const meta = formatSessionMeta(s);
+          plannedRowHTML = `<div class="day-row">
+            <span class="day-row__label">${dateStr}</span>
+            <span class="day-row__title">${sessionIcon(s.discipline)} ${escapeHtml(s.title)}</span>
+            <span class="day-row__meta">${meta}</span>
+            <button class="row-edit-btn" data-move-toggle="${key}" aria-label="Move this workout">↪</button>
+            <button class="session-check ${done ? "is-checked" : ""}" data-key="${key}" aria-label="Mark complete" style="margin-left:8px;">${done ? "✓" : ""}</button>
+          </div>`;
+        }
+
+        const moveFormRowHTML = moveFormKey === key ? moveFormHTML(key, movedTo) : "";
+
+        const incomingHTML = date
+          ? incomingMovesForDate(toISODate(date))
+              .map((m) => movedInDayRowHTML(m, startDate))
+              .join("")
+          : "";
 
         const extras = date ? extraWorkouts[toISODate(date)] || [] : [];
         const extraRowsHTML = extras.map((w) => extraWorkoutDayRowHTML(w)).join("");
 
-        return plannedRowHTML + extraRowsHTML;
+        return plannedRowHTML + moveFormRowHTML + incomingHTML + extraRowsHTML;
       })
       .join("");
+  }
+
+  function moveFormHTML(key, currentTargetISO) {
+    const dateVal = currentTargetISO || toISODate(startOfDay(new Date()));
+    return `<div class="log-form">
+      <label class="field">
+        <span>Move this workout to</span>
+        <input type="date" id="move-date-${key}" value="${dateVal}">
+      </label>
+      <div class="log-form__actions">
+        <button class="btn btn--primary" data-move-save="${key}">Save</button>
+        <button class="btn btn--ghost" data-move-cancel="1">Cancel</button>
+      </div>
+    </div>`;
+  }
+
+  function movedInDayRowHTML(move, startDate) {
+    const { key, session } = move;
+    const done = isDone(key);
+    const meta = formatSessionMeta(session);
+    const origISO = getOriginalDateISO(key, startDate);
+    const origLabel = origISO ? formatShortDate(parseISODate(origISO)) : "";
+    return `<div class="day-row">
+      <span class="day-row__label"></span>
+      <span class="day-row__title">${sessionIcon(session.discipline)} ${escapeHtml(session.title)} <span class="day-row__meta">(from ${escapeHtml(origLabel)})</span></span>
+      <span class="day-row__meta">${meta}</span>
+      <button class="row-edit-btn" data-move-undo="${key}" aria-label="Move back">Undo</button>
+      <button class="session-check ${done ? "is-checked" : ""}" data-key="${key}" aria-label="Mark complete" style="margin-left:8px;">${done ? "✓" : ""}</button>
+    </div>`;
   }
 
   function extraWorkoutDayRowHTML(w) {
@@ -677,12 +779,26 @@
       countdownHTML = `<div class="hero-sub">${daysOut > 0 ? `${daysOut} days to ${escapeHtml(nextMilestone.label)}` : `Race week: ${escapeHtml(nextMilestone.label)}`}</div>`;
     }
 
+    const todayKey = dayKey(week.week, pos.dayIdx);
+    const todayISO = toISODate(today);
+    const movedAway = !!sessionMoves[todayKey];
+    const ownEntries = !movedAway && day.sessions.length ? day.sessions.map((s) => ({ session: s, key: todayKey, movedFromISO: null })) : [];
+    const incomingEntries = incomingMovesForDate(todayISO).map((m) => ({
+      session: m.session,
+      key: m.key,
+      movedFromISO: getOriginalDateISO(m.key, startDate),
+    }));
+    const effectiveEntries = ownEntries.concat(incomingEntries);
+
     let sessionsHTML;
-    if (!day.sessions.length) {
-      sessionsHTML = `<div class="card"><p class="rest-note">Rest day. Full rest day — sleep, hydration, and easy stretching pay off here as much as any workout.</p></div>`;
+    if (!effectiveEntries.length) {
+      const note = day.sessions.length
+        ? "You moved today's workout to another day."
+        : "Full rest day — sleep, hydration, and easy stretching pay off here as much as any workout.";
+      sessionsHTML = `<div class="card"><p class="rest-note">${note}</p></div>`;
     } else {
-      sessionsHTML = day.sessions
-        .map((s) => sessionCardHTML(s, dayKey(week.week, pos.dayIdx)))
+      sessionsHTML = effectiveEntries
+        .map(({ session, key, movedFromISO }) => sessionCardHTML(session, key, movedFromISO))
         .join("");
     }
 
@@ -1390,6 +1506,45 @@
         renderToday();
         return;
       }
+      const moveToggleBtn = e.target.closest("[data-move-toggle]");
+      if (moveToggleBtn) {
+        const key = moveToggleBtn.getAttribute("data-move-toggle");
+        moveFormKey = moveFormKey === key ? null : key;
+        renderAll();
+        return;
+      }
+      const moveCancelBtn = e.target.closest("[data-move-cancel]");
+      if (moveCancelBtn) {
+        moveFormKey = null;
+        renderAll();
+        return;
+      }
+      const moveSaveBtn = e.target.closest("[data-move-save]");
+      if (moveSaveBtn) {
+        const key = moveSaveBtn.getAttribute("data-move-save");
+        const dateInput = document.getElementById(`move-date-${key}`);
+        const value = dateInput && dateInput.value;
+        if (!value) {
+          showToast(["Pick a date first."], "Nothing to save");
+          return;
+        }
+        const originalISO = getOriginalDateISO(key, getStartDate());
+        if (value === originalISO) delete sessionMoves[key];
+        else sessionMoves[key] = value;
+        saveSessionMoves();
+        moveFormKey = null;
+        renderAll();
+        return;
+      }
+      const moveUndoBtn = e.target.closest("[data-move-undo]");
+      if (moveUndoBtn) {
+        const key = moveUndoBtn.getAttribute("data-move-undo");
+        delete sessionMoves[key];
+        saveSessionMoves();
+        if (moveFormKey === key) moveFormKey = null;
+        renderAll();
+        return;
+      }
       if (e.target.id === "onboarding-submit") {
         const input = document.getElementById("onboarding-date");
         if (input && input.value) {
@@ -1431,6 +1586,7 @@
     customRaces = loadCustomRaces();
     milestoneOverrides = loadMilestoneOverrides();
     extraWorkouts = loadExtraWorkouts();
+    sessionMoves = loadSessionMoves();
     const res = await fetch("data/plan.json");
     plan = await res.json();
     setupEventListeners();
