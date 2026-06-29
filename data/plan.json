@@ -110,7 +110,14 @@
         },
         {
           "label": "Day 5",
-          "sessions": []
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Recovery Run",
+              "detail": "10 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 10
+            }
+          ]
         },
         {
           "label": "Day 6",
@@ -176,7 +183,14 @@
         },
         {
           "label": "Day 5",
-          "sessions": []
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Recovery Run",
+              "detail": "10 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 10
+            }
+          ]
         },
         {
           "label": "Day 6",
@@ -242,7 +256,14 @@
         },
         {
           "label": "Day 5",
-          "sessions": []
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Recovery Run",
+              "detail": "10 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 10
+            }
+          ]
         },
         {
           "label": "Day 6",
@@ -308,7 +329,14 @@
         },
         {
           "label": "Day 5",
-          "sessions": []
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Recovery Run",
+              "detail": "10 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 10
+            }
+          ]
         },
         {
           "label": "Day 6",
@@ -374,7 +402,14 @@
         },
         {
           "label": "Day 5",
-          "sessions": []
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Recovery Run",
+              "detail": "10 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 10
+            }
+          ]
         },
         {
           "label": "Day 6",
@@ -440,7 +475,14 @@
         },
         {
           "label": "Day 5",
-          "sessions": []
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Recovery Run",
+              "detail": "10 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 10
+            }
+          ]
         },
         {
           "label": "Day 6",
@@ -506,7 +548,14 @@
         },
         {
           "label": "Day 5",
-          "sessions": []
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Recovery Run",
+              "detail": "10 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 10
+            }
+          ]
         },
         {
           "label": "Day 6",
@@ -572,7 +621,14 @@
         },
         {
           "label": "Day 5",
-          "sessions": []
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Recovery Run",
+              "detail": "10 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 10
+            }
+          ]
         },
         {
           "label": "Day 6",
@@ -623,7 +679,14 @@
         },
         {
           "label": "Day 3",
-          "sessions": []
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Short Run",
+              "detail": "10 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 10
+            }
+          ]
         },
         {
           "label": "Day 4",
@@ -638,7 +701,14 @@
         },
         {
           "label": "Day 5",
-          "sessions": []
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Recovery Run",
+              "detail": "15 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 15
+            }
+          ]
         },
         {
           "label": "Day 6",
@@ -689,7 +759,14 @@
         },
         {
           "label": "Day 3",
-          "sessions": []
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Short Run",
+              "detail": "10 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 10
+            }
+          ]
         },
         {
           "label": "Day 4",
@@ -704,7 +781,14 @@
         },
         {
           "label": "Day 5",
-          "sessions": []
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Recovery Run",
+              "detail": "15 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 15
+            }
+          ]
         },
         {
           "label": "Day 6",
@@ -755,7 +839,14 @@
         },
         {
           "label": "Day 3",
-          "sessions": []
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Short Run",
+              "detail": "10 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 10
+            }
+          ]
         },
         {
           "label": "Day 4",
@@ -770,7 +861,14 @@
         },
         {
           "label": "Day 5",
-          "sessions": []
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Recovery Run",
+              "detail": "20 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 20
+            }
+          ]
         },
         {
           "label": "Day 6",
@@ -821,7 +919,14 @@
         },
         {
           "label": "Day 3",
-          "sessions": []
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Short Run",
+              "detail": "10 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 10
+            }
+          ]
         },
         {
           "label": "Day 4",
@@ -836,7 +941,14 @@
         },
         {
           "label": "Day 5",
-          "sessions": []
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Recovery Run",
+              "detail": "10 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 10
+            }
+          ]
         },
         {
           "label": "Day 6",
@@ -887,7 +999,14 @@
         },
         {
           "label": "Day 3",
-          "sessions": []
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Short Run",
+              "detail": "10 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 10
+            }
+          ]
         },
         {
           "label": "Day 4",
@@ -902,7 +1021,14 @@
         },
         {
           "label": "Day 5",
-          "sessions": []
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Recovery Run",
+              "detail": "20 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 20
+            }
+          ]
         },
         {
           "label": "Day 6",
@@ -953,7 +1079,14 @@
         },
         {
           "label": "Day 3",
-          "sessions": []
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Recovery Run",
+              "detail": "15 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 15
+            }
+          ]
         },
         {
           "label": "Day 4",
@@ -1026,7 +1159,14 @@
         },
         {
           "label": "Day 3",
-          "sessions": []
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Recovery Run",
+              "detail": "15 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 15
+            }
+          ]
         },
         {
           "label": "Day 4",
@@ -1099,7 +1239,14 @@
         },
         {
           "label": "Day 3",
-          "sessions": []
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Recovery Run",
+              "detail": "10 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 10
+            }
+          ]
         },
         {
           "label": "Day 4",
@@ -1172,7 +1319,14 @@
         },
         {
           "label": "Day 3",
-          "sessions": []
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Recovery Run",
+              "detail": "15 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 15
+            }
+          ]
         },
         {
           "label": "Day 4",
@@ -1245,7 +1399,14 @@
         },
         {
           "label": "Day 3",
-          "sessions": []
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Recovery Run",
+              "detail": "20 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 20
+            }
+          ]
         },
         {
           "label": "Day 4",
@@ -1317,7 +1478,14 @@
         },
         {
           "label": "Day 3",
-          "sessions": []
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Recovery Run",
+              "detail": "20 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 20
+            }
+          ]
         },
         {
           "label": "Day 4",
@@ -1389,7 +1557,14 @@
         },
         {
           "label": "Day 3",
-          "sessions": []
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Recovery Run",
+              "detail": "10 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 10
+            }
+          ]
         },
         {
           "label": "Day 4",
@@ -1461,7 +1636,14 @@
         },
         {
           "label": "Day 3",
-          "sessions": []
+          "sessions": [
+            {
+              "discipline": "run",
+              "title": "Recovery Run",
+              "detail": "20 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 20
+            }
+          ]
         },
         {
           "label": "Day 4",
