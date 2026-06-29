@@ -88,8 +88,8 @@
             {
               "discipline": "run",
               "title": "Easy Run",
-              "detail": "15 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
-              "durationMin": 15
+              "detail": "20 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 20
             }
           ]
         },
@@ -161,8 +161,8 @@
             {
               "discipline": "run",
               "title": "Easy Run",
-              "detail": "15 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
-              "durationMin": 15
+              "detail": "25 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 25
             }
           ]
         },
@@ -187,8 +187,8 @@
             {
               "discipline": "run",
               "title": "Recovery Run",
-              "detail": "10 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
-              "durationMin": 10
+              "detail": "15 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 15
             }
           ]
         },
@@ -234,8 +234,8 @@
             {
               "discipline": "run",
               "title": "Easy Run",
-              "detail": "20 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
-              "durationMin": 20
+              "detail": "30 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 30
             }
           ]
         },
@@ -260,8 +260,8 @@
             {
               "discipline": "run",
               "title": "Recovery Run",
-              "detail": "10 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
-              "durationMin": 10
+              "detail": "20 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 20
             }
           ]
         },
@@ -307,8 +307,8 @@
             {
               "discipline": "run",
               "title": "Easy Run",
-              "detail": "15 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
-              "durationMin": 15
+              "detail": "25 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 25
             }
           ]
         },
@@ -333,8 +333,8 @@
             {
               "discipline": "run",
               "title": "Recovery Run",
-              "detail": "10 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
-              "durationMin": 10
+              "detail": "20 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 20
             }
           ]
         },
@@ -380,8 +380,8 @@
             {
               "discipline": "run",
               "title": "Easy Run",
-              "detail": "20 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
-              "durationMin": 20
+              "detail": "40 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 40
             }
           ]
         },
@@ -406,8 +406,8 @@
             {
               "discipline": "run",
               "title": "Recovery Run",
-              "detail": "10 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
-              "durationMin": 10
+              "detail": "30 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 30
             }
           ]
         },
@@ -453,8 +453,8 @@
             {
               "discipline": "run",
               "title": "Easy Run",
-              "detail": "20 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
-              "durationMin": 20
+              "detail": "50 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 50
             }
           ]
         },
@@ -479,8 +479,8 @@
             {
               "discipline": "run",
               "title": "Recovery Run",
-              "detail": "10 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
-              "durationMin": 10
+              "detail": "35 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 35
             }
           ]
         },
@@ -526,8 +526,8 @@
             {
               "discipline": "run",
               "title": "Easy Run",
-              "detail": "20 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
-              "durationMin": 20
+              "detail": "60 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 60
             }
           ]
         },
@@ -552,8 +552,8 @@
             {
               "discipline": "run",
               "title": "Recovery Run",
-              "detail": "10 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
-              "durationMin": 10
+              "detail": "40 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 40
             }
           ]
         },
@@ -599,8 +599,8 @@
             {
               "discipline": "run",
               "title": "Easy Run",
-              "detail": "20 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
-              "durationMin": 20
+              "detail": "55 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 55
             }
           ]
         },
@@ -625,8 +625,8 @@
             {
               "discipline": "run",
               "title": "Recovery Run",
-              "detail": "10 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
-              "durationMin": 10
+              "detail": "35 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 35
             }
           ]
         },
@@ -672,8 +672,8 @@
             {
               "discipline": "run",
               "title": "Easy Run",
-              "detail": "25 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
-              "durationMin": 25
+              "detail": "60 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 60
             }
           ]
         },
@@ -683,8 +683,8 @@
             {
               "discipline": "run",
               "title": "Short Run",
-              "detail": "10 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
-              "durationMin": 10
+              "detail": "30 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 30
             }
           ]
         },
@@ -705,8 +705,8 @@
             {
               "discipline": "run",
               "title": "Recovery Run",
-              "detail": "15 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
-              "durationMin": 15
+              "detail": "40 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 40
             }
           ]
         },
@@ -752,8 +752,8 @@
             {
               "discipline": "run",
               "title": "Easy Run",
-              "detail": "25 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
-              "durationMin": 25
+              "detail": "65 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 65
             }
           ]
         },
@@ -763,8 +763,8 @@
             {
               "discipline": "run",
               "title": "Short Run",
-              "detail": "10 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
-              "durationMin": 10
+              "detail": "35 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 35
             }
           ]
         },
@@ -785,8 +785,8 @@
             {
               "discipline": "run",
               "title": "Recovery Run",
-              "detail": "15 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
-              "durationMin": 15
+              "detail": "45 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 45
             }
           ]
         },
@@ -832,8 +832,8 @@
             {
               "discipline": "run",
               "title": "Easy Run",
-              "detail": "30 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
-              "durationMin": 30
+              "detail": "75 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 75
             }
           ]
         },
@@ -843,8 +843,8 @@
             {
               "discipline": "run",
               "title": "Short Run",
-              "detail": "10 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
-              "durationMin": 10
+              "detail": "40 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 40
             }
           ]
         },
@@ -865,8 +865,8 @@
             {
               "discipline": "run",
               "title": "Recovery Run",
-              "detail": "20 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
-              "durationMin": 20
+              "detail": "50 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 50
             }
           ]
         },
@@ -912,8 +912,8 @@
             {
               "discipline": "run",
               "title": "Easy Run",
-              "detail": "20 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
-              "durationMin": 20
+              "detail": "60 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 60
             }
           ]
         },
@@ -923,8 +923,8 @@
             {
               "discipline": "run",
               "title": "Short Run",
-              "detail": "10 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
-              "durationMin": 10
+              "detail": "35 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 35
             }
           ]
         },
@@ -945,8 +945,8 @@
             {
               "discipline": "run",
               "title": "Recovery Run",
-              "detail": "10 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
-              "durationMin": 10
+              "detail": "40 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 40
             }
           ]
         },
@@ -992,8 +992,8 @@
             {
               "discipline": "run",
               "title": "Easy Run",
-              "detail": "30 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
-              "durationMin": 30
+              "detail": "90 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 90
             }
           ]
         },
@@ -1003,8 +1003,8 @@
             {
               "discipline": "run",
               "title": "Short Run",
-              "detail": "10 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
-              "durationMin": 10
+              "detail": "50 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 50
             }
           ]
         },
@@ -1025,8 +1025,8 @@
             {
               "discipline": "run",
               "title": "Recovery Run",
-              "detail": "20 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
-              "durationMin": 20
+              "detail": "60 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 60
             }
           ]
         },
@@ -1072,8 +1072,8 @@
             {
               "discipline": "run",
               "title": "Run + Core",
-              "detail": "30 min easy run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
-              "durationMin": 30
+              "detail": "80 min easy run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
+              "durationMin": 80
             }
           ]
         },
@@ -1083,8 +1083,8 @@
             {
               "discipline": "run",
               "title": "Recovery Run",
-              "detail": "15 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
-              "durationMin": 15
+              "detail": "60 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 60
             }
           ]
         },
@@ -1127,8 +1127,8 @@
             {
               "discipline": "run",
               "title": "Long Run",
-              "detail": "30 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day.",
-              "durationMin": 30
+              "detail": "90 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day.",
+              "durationMin": 90
             }
           ]
         }
@@ -1152,8 +1152,8 @@
             {
               "discipline": "run",
               "title": "Run + Core",
-              "detail": "30 min easy run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
-              "durationMin": 30
+              "detail": "90 min easy run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
+              "durationMin": 90
             }
           ]
         },
@@ -1163,8 +1163,8 @@
             {
               "discipline": "run",
               "title": "Recovery Run",
-              "detail": "15 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
-              "durationMin": 15
+              "detail": "65 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 65
             }
           ]
         },
@@ -1207,8 +1207,8 @@
             {
               "discipline": "run",
               "title": "Long Run",
-              "detail": "30 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day.",
-              "durationMin": 30
+              "detail": "100 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day.",
+              "durationMin": 100
             }
           ]
         }
@@ -1232,8 +1232,8 @@
             {
               "discipline": "run",
               "title": "Run + Core",
-              "detail": "25 min easy run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
-              "durationMin": 25
+              "detail": "75 min easy run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
+              "durationMin": 75
             }
           ]
         },
@@ -1243,8 +1243,8 @@
             {
               "discipline": "run",
               "title": "Recovery Run",
-              "detail": "10 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
-              "durationMin": 10
+              "detail": "50 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 50
             }
           ]
         },
@@ -1287,8 +1287,8 @@
             {
               "discipline": "run",
               "title": "Long Run",
-              "detail": "25 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day.",
-              "durationMin": 25
+              "detail": "85 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day.",
+              "durationMin": 85
             }
           ]
         }
@@ -1312,8 +1312,8 @@
             {
               "discipline": "run",
               "title": "Run + Core",
-              "detail": "30 min easy run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
-              "durationMin": 30
+              "detail": "105 min easy run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
+              "durationMin": 105
             }
           ]
         },
@@ -1323,8 +1323,8 @@
             {
               "discipline": "run",
               "title": "Recovery Run",
-              "detail": "15 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
-              "durationMin": 15
+              "detail": "75 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 75
             }
           ]
         },
@@ -1367,8 +1367,8 @@
             {
               "discipline": "run",
               "title": "Long Run",
-              "detail": "35 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day.",
-              "durationMin": 35
+              "detail": "120 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day.",
+              "durationMin": 120
             }
           ]
         }
@@ -1392,8 +1392,8 @@
             {
               "discipline": "run",
               "title": "Run + Core",
-              "detail": "35 min easy run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
-              "durationMin": 35
+              "detail": "115 min easy run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
+              "durationMin": 115
             }
           ]
         },
@@ -1403,8 +1403,8 @@
             {
               "discipline": "run",
               "title": "Recovery Run",
-              "detail": "20 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
-              "durationMin": 20
+              "detail": "80 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 80
             }
           ]
         },
@@ -1446,8 +1446,8 @@
             {
               "discipline": "run",
               "title": "Long Run",
-              "detail": "40 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day.",
-              "durationMin": 40
+              "detail": "130 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day.",
+              "durationMin": 130
             }
           ]
         }
@@ -1471,8 +1471,8 @@
             {
               "discipline": "run",
               "title": "Run + Core",
-              "detail": "35 min easy run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
-              "durationMin": 35
+              "detail": "125 min easy run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
+              "durationMin": 125
             }
           ]
         },
@@ -1482,8 +1482,8 @@
             {
               "discipline": "run",
               "title": "Recovery Run",
-              "detail": "20 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
-              "durationMin": 20
+              "detail": "90 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 90
             }
           ]
         },
@@ -1525,8 +1525,8 @@
             {
               "discipline": "run",
               "title": "Long Run",
-              "detail": "40 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day.",
-              "durationMin": 40
+              "detail": "145 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day.",
+              "durationMin": 145
             }
           ]
         }
@@ -1550,8 +1550,8 @@
             {
               "discipline": "run",
               "title": "Run + Core",
-              "detail": "25 min easy run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
-              "durationMin": 25
+              "detail": "105 min easy run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
+              "durationMin": 105
             }
           ]
         },
@@ -1561,8 +1561,8 @@
             {
               "discipline": "run",
               "title": "Recovery Run",
-              "detail": "10 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
-              "durationMin": 10
+              "detail": "75 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 75
             }
           ]
         },
@@ -1604,8 +1604,8 @@
             {
               "discipline": "run",
               "title": "Long Run",
-              "detail": "30 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day.",
-              "durationMin": 30
+              "detail": "120 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day.",
+              "durationMin": 120
             }
           ]
         }
@@ -1629,8 +1629,8 @@
             {
               "discipline": "run",
               "title": "Run + Core",
-              "detail": "35 min easy run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
-              "durationMin": 35
+              "detail": "150 min easy run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
+              "durationMin": 150
             }
           ]
         },
@@ -1640,8 +1640,8 @@
             {
               "discipline": "run",
               "title": "Recovery Run",
-              "detail": "20 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
-              "durationMin": 20
+              "detail": "110 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "durationMin": 110
             }
           ]
         },
@@ -1683,8 +1683,8 @@
             {
               "discipline": "run",
               "title": "Long Run",
-              "detail": "45 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day.",
-              "durationMin": 45
+              "detail": "170 min long run \u2014 steady aerobic pace; practice the nutrition/hydration you'd use on race day.",
+              "durationMin": 170
             }
           ]
         }
