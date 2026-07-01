@@ -64,10 +64,10 @@ def recovery_scale(global_week):
 # marathon build-up layered into weeks 1-21 (see module docstring).
 MARATHON_RUN_RANGES = {
     1: (30, 60),
-    2: (70, 120),
-    3: (130, 200),
-    4: (230, 300),
-    5: (330, 430),
+    2: (75, 130),    # +10% over original (70, 120)
+    3: (150, 230),   # +15% over original (130, 200)
+    4: (275, 360),   # +20% over original (230, 300)
+    5: (410, 540),   # +25% over original (330, 430)
 }
 
 # Exact week range covered by each of those months (month 3 runs 5 weeks so
