@@ -305,8 +305,8 @@
   .streak-row .lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
   .date-nav { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
   .date-nav .btn { padding: 6px 14px; font-size: 18px; }
-  .totals { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; text-align: center; }
-  .totals .v { font-size: 22px; font-weight: 700; color: var(--accent); }
+  .totals { display: grid; grid-template-columns: repeat(auto-fit, minmax(58px, 1fr)); gap: 8px; text-align: center; }
+  .totals .v { font-size: 20px; font-weight: 700; color: var(--accent); }
   .totals .k { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
   .meal {
     background: var(--panel);
@@ -317,7 +317,7 @@
   }
   .meal-head { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
   .meal-name { flex: 1; font-weight: 600; }
-  .macro-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .macro-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
   .macro-grid label {
     display: flex; align-items: center; gap: 6px;
     font-size: 11px; margin-bottom: 4px;
@@ -529,6 +529,7 @@
         <div><div class="v" id="totP">0g</div><div class="k">protein</div></div>
         <div><div class="v" id="totC">0g</div><div class="k">carbs</div></div>
         <div><div class="v" id="totF">0g</div><div class="k">fat</div></div>
+        <div><div class="v" id="totA">0g</div><div class="k">alcohol</div></div>
       </div>
     </div>
     <div class="card">
@@ -545,6 +546,7 @@
         <button data-metric="p">Protein</button>
         <button data-metric="c">Carbs</button>
         <button data-metric="f">Fat</button>
+        <button data-metric="a">Alcohol</button>
       </div>
       <div class="meta" id="foodTrendAvg" style="margin-bottom:10px"></div>
       <canvas id="foodChart"></canvas>
@@ -552,7 +554,7 @@
     <div class="card">
       <h2>Daily history</h2>
       <table id="foodHistoryTable">
-        <thead><tr><th>Date</th><th>kcal</th><th>P</th><th>C</th><th>F</th></tr></thead>
+        <thead><tr><th>Date</th><th>kcal</th><th>P</th><th>C</th><th>F</th><th>Alc</th></tr></thead>
         <tbody></tbody>
       </table>
     </div>
@@ -780,10 +782,10 @@ let foodDate = todayStr();
 
 function mealSeed(name) {
   return { id: "meal-" + Math.random().toString(36).slice(2) + Date.now(),
-           name, protein: 0, carbs: 0, fat: 0, cal: 0, calOverride: false };
+           name, protein: 0, carbs: 0, fat: 0, alcohol: 0, cal: 0, calOverride: false };
 }
 function autoCal(m) {
-  return Math.round((+m.protein||0)*4 + (+m.carbs||0)*4 + (+m.fat||0)*9);
+  return Math.round((+m.protein||0)*4 + (+m.carbs||0)*4 + (+m.fat||0)*9 + (+m.alcohol||0)*7);
 }
 function ensureFoodDay(d) {
   if (!data.food) data.food = {};
@@ -803,15 +805,16 @@ function shiftFoodDate(delta) {
 }
 function updateFoodTotals() {
   const meals = data.food[foodDate] || [];
-  let p=0,c=0,f=0,cal=0;
+  let p=0,c=0,f=0,a=0,cal=0;
   for (const m of meals) {
-    p += +m.protein||0; c += +m.carbs||0; f += +m.fat||0;
+    p += +m.protein||0; c += +m.carbs||0; f += +m.fat||0; a += +m.alcohol||0;
     cal += m.calOverride ? (+m.cal||0) : autoCal(m);
   }
   document.getElementById("totCal").textContent = Math.round(cal);
   document.getElementById("totP").textContent = Math.round(p)+"g";
   document.getElementById("totC").textContent = Math.round(c)+"g";
   document.getElementById("totF").textContent = Math.round(f)+"g";
+  document.getElementById("totA").textContent = Math.round(a)+"g";
   drawFoodChart();
   renderFoodHistory();
 }
@@ -835,6 +838,7 @@ function mealNode(m) {
       protein: +m.protein || 0,
       carbs: +m.carbs || 0,
       fat: +m.fat || 0,
+      alcohol: +m.alcohol || 0,
       cal: m.calOverride ? (+m.cal || 0) : autoCal(m),
       calOverride: !!m.calOverride
     });
@@ -853,7 +857,7 @@ function mealNode(m) {
   const grid = document.createElement("div");
   grid.className = "macro-grid";
   const inputs = {};
-  for (const [key, labelTxt] of [["protein","Protein (g)"],["carbs","Carbs (g)"],["fat","Fat (g)"],["cal","Calories"]]) {
+  for (const [key, labelTxt] of [["protein","Protein (g)"],["carbs","Carbs (g)"],["fat","Fat (g)"],["alcohol","Alcohol (g)"],["cal","Calories"]]) {
     const cell = document.createElement("div");
     const lab = document.createElement("label");
     lab.appendChild(document.createTextNode(labelTxt));
@@ -874,7 +878,7 @@ function mealNode(m) {
     cell.appendChild(lab); cell.appendChild(inp);
     grid.appendChild(cell);
   }
-  for (const key of ["protein","carbs","fat"]) {
+  for (const key of ["protein","carbs","fat","alcohol"]) {
     inputs[key].addEventListener("input", () => {
       m[key] = parseFloat(inputs[key].value) || 0;
       if (!m.calOverride) { m.cal = autoCal(m); inputs.cal.value = m.cal; }
@@ -905,7 +909,8 @@ function renderSavedMeals() {
     const cal = sm.calOverride ? (+sm.cal||0) : autoCal(sm);
     const chip = document.createElement("button");
     chip.className = "chip"; chip.type = "button";
-    chip.title = `P${Math.round(sm.protein)} C${Math.round(sm.carbs)} F${Math.round(sm.fat)} · ${Math.round(cal)} kcal`;
+    const almt = +sm.alcohol || 0;
+    chip.title = `P${Math.round(sm.protein)} C${Math.round(sm.carbs)} F${Math.round(sm.fat)}${almt?` A${Math.round(almt)}`:""} · ${Math.round(cal)} kcal`;
     const lbl = document.createElement("span");
     lbl.textContent = `${sm.name} · ${Math.round(cal)} kcal`;
     const x = document.createElement("span");
@@ -925,6 +930,7 @@ function renderSavedMeals() {
         protein: +sm.protein || 0,
         carbs: +sm.carbs || 0,
         fat: +sm.fat || 0,
+        alcohol: +sm.alcohol || 0,
         cal: +sm.cal || 0,
         calOverride: !!sm.calOverride
       });
@@ -935,12 +941,12 @@ function renderSavedMeals() {
 }
 
 function dayTotals(dayMeals) {
-  let p=0,c=0,f=0,cal=0;
+  let p=0,c=0,f=0,a=0,cal=0;
   for (const m of dayMeals||[]) {
-    p += +m.protein||0; c += +m.carbs||0; f += +m.fat||0;
+    p += +m.protein||0; c += +m.carbs||0; f += +m.fat||0; a += +m.alcohol||0;
     cal += m.calOverride ? (+m.cal||0) : autoCal(m);
   }
-  return { p, c, f, cal };
+  return { p, c, f, a, cal };
 }
 function foodHistoryDays() {
   if (!data.food) return [];
@@ -949,8 +955,8 @@ function foodHistoryDays() {
     .sort();
 }
 let foodTrendMetric = "cal";
-const METRIC_LABEL = { cal: "kcal", p: "g protein", c: "g carbs", f: "g fat" };
-const METRIC_KEY   = { cal: "cal", p: "p", c: "c", f: "f" };
+const METRIC_LABEL = { cal: "kcal", p: "g protein", c: "g carbs", f: "g fat", a: "g alcohol" };
+const METRIC_KEY   = { cal: "cal", p: "p", c: "c", f: "f", a: "a" };
 
 function last7DayAverage(metricKey) {
   const now = new Date();
@@ -1042,7 +1048,7 @@ function renderFoodHistory() {
   if (days.length === 0) {
     const tr = document.createElement("tr");
     const td = document.createElement("td");
-    td.colSpan = 5; td.style.color = "var(--muted)"; td.style.textAlign = "center"; td.style.padding = "12px 0";
+    td.colSpan = 6; td.style.color = "var(--muted)"; td.style.textAlign = "center"; td.style.padding = "12px 0";
     td.textContent = "No days logged yet.";
     tr.appendChild(td); tbody.appendChild(tr);
     return;
@@ -1050,13 +1056,14 @@ function renderFoodHistory() {
   for (const d of days) {
     const t = dayTotals(data.food[d]);
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td></td><td></td><td></td><td></td><td></td>`;
+    tr.innerHTML = `<td></td><td></td><td></td><td></td><td></td><td></td>`;
     const cells = tr.querySelectorAll("td");
     cells[0].textContent = d === todayStr() ? "Today" : d;
     cells[1].textContent = Math.round(t.cal);
     cells[2].textContent = Math.round(t.p) + "g";
     cells[3].textContent = Math.round(t.c) + "g";
     cells[4].textContent = Math.round(t.f) + "g";
+    cells[5].textContent = Math.round(t.a) + "g";
     tbody.appendChild(tr);
   }
 }
