@@ -138,8 +138,8 @@
   }
 
   function parseDayKey(key) {
-    const m = /^w(\d+)d(\d+)$/.exec(key);
-    return m ? { week: Number(m[1]), dayIdx: Number(m[2]) } : null;
+    const m = /^w(\d+)d(\d+)(?:s(\d+))?$/.exec(key);
+    return m ? { week: Number(m[1]), dayIdx: Number(m[2]), sessionIdx: Number(m[3] || 0) } : null;
   }
 
   // A completedMap entry is either a legacy boolean (done, no log) or an
@@ -282,7 +282,7 @@
     if (!parsed) return null;
     const week = plan.weeks[parsed.week - 1];
     const day = week && week.days[parsed.dayIdx];
-    return day && day.sessions.length ? day.sessions[0] : null;
+    return day && day.sessions.length > parsed.sessionIdx ? day.sessions[parsed.sessionIdx] : null;
   }
 
   function getOriginalDateISO(key, startDate) {
@@ -607,7 +607,10 @@
             <button class="row-edit-btn" data-move-undo="${key}" aria-label="Undo move">Undo</button>
           </div>`;
         } else {
-          plannedRowHTML = plannedSessionRowHTML(day.sessions[0], key, dateStr, "", true);
+          plannedRowHTML = day.sessions.map((s, sIdx) => {
+            const sKey = sIdx === 0 ? key : `${key}s${sIdx}`;
+            return plannedSessionRowHTML(s, sKey, sIdx === 0 ? dateStr : "", "", sIdx === 0);
+          }).join("");
         }
 
         const moveFormRowHTML = moveFormKey === key ? moveFormHTML(key, movedTo) : "";
@@ -802,7 +805,7 @@
     const todayKey = dayKey(week.week, pos.dayIdx);
     const todayISO = toISODate(today);
     const movedAway = !!sessionMoves[todayKey];
-    const ownEntries = !movedAway && day.sessions.length ? day.sessions.map((s) => ({ session: s, key: todayKey, movedFromISO: null })) : [];
+    const ownEntries = !movedAway && day.sessions.length ? day.sessions.map((s, sIdx) => ({ session: s, key: sIdx === 0 ? todayKey : `${todayKey}s${sIdx}`, movedFromISO: null })) : [];
     const incomingEntries = incomingMovesForDate(todayISO).map((m) => ({
       session: m.session,
       key: m.key,
