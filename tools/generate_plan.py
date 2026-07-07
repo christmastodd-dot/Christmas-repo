@@ -185,55 +185,85 @@ MILESTONE_BY_WEEK = {m["week"]: m for m in MILESTONES}
 
 
 def phase_a_week(local_i, n, global_week):
-    """Foundation: weeks 1-13. Run, Swim, Bike, Strength, plus a second weekly
-    run throughout and a third from week 9 on (see module docstring)."""
+    """Foundation: weeks 1-13. Two rest days (indices 0, 2) every week.
+    Month 1: 1 swim, 1 bike. Month 2+ (week 5+): 2 swims, 3 bikes, multi-session
+    days allowed. Week 9+: Short Run moves onto the swim day (index 3) so index
+    2 remains a rest day."""
     scale = recovery_scale(global_week)
     swim_m = round50(lerp(400, 800, local_i, n) * scale)
     bike_m = round5(lerp(20, 50, local_i, n) * scale)
     strength_m = round5(lerp(20, 30, local_i, n))
-
-    days = [rest_day() for _ in range(7)]
-    days[3] = [session("swim", "Technique Swim", swim_detail(swim_m, "A"), distance_m=swim_m)]
-    days[5] = [session("bike", "Easy Bike", bike_detail(bike_m), duration_min=bike_m)]
-    days[6] = [session("strength", "Strength & Mobility", strength_detail(strength_m), duration_min=strength_m)]
 
     total = weekly_run_target(global_week)
     if global_week >= 9:
         run_m = max(10, round5(total * 0.45))
         second_m = max(10, round5(total * 0.30))
         third_m = max(10, round5(total * 0.25))
-        days[2] = [session("run", "Short Run", run_detail(third_m), duration_min=third_m)]
     else:
         run_m = max(10, round5(total * 0.60))
         second_m = max(10, round5(total * 0.40))
+        third_m = None
+
+    days = [rest_day() for _ in range(7)]
+    # days[0] and days[2] are always rest
 
     days[1] = [session("run", "Easy Run", run_detail(run_m), duration_min=run_m)]
+
+    # Day 4 (index 3): swim, with Short Run prepended from week 9 so day 3
+    # (index 2) stays a rest day — preserving two full rest days per week.
+    if third_m is not None:
+        days[3] = [
+            session("run", "Short Run", run_detail(third_m), duration_min=third_m),
+            session("swim", "Technique Swim", swim_detail(swim_m, "A"), distance_m=swim_m),
+        ]
+    else:
+        days[3] = [session("swim", "Technique Swim", swim_detail(swim_m, "A"), distance_m=swim_m)]
+
     days[4] = [session("run", "Recovery Run", run_detail(second_m), duration_min=second_m)]
+    days[5] = [session("bike", "Easy Bike", bike_detail(bike_m), duration_min=bike_m)]
+    days[6] = [session("strength", "Strength & Mobility", strength_detail(strength_m), duration_min=strength_m)]
+
+    # Month 2+ (week 5+): second swim and two extra bike sessions.
+    if global_week >= 5:
+        swim2_m = max(200, round50(swim_m * 0.65))
+        bike2_m = max(10, round5(bike_m * 0.75))
+        days[1] = days[1] + [session("bike", "Easy Bike", bike_detail(bike2_m), duration_min=bike2_m)]
+        days[4] = days[4] + [session("swim", "Technique Swim", swim_detail(swim2_m, "A"), distance_m=swim2_m)]
+        days[6] = days[6] + [session("bike", "Easy Bike", bike_detail(bike2_m), duration_min=bike2_m)]
+
     return days
 
 
 def phase_b_week(local_i, n, global_week):
-    """Sprint Build: weeks 14-26. Adds brick (bike+run) from week 18 onward,
-    and a third weekly run (day2) through week 21 — see module docstring."""
+    """Sprint Build: weeks 14-26. Two rest days (indices 0, 2), 2 swims, 3
+    bike-type sessions. Weeks 14-21: Recovery Run moves onto the swim day (index
+    3) to keep index 2 as a rest day. Extra bike on day 2 (index 1); 2nd swim on
+    day 6 (index 5 for pre-brick weeks, index 6 for brick weeks, index 3 for
+    race week 26)."""
     scale = recovery_scale(global_week)
     swim_m = round50(lerp(800, 1200, local_i, n) * scale)
     bike_m = round5(lerp(40, 60, local_i, n) * scale)
 
     days = [rest_day() for _ in range(7)]
-    days[3] = [session("swim", "Endurance Swim", swim_detail(swim_m, "B"), distance_m=swim_m)]
-    days[4] = [session("bike", "Tempo Bike", bike_detail(bike_m, tempo=True), duration_min=bike_m)]
+    # days[0] and days[2] are always rest
 
     if global_week <= 21:
         total = weekly_run_target(global_week)
         run_m = max(10, round5(total * 0.35))
         third_m = max(10, round5(total * 0.25))
         long_run_m = max(10, round5(total * 0.40))
-        days[2] = [session("run", "Recovery Run", run_detail(third_m), duration_min=third_m)]
+        # Recovery Run paired with swim on day 4 (index 3); day 3 (index 2) stays rest.
+        days[3] = [
+            session("run", "Recovery Run", run_detail(third_m), duration_min=third_m),
+            session("swim", "Endurance Swim", swim_detail(swim_m, "B"), distance_m=swim_m),
+        ]
     else:
         run_m = round5(lerp(30, 40, local_i, n) * scale)
         long_run_m = round5(lerp(30, 55, local_i, n) * scale)
+        days[3] = [session("swim", "Endurance Swim", swim_detail(swim_m, "B"), distance_m=swim_m)]
 
     days[1] = [session("run", "Run + Core", run_detail(run_m) + " Finish with a 10 min core circuit.", duration_min=run_m)]
+    days[4] = [session("bike", "Tempo Bike", bike_detail(bike_m, tempo=True), duration_min=bike_m)]
 
     if global_week < 18:
         sat_bike_m = round5(lerp(45, 55, local_i, n) * scale)
@@ -248,6 +278,20 @@ def phase_b_week(local_i, n, global_week):
         days[6] = [session("race", f"RACE DAY: {m['label']}", f"{m['distances']}. {m['note']}")]
     else:
         days[6] = [session("run", "Long Run", long_run_detail(long_run_m), duration_min=long_run_m)]
+
+    # 2 swims + 3 bike-type sessions: extra bike on day 2 (index 1), 2nd swim
+    # placed on the steady-bike day (pre-brick weeks), long-run day (brick weeks),
+    # or swim day (race week where day 7 is taken).
+    swim2_m = max(400, round50(swim_m * 0.65))
+    bike3_m = max(15, round5(bike_m * 0.70))
+    days[1] = days[1] + [session("bike", "Steady Bike", bike_detail(bike3_m), duration_min=bike3_m)]
+    if global_week == 26:
+        days[3] = days[3] + [session("swim", "Endurance Swim", swim_detail(swim2_m, "B"), distance_m=swim2_m)]
+    elif global_week < 18:
+        days[5] = days[5] + [session("swim", "Endurance Swim", swim_detail(swim2_m, "B"), distance_m=swim2_m)]
+    else:
+        days[6] = days[6] + [session("swim", "Endurance Swim", swim_detail(swim2_m, "B"), distance_m=swim2_m)]
+
     return days
 
 
@@ -272,6 +316,16 @@ def phase_c_week(local_i, n, global_week):
         days[6] = [session("race", f"RACE DAY: {m['label']}", f"{m['distances']}. {m['note']}")]
     else:
         days[6] = [session("run", "Long Run", long_run_detail(long_run_m), duration_min=long_run_m)]
+
+    # 2 swims + 3 bike-type sessions: extra bike on day 2 (index 1), 2nd swim on
+    # day 7 (index 6) for normal weeks or day 4 (index 3) for race week 39.
+    swim2_m = max(600, round50(swim_m * 0.60))
+    bike3_m = max(20, round5(bike_m * 0.65))
+    days[1] = days[1] + [session("bike", "Steady Bike", bike_detail(bike3_m), duration_min=bike3_m)]
+    if global_week == 39:
+        days[3] = days[3] + [session("swim", "Endurance Swim", swim_detail(swim2_m, "C"), distance_m=swim2_m)]
+    else:
+        days[6] = days[6] + [session("swim", "Endurance Swim", swim_detail(swim2_m, "C"), distance_m=swim2_m)]
     return days
 
 
@@ -303,6 +357,16 @@ def phase_d_week(local_i, n, global_week):
         days[6] = [session("race", f"RACE DAY: {m['label']}", f"{m['distances']}. {m['note']}")]
     else:
         days[6] = [session("run", "Long Run", long_run_detail(long_run_m), duration_min=long_run_m)]
+
+    # 2 swims + 3 bike-type sessions: extra bike on day 2 (index 1), 2nd swim on
+    # day 7 (index 6) for normal weeks or day 4 (index 3) for race week 52.
+    swim2_m = max(800, round50(swim_m * 0.60))
+    bike3_m = max(20, round5(bike_m * 0.65))
+    days[1] = days[1] + [session("bike", "Steady Bike", bike_detail(bike3_m), duration_min=bike3_m)]
+    if global_week == 52:
+        days[3] = days[3] + [session("swim", "Endurance Swim", swim_detail(swim2_m, "D"), distance_m=swim2_m)]
+    else:
+        days[6] = days[6] + [session("swim", "Endurance Swim", swim_detail(swim2_m, "D"), distance_m=swim2_m)]
     return days
 
 
@@ -326,6 +390,12 @@ def phase_e_week(local_i, n, global_week):
     days[4] = [session("bike", "Steady Bike", bike_detail(bike_m), duration_min=bike_m)]
     days[5] = [session("bike", "Long Bike", long_bike_detail(long_bike_m), duration_min=long_bike_m)]
     days[6] = [session("run", "Long Run", long_run_detail(long_run_m) + " This is Ironman-specific endurance work — patience over pace.", duration_min=long_run_m)]
+
+    # 2 swims + 3 bike sessions: extra bike on day 2 (index 1), 2nd swim on day 7 (index 6).
+    swim2_m = max(1000, round50(swim_m * 0.55))
+    bike3_m = max(20, round5(bike_m * 0.65))
+    days[1] = days[1] + [session("bike", "Steady Bike", bike_detail(bike3_m), duration_min=bike3_m)]
+    days[6] = days[6] + [session("swim", "Endurance Swim", swim_detail(swim2_m, "E"), distance_m=swim2_m)]
     return days
 
 
@@ -350,6 +420,12 @@ def phase_f_week(local_i, global_week):
         else:
             days[5] = [session("bike", "Easy Long Bike", long_bike_detail(w["long_bike"]), duration_min=w["long_bike"])]
         days[6] = [session("run", "Long Run", long_run_detail(w["long_run"]))]
+        # 2 swims + 3 bike sessions through the taper: extra bike on day 2 (index 1),
+        # 2nd swim on day 7 (index 6) alongside the long run.
+        swim2_m = max(400, round50(w["swim"] * 0.60))
+        bike3_m = max(15, round5(w["bike"] * 0.80))
+        days[1] = days[1] + [session("bike", "Easy Bike", bike_detail(bike3_m), duration_min=bike3_m)]
+        days[6] = days[6] + [session("swim", "Taper Swim", swim_detail(swim2_m, "E"), distance_m=swim2_m)]
     else:
         # Final week: race week. Very light touches, full rest before race day.
         days[1] = [session("bike", "Easy Spin", "15 min easy spin, just to keep the legs loose. Should feel like nothing.", duration_min=15)]
