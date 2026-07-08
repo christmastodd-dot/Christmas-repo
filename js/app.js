@@ -33,6 +33,7 @@
     { id: "run-5k", discipline: "run", label: "5K", meters: 5000, tolerance: 0.03 },
     { id: "run-10k", discipline: "run", label: "10K", meters: 10000, tolerance: 0.03 },
     { id: "run-half", discipline: "run", label: "Half Marathon", meters: 21097, tolerance: 0.02 },
+    { id: "run-marathon", discipline: "run", label: "Marathon", meters: 42195, tolerance: 0.02 },
     { id: "swim-750", discipline: "swim", label: "750m (Sprint swim)", meters: 750, tolerance: 0.05 },
     { id: "swim-1500", discipline: "swim", label: "1500m (Olympic swim)", meters: 1500, tolerance: 0.05 },
     { id: "swim-1900", discipline: "swim", label: "1.9km (Half-Iron swim)", meters: 1900, tolerance: 0.05 },
@@ -1164,7 +1165,7 @@
   function personalBestsHTML() {
     const stdById = Object.fromEntries(STANDARD_DISTANCES.map((s) => [s.id, s]));
     const groups = [
-      { disc: "run", ids: ["run-5k", "run-10k", "run-half"] },
+      { disc: "run", ids: ["run-5k", "run-10k", "run-half", "run-marathon"] },
       { disc: "swim", ids: ["swim-750", "swim-1500", "swim-1900", "swim-3800"] },
       { disc: "bike", ids: ["bike-20k", "bike-40k", "bike-90k", "bike-180k"] },
     ];
