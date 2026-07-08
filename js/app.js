@@ -1337,6 +1337,7 @@
 
   function customizeDayHTML(week, dayIdx, startDate) {
     const date = dateForWeekDay(startDate, week.week, dayIdx);
+    const dateISO = toISODate(date);
     const dateStr = formatShortDate(date);
     const baseKey = dayKey(week.week, dayIdx);
     const day = week.days[dayIdx];
@@ -1345,7 +1346,13 @@
     const overrides = edits.overrides || {};
     const added = edits.added || [];
 
+    // Collect any plan-race or custom-race notices for this day.
+    const raceNoticesHTML = customizeRaceNoticesHTML(baseSessions, dateISO, week);
+
     const baseRowsHTML = baseSessions.map((s, sIdx) => {
+      // Race sessions are shown via raceNoticesHTML above; skip them in the editable list.
+      if (s.discipline === "race") return "";
+
       const sKey = sIdx === 0 ? baseKey : `${baseKey}s${sIdx}`;
       const ov = overrides[String(sIdx)];
       const isDropped = !!(ov && ov.dropped);
@@ -1392,14 +1399,51 @@
       ? customizeAddFormHTML(baseKey)
       : `<div class="day-row"><button class="link-btn" data-session-add-open="${baseKey}" style="font-size:11px;">+ Add session</button></div>`;
 
-    const isEmpty = !baseSessions.length && !added.length;
+    const nonRaceSessions = baseSessions.filter((s) => s.discipline !== "race");
+    const isEmpty = !nonRaceSessions.length && !added.length;
 
     return `<div class="customize-day">
       <div class="customize-day-label">${dateStr}</div>
-      ${isEmpty ? `<div class="day-row"><span class="day-row__title rest-note">Rest day</span></div>` : ""}
+      ${raceNoticesHTML}
+      ${isEmpty && !raceNoticesHTML ? `<div class="day-row"><span class="day-row__title rest-note">Rest day</span></div>` : ""}
       ${baseRowsHTML}${addedRowsHTML}
       ${addAreaHTML}
     </div>`;
+  }
+
+  // Returns HTML for any race notices on this day: plan milestone races + custom races.
+  function customizeRaceNoticesHTML(baseSessions, dateISO, week) {
+    const notices = [];
+
+    // Plan-authored race sessions (e.g. "RACE DAY: Sprint Triathlon")
+    baseSessions.forEach((s) => {
+      if (s.discipline !== "race") return;
+      // Check if there's a milestone override for this week
+      const override = milestoneOverrides[week.week];
+      const label = (override && override.label) || s.title.replace(/^RACE DAY:\s*/i, "");
+      const milestone = week.milestone;
+      const distances = milestone ? milestone.distances : "";
+      const note = milestone ? milestone.note : s.detail;
+      notices.push(`<div class="customize-race-notice">
+        <div class="customize-race-notice__head">\u{1F3C1} ${escapeHtml(label)}</div>
+        ${distances ? `<div class="customize-race-notice__distances">${escapeHtml(distances)}</div>` : ""}
+        <div class="customize-race-notice__note">${escapeHtml(note || "")}</div>
+        <div class="customize-race-notice__tip">Adjust other sessions in this week around race day.</div>
+      </div>`);
+    });
+
+    // Custom races matching this date
+    customRaces.forEach((r) => {
+      if (r.date !== dateISO) return;
+      const type = RACE_TYPE_BY_ID[r.typeId] || RACE_TYPE_BY_ID.other;
+      const label = r.label || type.label;
+      notices.push(`<div class="customize-race-notice">
+        <div class="customize-race-notice__head">${type.emoji} ${escapeHtml(label)}</div>
+        <div class="customize-race-notice__tip">Your custom race — adjust other sessions this week around it.</div>
+      </div>`);
+    });
+
+    return notices.join("");
   }
 
   function customizeEditFormHTML(session, key) {
