@@ -88,7 +88,7 @@
             {
               "discipline": "run",
               "title": "Easy Run",
-              "detail": "20 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "detail": "20 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace.",
               "durationMin": 20
             }
           ]
@@ -103,7 +103,7 @@
             {
               "discipline": "swim",
               "title": "Technique Swim",
-              "detail": "400m total in the pool \u2014 mix of drills (catch-up, kick sets) and short easy swims with rest as needed. Technique over speed.",
+              "detail": "400m total in the pool \u2014 mix of drills (catch-up, kick sets) and short easy Zone 2 swims with rest as needed. Technique over speed.",
               "distanceM": 400
             }
           ]
@@ -114,7 +114,7 @@
             {
               "discipline": "run",
               "title": "Recovery Run",
-              "detail": "10 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "detail": "10 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace.",
               "durationMin": 10
             }
           ]
@@ -125,7 +125,7 @@
             {
               "discipline": "bike",
               "title": "Easy Bike",
-              "detail": "20 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "20 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 20
             }
           ]
@@ -161,7 +161,7 @@
             {
               "discipline": "run",
               "title": "Easy Run",
-              "detail": "25 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "detail": "25 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace.",
               "durationMin": 25
             }
           ]
@@ -176,8 +176,8 @@
             {
               "discipline": "swim",
               "title": "Technique Swim",
-              "detail": "450m total in the pool \u2014 mix of drills (catch-up, kick sets) and short easy swims with rest as needed. Technique over speed.",
-              "distanceM": 450
+              "detail": "600m total in the pool \u2014 mix of drills (catch-up, kick sets) and short easy Zone 2 swims with rest as needed. Technique over speed.",
+              "distanceM": 600
             }
           ]
         },
@@ -187,7 +187,7 @@
             {
               "discipline": "run",
               "title": "Recovery Run",
-              "detail": "15 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "detail": "15 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace.",
               "durationMin": 15
             }
           ]
@@ -198,7 +198,7 @@
             {
               "discipline": "bike",
               "title": "Easy Bike",
-              "detail": "20 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "20 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 20
             }
           ]
@@ -234,7 +234,7 @@
             {
               "discipline": "run",
               "title": "Easy Run",
-              "detail": "30 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "detail": "30 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace.",
               "durationMin": 30
             }
           ]
@@ -249,8 +249,8 @@
             {
               "discipline": "swim",
               "title": "Technique Swim",
-              "detail": "450m total in the pool \u2014 mix of drills (catch-up, kick sets) and short easy swims with rest as needed. Technique over speed.",
-              "distanceM": 450
+              "detail": "850m total in the pool \u2014 mix of drills (catch-up, kick sets) and short easy Zone 2 swims with rest as needed. Technique over speed.",
+              "distanceM": 850
             }
           ]
         },
@@ -260,7 +260,7 @@
             {
               "discipline": "run",
               "title": "Recovery Run",
-              "detail": "20 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "detail": "20 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace.",
               "durationMin": 20
             }
           ]
@@ -271,7 +271,7 @@
             {
               "discipline": "bike",
               "title": "Easy Bike",
-              "detail": "25 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "25 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 25
             }
           ]
@@ -307,7 +307,7 @@
             {
               "discipline": "run",
               "title": "Easy Run",
-              "detail": "25 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "detail": "25 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace.",
               "durationMin": 25
             }
           ]
@@ -322,8 +322,8 @@
             {
               "discipline": "swim",
               "title": "Technique Swim",
-              "detail": "400m total in the pool \u2014 mix of drills (catch-up, kick sets) and short easy swims with rest as needed. Technique over speed.",
-              "distanceM": 400
+              "detail": "800m total in the pool \u2014 mix of drills (catch-up, kick sets) and short easy Zone 2 swims with rest as needed. Technique over speed.",
+              "distanceM": 800
             }
           ]
         },
@@ -333,7 +333,7 @@
             {
               "discipline": "run",
               "title": "Recovery Run",
-              "detail": "20 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "detail": "20 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace.",
               "durationMin": 20
             }
           ]
@@ -344,7 +344,7 @@
             {
               "discipline": "bike",
               "title": "Easy Bike",
-              "detail": "20 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "20 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 20
             }
           ]
@@ -380,13 +380,13 @@
             {
               "discipline": "run",
               "title": "Easy Run",
-              "detail": "45 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "detail": "45 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace.",
               "durationMin": 45
             },
             {
               "discipline": "bike",
               "title": "Easy Bike",
-              "detail": "20 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "20 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 20
             }
           ]
@@ -401,8 +401,8 @@
             {
               "discipline": "swim",
               "title": "Technique Swim",
-              "detail": "550m total in the pool \u2014 mix of drills (catch-up, kick sets) and short easy swims with rest as needed. Technique over speed.",
-              "distanceM": 550
+              "detail": "1250m total in the pool \u2014 mix of drills (catch-up, kick sets) and short easy Zone 2 swims with rest as needed. Technique over speed.",
+              "distanceM": 1250
             }
           ]
         },
@@ -412,14 +412,14 @@
             {
               "discipline": "run",
               "title": "Recovery Run",
-              "detail": "30 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "detail": "30 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace.",
               "durationMin": 30
             },
             {
               "discipline": "swim",
-              "title": "Technique Swim",
-              "detail": "350m total in the pool \u2014 mix of drills (catch-up, kick sets) and short easy swims with rest as needed. Technique over speed.",
-              "distanceM": 350
+              "title": "Threshold Swim",
+              "detail": "1000m quality swim \u2014 200m easy Zone 2 warm-up, then alternate 100m at a challenging Zone 4 effort with 50m easy recovery. Finish easy.",
+              "distanceM": 1000
             }
           ]
         },
@@ -428,8 +428,8 @@
           "sessions": [
             {
               "discipline": "bike",
-              "title": "Easy Bike",
-              "detail": "30 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "title": "Interval Ride",
+              "detail": "30 min quality bike \u2014 10 min Zone 2 warm-up, then 5 \u00d7 3 min at Zone 4-5 effort with 3 min easy Zone 2 recovery between, finish Zone 2.",
               "durationMin": 30
             }
           ]
@@ -446,7 +446,7 @@
             {
               "discipline": "bike",
               "title": "Easy Bike",
-              "detail": "20 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "20 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 20
             }
           ]
@@ -471,13 +471,13 @@
             {
               "discipline": "run",
               "title": "Easy Run",
-              "detail": "55 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "detail": "55 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace.",
               "durationMin": 55
             },
             {
               "discipline": "bike",
               "title": "Easy Bike",
-              "detail": "20 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "20 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 20
             }
           ]
@@ -492,8 +492,8 @@
             {
               "discipline": "swim",
               "title": "Technique Swim",
-              "detail": "550m total in the pool \u2014 mix of drills (catch-up, kick sets) and short easy swims with rest as needed. Technique over speed.",
-              "distanceM": 550
+              "detail": "1500m total in the pool \u2014 mix of drills (catch-up, kick sets) and short easy Zone 2 swims with rest as needed. Technique over speed.",
+              "distanceM": 1500
             }
           ]
         },
@@ -503,14 +503,14 @@
             {
               "discipline": "run",
               "title": "Recovery Run",
-              "detail": "35 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "detail": "35 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace.",
               "durationMin": 35
             },
             {
               "discipline": "swim",
-              "title": "Technique Swim",
-              "detail": "350m total in the pool \u2014 mix of drills (catch-up, kick sets) and short easy swims with rest as needed. Technique over speed.",
-              "distanceM": 350
+              "title": "Threshold Swim",
+              "detail": "1000m quality swim \u2014 200m easy Zone 2 warm-up, then alternate 100m at a challenging Zone 4 effort with 50m easy recovery. Finish easy.",
+              "distanceM": 1000
             }
           ]
         },
@@ -519,8 +519,8 @@
           "sessions": [
             {
               "discipline": "bike",
-              "title": "Easy Bike",
-              "detail": "30 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "title": "Interval Ride",
+              "detail": "30 min quality bike \u2014 10 min Zone 2 warm-up, then 5 \u00d7 3 min at Zone 4-5 effort with 3 min easy Zone 2 recovery between, finish Zone 2.",
               "durationMin": 30
             }
           ]
@@ -537,7 +537,7 @@
             {
               "discipline": "bike",
               "title": "Easy Bike",
-              "detail": "20 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "20 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 20
             }
           ]
@@ -562,13 +562,13 @@
             {
               "discipline": "run",
               "title": "Easy Run",
-              "detail": "65 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "detail": "65 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace.",
               "durationMin": 65
             },
             {
               "discipline": "bike",
               "title": "Easy Bike",
-              "detail": "25 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "25 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 25
             }
           ]
@@ -583,8 +583,8 @@
             {
               "discipline": "swim",
               "title": "Technique Swim",
-              "detail": "600m total in the pool \u2014 mix of drills (catch-up, kick sets) and short easy swims with rest as needed. Technique over speed.",
-              "distanceM": 600
+              "detail": "1700m total in the pool \u2014 mix of drills (catch-up, kick sets) and short easy Zone 2 swims with rest as needed. Technique over speed.",
+              "distanceM": 1700
             }
           ]
         },
@@ -594,14 +594,14 @@
             {
               "discipline": "run",
               "title": "Recovery Run",
-              "detail": "45 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "detail": "45 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace.",
               "durationMin": 45
             },
             {
               "discipline": "swim",
-              "title": "Technique Swim",
-              "detail": "400m total in the pool \u2014 mix of drills (catch-up, kick sets) and short easy swims with rest as needed. Technique over speed.",
-              "distanceM": 400
+              "title": "Threshold Swim",
+              "detail": "1100m quality swim \u2014 200m easy Zone 2 warm-up, then alternate 100m at a challenging Zone 4 effort with 50m easy recovery. Finish easy.",
+              "distanceM": 1100
             }
           ]
         },
@@ -610,8 +610,8 @@
           "sessions": [
             {
               "discipline": "bike",
-              "title": "Easy Bike",
-              "detail": "35 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "title": "Interval Ride",
+              "detail": "35 min quality bike \u2014 10 min Zone 2 warm-up, then 5 \u00d7 3 min at Zone 4-5 effort with 3 min easy Zone 2 recovery between, finish Zone 2.",
               "durationMin": 35
             }
           ]
@@ -628,7 +628,7 @@
             {
               "discipline": "bike",
               "title": "Easy Bike",
-              "detail": "25 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "25 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 25
             }
           ]
@@ -653,13 +653,13 @@
             {
               "discipline": "run",
               "title": "Easy Run",
-              "detail": "60 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "detail": "60 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace.",
               "durationMin": 60
             },
             {
               "discipline": "bike",
               "title": "Easy Bike",
-              "detail": "20 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "20 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 20
             }
           ]
@@ -674,8 +674,8 @@
             {
               "discipline": "swim",
               "title": "Technique Swim",
-              "detail": "500m total in the pool \u2014 mix of drills (catch-up, kick sets) and short easy swims with rest as needed. Technique over speed.",
-              "distanceM": 500
+              "detail": "1450m total in the pool \u2014 mix of drills (catch-up, kick sets) and short easy Zone 2 swims with rest as needed. Technique over speed.",
+              "distanceM": 1450
             }
           ]
         },
@@ -685,14 +685,14 @@
             {
               "discipline": "run",
               "title": "Recovery Run",
-              "detail": "40 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "detail": "40 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace.",
               "durationMin": 40
             },
             {
               "discipline": "swim",
-              "title": "Technique Swim",
-              "detail": "300m total in the pool \u2014 mix of drills (catch-up, kick sets) and short easy swims with rest as needed. Technique over speed.",
-              "distanceM": 300
+              "title": "Threshold Swim",
+              "detail": "1000m quality swim \u2014 200m easy Zone 2 warm-up, then alternate 100m at a challenging Zone 4 effort with 50m easy recovery. Finish easy.",
+              "distanceM": 1000
             }
           ]
         },
@@ -701,8 +701,8 @@
           "sessions": [
             {
               "discipline": "bike",
-              "title": "Easy Bike",
-              "detail": "30 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "title": "Interval Ride",
+              "detail": "30 min quality bike \u2014 10 min Zone 2 warm-up, then 5 \u00d7 3 min at Zone 4-5 effort with 3 min easy Zone 2 recovery between, finish Zone 2.",
               "durationMin": 30
             }
           ]
@@ -719,7 +719,7 @@
             {
               "discipline": "bike",
               "title": "Easy Bike",
-              "detail": "20 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "20 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 20
             }
           ]
@@ -744,13 +744,13 @@
             {
               "discipline": "run",
               "title": "Easy Run",
-              "detail": "70 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "detail": "70 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace.",
               "durationMin": 70
             },
             {
               "discipline": "bike",
               "title": "Easy Bike",
-              "detail": "30 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "30 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 30
             }
           ]
@@ -764,15 +764,15 @@
           "sessions": [
             {
               "discipline": "run",
-              "title": "Short Run",
-              "detail": "40 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "title": "Short Run w/ Strides",
+              "detail": "40 min easy Zone 2 run \u2014 keep it conversational, then finish with 4-6 \u00d7 20-sec strides at a quick, relaxed (Zone 4-5) effort with full recovery between.",
               "durationMin": 40
             },
             {
               "discipline": "swim",
               "title": "Technique Swim",
-              "detail": "650m total in the pool \u2014 mix of drills (catch-up, kick sets) and short easy swims with rest as needed. Technique over speed.",
-              "distanceM": 650
+              "detail": "2150m total in the pool \u2014 mix of drills (catch-up, kick sets) and short easy Zone 2 swims with rest as needed. Technique over speed.",
+              "distanceM": 2150
             }
           ]
         },
@@ -782,14 +782,14 @@
             {
               "discipline": "run",
               "title": "Recovery Run",
-              "detail": "45 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "detail": "45 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace.",
               "durationMin": 45
             },
             {
               "discipline": "swim",
-              "title": "Technique Swim",
-              "detail": "400m total in the pool \u2014 mix of drills (catch-up, kick sets) and short easy swims with rest as needed. Technique over speed.",
-              "distanceM": 400
+              "title": "Threshold Swim",
+              "detail": "2000m quality swim \u2014 200m easy Zone 2 warm-up, then alternate 100m at a challenging Zone 4 effort with 50m easy recovery. Finish easy.",
+              "distanceM": 2000
             }
           ]
         },
@@ -798,8 +798,8 @@
           "sessions": [
             {
               "discipline": "bike",
-              "title": "Easy Bike",
-              "detail": "40 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "title": "Interval Ride",
+              "detail": "40 min quality bike \u2014 10 min Zone 2 warm-up, then 5 \u00d7 3 min at Zone 4-5 effort with 3 min easy Zone 2 recovery between, finish Zone 2.",
               "durationMin": 40
             }
           ]
@@ -816,7 +816,7 @@
             {
               "discipline": "bike",
               "title": "Easy Bike",
-              "detail": "30 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "30 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 30
             }
           ]
@@ -841,13 +841,13 @@
             {
               "discipline": "run",
               "title": "Easy Run",
-              "detail": "75 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "detail": "75 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace.",
               "durationMin": 75
             },
             {
               "discipline": "bike",
               "title": "Easy Bike",
-              "detail": "30 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "30 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 30
             }
           ]
@@ -861,15 +861,15 @@
           "sessions": [
             {
               "discipline": "run",
-              "title": "Short Run",
-              "detail": "40 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "title": "Short Run w/ Strides",
+              "detail": "40 min easy Zone 2 run \u2014 keep it conversational, then finish with 4-6 \u00d7 20-sec strides at a quick, relaxed (Zone 4-5) effort with full recovery between.",
               "durationMin": 40
             },
             {
               "discipline": "swim",
               "title": "Technique Swim",
-              "detail": "700m total in the pool \u2014 mix of drills (catch-up, kick sets) and short easy swims with rest as needed. Technique over speed.",
-              "distanceM": 700
+              "detail": "2350m total in the pool \u2014 mix of drills (catch-up, kick sets) and short easy Zone 2 swims with rest as needed. Technique over speed.",
+              "distanceM": 2350
             }
           ]
         },
@@ -879,14 +879,14 @@
             {
               "discipline": "run",
               "title": "Recovery Run",
-              "detail": "50 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "detail": "50 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace.",
               "durationMin": 50
             },
             {
               "discipline": "swim",
-              "title": "Technique Swim",
-              "detail": "450m total in the pool \u2014 mix of drills (catch-up, kick sets) and short easy swims with rest as needed. Technique over speed.",
-              "distanceM": 450
+              "title": "Threshold Swim",
+              "detail": "2000m quality swim \u2014 200m easy Zone 2 warm-up, then alternate 100m at a challenging Zone 4 effort with 50m easy recovery. Finish easy.",
+              "distanceM": 2000
             }
           ]
         },
@@ -895,8 +895,8 @@
           "sessions": [
             {
               "discipline": "bike",
-              "title": "Easy Bike",
-              "detail": "40 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "title": "Interval Ride",
+              "detail": "40 min quality bike \u2014 10 min Zone 2 warm-up, then 5 \u00d7 3 min at Zone 4-5 effort with 3 min easy Zone 2 recovery between, finish Zone 2.",
               "durationMin": 40
             }
           ]
@@ -913,7 +913,7 @@
             {
               "discipline": "bike",
               "title": "Easy Bike",
-              "detail": "30 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "30 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 30
             }
           ]
@@ -938,13 +938,13 @@
             {
               "discipline": "run",
               "title": "Easy Run",
-              "detail": "85 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "detail": "85 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace.",
               "durationMin": 85
             },
             {
               "discipline": "bike",
               "title": "Easy Bike",
-              "detail": "35 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "35 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 35
             }
           ]
@@ -958,15 +958,15 @@
           "sessions": [
             {
               "discipline": "run",
-              "title": "Short Run",
-              "detail": "50 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "title": "Short Run w/ Strides",
+              "detail": "50 min easy Zone 2 run \u2014 keep it conversational, then finish with 4-6 \u00d7 20-sec strides at a quick, relaxed (Zone 4-5) effort with full recovery between.",
               "durationMin": 50
             },
             {
               "discipline": "swim",
               "title": "Technique Swim",
-              "detail": "750m total in the pool \u2014 mix of drills (catch-up, kick sets) and short easy swims with rest as needed. Technique over speed.",
-              "distanceM": 750
+              "detail": "2550m total in the pool \u2014 mix of drills (catch-up, kick sets) and short easy Zone 2 swims with rest as needed. Technique over speed.",
+              "distanceM": 2550
             }
           ]
         },
@@ -976,14 +976,14 @@
             {
               "discipline": "run",
               "title": "Recovery Run",
-              "detail": "55 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "detail": "55 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace.",
               "durationMin": 55
             },
             {
               "discipline": "swim",
-              "title": "Technique Swim",
-              "detail": "500m total in the pool \u2014 mix of drills (catch-up, kick sets) and short easy swims with rest as needed. Technique over speed.",
-              "distanceM": 500
+              "title": "Threshold Swim",
+              "detail": "2000m quality swim \u2014 200m easy Zone 2 warm-up, then alternate 100m at a challenging Zone 4 effort with 50m easy recovery. Finish easy.",
+              "distanceM": 2000
             }
           ]
         },
@@ -992,8 +992,8 @@
           "sessions": [
             {
               "discipline": "bike",
-              "title": "Easy Bike",
-              "detail": "45 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "title": "Interval Ride",
+              "detail": "45 min quality bike \u2014 10 min Zone 2 warm-up, then 5 \u00d7 3 min at Zone 4-5 effort with 3 min easy Zone 2 recovery between, finish Zone 2.",
               "durationMin": 45
             }
           ]
@@ -1010,7 +1010,7 @@
             {
               "discipline": "bike",
               "title": "Easy Bike",
-              "detail": "35 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "35 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 35
             }
           ]
@@ -1035,13 +1035,13 @@
             {
               "discipline": "run",
               "title": "Easy Run",
-              "detail": "70 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "detail": "70 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace.",
               "durationMin": 70
             },
             {
               "discipline": "bike",
               "title": "Easy Bike",
-              "detail": "25 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "25 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 25
             }
           ]
@@ -1055,15 +1055,15 @@
           "sessions": [
             {
               "discipline": "run",
-              "title": "Short Run",
-              "detail": "40 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "title": "Short Run w/ Strides",
+              "detail": "40 min easy Zone 2 run \u2014 keep it conversational, then finish with 4-6 \u00d7 20-sec strides at a quick, relaxed (Zone 4-5) effort with full recovery between.",
               "durationMin": 40
             },
             {
               "discipline": "swim",
               "title": "Technique Swim",
-              "detail": "600m total in the pool \u2014 mix of drills (catch-up, kick sets) and short easy swims with rest as needed. Technique over speed.",
-              "distanceM": 600
+              "detail": "2100m total in the pool \u2014 mix of drills (catch-up, kick sets) and short easy Zone 2 swims with rest as needed. Technique over speed.",
+              "distanceM": 2100
             }
           ]
         },
@@ -1073,14 +1073,14 @@
             {
               "discipline": "run",
               "title": "Recovery Run",
-              "detail": "45 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "detail": "45 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace.",
               "durationMin": 45
             },
             {
               "discipline": "swim",
-              "title": "Technique Swim",
-              "detail": "400m total in the pool \u2014 mix of drills (catch-up, kick sets) and short easy swims with rest as needed. Technique over speed.",
-              "distanceM": 400
+              "title": "Threshold Swim",
+              "detail": "2000m quality swim \u2014 200m easy Zone 2 warm-up, then alternate 100m at a challenging Zone 4 effort with 50m easy recovery. Finish easy.",
+              "distanceM": 2000
             }
           ]
         },
@@ -1089,8 +1089,8 @@
           "sessions": [
             {
               "discipline": "bike",
-              "title": "Easy Bike",
-              "detail": "35 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "title": "Interval Ride",
+              "detail": "35 min quality bike \u2014 10 min Zone 2 warm-up, then 5 \u00d7 3 min at Zone 4-5 effort with 3 min easy Zone 2 recovery between, finish Zone 2.",
               "durationMin": 35
             }
           ]
@@ -1107,7 +1107,7 @@
             {
               "discipline": "bike",
               "title": "Easy Bike",
-              "detail": "25 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "25 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 25
             }
           ]
@@ -1132,13 +1132,13 @@
             {
               "discipline": "run",
               "title": "Easy Run",
-              "detail": "105 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "detail": "105 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace.",
               "durationMin": 105
             },
             {
               "discipline": "bike",
               "title": "Easy Bike",
-              "detail": "40 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "40 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 40
             }
           ]
@@ -1152,15 +1152,15 @@
           "sessions": [
             {
               "discipline": "run",
-              "title": "Short Run",
-              "detail": "60 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "title": "Short Run w/ Strides",
+              "detail": "60 min easy Zone 2 run \u2014 keep it conversational, then finish with 4-6 \u00d7 20-sec strides at a quick, relaxed (Zone 4-5) effort with full recovery between.",
               "durationMin": 60
             },
             {
               "discipline": "swim",
               "title": "Technique Swim",
-              "detail": "800m total in the pool \u2014 mix of drills (catch-up, kick sets) and short easy swims with rest as needed. Technique over speed.",
-              "distanceM": 800
+              "detail": "3000m total in the pool \u2014 mix of drills (catch-up, kick sets) and short easy Zone 2 swims with rest as needed. Technique over speed.",
+              "distanceM": 3000
             }
           ]
         },
@@ -1170,14 +1170,14 @@
             {
               "discipline": "run",
               "title": "Recovery Run",
-              "detail": "70 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "detail": "70 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace.",
               "durationMin": 70
             },
             {
               "discipline": "swim",
-              "title": "Technique Swim",
-              "detail": "500m total in the pool \u2014 mix of drills (catch-up, kick sets) and short easy swims with rest as needed. Technique over speed.",
-              "distanceM": 500
+              "title": "Threshold Swim",
+              "detail": "2000m quality swim \u2014 200m easy Zone 2 warm-up, then alternate 100m at a challenging Zone 4 effort with 50m easy recovery. Finish easy.",
+              "distanceM": 2000
             }
           ]
         },
@@ -1186,8 +1186,8 @@
           "sessions": [
             {
               "discipline": "bike",
-              "title": "Easy Bike",
-              "detail": "50 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "title": "Interval Ride",
+              "detail": "50 min quality bike \u2014 10 min Zone 2 warm-up, then 5 \u00d7 3 min at Zone 4-5 effort with 3 min easy Zone 2 recovery between, finish Zone 2.",
               "durationMin": 50
             }
           ]
@@ -1204,7 +1204,7 @@
             {
               "discipline": "bike",
               "title": "Easy Bike",
-              "detail": "40 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "40 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 40
             }
           ]
@@ -1229,13 +1229,13 @@
             {
               "discipline": "run",
               "title": "Run + Core",
-              "detail": "95 min easy run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
+              "detail": "95 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
               "durationMin": 95
             },
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "30 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "30 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 30
             }
           ]
@@ -1250,14 +1250,14 @@
             {
               "discipline": "run",
               "title": "Recovery Run",
-              "detail": "70 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "detail": "70 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace.",
               "durationMin": 70
             },
             {
               "discipline": "swim",
               "title": "Endurance Swim",
-              "detail": "800m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
-              "distanceM": 800
+              "detail": "2500m \u2014 warm-up, then continuous Zone 2 swimming at a steady aerobic pace, short rest between sets as needed.",
+              "distanceM": 2500
             }
           ]
         },
@@ -1267,7 +1267,7 @@
             {
               "discipline": "bike",
               "title": "Tempo Bike",
-              "detail": "40 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "detail": "40 min bike \u2014 warm up easy Zone 2, then 3\u00d78 min at a steady-hard effort (Zone 3-4) with easy spinning recovery between, cool down easy.",
               "durationMin": 40
             }
           ]
@@ -1278,14 +1278,14 @@
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "45 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "45 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 45
             },
             {
               "discipline": "swim",
-              "title": "Endurance Swim",
-              "detail": "500m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
-              "distanceM": 500
+              "title": "Threshold Swim",
+              "detail": "2000m quality swim \u2014 200m easy Zone 2 warm-up, then alternate 100m at a challenging Zone 4 effort with 50m easy recovery. Finish easy.",
+              "distanceM": 2000
             }
           ]
         },
@@ -1320,13 +1320,13 @@
             {
               "discipline": "run",
               "title": "Run + Core",
-              "detail": "105 min easy run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
+              "detail": "105 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
               "durationMin": 105
             },
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "30 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "30 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 30
             }
           ]
@@ -1341,14 +1341,14 @@
             {
               "discipline": "run",
               "title": "Recovery Run",
-              "detail": "75 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "detail": "75 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace.",
               "durationMin": 75
             },
             {
               "discipline": "swim",
               "title": "Endurance Swim",
-              "detail": "850m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
-              "distanceM": 850
+              "detail": "2600m \u2014 warm-up, then continuous Zone 2 swimming at a steady aerobic pace, short rest between sets as needed.",
+              "distanceM": 2600
             }
           ]
         },
@@ -1358,7 +1358,7 @@
             {
               "discipline": "bike",
               "title": "Tempo Bike",
-              "detail": "40 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "detail": "40 min bike \u2014 warm up easy Zone 2, then 3\u00d78 min at a steady-hard effort (Zone 3-4) with easy spinning recovery between, cool down easy.",
               "durationMin": 40
             }
           ]
@@ -1369,14 +1369,14 @@
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "45 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "45 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 45
             },
             {
               "discipline": "swim",
-              "title": "Endurance Swim",
-              "detail": "550m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
-              "distanceM": 550
+              "title": "Threshold Swim",
+              "detail": "2000m quality swim \u2014 200m easy Zone 2 warm-up, then alternate 100m at a challenging Zone 4 effort with 50m easy recovery. Finish easy.",
+              "distanceM": 2000
             }
           ]
         },
@@ -1411,13 +1411,13 @@
             {
               "discipline": "run",
               "title": "Run + Core",
-              "detail": "85 min easy run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
+              "detail": "85 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
               "durationMin": 85
             },
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "20 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "20 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 20
             }
           ]
@@ -1432,14 +1432,14 @@
             {
               "discipline": "run",
               "title": "Recovery Run",
-              "detail": "60 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "detail": "60 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace.",
               "durationMin": 60
             },
             {
               "discipline": "swim",
               "title": "Endurance Swim",
-              "detail": "650m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
-              "distanceM": 650
+              "detail": "2050m \u2014 warm-up, then continuous Zone 2 swimming at a steady aerobic pace, short rest between sets as needed.",
+              "distanceM": 2050
             }
           ]
         },
@@ -1449,7 +1449,7 @@
             {
               "discipline": "bike",
               "title": "Tempo Bike",
-              "detail": "30 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "detail": "30 min bike \u2014 warm up easy Zone 2, then 3\u00d78 min at a steady-hard effort (Zone 3-4) with easy spinning recovery between, cool down easy.",
               "durationMin": 30
             }
           ]
@@ -1460,14 +1460,14 @@
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "35 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "35 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 35
             },
             {
               "discipline": "swim",
-              "title": "Endurance Swim",
-              "detail": "400m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
-              "distanceM": 400
+              "title": "Threshold Swim",
+              "detail": "2000m quality swim \u2014 200m easy Zone 2 warm-up, then alternate 100m at a challenging Zone 4 effort with 50m easy recovery. Finish easy.",
+              "distanceM": 2000
             }
           ]
         },
@@ -1502,13 +1502,13 @@
             {
               "discipline": "run",
               "title": "Run + Core",
-              "detail": "125 min easy run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
+              "detail": "125 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
               "durationMin": 125
             },
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "30 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "30 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 30
             }
           ]
@@ -1523,14 +1523,14 @@
             {
               "discipline": "run",
               "title": "Recovery Run",
-              "detail": "90 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "detail": "90 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace.",
               "durationMin": 90
             },
             {
               "discipline": "swim",
               "title": "Endurance Swim",
-              "detail": "900m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
-              "distanceM": 900
+              "detail": "2900m \u2014 warm-up, then continuous Zone 2 swimming at a steady aerobic pace, short rest between sets as needed.",
+              "distanceM": 2900
             }
           ]
         },
@@ -1540,7 +1540,7 @@
             {
               "discipline": "bike",
               "title": "Tempo Bike",
-              "detail": "45 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "detail": "45 min bike \u2014 warm up easy Zone 2, then 3\u00d78 min at a steady-hard effort (Zone 3-4) with easy spinning recovery between, cool down easy.",
               "durationMin": 45
             }
           ]
@@ -1551,14 +1551,14 @@
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "50 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "50 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 50
             },
             {
               "discipline": "swim",
-              "title": "Endurance Swim",
-              "detail": "600m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
-              "distanceM": 600
+              "title": "Threshold Swim",
+              "detail": "2000m quality swim \u2014 200m easy Zone 2 warm-up, then alternate 100m at a challenging Zone 4 effort with 50m easy recovery. Finish easy.",
+              "distanceM": 2000
             }
           ]
         },
@@ -1593,13 +1593,13 @@
             {
               "discipline": "run",
               "title": "Run + Core",
-              "detail": "145 min easy run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
+              "detail": "145 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
               "durationMin": 145
             },
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "30 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "30 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 30
             }
           ]
@@ -1614,14 +1614,14 @@
             {
               "discipline": "run",
               "title": "Recovery Run",
-              "detail": "100 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "detail": "100 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace.",
               "durationMin": 100
             },
             {
               "discipline": "swim",
               "title": "Endurance Swim",
-              "detail": "950m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
-              "distanceM": 950
+              "detail": "3000m \u2014 warm-up, then continuous Zone 2 swimming at a steady aerobic pace, short rest between sets as needed.",
+              "distanceM": 3000
             }
           ]
         },
@@ -1631,7 +1631,7 @@
             {
               "discipline": "bike",
               "title": "Tempo Bike",
-              "detail": "45 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "detail": "45 min bike \u2014 warm up easy Zone 2, then 3\u00d78 min at a steady-hard effort (Zone 3-4) with easy spinning recovery between, cool down easy.",
               "durationMin": 45
             }
           ]
@@ -1657,9 +1657,9 @@
             },
             {
               "discipline": "swim",
-              "title": "Endurance Swim",
-              "detail": "600m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
-              "distanceM": 600
+              "title": "Threshold Swim",
+              "detail": "2000m quality swim \u2014 200m easy Zone 2 warm-up, then alternate 100m at a challenging Zone 4 effort with 50m easy recovery. Finish easy.",
+              "distanceM": 2000
             }
           ]
         }
@@ -1683,13 +1683,13 @@
             {
               "discipline": "run",
               "title": "Run + Core",
-              "detail": "160 min easy run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
+              "detail": "160 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
               "durationMin": 160
             },
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "35 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "35 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 35
             }
           ]
@@ -1704,14 +1704,14 @@
             {
               "discipline": "run",
               "title": "Recovery Run",
-              "detail": "115 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "detail": "115 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace.",
               "durationMin": 115
             },
             {
               "discipline": "swim",
               "title": "Endurance Swim",
-              "detail": "950m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
-              "distanceM": 950
+              "detail": "3100m \u2014 warm-up, then continuous Zone 2 swimming at a steady aerobic pace, short rest between sets as needed.",
+              "distanceM": 3100
             }
           ]
         },
@@ -1721,7 +1721,7 @@
             {
               "discipline": "bike",
               "title": "Tempo Bike",
-              "detail": "50 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "detail": "50 min bike \u2014 warm up easy Zone 2, then 3\u00d78 min at a steady-hard effort (Zone 3-4) with easy spinning recovery between, cool down easy.",
               "durationMin": 50
             }
           ]
@@ -1747,9 +1747,9 @@
             },
             {
               "discipline": "swim",
-              "title": "Endurance Swim",
-              "detail": "600m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
-              "distanceM": 600
+              "title": "Threshold Swim",
+              "detail": "2000m quality swim \u2014 200m easy Zone 2 warm-up, then alternate 100m at a challenging Zone 4 effort with 50m easy recovery. Finish easy.",
+              "distanceM": 2000
             }
           ]
         }
@@ -1773,13 +1773,13 @@
             {
               "discipline": "run",
               "title": "Run + Core",
-              "detail": "130 min easy run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
+              "detail": "130 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
               "durationMin": 130
             },
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "30 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "30 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 30
             }
           ]
@@ -1794,14 +1794,14 @@
             {
               "discipline": "run",
               "title": "Recovery Run",
-              "detail": "95 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "detail": "95 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace.",
               "durationMin": 95
             },
             {
               "discipline": "swim",
               "title": "Endurance Swim",
-              "detail": "750m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
-              "distanceM": 750
+              "detail": "2450m \u2014 warm-up, then continuous Zone 2 swimming at a steady aerobic pace, short rest between sets as needed.",
+              "distanceM": 2450
             }
           ]
         },
@@ -1811,7 +1811,7 @@
             {
               "discipline": "bike",
               "title": "Tempo Bike",
-              "detail": "40 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "detail": "40 min bike \u2014 warm up easy Zone 2, then 3\u00d78 min at a steady-hard effort (Zone 3-4) with easy spinning recovery between, cool down easy.",
               "durationMin": 40
             }
           ]
@@ -1837,9 +1837,9 @@
             },
             {
               "discipline": "swim",
-              "title": "Endurance Swim",
-              "detail": "500m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
-              "distanceM": 500
+              "title": "Threshold Swim",
+              "detail": "2000m quality swim \u2014 200m easy Zone 2 warm-up, then alternate 100m at a challenging Zone 4 effort with 50m easy recovery. Finish easy.",
+              "distanceM": 2000
             }
           ]
         }
@@ -1863,13 +1863,13 @@
             {
               "discipline": "run",
               "title": "Run + Core",
-              "detail": "190 min easy run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
+              "detail": "190 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
               "durationMin": 190
             },
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "35 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "35 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 35
             }
           ]
@@ -1884,14 +1884,14 @@
             {
               "discipline": "run",
               "title": "Recovery Run",
-              "detail": "135 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "detail": "135 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace.",
               "durationMin": 135
             },
             {
               "discipline": "swim",
               "title": "Endurance Swim",
-              "detail": "1050m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
-              "distanceM": 1050
+              "detail": "3400m \u2014 warm-up, then continuous Zone 2 swimming at a steady aerobic pace, short rest between sets as needed.",
+              "distanceM": 3400
             }
           ]
         },
@@ -1901,7 +1901,7 @@
             {
               "discipline": "bike",
               "title": "Tempo Bike",
-              "detail": "50 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "detail": "50 min bike \u2014 warm up easy Zone 2, then 3\u00d78 min at a steady-hard effort (Zone 3-4) with easy spinning recovery between, cool down easy.",
               "durationMin": 50
             }
           ]
@@ -1927,9 +1927,9 @@
             },
             {
               "discipline": "swim",
-              "title": "Endurance Swim",
-              "detail": "700m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
-              "distanceM": 700
+              "title": "Threshold Swim",
+              "detail": "2200m quality swim \u2014 200m easy Zone 2 warm-up, then alternate 100m at a challenging Zone 4 effort with 50m easy recovery. Finish easy.",
+              "distanceM": 2200
             }
           ]
         }
@@ -1953,13 +1953,13 @@
             {
               "discipline": "run",
               "title": "Run + Core",
-              "detail": "35 min easy run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
+              "detail": "35 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
               "durationMin": 35
             },
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "40 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "40 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 40
             }
           ]
@@ -1974,8 +1974,8 @@
             {
               "discipline": "swim",
               "title": "Endurance Swim",
-              "detail": "1050m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
-              "distanceM": 1050
+              "detail": "3500m \u2014 warm-up, then continuous Zone 2 swimming at a steady aerobic pace, short rest between sets as needed.",
+              "distanceM": 3500
             }
           ]
         },
@@ -1985,7 +1985,7 @@
             {
               "discipline": "bike",
               "title": "Tempo Bike",
-              "detail": "55 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "detail": "55 min bike \u2014 warm up easy Zone 2, then 3\u00d78 min at a steady-hard effort (Zone 3-4) with easy spinning recovery between, cool down easy.",
               "durationMin": 55
             }
           ]
@@ -2011,9 +2011,9 @@
             },
             {
               "discipline": "swim",
-              "title": "Endurance Swim",
-              "detail": "700m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
-              "distanceM": 700
+              "title": "Threshold Swim",
+              "detail": "3000m quality swim \u2014 200m easy Zone 2 warm-up, then alternate 100m at a challenging Zone 4 effort with 50m easy recovery. Finish easy.",
+              "distanceM": 3000
             }
           ]
         }
@@ -2037,13 +2037,13 @@
             {
               "discipline": "run",
               "title": "Run + Core",
-              "detail": "40 min easy run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
+              "detail": "40 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
               "durationMin": 40
             },
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "40 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "40 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 40
             }
           ]
@@ -2058,8 +2058,8 @@
             {
               "discipline": "swim",
               "title": "Endurance Swim",
-              "detail": "1100m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
-              "distanceM": 1100
+              "detail": "3600m \u2014 warm-up, then continuous Zone 2 swimming at a steady aerobic pace, short rest between sets as needed.",
+              "distanceM": 3600
             }
           ]
         },
@@ -2069,7 +2069,7 @@
             {
               "discipline": "bike",
               "title": "Tempo Bike",
-              "detail": "55 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "detail": "55 min bike \u2014 warm up easy Zone 2, then 3\u00d78 min at a steady-hard effort (Zone 3-4) with easy spinning recovery between, cool down easy.",
               "durationMin": 55
             }
           ]
@@ -2095,9 +2095,9 @@
             },
             {
               "discipline": "swim",
-              "title": "Endurance Swim",
-              "detail": "700m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
-              "distanceM": 700
+              "title": "Threshold Swim",
+              "detail": "3000m quality swim \u2014 200m easy Zone 2 warm-up, then alternate 100m at a challenging Zone 4 effort with 50m easy recovery. Finish easy.",
+              "distanceM": 3000
             }
           ]
         }
@@ -2121,13 +2121,13 @@
             {
               "discipline": "run",
               "title": "Run + Core",
-              "detail": "30 min easy run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
+              "detail": "30 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
               "durationMin": 30
             },
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "30 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "30 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 30
             }
           ]
@@ -2142,8 +2142,8 @@
             {
               "discipline": "swim",
               "title": "Endurance Swim",
-              "detail": "850m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
-              "distanceM": 850
+              "detail": "3000m \u2014 warm-up, then continuous Zone 2 swimming at a steady aerobic pace, short rest between sets as needed.",
+              "distanceM": 3000
             }
           ]
         },
@@ -2153,7 +2153,7 @@
             {
               "discipline": "bike",
               "title": "Tempo Bike",
-              "detail": "40 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "detail": "40 min bike \u2014 warm up easy Zone 2, then 3\u00d78 min at a steady-hard effort (Zone 3-4) with easy spinning recovery between, cool down easy.",
               "durationMin": 40
             }
           ]
@@ -2179,9 +2179,9 @@
             },
             {
               "discipline": "swim",
-              "title": "Endurance Swim",
-              "detail": "550m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
-              "distanceM": 550
+              "title": "Threshold Swim",
+              "detail": "3000m quality swim \u2014 200m easy Zone 2 warm-up, then alternate 100m at a challenging Zone 4 effort with 50m easy recovery. Finish easy.",
+              "distanceM": 3000
             }
           ]
         }
@@ -2205,13 +2205,13 @@
             {
               "discipline": "run",
               "title": "Run + Core",
-              "detail": "40 min easy run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
+              "detail": "40 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
               "durationMin": 40
             },
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "40 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "40 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 40
             }
           ]
@@ -2226,8 +2226,8 @@
             {
               "discipline": "swim",
               "title": "Endurance Swim",
-              "detail": "1150m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
-              "distanceM": 1150
+              "detail": "3900m \u2014 warm-up, then continuous Zone 2 swimming at a steady aerobic pace, short rest between sets as needed.",
+              "distanceM": 3900
             }
           ]
         },
@@ -2237,7 +2237,7 @@
             {
               "discipline": "bike",
               "title": "Tempo Bike",
-              "detail": "60 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "detail": "60 min bike \u2014 warm up easy Zone 2, then 3\u00d78 min at a steady-hard effort (Zone 3-4) with easy spinning recovery between, cool down easy.",
               "durationMin": 60
             }
           ]
@@ -2263,9 +2263,9 @@
             },
             {
               "discipline": "swim",
-              "title": "Endurance Swim",
-              "detail": "750m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
-              "distanceM": 750
+              "title": "Threshold Swim",
+              "detail": "3000m quality swim \u2014 200m easy Zone 2 warm-up, then alternate 100m at a challenging Zone 4 effort with 50m easy recovery. Finish easy.",
+              "distanceM": 3000
             }
           ]
         }
@@ -2295,13 +2295,13 @@
             {
               "discipline": "run",
               "title": "Run + Core",
-              "detail": "40 min easy run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
+              "detail": "40 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace. Finish with a 10 min core circuit.",
               "durationMin": 40
             },
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "40 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "40 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 40
             }
           ]
@@ -2316,14 +2316,14 @@
             {
               "discipline": "swim",
               "title": "Endurance Swim",
-              "detail": "1200m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
-              "distanceM": 1200
+              "detail": "4000m \u2014 warm-up, then continuous Zone 2 swimming at a steady aerobic pace, short rest between sets as needed.",
+              "distanceM": 4000
             },
             {
               "discipline": "swim",
-              "title": "Endurance Swim",
-              "detail": "800m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
-              "distanceM": 800
+              "title": "Threshold Swim",
+              "detail": "3000m quality swim \u2014 200m easy Zone 2 warm-up, then alternate 100m at a challenging Zone 4 effort with 50m easy recovery. Finish easy.",
+              "distanceM": 3000
             }
           ]
         },
@@ -2333,7 +2333,7 @@
             {
               "discipline": "bike",
               "title": "Tempo Bike",
-              "detail": "60 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "detail": "60 min bike \u2014 warm up easy Zone 2, then 3\u00d78 min at a steady-hard effort (Zone 3-4) with easy spinning recovery between, cool down easy.",
               "durationMin": 60
             }
           ]
@@ -2378,13 +2378,13 @@
             {
               "discipline": "run",
               "title": "Tempo Run",
-              "detail": "40 min run \u2014 10 min easy warm-up, then steady-hard tempo effort, 5 min easy cool-down.",
+              "detail": "40 min run \u2014 10 min easy Zone 2 warm-up, then steady-hard tempo effort (Zone 3-4), 5 min easy cool-down.",
               "durationMin": 40
             },
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "40 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "40 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 40
             }
           ]
@@ -2399,8 +2399,8 @@
             {
               "discipline": "swim",
               "title": "Endurance Swim",
-              "detail": "1200m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
-              "distanceM": 1200
+              "detail": "3500m \u2014 warm-up, then continuous Zone 2 swimming at a steady aerobic pace, short rest between sets as needed.",
+              "distanceM": 3500
             }
           ]
         },
@@ -2410,7 +2410,7 @@
             {
               "discipline": "bike",
               "title": "Tempo Bike",
-              "detail": "60 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "detail": "60 min bike \u2014 warm up easy Zone 2, then 3\u00d78 min at a steady-hard effort (Zone 3-4) with easy spinning recovery between, cool down easy.",
               "durationMin": 60
             }
           ]
@@ -2436,9 +2436,9 @@
             },
             {
               "discipline": "swim",
-              "title": "Endurance Swim",
-              "detail": "700m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
-              "distanceM": 700
+              "title": "Threshold Swim",
+              "detail": "3000m threshold swim \u2014 400m easy Zone 2 warm-up, then 3-4 \u00d7 300m at Zone 3-4 effort with 30 sec rest; cool-down easy.",
+              "distanceM": 3000
             }
           ]
         }
@@ -2462,13 +2462,13 @@
             {
               "discipline": "run",
               "title": "Tempo Run",
-              "detail": "30 min run \u2014 10 min easy warm-up, then steady-hard tempo effort, 5 min easy cool-down.",
+              "detail": "30 min run \u2014 10 min easy Zone 2 warm-up, then steady-hard tempo effort (Zone 3-4), 5 min easy cool-down.",
               "durationMin": 30
             },
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "30 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "30 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 30
             }
           ]
@@ -2483,8 +2483,8 @@
             {
               "discipline": "swim",
               "title": "Endurance Swim",
-              "detail": "950m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
-              "distanceM": 950
+              "detail": "3000m \u2014 warm-up, then continuous Zone 2 swimming at a steady aerobic pace, short rest between sets as needed.",
+              "distanceM": 3000
             }
           ]
         },
@@ -2494,7 +2494,7 @@
             {
               "discipline": "bike",
               "title": "Tempo Bike",
-              "detail": "45 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "detail": "45 min bike \u2014 warm up easy Zone 2, then 3\u00d78 min at a steady-hard effort (Zone 3-4) with easy spinning recovery between, cool down easy.",
               "durationMin": 45
             }
           ]
@@ -2520,9 +2520,9 @@
             },
             {
               "discipline": "swim",
-              "title": "Endurance Swim",
-              "detail": "600m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
-              "distanceM": 600
+              "title": "Threshold Swim",
+              "detail": "3000m threshold swim \u2014 400m easy Zone 2 warm-up, then 3-4 \u00d7 300m at Zone 3-4 effort with 30 sec rest; cool-down easy.",
+              "distanceM": 3000
             }
           ]
         }
@@ -2546,13 +2546,13 @@
             {
               "discipline": "run",
               "title": "Tempo Run",
-              "detail": "40 min run \u2014 10 min easy warm-up, then steady-hard tempo effort, 5 min easy cool-down.",
+              "detail": "40 min run \u2014 10 min easy Zone 2 warm-up, then steady-hard tempo effort (Zone 3-4), 5 min easy cool-down.",
               "durationMin": 40
             },
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "40 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "40 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 40
             }
           ]
@@ -2567,8 +2567,8 @@
             {
               "discipline": "swim",
               "title": "Endurance Swim",
-              "detail": "1300m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
-              "distanceM": 1300
+              "detail": "3750m \u2014 warm-up, then continuous Zone 2 swimming at a steady aerobic pace, short rest between sets as needed.",
+              "distanceM": 3750
             }
           ]
         },
@@ -2578,7 +2578,7 @@
             {
               "discipline": "bike",
               "title": "Tempo Bike",
-              "detail": "60 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "detail": "60 min bike \u2014 warm up easy Zone 2, then 3\u00d78 min at a steady-hard effort (Zone 3-4) with easy spinning recovery between, cool down easy.",
               "durationMin": 60
             }
           ]
@@ -2604,9 +2604,9 @@
             },
             {
               "discipline": "swim",
-              "title": "Endurance Swim",
-              "detail": "800m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
-              "distanceM": 800
+              "title": "Threshold Swim",
+              "detail": "3000m threshold swim \u2014 400m easy Zone 2 warm-up, then 3-4 \u00d7 300m at Zone 3-4 effort with 30 sec rest; cool-down easy.",
+              "distanceM": 3000
             }
           ]
         }
@@ -2630,13 +2630,13 @@
             {
               "discipline": "run",
               "title": "Tempo Run",
-              "detail": "40 min run \u2014 10 min easy warm-up, then steady-hard tempo effort, 5 min easy cool-down.",
+              "detail": "40 min run \u2014 10 min easy Zone 2 warm-up, then steady-hard tempo effort (Zone 3-4), 5 min easy cool-down.",
               "durationMin": 40
             },
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "40 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "40 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 40
             }
           ]
@@ -2651,8 +2651,8 @@
             {
               "discipline": "swim",
               "title": "Endurance Swim",
-              "detail": "1350m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
-              "distanceM": 1350
+              "detail": "3900m \u2014 warm-up, then continuous Zone 2 swimming at a steady aerobic pace, short rest between sets as needed.",
+              "distanceM": 3900
             }
           ]
         },
@@ -2662,7 +2662,7 @@
             {
               "discipline": "bike",
               "title": "Tempo Bike",
-              "detail": "65 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "detail": "65 min bike \u2014 warm up easy Zone 2, then 3\u00d78 min at a steady-hard effort (Zone 3-4) with easy spinning recovery between, cool down easy.",
               "durationMin": 65
             }
           ]
@@ -2688,9 +2688,9 @@
             },
             {
               "discipline": "swim",
-              "title": "Endurance Swim",
-              "detail": "800m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
-              "distanceM": 800
+              "title": "Threshold Swim",
+              "detail": "3000m threshold swim \u2014 400m easy Zone 2 warm-up, then 3-4 \u00d7 300m at Zone 3-4 effort with 30 sec rest; cool-down easy.",
+              "distanceM": 3000
             }
           ]
         }
@@ -2714,13 +2714,13 @@
             {
               "discipline": "run",
               "title": "Tempo Run",
-              "detail": "45 min run \u2014 10 min easy warm-up, then steady-hard tempo effort, 5 min easy cool-down.",
+              "detail": "45 min run \u2014 10 min easy Zone 2 warm-up, then steady-hard tempo effort (Zone 3-4), 5 min easy cool-down.",
               "durationMin": 45
             },
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "40 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "40 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 40
             }
           ]
@@ -2735,8 +2735,8 @@
             {
               "discipline": "swim",
               "title": "Endurance Swim",
-              "detail": "1400m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
-              "distanceM": 1400
+              "detail": "4000m \u2014 warm-up, then continuous Zone 2 swimming at a steady aerobic pace, short rest between sets as needed.",
+              "distanceM": 4000
             }
           ]
         },
@@ -2746,7 +2746,7 @@
             {
               "discipline": "bike",
               "title": "Tempo Bike",
-              "detail": "65 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "detail": "65 min bike \u2014 warm up easy Zone 2, then 3\u00d78 min at a steady-hard effort (Zone 3-4) with easy spinning recovery between, cool down easy.",
               "durationMin": 65
             }
           ]
@@ -2772,9 +2772,9 @@
             },
             {
               "discipline": "swim",
-              "title": "Endurance Swim",
-              "detail": "850m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
-              "distanceM": 850
+              "title": "Threshold Swim",
+              "detail": "3000m threshold swim \u2014 400m easy Zone 2 warm-up, then 3-4 \u00d7 300m at Zone 3-4 effort with 30 sec rest; cool-down easy.",
+              "distanceM": 3000
             }
           ]
         }
@@ -2798,13 +2798,13 @@
             {
               "discipline": "run",
               "title": "Tempo Run",
-              "detail": "35 min run \u2014 10 min easy warm-up, then steady-hard tempo effort, 5 min easy cool-down.",
+              "detail": "35 min run \u2014 10 min easy Zone 2 warm-up, then steady-hard tempo effort (Zone 3-4), 5 min easy cool-down.",
               "durationMin": 35
             },
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "30 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "30 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 30
             }
           ]
@@ -2819,8 +2819,8 @@
             {
               "discipline": "swim",
               "title": "Endurance Swim",
-              "detail": "1100m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
-              "distanceM": 1100
+              "detail": "3100m \u2014 warm-up, then continuous Zone 2 swimming at a steady aerobic pace, short rest between sets as needed.",
+              "distanceM": 3100
             }
           ]
         },
@@ -2830,7 +2830,7 @@
             {
               "discipline": "bike",
               "title": "Tempo Bike",
-              "detail": "50 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "detail": "50 min bike \u2014 warm up easy Zone 2, then 3\u00d78 min at a steady-hard effort (Zone 3-4) with easy spinning recovery between, cool down easy.",
               "durationMin": 50
             }
           ]
@@ -2856,9 +2856,9 @@
             },
             {
               "discipline": "swim",
-              "title": "Endurance Swim",
-              "detail": "650m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
-              "distanceM": 650
+              "title": "Threshold Swim",
+              "detail": "3000m threshold swim \u2014 400m easy Zone 2 warm-up, then 3-4 \u00d7 300m at Zone 3-4 effort with 30 sec rest; cool-down easy.",
+              "distanceM": 3000
             }
           ]
         }
@@ -2882,13 +2882,13 @@
             {
               "discipline": "run",
               "title": "Tempo Run",
-              "detail": "45 min run \u2014 10 min easy warm-up, then steady-hard tempo effort, 5 min easy cool-down.",
+              "detail": "45 min run \u2014 10 min easy Zone 2 warm-up, then steady-hard tempo effort (Zone 3-4), 5 min easy cool-down.",
               "durationMin": 45
             },
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "45 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "45 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 45
             }
           ]
@@ -2903,8 +2903,8 @@
             {
               "discipline": "swim",
               "title": "Endurance Swim",
-              "detail": "1500m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
-              "distanceM": 1500
+              "detail": "4250m \u2014 warm-up, then continuous Zone 2 swimming at a steady aerobic pace, short rest between sets as needed.",
+              "distanceM": 4250
             }
           ]
         },
@@ -2914,7 +2914,7 @@
             {
               "discipline": "bike",
               "title": "Tempo Bike",
-              "detail": "70 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "detail": "70 min bike \u2014 warm up easy Zone 2, then 3\u00d78 min at a steady-hard effort (Zone 3-4) with easy spinning recovery between, cool down easy.",
               "durationMin": 70
             }
           ]
@@ -2940,9 +2940,9 @@
             },
             {
               "discipline": "swim",
-              "title": "Endurance Swim",
-              "detail": "900m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
-              "distanceM": 900
+              "title": "Threshold Swim",
+              "detail": "3000m threshold swim \u2014 400m easy Zone 2 warm-up, then 3-4 \u00d7 300m at Zone 3-4 effort with 30 sec rest; cool-down easy.",
+              "distanceM": 3000
             }
           ]
         }
@@ -2966,13 +2966,13 @@
             {
               "discipline": "run",
               "title": "Tempo Run",
-              "detail": "45 min run \u2014 10 min easy warm-up, then steady-hard tempo effort, 5 min easy cool-down.",
+              "detail": "45 min run \u2014 10 min easy Zone 2 warm-up, then steady-hard tempo effort (Zone 3-4), 5 min easy cool-down.",
               "durationMin": 45
             },
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "45 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "45 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 45
             }
           ]
@@ -2987,8 +2987,8 @@
             {
               "discipline": "swim",
               "title": "Endurance Swim",
-              "detail": "1550m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
-              "distanceM": 1550
+              "detail": "4400m \u2014 warm-up, then continuous Zone 2 swimming at a steady aerobic pace, short rest between sets as needed.",
+              "distanceM": 4400
             }
           ]
         },
@@ -2998,7 +2998,7 @@
             {
               "discipline": "bike",
               "title": "Tempo Bike",
-              "detail": "70 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "detail": "70 min bike \u2014 warm up easy Zone 2, then 3\u00d78 min at a steady-hard effort (Zone 3-4) with easy spinning recovery between, cool down easy.",
               "durationMin": 70
             }
           ]
@@ -3024,9 +3024,9 @@
             },
             {
               "discipline": "swim",
-              "title": "Endurance Swim",
-              "detail": "950m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
-              "distanceM": 950
+              "title": "Threshold Swim",
+              "detail": "3000m threshold swim \u2014 400m easy Zone 2 warm-up, then 3-4 \u00d7 300m at Zone 3-4 effort with 30 sec rest; cool-down easy.",
+              "distanceM": 3000
             }
           ]
         }
@@ -3050,13 +3050,13 @@
             {
               "discipline": "run",
               "title": "Tempo Run",
-              "detail": "45 min run \u2014 10 min easy warm-up, then steady-hard tempo effort, 5 min easy cool-down.",
+              "detail": "45 min run \u2014 10 min easy Zone 2 warm-up, then steady-hard tempo effort (Zone 3-4), 5 min easy cool-down.",
               "durationMin": 45
             },
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "45 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "45 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 45
             }
           ]
@@ -3071,8 +3071,8 @@
             {
               "discipline": "swim",
               "title": "Endurance Swim",
-              "detail": "1600m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
-              "distanceM": 1600
+              "detail": "4500m \u2014 warm-up, then continuous Zone 2 swimming at a steady aerobic pace, short rest between sets as needed.",
+              "distanceM": 4500
             }
           ]
         },
@@ -3082,7 +3082,7 @@
             {
               "discipline": "bike",
               "title": "Tempo Bike",
-              "detail": "70 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "detail": "70 min bike \u2014 warm up easy Zone 2, then 3\u00d78 min at a steady-hard effort (Zone 3-4) with easy spinning recovery between, cool down easy.",
               "durationMin": 70
             }
           ]
@@ -3108,9 +3108,9 @@
             },
             {
               "discipline": "swim",
-              "title": "Endurance Swim",
-              "detail": "950m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
-              "distanceM": 950
+              "title": "Threshold Swim",
+              "detail": "3000m threshold swim \u2014 400m easy Zone 2 warm-up, then 3-4 \u00d7 300m at Zone 3-4 effort with 30 sec rest; cool-down easy.",
+              "distanceM": 3000
             }
           ]
         }
@@ -3134,13 +3134,13 @@
             {
               "discipline": "run",
               "title": "Tempo Run",
-              "detail": "35 min run \u2014 10 min easy warm-up, then steady-hard tempo effort, 5 min easy cool-down.",
+              "detail": "35 min run \u2014 10 min easy Zone 2 warm-up, then steady-hard tempo effort (Zone 3-4), 5 min easy cool-down.",
               "durationMin": 35
             },
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "35 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "35 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 35
             }
           ]
@@ -3155,8 +3155,8 @@
             {
               "discipline": "swim",
               "title": "Endurance Swim",
-              "detail": "1250m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
-              "distanceM": 1250
+              "detail": "3450m \u2014 warm-up, then continuous Zone 2 swimming at a steady aerobic pace, short rest between sets as needed.",
+              "distanceM": 3450
             }
           ]
         },
@@ -3166,7 +3166,7 @@
             {
               "discipline": "bike",
               "title": "Tempo Bike",
-              "detail": "55 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "detail": "55 min bike \u2014 warm up easy Zone 2, then 3\u00d78 min at a steady-hard effort (Zone 3-4) with easy spinning recovery between, cool down easy.",
               "durationMin": 55
             }
           ]
@@ -3192,9 +3192,9 @@
             },
             {
               "discipline": "swim",
-              "title": "Endurance Swim",
-              "detail": "750m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
-              "distanceM": 750
+              "title": "Threshold Swim",
+              "detail": "3000m threshold swim \u2014 400m easy Zone 2 warm-up, then 3-4 \u00d7 300m at Zone 3-4 effort with 30 sec rest; cool-down easy.",
+              "distanceM": 3000
             }
           ]
         }
@@ -3218,13 +3218,13 @@
             {
               "discipline": "run",
               "title": "Tempo Run",
-              "detail": "50 min run \u2014 10 min easy warm-up, then steady-hard tempo effort, 5 min easy cool-down.",
+              "detail": "50 min run \u2014 10 min easy Zone 2 warm-up, then steady-hard tempo effort (Zone 3-4), 5 min easy cool-down.",
               "durationMin": 50
             },
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "45 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "45 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 45
             }
           ]
@@ -3239,8 +3239,8 @@
             {
               "discipline": "swim",
               "title": "Endurance Swim",
-              "detail": "1700m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
-              "distanceM": 1700
+              "detail": "4750m \u2014 warm-up, then continuous Zone 2 swimming at a steady aerobic pace, short rest between sets as needed.",
+              "distanceM": 4750
             }
           ]
         },
@@ -3250,7 +3250,7 @@
             {
               "discipline": "bike",
               "title": "Tempo Bike",
-              "detail": "70 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "detail": "70 min bike \u2014 warm up easy Zone 2, then 3\u00d78 min at a steady-hard effort (Zone 3-4) with easy spinning recovery between, cool down easy.",
               "durationMin": 70
             }
           ]
@@ -3276,9 +3276,9 @@
             },
             {
               "discipline": "swim",
-              "title": "Endurance Swim",
-              "detail": "1000m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
-              "distanceM": 1000
+              "title": "Threshold Swim",
+              "detail": "3000m threshold swim \u2014 400m easy Zone 2 warm-up, then 3-4 \u00d7 300m at Zone 3-4 effort with 30 sec rest; cool-down easy.",
+              "distanceM": 3000
             }
           ]
         }
@@ -3302,13 +3302,13 @@
             {
               "discipline": "run",
               "title": "Tempo Run",
-              "detail": "50 min run \u2014 10 min easy warm-up, then steady-hard tempo effort, 5 min easy cool-down.",
+              "detail": "50 min run \u2014 10 min easy Zone 2 warm-up, then steady-hard tempo effort (Zone 3-4), 5 min easy cool-down.",
               "durationMin": 50
             },
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "50 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "50 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 50
             }
           ]
@@ -3323,8 +3323,8 @@
             {
               "discipline": "swim",
               "title": "Endurance Swim",
-              "detail": "1750m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
-              "distanceM": 1750
+              "detail": "4900m \u2014 warm-up, then continuous Zone 2 swimming at a steady aerobic pace, short rest between sets as needed.",
+              "distanceM": 4900
             }
           ]
         },
@@ -3334,7 +3334,7 @@
             {
               "discipline": "bike",
               "title": "Tempo Bike",
-              "detail": "75 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "detail": "75 min bike \u2014 warm up easy Zone 2, then 3\u00d78 min at a steady-hard effort (Zone 3-4) with easy spinning recovery between, cool down easy.",
               "durationMin": 75
             }
           ]
@@ -3360,9 +3360,9 @@
             },
             {
               "discipline": "swim",
-              "title": "Endurance Swim",
-              "detail": "1050m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
-              "distanceM": 1050
+              "title": "Threshold Swim",
+              "detail": "3000m threshold swim \u2014 400m easy Zone 2 warm-up, then 3-4 \u00d7 300m at Zone 3-4 effort with 30 sec rest; cool-down easy.",
+              "distanceM": 3000
             }
           ]
         }
@@ -3392,13 +3392,13 @@
             {
               "discipline": "run",
               "title": "Tempo Run",
-              "detail": "50 min run \u2014 10 min easy warm-up, then steady-hard tempo effort, 5 min easy cool-down.",
+              "detail": "50 min run \u2014 10 min easy Zone 2 warm-up, then steady-hard tempo effort (Zone 3-4), 5 min easy cool-down.",
               "durationMin": 50
             },
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "50 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "50 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 50
             }
           ]
@@ -3413,14 +3413,14 @@
             {
               "discipline": "swim",
               "title": "Endurance Swim",
-              "detail": "1800m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
-              "distanceM": 1800
+              "detail": "5000m \u2014 warm-up, then continuous Zone 2 swimming at a steady aerobic pace, short rest between sets as needed.",
+              "distanceM": 5000
             },
             {
               "discipline": "swim",
-              "title": "Endurance Swim",
-              "detail": "1100m \u2014 warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed.",
-              "distanceM": 1100
+              "title": "Threshold Swim",
+              "detail": "3000m threshold swim \u2014 400m easy Zone 2 warm-up, then 3-4 \u00d7 300m at Zone 3-4 effort with 30 sec rest; cool-down easy.",
+              "distanceM": 3000
             }
           ]
         },
@@ -3430,7 +3430,7 @@
             {
               "discipline": "bike",
               "title": "Tempo Bike",
-              "detail": "75 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "detail": "75 min bike \u2014 warm up easy Zone 2, then 3\u00d78 min at a steady-hard effort (Zone 3-4) with easy spinning recovery between, cool down easy.",
               "durationMin": 75
             }
           ]
@@ -3475,13 +3475,13 @@
             {
               "discipline": "run",
               "title": "Tempo Run",
-              "detail": "35 min run \u2014 10 min easy warm-up, then steady-hard tempo effort, 5 min easy cool-down.",
+              "detail": "35 min run \u2014 10 min easy Zone 2 warm-up, then steady-hard tempo effort (Zone 3-4), 5 min easy cool-down.",
               "durationMin": 35
             },
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "30 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "30 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 30
             }
           ]
@@ -3496,8 +3496,8 @@
             {
               "discipline": "swim",
               "title": "Endurance Swim",
-              "detail": "1350m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
-              "distanceM": 1350
+              "detail": "3000m long continuous Zone 2 swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
+              "distanceM": 3000
             }
           ]
         },
@@ -3507,7 +3507,7 @@
             {
               "discipline": "bike",
               "title": "Tempo Bike",
-              "detail": "45 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "detail": "45 min bike \u2014 warm up easy Zone 2, then 3\u00d78 min at a steady-hard effort (Zone 3-4) with easy spinning recovery between, cool down easy.",
               "durationMin": 45
             }
           ]
@@ -3534,9 +3534,9 @@
             },
             {
               "discipline": "swim",
-              "title": "Endurance Swim",
-              "detail": "800m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
-              "distanceM": 800
+              "title": "Threshold Swim",
+              "detail": "3000m threshold swim \u2014 400m easy Zone 2 warm-up, then 3-4 \u00d7 300m at Zone 3-4 effort with 30 sec rest; cool-down easy.",
+              "distanceM": 3000
             }
           ]
         }
@@ -3560,13 +3560,13 @@
             {
               "discipline": "run",
               "title": "Tempo Run",
-              "detail": "45 min run \u2014 10 min easy warm-up, then steady-hard tempo effort, 5 min easy cool-down.",
+              "detail": "45 min run \u2014 10 min easy Zone 2 warm-up, then steady-hard tempo effort (Zone 3-4), 5 min easy cool-down.",
               "durationMin": 45
             },
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "40 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "40 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 40
             }
           ]
@@ -3581,8 +3581,8 @@
             {
               "discipline": "swim",
               "title": "Endurance Swim",
-              "detail": "1850m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
-              "distanceM": 1850
+              "detail": "4100m long continuous Zone 2 swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
+              "distanceM": 4100
             }
           ]
         },
@@ -3592,7 +3592,7 @@
             {
               "discipline": "bike",
               "title": "Tempo Bike",
-              "detail": "60 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "detail": "60 min bike \u2014 warm up easy Zone 2, then 3\u00d78 min at a steady-hard effort (Zone 3-4) with easy spinning recovery between, cool down easy.",
               "durationMin": 60
             }
           ]
@@ -3619,9 +3619,9 @@
             },
             {
               "discipline": "swim",
-              "title": "Endurance Swim",
-              "detail": "1100m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
-              "distanceM": 1100
+              "title": "Threshold Swim",
+              "detail": "3000m threshold swim \u2014 400m easy Zone 2 warm-up, then 3-4 \u00d7 300m at Zone 3-4 effort with 30 sec rest; cool-down easy.",
+              "distanceM": 3000
             }
           ]
         }
@@ -3645,13 +3645,13 @@
             {
               "discipline": "run",
               "title": "Tempo Run",
-              "detail": "45 min run \u2014 10 min easy warm-up, then steady-hard tempo effort, 5 min easy cool-down.",
+              "detail": "45 min run \u2014 10 min easy Zone 2 warm-up, then steady-hard tempo effort (Zone 3-4), 5 min easy cool-down.",
               "durationMin": 45
             },
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "40 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "40 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 40
             }
           ]
@@ -3666,8 +3666,8 @@
             {
               "discipline": "swim",
               "title": "Endurance Swim",
-              "detail": "1900m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
-              "distanceM": 1900
+              "detail": "4250m long continuous Zone 2 swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
+              "distanceM": 4250
             }
           ]
         },
@@ -3677,7 +3677,7 @@
             {
               "discipline": "bike",
               "title": "Tempo Bike",
-              "detail": "60 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "detail": "60 min bike \u2014 warm up easy Zone 2, then 3\u00d78 min at a steady-hard effort (Zone 3-4) with easy spinning recovery between, cool down easy.",
               "durationMin": 60
             }
           ]
@@ -3704,9 +3704,9 @@
             },
             {
               "discipline": "swim",
-              "title": "Endurance Swim",
-              "detail": "1150m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
-              "distanceM": 1150
+              "title": "Threshold Swim",
+              "detail": "3000m threshold swim \u2014 400m easy Zone 2 warm-up, then 3-4 \u00d7 300m at Zone 3-4 effort with 30 sec rest; cool-down easy.",
+              "distanceM": 3000
             }
           ]
         }
@@ -3730,13 +3730,13 @@
             {
               "discipline": "run",
               "title": "Tempo Run",
-              "detail": "50 min run \u2014 10 min easy warm-up, then steady-hard tempo effort, 5 min easy cool-down.",
+              "detail": "50 min run \u2014 10 min easy Zone 2 warm-up, then steady-hard tempo effort (Zone 3-4), 5 min easy cool-down.",
               "durationMin": 50
             },
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "40 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "40 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 40
             }
           ]
@@ -3751,8 +3751,8 @@
             {
               "discipline": "swim",
               "title": "Endurance Swim",
-              "detail": "1950m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
-              "distanceM": 1950
+              "detail": "4400m long continuous Zone 2 swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
+              "distanceM": 4400
             }
           ]
         },
@@ -3762,7 +3762,7 @@
             {
               "discipline": "bike",
               "title": "Tempo Bike",
-              "detail": "65 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "detail": "65 min bike \u2014 warm up easy Zone 2, then 3\u00d78 min at a steady-hard effort (Zone 3-4) with easy spinning recovery between, cool down easy.",
               "durationMin": 65
             }
           ]
@@ -3788,9 +3788,9 @@
             },
             {
               "discipline": "swim",
-              "title": "Endurance Swim",
-              "detail": "1150m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
-              "distanceM": 1150
+              "title": "Threshold Swim",
+              "detail": "3000m threshold swim \u2014 400m easy Zone 2 warm-up, then 3-4 \u00d7 300m at Zone 3-4 effort with 30 sec rest; cool-down easy.",
+              "distanceM": 3000
             }
           ]
         }
@@ -3814,13 +3814,13 @@
             {
               "discipline": "run",
               "title": "Tempo Run",
-              "detail": "35 min run \u2014 10 min easy warm-up, then steady-hard tempo effort, 5 min easy cool-down.",
+              "detail": "35 min run \u2014 10 min easy Zone 2 warm-up, then steady-hard tempo effort (Zone 3-4), 5 min easy cool-down.",
               "durationMin": 35
             },
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "30 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "30 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 30
             }
           ]
@@ -3835,8 +3835,8 @@
             {
               "discipline": "swim",
               "title": "Endurance Swim",
-              "detail": "1500m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
-              "distanceM": 1500
+              "detail": "3400m long continuous Zone 2 swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
+              "distanceM": 3400
             }
           ]
         },
@@ -3846,7 +3846,7 @@
             {
               "discipline": "bike",
               "title": "Tempo Bike",
-              "detail": "50 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "detail": "50 min bike \u2014 warm up easy Zone 2, then 3\u00d78 min at a steady-hard effort (Zone 3-4) with easy spinning recovery between, cool down easy.",
               "durationMin": 50
             }
           ]
@@ -3872,9 +3872,9 @@
             },
             {
               "discipline": "swim",
-              "title": "Endurance Swim",
-              "detail": "900m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
-              "distanceM": 900
+              "title": "Threshold Swim",
+              "detail": "3000m threshold swim \u2014 400m easy Zone 2 warm-up, then 3-4 \u00d7 300m at Zone 3-4 effort with 30 sec rest; cool-down easy.",
+              "distanceM": 3000
             }
           ]
         }
@@ -3898,13 +3898,13 @@
             {
               "discipline": "run",
               "title": "Tempo Run",
-              "detail": "50 min run \u2014 10 min easy warm-up, then steady-hard tempo effort, 5 min easy cool-down.",
+              "detail": "50 min run \u2014 10 min easy Zone 2 warm-up, then steady-hard tempo effort (Zone 3-4), 5 min easy cool-down.",
               "durationMin": 50
             },
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "40 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "40 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 40
             }
           ]
@@ -3919,8 +3919,8 @@
             {
               "discipline": "swim",
               "title": "Endurance Swim",
-              "detail": "2050m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
-              "distanceM": 2050
+              "detail": "4600m long continuous Zone 2 swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
+              "distanceM": 4600
             }
           ]
         },
@@ -3930,7 +3930,7 @@
             {
               "discipline": "bike",
               "title": "Tempo Bike",
-              "detail": "65 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "detail": "65 min bike \u2014 warm up easy Zone 2, then 3\u00d78 min at a steady-hard effort (Zone 3-4) with easy spinning recovery between, cool down easy.",
               "durationMin": 65
             }
           ]
@@ -3956,9 +3956,9 @@
             },
             {
               "discipline": "swim",
-              "title": "Endurance Swim",
-              "detail": "1250m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
-              "distanceM": 1250
+              "title": "Threshold Swim",
+              "detail": "3000m threshold swim \u2014 400m easy Zone 2 warm-up, then 3-4 \u00d7 300m at Zone 3-4 effort with 30 sec rest; cool-down easy.",
+              "distanceM": 3000
             }
           ]
         }
@@ -3982,13 +3982,13 @@
             {
               "discipline": "run",
               "title": "Tempo Run",
-              "detail": "50 min run \u2014 10 min easy warm-up, then steady-hard tempo effort, 5 min easy cool-down.",
+              "detail": "50 min run \u2014 10 min easy Zone 2 warm-up, then steady-hard tempo effort (Zone 3-4), 5 min easy cool-down.",
               "durationMin": 50
             },
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "45 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "45 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 45
             }
           ]
@@ -4003,8 +4003,8 @@
             {
               "discipline": "swim",
               "title": "Endurance Swim",
-              "detail": "2100m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes. If you have access to open water, this is a great week to practice in it.",
-              "distanceM": 2100
+              "detail": "4750m long continuous Zone 2 swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes. If you have access to open water, this is a great week to practice in it.",
+              "distanceM": 4750
             }
           ]
         },
@@ -4014,7 +4014,7 @@
             {
               "discipline": "bike",
               "title": "Tempo Bike",
-              "detail": "70 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "detail": "70 min bike \u2014 warm up easy Zone 2, then 3\u00d78 min at a steady-hard effort (Zone 3-4) with easy spinning recovery between, cool down easy.",
               "durationMin": 70
             }
           ]
@@ -4040,9 +4040,9 @@
             },
             {
               "discipline": "swim",
-              "title": "Endurance Swim",
-              "detail": "1250m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
-              "distanceM": 1250
+              "title": "Threshold Swim",
+              "detail": "3000m threshold swim \u2014 400m easy Zone 2 warm-up, then 3-4 \u00d7 300m at Zone 3-4 effort with 30 sec rest; cool-down easy.",
+              "distanceM": 3000
             }
           ]
         }
@@ -4066,13 +4066,13 @@
             {
               "discipline": "run",
               "title": "Tempo Run",
-              "detail": "50 min run \u2014 10 min easy warm-up, then steady-hard tempo effort, 5 min easy cool-down.",
+              "detail": "50 min run \u2014 10 min easy Zone 2 warm-up, then steady-hard tempo effort (Zone 3-4), 5 min easy cool-down.",
               "durationMin": 50
             },
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "45 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "45 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 45
             }
           ]
@@ -4087,8 +4087,8 @@
             {
               "discipline": "swim",
               "title": "Endurance Swim",
-              "detail": "2150m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes. If you have access to open water, this is a great week to practice in it.",
-              "distanceM": 2150
+              "detail": "4900m long continuous Zone 2 swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes. If you have access to open water, this is a great week to practice in it.",
+              "distanceM": 4900
             }
           ]
         },
@@ -4098,7 +4098,7 @@
             {
               "discipline": "bike",
               "title": "Tempo Bike",
-              "detail": "70 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "detail": "70 min bike \u2014 warm up easy Zone 2, then 3\u00d78 min at a steady-hard effort (Zone 3-4) with easy spinning recovery between, cool down easy.",
               "durationMin": 70
             }
           ]
@@ -4124,9 +4124,9 @@
             },
             {
               "discipline": "swim",
-              "title": "Endurance Swim",
-              "detail": "1300m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
-              "distanceM": 1300
+              "title": "Threshold Swim",
+              "detail": "3000m threshold swim \u2014 400m easy Zone 2 warm-up, then 3-4 \u00d7 300m at Zone 3-4 effort with 30 sec rest; cool-down easy.",
+              "distanceM": 3000
             }
           ]
         }
@@ -4150,13 +4150,13 @@
             {
               "discipline": "run",
               "title": "Tempo Run",
-              "detail": "40 min run \u2014 10 min easy warm-up, then steady-hard tempo effort, 5 min easy cool-down.",
+              "detail": "40 min run \u2014 10 min easy Zone 2 warm-up, then steady-hard tempo effort (Zone 3-4), 5 min easy cool-down.",
               "durationMin": 40
             },
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "30 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "30 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 30
             }
           ]
@@ -4171,8 +4171,8 @@
             {
               "discipline": "swim",
               "title": "Endurance Swim",
-              "detail": "1650m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes. If you have access to open water, this is a great week to practice in it.",
-              "distanceM": 1650
+              "detail": "3750m long continuous Zone 2 swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes. If you have access to open water, this is a great week to practice in it.",
+              "distanceM": 3750
             }
           ]
         },
@@ -4182,7 +4182,7 @@
             {
               "discipline": "bike",
               "title": "Tempo Bike",
-              "detail": "50 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "detail": "50 min bike \u2014 warm up easy Zone 2, then 3\u00d78 min at a steady-hard effort (Zone 3-4) with easy spinning recovery between, cool down easy.",
               "durationMin": 50
             }
           ]
@@ -4208,9 +4208,9 @@
             },
             {
               "discipline": "swim",
-              "title": "Endurance Swim",
-              "detail": "1000m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
-              "distanceM": 1000
+              "title": "Threshold Swim",
+              "detail": "3000m threshold swim \u2014 400m easy Zone 2 warm-up, then 3-4 \u00d7 300m at Zone 3-4 effort with 30 sec rest; cool-down easy.",
+              "distanceM": 3000
             }
           ]
         }
@@ -4234,13 +4234,13 @@
             {
               "discipline": "run",
               "title": "Tempo Run",
-              "detail": "50 min run \u2014 10 min easy warm-up, then steady-hard tempo effort, 5 min easy cool-down.",
+              "detail": "50 min run \u2014 10 min easy Zone 2 warm-up, then steady-hard tempo effort (Zone 3-4), 5 min easy cool-down.",
               "durationMin": 50
             },
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "45 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "45 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 45
             }
           ]
@@ -4255,8 +4255,8 @@
             {
               "discipline": "swim",
               "title": "Endurance Swim",
-              "detail": "2250m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes. If you have access to open water, this is a great week to practice in it.",
-              "distanceM": 2250
+              "detail": "5100m long continuous Zone 2 swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes. If you have access to open water, this is a great week to practice in it.",
+              "distanceM": 5100
             }
           ]
         },
@@ -4266,7 +4266,7 @@
             {
               "discipline": "bike",
               "title": "Tempo Bike",
-              "detail": "70 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "detail": "70 min bike \u2014 warm up easy Zone 2, then 3\u00d78 min at a steady-hard effort (Zone 3-4) with easy spinning recovery between, cool down easy.",
               "durationMin": 70
             }
           ]
@@ -4292,9 +4292,9 @@
             },
             {
               "discipline": "swim",
-              "title": "Endurance Swim",
-              "detail": "1350m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
-              "distanceM": 1350
+              "title": "Threshold Swim",
+              "detail": "3050m threshold swim \u2014 400m easy Zone 2 warm-up, then 3-4 \u00d7 300m at Zone 3-4 effort with 30 sec rest; cool-down easy.",
+              "distanceM": 3050
             }
           ]
         }
@@ -4318,13 +4318,13 @@
             {
               "discipline": "run",
               "title": "Tempo Run",
-              "detail": "55 min run \u2014 10 min easy warm-up, then steady-hard tempo effort, 5 min easy cool-down.",
+              "detail": "55 min run \u2014 10 min easy Zone 2 warm-up, then steady-hard tempo effort (Zone 3-4), 5 min easy cool-down.",
               "durationMin": 55
             },
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "45 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "45 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 45
             }
           ]
@@ -4339,8 +4339,8 @@
             {
               "discipline": "swim",
               "title": "Endurance Swim",
-              "detail": "2300m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes. If you have access to open water, this is a great week to practice in it.",
-              "distanceM": 2300
+              "detail": "5250m long continuous Zone 2 swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes. If you have access to open water, this is a great week to practice in it.",
+              "distanceM": 5250
             }
           ]
         },
@@ -4350,7 +4350,7 @@
             {
               "discipline": "bike",
               "title": "Tempo Bike",
-              "detail": "70 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "detail": "70 min bike \u2014 warm up easy Zone 2, then 3\u00d78 min at a steady-hard effort (Zone 3-4) with easy spinning recovery between, cool down easy.",
               "durationMin": 70
             }
           ]
@@ -4376,9 +4376,9 @@
             },
             {
               "discipline": "swim",
-              "title": "Endurance Swim",
-              "detail": "1400m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
-              "distanceM": 1400
+              "title": "Threshold Swim",
+              "detail": "3150m threshold swim \u2014 400m easy Zone 2 warm-up, then 3-4 \u00d7 300m at Zone 3-4 effort with 30 sec rest; cool-down easy.",
+              "distanceM": 3150
             }
           ]
         }
@@ -4402,13 +4402,13 @@
             {
               "discipline": "run",
               "title": "Tempo Run",
-              "detail": "55 min run \u2014 10 min easy warm-up, then steady-hard tempo effort, 5 min easy cool-down.",
+              "detail": "55 min run \u2014 10 min easy Zone 2 warm-up, then steady-hard tempo effort (Zone 3-4), 5 min easy cool-down.",
               "durationMin": 55
             },
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "50 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "50 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 50
             }
           ]
@@ -4423,8 +4423,8 @@
             {
               "discipline": "swim",
               "title": "Endurance Swim",
-              "detail": "2350m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes. If you have access to open water, this is a great week to practice in it.",
-              "distanceM": 2350
+              "detail": "5400m long continuous Zone 2 swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes. If you have access to open water, this is a great week to practice in it.",
+              "distanceM": 5400
             }
           ]
         },
@@ -4434,7 +4434,7 @@
             {
               "discipline": "bike",
               "title": "Tempo Bike",
-              "detail": "75 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "detail": "75 min bike \u2014 warm up easy Zone 2, then 3\u00d78 min at a steady-hard effort (Zone 3-4) with easy spinning recovery between, cool down easy.",
               "durationMin": 75
             }
           ]
@@ -4460,9 +4460,9 @@
             },
             {
               "discipline": "swim",
-              "title": "Endurance Swim",
-              "detail": "1400m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
-              "distanceM": 1400
+              "title": "Threshold Swim",
+              "detail": "3250m threshold swim \u2014 400m easy Zone 2 warm-up, then 3-4 \u00d7 300m at Zone 3-4 effort with 30 sec rest; cool-down easy.",
+              "distanceM": 3250
             }
           ]
         }
@@ -4492,13 +4492,13 @@
             {
               "discipline": "run",
               "title": "Tempo Run",
-              "detail": "40 min run \u2014 10 min easy warm-up, then steady-hard tempo effort, 5 min easy cool-down.",
+              "detail": "40 min run \u2014 10 min easy Zone 2 warm-up, then steady-hard tempo effort (Zone 3-4), 5 min easy cool-down.",
               "durationMin": 40
             },
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "35 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "35 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 35
             }
           ]
@@ -4513,14 +4513,14 @@
             {
               "discipline": "swim",
               "title": "Endurance Swim",
-              "detail": "1800m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes. If you have access to open water, this is a great week to practice in it.",
-              "distanceM": 1800
+              "detail": "4100m long continuous Zone 2 swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes. If you have access to open water, this is a great week to practice in it.",
+              "distanceM": 4100
             },
             {
               "discipline": "swim",
-              "title": "Endurance Swim",
-              "detail": "1100m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
-              "distanceM": 1100
+              "title": "Threshold Swim",
+              "detail": "3000m threshold swim \u2014 400m easy Zone 2 warm-up, then 3-4 \u00d7 300m at Zone 3-4 effort with 30 sec rest; cool-down easy.",
+              "distanceM": 3000
             }
           ]
         },
@@ -4530,7 +4530,7 @@
             {
               "discipline": "bike",
               "title": "Tempo Bike",
-              "detail": "55 min bike \u2014 warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy.",
+              "detail": "55 min bike \u2014 warm up easy Zone 2, then 3\u00d78 min at a steady-hard effort (Zone 3-4) with easy spinning recovery between, cool down easy.",
               "durationMin": 55
             }
           ]
@@ -4575,13 +4575,13 @@
             {
               "discipline": "run",
               "title": "Tempo/Hills Run",
-              "detail": "45 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "detail": "45 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace.",
               "durationMin": 45
             },
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "40 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "40 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 40
             }
           ]
@@ -4596,8 +4596,8 @@
             {
               "discipline": "swim",
               "title": "Long Swim",
-              "detail": "2400m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
-              "distanceM": 2400
+              "detail": "4500m long continuous Zone 2 swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
+              "distanceM": 4500
             }
           ]
         },
@@ -4607,7 +4607,7 @@
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "60 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "60 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 60
             }
           ]
@@ -4634,9 +4634,9 @@
             },
             {
               "discipline": "swim",
-              "title": "Endurance Swim",
-              "detail": "1300m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
-              "distanceM": 1300
+              "title": "Threshold Swim",
+              "detail": "3000m race-pace swim \u2014 400m Zone 2 warm-up, then sustained sets at goal race pace (Zone 3-4) with 20-30 sec rest intervals; cool-down easy.",
+              "distanceM": 3000
             }
           ]
         }
@@ -4660,13 +4660,13 @@
             {
               "discipline": "run",
               "title": "Tempo/Hills Run",
-              "detail": "45 min run with rolling hills or 4-6 short hill efforts \u2014 steady effort on the climbs, relaxed on the descents.",
+              "detail": "45 min run with rolling hills or 4-6 short hill efforts \u2014 steady Zone 2 effort on the climbs, relaxed on the descents.",
               "durationMin": 45
             },
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "40 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "40 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 40
             }
           ]
@@ -4681,8 +4681,8 @@
             {
               "discipline": "swim",
               "title": "Long Swim",
-              "detail": "2550m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
-              "distanceM": 2550
+              "detail": "4600m long continuous Zone 2 swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
+              "distanceM": 4600
             }
           ]
         },
@@ -4692,7 +4692,7 @@
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "60 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "60 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 60
             }
           ]
@@ -4719,9 +4719,9 @@
             },
             {
               "discipline": "swim",
-              "title": "Endurance Swim",
-              "detail": "1400m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
-              "distanceM": 1400
+              "title": "Threshold Swim",
+              "detail": "3000m race-pace swim \u2014 400m Zone 2 warm-up, then sustained sets at goal race pace (Zone 3-4) with 20-30 sec rest intervals; cool-down easy.",
+              "distanceM": 3000
             }
           ]
         }
@@ -4745,13 +4745,13 @@
             {
               "discipline": "run",
               "title": "Tempo/Hills Run",
-              "detail": "50 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "detail": "50 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace.",
               "durationMin": 50
             },
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "40 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "40 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 40
             }
           ]
@@ -4766,8 +4766,8 @@
             {
               "discipline": "swim",
               "title": "Long Swim",
-              "detail": "2700m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
-              "distanceM": 2700
+              "detail": "4700m long continuous Zone 2 swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
+              "distanceM": 4700
             }
           ]
         },
@@ -4777,7 +4777,7 @@
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "65 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "65 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 65
             }
           ]
@@ -4804,9 +4804,9 @@
             },
             {
               "discipline": "swim",
-              "title": "Endurance Swim",
-              "detail": "1500m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
-              "distanceM": 1500
+              "title": "Threshold Swim",
+              "detail": "3000m race-pace swim \u2014 400m Zone 2 warm-up, then sustained sets at goal race pace (Zone 3-4) with 20-30 sec rest intervals; cool-down easy.",
+              "distanceM": 3000
             }
           ]
         }
@@ -4830,13 +4830,13 @@
             {
               "discipline": "run",
               "title": "Tempo/Hills Run",
-              "detail": "35 min run with rolling hills or 4-6 short hill efforts \u2014 steady effort on the climbs, relaxed on the descents.",
+              "detail": "35 min run with rolling hills or 4-6 short hill efforts \u2014 steady Zone 2 effort on the climbs, relaxed on the descents.",
               "durationMin": 35
             },
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "30 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "30 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 30
             }
           ]
@@ -4851,8 +4851,8 @@
             {
               "discipline": "swim",
               "title": "Long Swim",
-              "detail": "2100m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
-              "distanceM": 2100
+              "detail": "3600m long continuous Zone 2 swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
+              "distanceM": 3600
             }
           ]
         },
@@ -4862,7 +4862,7 @@
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "50 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "50 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 50
             }
           ]
@@ -4889,9 +4889,9 @@
             },
             {
               "discipline": "swim",
-              "title": "Endurance Swim",
-              "detail": "1150m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
-              "distanceM": 1150
+              "title": "Threshold Swim",
+              "detail": "3000m race-pace swim \u2014 400m Zone 2 warm-up, then sustained sets at goal race pace (Zone 3-4) with 20-30 sec rest intervals; cool-down easy.",
+              "distanceM": 3000
             }
           ]
         }
@@ -4915,13 +4915,13 @@
             {
               "discipline": "run",
               "title": "Tempo/Hills Run",
-              "detail": "50 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "detail": "50 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace.",
               "durationMin": 50
             },
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "40 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "40 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 40
             }
           ]
@@ -4936,8 +4936,8 @@
             {
               "discipline": "swim",
               "title": "Long Swim",
-              "detail": "2950m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
-              "distanceM": 2950
+              "detail": "4900m long continuous Zone 2 swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
+              "distanceM": 4900
             }
           ]
         },
@@ -4947,7 +4947,7 @@
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "65 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "65 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 65
             }
           ]
@@ -4974,9 +4974,9 @@
             },
             {
               "discipline": "swim",
-              "title": "Endurance Swim",
-              "detail": "1600m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
-              "distanceM": 1600
+              "title": "Threshold Swim",
+              "detail": "3000m race-pace swim \u2014 400m Zone 2 warm-up, then sustained sets at goal race pace (Zone 3-4) with 20-30 sec rest intervals; cool-down easy.",
+              "distanceM": 3000
             }
           ]
         }
@@ -5000,13 +5000,13 @@
             {
               "discipline": "run",
               "title": "Tempo/Hills Run",
-              "detail": "50 min run with rolling hills or 4-6 short hill efforts \u2014 steady effort on the climbs, relaxed on the descents.",
+              "detail": "50 min run with rolling hills or 4-6 short hill efforts \u2014 steady Zone 2 effort on the climbs, relaxed on the descents.",
               "durationMin": 50
             },
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "45 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "45 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 45
             }
           ]
@@ -5021,8 +5021,8 @@
             {
               "discipline": "swim",
               "title": "Long Swim",
-              "detail": "3100m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
-              "distanceM": 3100
+              "detail": "5000m long continuous Zone 2 swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
+              "distanceM": 5000
             }
           ]
         },
@@ -5032,7 +5032,7 @@
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "70 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "70 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 70
             }
           ]
@@ -5059,9 +5059,9 @@
             },
             {
               "discipline": "swim",
-              "title": "Endurance Swim",
-              "detail": "1700m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
-              "distanceM": 1700
+              "title": "Threshold Swim",
+              "detail": "3000m race-pace swim \u2014 400m Zone 2 warm-up, then sustained sets at goal race pace (Zone 3-4) with 20-30 sec rest intervals; cool-down easy.",
+              "distanceM": 3000
             }
           ]
         }
@@ -5085,13 +5085,13 @@
             {
               "discipline": "run",
               "title": "Tempo/Hills Run",
-              "detail": "55 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "detail": "55 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace.",
               "durationMin": 55
             },
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "45 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "45 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 45
             }
           ]
@@ -5106,8 +5106,8 @@
             {
               "discipline": "swim",
               "title": "Long Swim",
-              "detail": "3250m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
-              "distanceM": 3250
+              "detail": "5100m long continuous Zone 2 swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
+              "distanceM": 5100
             }
           ]
         },
@@ -5117,7 +5117,7 @@
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "70 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "70 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 70
             }
           ]
@@ -5144,9 +5144,9 @@
             },
             {
               "discipline": "swim",
-              "title": "Endurance Swim",
-              "detail": "1800m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
-              "distanceM": 1800
+              "title": "Threshold Swim",
+              "detail": "3000m race-pace swim \u2014 400m Zone 2 warm-up, then sustained sets at goal race pace (Zone 3-4) with 20-30 sec rest intervals; cool-down easy.",
+              "distanceM": 3000
             }
           ]
         }
@@ -5170,13 +5170,13 @@
             {
               "discipline": "run",
               "title": "Tempo/Hills Run",
-              "detail": "40 min run with rolling hills or 4-6 short hill efforts \u2014 steady effort on the climbs, relaxed on the descents.",
+              "detail": "40 min run with rolling hills or 4-6 short hill efforts \u2014 steady Zone 2 effort on the climbs, relaxed on the descents.",
               "durationMin": 40
             },
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "35 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "35 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 35
             }
           ]
@@ -5191,8 +5191,8 @@
             {
               "discipline": "swim",
               "title": "Long Swim",
-              "detail": "2550m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
-              "distanceM": 2550
+              "detail": "3900m long continuous Zone 2 swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
+              "distanceM": 3900
             }
           ]
         },
@@ -5202,7 +5202,7 @@
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "55 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "55 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 55
             }
           ]
@@ -5229,9 +5229,9 @@
             },
             {
               "discipline": "swim",
-              "title": "Endurance Swim",
-              "detail": "1400m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
-              "distanceM": 1400
+              "title": "Threshold Swim",
+              "detail": "3000m race-pace swim \u2014 400m Zone 2 warm-up, then sustained sets at goal race pace (Zone 3-4) with 20-30 sec rest intervals; cool-down easy.",
+              "distanceM": 3000
             }
           ]
         }
@@ -5255,13 +5255,13 @@
             {
               "discipline": "run",
               "title": "Tempo/Hills Run",
-              "detail": "55 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "detail": "55 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace.",
               "durationMin": 55
             },
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "45 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "45 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 45
             }
           ]
@@ -5276,8 +5276,8 @@
             {
               "discipline": "swim",
               "title": "Long Swim",
-              "detail": "3500m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
-              "distanceM": 3500
+              "detail": "5300m long continuous Zone 2 swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
+              "distanceM": 5300
             }
           ]
         },
@@ -5287,7 +5287,7 @@
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "70 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "70 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 70
             }
           ]
@@ -5314,9 +5314,9 @@
             },
             {
               "discipline": "swim",
-              "title": "Endurance Swim",
-              "detail": "1950m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
-              "distanceM": 1950
+              "title": "Threshold Swim",
+              "detail": "3000m race-pace swim \u2014 400m Zone 2 warm-up, then sustained sets at goal race pace (Zone 3-4) with 20-30 sec rest intervals; cool-down easy.",
+              "distanceM": 3000
             }
           ]
         }
@@ -5340,13 +5340,13 @@
             {
               "discipline": "run",
               "title": "Tempo/Hills Run",
-              "detail": "60 min run with rolling hills or 4-6 short hill efforts \u2014 steady effort on the climbs, relaxed on the descents.",
+              "detail": "60 min run with rolling hills or 4-6 short hill efforts \u2014 steady Zone 2 effort on the climbs, relaxed on the descents.",
               "durationMin": 60
             },
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "50 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "50 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 50
             }
           ]
@@ -5361,8 +5361,8 @@
             {
               "discipline": "swim",
               "title": "Long Swim",
-              "detail": "3650m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
-              "distanceM": 3650
+              "detail": "5400m long continuous Zone 2 swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
+              "distanceM": 5400
             }
           ]
         },
@@ -5372,7 +5372,7 @@
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "75 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "75 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 75
             }
           ]
@@ -5399,9 +5399,9 @@
             },
             {
               "discipline": "swim",
-              "title": "Endurance Swim",
-              "detail": "2000m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
-              "distanceM": 2000
+              "title": "Threshold Swim",
+              "detail": "3000m race-pace swim \u2014 400m Zone 2 warm-up, then sustained sets at goal race pace (Zone 3-4) with 20-30 sec rest intervals; cool-down easy.",
+              "distanceM": 3000
             }
           ]
         }
@@ -5425,13 +5425,13 @@
             {
               "discipline": "run",
               "title": "Tempo/Hills Run",
-              "detail": "60 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "detail": "60 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace.",
               "durationMin": 60
             },
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "50 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "50 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 50
             }
           ]
@@ -5446,8 +5446,8 @@
             {
               "discipline": "swim",
               "title": "Long Swim",
-              "detail": "3800m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
-              "distanceM": 3800
+              "detail": "5500m long continuous Zone 2 swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
+              "distanceM": 5500
             }
           ]
         },
@@ -5457,7 +5457,7 @@
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "75 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "75 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 75
             }
           ]
@@ -5484,9 +5484,9 @@
             },
             {
               "discipline": "swim",
-              "title": "Endurance Swim",
-              "detail": "2100m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
-              "distanceM": 2100
+              "title": "Threshold Swim",
+              "detail": "3050m race-pace swim \u2014 400m Zone 2 warm-up, then sustained sets at goal race pace (Zone 3-4) with 20-30 sec rest intervals; cool-down easy.",
+              "distanceM": 3050
             }
           ]
         }
@@ -5510,13 +5510,13 @@
             {
               "discipline": "run",
               "title": "Tempo/Hills Run",
-              "detail": "45 min run with rolling hills or 4-6 short hill efforts \u2014 steady effort on the climbs, relaxed on the descents.",
+              "detail": "45 min run with rolling hills or 4-6 short hill efforts \u2014 steady Zone 2 effort on the climbs, relaxed on the descents.",
               "durationMin": 45
             },
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "35 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "35 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 35
             }
           ]
@@ -5531,8 +5531,8 @@
             {
               "discipline": "swim",
               "title": "Long Swim",
-              "detail": "2850m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
-              "distanceM": 2850
+              "detail": "4100m long continuous Zone 2 swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
+              "distanceM": 4100
             }
           ]
         },
@@ -5542,7 +5542,7 @@
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "55 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "55 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 55
             }
           ]
@@ -5569,9 +5569,9 @@
             },
             {
               "discipline": "swim",
-              "title": "Endurance Swim",
-              "detail": "1550m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
-              "distanceM": 1550
+              "title": "Threshold Swim",
+              "detail": "3000m race-pace swim \u2014 400m Zone 2 warm-up, then sustained sets at goal race pace (Zone 3-4) with 20-30 sec rest intervals; cool-down easy.",
+              "distanceM": 3000
             }
           ]
         }
@@ -5595,13 +5595,13 @@
             {
               "discipline": "run",
               "title": "Tempo/Hills Run",
-              "detail": "60 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "detail": "60 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace.",
               "durationMin": 60
             },
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "50 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "50 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 50
             }
           ]
@@ -5616,8 +5616,8 @@
             {
               "discipline": "swim",
               "title": "Long Swim",
-              "detail": "3800m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
-              "distanceM": 3800
+              "detail": "5500m long continuous Zone 2 swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
+              "distanceM": 5500
             }
           ]
         },
@@ -5627,7 +5627,7 @@
             {
               "discipline": "bike",
               "title": "Steady Bike",
-              "detail": "75 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "75 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 75
             }
           ]
@@ -5654,9 +5654,9 @@
             },
             {
               "discipline": "swim",
-              "title": "Endurance Swim",
-              "detail": "2100m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
-              "distanceM": 2100
+              "title": "Threshold Swim",
+              "detail": "3050m race-pace swim \u2014 400m Zone 2 warm-up, then sustained sets at goal race pace (Zone 3-4) with 20-30 sec rest intervals; cool-down easy.",
+              "distanceM": 3050
             }
           ]
         }
@@ -5680,13 +5680,13 @@
             {
               "discipline": "run",
               "title": "Taper Run",
-              "detail": "35 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "detail": "35 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace.",
               "durationMin": 35
             },
             {
               "discipline": "bike",
               "title": "Easy Bike",
-              "detail": "40 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "40 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 40
             }
           ]
@@ -5701,8 +5701,8 @@
             {
               "discipline": "swim",
               "title": "Taper Swim",
-              "detail": "2000m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
-              "distanceM": 2000
+              "detail": "3500m long continuous Zone 2 swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
+              "distanceM": 3500
             }
           ]
         },
@@ -5712,7 +5712,7 @@
             {
               "discipline": "bike",
               "title": "Taper Bike",
-              "detail": "50 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "50 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 50
             }
           ]
@@ -5737,9 +5737,9 @@
             },
             {
               "discipline": "swim",
-              "title": "Taper Swim",
-              "detail": "1200m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
-              "distanceM": 1200
+              "title": "Threshold Swim",
+              "detail": "2100m race-pace swim \u2014 400m Zone 2 warm-up, then sustained sets at goal race pace (Zone 3-4) with 20-30 sec rest intervals; cool-down easy.",
+              "distanceM": 2100
             }
           ]
         }
@@ -5763,13 +5763,13 @@
             {
               "discipline": "run",
               "title": "Taper Run",
-              "detail": "30 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "detail": "30 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace.",
               "durationMin": 30
             },
             {
               "discipline": "bike",
               "title": "Easy Bike",
-              "detail": "35 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "35 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 35
             }
           ]
@@ -5784,8 +5784,8 @@
             {
               "discipline": "swim",
               "title": "Taper Swim",
-              "detail": "1500m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
-              "distanceM": 1500
+              "detail": "3000m long continuous Zone 2 swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
+              "distanceM": 3000
             }
           ]
         },
@@ -5795,7 +5795,7 @@
             {
               "discipline": "bike",
               "title": "Taper Bike",
-              "detail": "45 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "45 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 45
             }
           ]
@@ -5821,9 +5821,9 @@
             },
             {
               "discipline": "swim",
-              "title": "Taper Swim",
-              "detail": "900m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
-              "distanceM": 900
+              "title": "Threshold Swim",
+              "detail": "1800m race-pace swim \u2014 400m Zone 2 warm-up, then sustained sets at goal race pace (Zone 3-4) with 20-30 sec rest intervals; cool-down easy.",
+              "distanceM": 1800
             }
           ]
         }
@@ -5847,13 +5847,13 @@
             {
               "discipline": "run",
               "title": "Taper Run",
-              "detail": "20 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "detail": "20 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace.",
               "durationMin": 20
             },
             {
               "discipline": "bike",
               "title": "Easy Bike",
-              "detail": "25 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "25 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 25
             }
           ]
@@ -5868,8 +5868,8 @@
             {
               "discipline": "swim",
               "title": "Taper Swim",
-              "detail": "1000m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
-              "distanceM": 1000
+              "detail": "2000m long continuous Zone 2 swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
+              "distanceM": 2000
             }
           ]
         },
@@ -5879,7 +5879,7 @@
             {
               "discipline": "bike",
               "title": "Taper Bike",
-              "detail": "30 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "30 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 30
             }
           ]
@@ -5905,9 +5905,9 @@
             },
             {
               "discipline": "swim",
-              "title": "Taper Swim",
-              "detail": "600m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
-              "distanceM": 600
+              "title": "Threshold Swim",
+              "detail": "1200m race-pace swim \u2014 400m Zone 2 warm-up, then sustained sets at goal race pace (Zone 3-4) with 20-30 sec rest intervals; cool-down easy.",
+              "distanceM": 1200
             }
           ]
         }
@@ -5931,13 +5931,13 @@
             {
               "discipline": "run",
               "title": "Taper Run",
-              "detail": "15 min easy run \u2014 keep it conversational; consistent form matters more than pace.",
+              "detail": "15 min easy Zone 2 run \u2014 keep it conversational; consistent form matters more than pace.",
               "durationMin": 15
             },
             {
               "discipline": "bike",
               "title": "Easy Bike",
-              "detail": "15 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "15 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 15
             }
           ]
@@ -5952,8 +5952,8 @@
             {
               "discipline": "swim",
               "title": "Taper Swim",
-              "detail": "800m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
-              "distanceM": 800
+              "detail": "1500m long continuous Zone 2 swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
+              "distanceM": 1500
             }
           ]
         },
@@ -5963,7 +5963,7 @@
             {
               "discipline": "bike",
               "title": "Taper Bike",
-              "detail": "20 min easy bike \u2014 flat-to-rolling terrain, conversational effort.",
+              "detail": "20 min easy Zone 2 bike \u2014 flat-to-rolling terrain, conversational effort.",
               "durationMin": 20
             }
           ]
@@ -5989,9 +5989,9 @@
             },
             {
               "discipline": "swim",
-              "title": "Taper Swim",
-              "detail": "500m long continuous swim \u2014 steady aerobic effort; if open water is available, practice sighting every 6-8 strokes.",
-              "distanceM": 500
+              "title": "Threshold Swim",
+              "detail": "900m race-pace swim \u2014 400m Zone 2 warm-up, then sustained sets at goal race pace (Zone 3-4) with 20-30 sec rest intervals; cool-down easy.",
+              "distanceM": 900
             }
           ]
         }

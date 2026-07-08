@@ -60,6 +60,19 @@ def recovery_scale(global_week):
     return 0.75 if is_recovery_week(global_week) else 1.0
 
 
+def swim_min_m(global_week):
+    """Minimum swim session distance enforced from month 2 onward.
+    Month 2 (wk 5+): 1000m; Month 3 (wk 9+): 2000m; Month 6 (wk 22+): 3000m.
+    Not applied in Phase F taper — intentional volume reduction."""
+    if global_week >= 22:
+        return 3000
+    if global_week >= 9:
+        return 2000
+    if global_week >= 5:
+        return 1000
+    return 0
+
+
 # Target total run-discipline minutes per week, by month, for the novice
 # marathon build-up layered into weeks 1-21 (see module docstring).
 MARATHON_RUN_RANGES = {
@@ -109,26 +122,40 @@ def rest_day():
 REST_DETAIL = "Full rest day. Sleep, hydration, and easy stretching pay off here as much as any workout."
 
 
-def run_detail(mins, tempo=False, hills=False):
+def run_detail(mins, tempo=False, hills=False, strides=False):
     if hills:
-        return f"{mins} min run with rolling hills or 4-6 short hill efforts — steady effort on the climbs, relaxed on the descents."
+        return f"{mins} min run with rolling hills or 4-6 short hill efforts — steady Zone 2 effort on the climbs, relaxed on the descents."
     if tempo:
-        return f"{mins} min run — 10 min easy warm-up, then steady-hard tempo effort, 5 min easy cool-down."
-    return f"{mins} min easy run — keep it conversational; consistent form matters more than pace."
+        return f"{mins} min run — 10 min easy Zone 2 warm-up, then steady-hard tempo effort (Zone 3-4), 5 min easy cool-down."
+    if strides:
+        return f"{mins} min easy Zone 2 run — keep it conversational, then finish with 4-6 × 20-sec strides at a quick, relaxed (Zone 4-5) effort with full recovery between."
+    return f"{mins} min easy Zone 2 run — keep it conversational; consistent form matters more than pace."
 
 
 def swim_detail(meters, phase):
     if phase == "A":
-        return f"{meters}m total in the pool — mix of drills (catch-up, kick sets) and short easy swims with rest as needed. Technique over speed."
+        return f"{meters}m total in the pool — mix of drills (catch-up, kick sets) and short easy Zone 2 swims with rest as needed. Technique over speed."
     if phase in ("B", "C"):
-        return f"{meters}m — warm-up, then continuous-style swimming at a steady aerobic pace, short rest between sets as needed."
-    return f"{meters}m long continuous swim — steady aerobic effort; if open water is available, practice sighting every 6-8 strokes."
+        return f"{meters}m — warm-up, then continuous Zone 2 swimming at a steady aerobic pace, short rest between sets as needed."
+    return f"{meters}m long continuous Zone 2 swim — steady aerobic effort; if open water is available, practice sighting every 6-8 strokes."
+
+
+def threshold_swim_detail(meters, phase):
+    if phase in ("A", "B"):
+        return f"{meters}m quality swim — 200m easy Zone 2 warm-up, then alternate 100m at a challenging Zone 4 effort with 50m easy recovery. Finish easy."
+    if phase in ("C", "D"):
+        return f"{meters}m threshold swim — 400m easy Zone 2 warm-up, then 3-4 × 300m at Zone 3-4 effort with 30 sec rest; cool-down easy."
+    return f"{meters}m race-pace swim — 400m Zone 2 warm-up, then sustained sets at goal race pace (Zone 3-4) with 20-30 sec rest intervals; cool-down easy."
 
 
 def bike_detail(mins, tempo=False):
     if tempo:
-        return f"{mins} min bike — warm up easy, then 3x8 min at a steady-hard effort with easy spinning recovery between, cool down easy."
-    return f"{mins} min easy bike — flat-to-rolling terrain, conversational effort."
+        return f"{mins} min bike — warm up easy Zone 2, then 3×8 min at a steady-hard effort (Zone 3-4) with easy spinning recovery between, cool down easy."
+    return f"{mins} min easy Zone 2 bike — flat-to-rolling terrain, conversational effort."
+
+
+def interval_bike_detail(mins):
+    return f"{mins} min quality bike — 10 min Zone 2 warm-up, then 5 × 3 min at Zone 4-5 effort with 3 min easy Zone 2 recovery between, finish Zone 2."
 
 
 def brick_detail(bike_mins, run_mins):
@@ -190,7 +217,7 @@ def phase_a_week(local_i, n, global_week):
     days allowed. Week 9+: Short Run moves onto the swim day (index 3) so index
     2 remains a rest day."""
     scale = recovery_scale(global_week)
-    swim_m = round50(lerp(400, 800, local_i, n) * scale)
+    swim_m = max(swim_min_m(global_week), round50(lerp(400, 3000, local_i, n) * scale))
     bike_m = round5(lerp(20, 50, local_i, n) * scale)
     strength_m = round5(lerp(20, 30, local_i, n))
 
@@ -209,11 +236,11 @@ def phase_a_week(local_i, n, global_week):
 
     days[1] = [session("run", "Easy Run", run_detail(run_m), duration_min=run_m)]
 
-    # Day 4 (index 3): swim, with Short Run prepended from week 9 so day 3
-    # (index 2) stays a rest day — preserving two full rest days per week.
+    # Day 4 (index 3): swim, with Short Run w/ Strides prepended from week 9 so
+    # day 3 (index 2) stays a rest day — preserving two full rest days per week.
     if third_m is not None:
         days[3] = [
-            session("run", "Short Run", run_detail(third_m), duration_min=third_m),
+            session("run", "Short Run w/ Strides", run_detail(third_m, strides=True), duration_min=third_m),
             session("swim", "Technique Swim", swim_detail(swim_m, "A"), distance_m=swim_m),
         ]
     else:
@@ -223,12 +250,15 @@ def phase_a_week(local_i, n, global_week):
     days[5] = [session("bike", "Easy Bike", bike_detail(bike_m), duration_min=bike_m)]
     days[6] = [session("strength", "Strength & Mobility", strength_detail(strength_m), duration_min=strength_m)]
 
-    # Month 2+ (week 5+): second swim and two extra bike sessions.
+    # Month 2+ (week 5+): 2nd swim (Threshold = quality) on day 5 alongside
+    # Recovery Run; two extra Zone 2 bikes on days 2 and 7; primary bike on day 6
+    # becomes the quality Interval Ride (80/20: 2 of 3 bikes easy, 1 quality).
     if global_week >= 5:
-        swim2_m = max(200, round50(swim_m * 0.65))
+        swim2_m = max(swim_min_m(global_week), round50(swim_m * 0.65))
         bike2_m = max(10, round5(bike_m * 0.75))
         days[1] = days[1] + [session("bike", "Easy Bike", bike_detail(bike2_m), duration_min=bike2_m)]
-        days[4] = days[4] + [session("swim", "Technique Swim", swim_detail(swim2_m, "A"), distance_m=swim2_m)]
+        days[4] = days[4] + [session("swim", "Threshold Swim", threshold_swim_detail(swim2_m, "A"), distance_m=swim2_m)]
+        days[5] = [session("bike", "Interval Ride", interval_bike_detail(bike_m), duration_min=bike_m)]
         days[6] = days[6] + [session("bike", "Easy Bike", bike_detail(bike2_m), duration_min=bike2_m)]
 
     return days
@@ -241,7 +271,7 @@ def phase_b_week(local_i, n, global_week):
     day 6 (index 5 for pre-brick weeks, index 6 for brick weeks, index 3 for
     race week 26)."""
     scale = recovery_scale(global_week)
-    swim_m = round50(lerp(800, 1200, local_i, n) * scale)
+    swim_m = max(swim_min_m(global_week), round50(lerp(2500, 4000, local_i, n) * scale))
     bike_m = round5(lerp(40, 60, local_i, n) * scale)
 
     days = [rest_day() for _ in range(7)]
@@ -282,15 +312,15 @@ def phase_b_week(local_i, n, global_week):
     # 2 swims + 3 bike-type sessions: extra bike on day 2 (index 1), 2nd swim
     # placed on the steady-bike day (pre-brick weeks), long-run day (brick weeks),
     # or swim day (race week where day 7 is taken).
-    swim2_m = max(400, round50(swim_m * 0.65))
+    swim2_m = max(swim_min_m(global_week), round50(swim_m * 0.65))
     bike3_m = max(15, round5(bike_m * 0.70))
     days[1] = days[1] + [session("bike", "Steady Bike", bike_detail(bike3_m), duration_min=bike3_m)]
     if global_week == 26:
-        days[3] = days[3] + [session("swim", "Endurance Swim", swim_detail(swim2_m, "B"), distance_m=swim2_m)]
+        days[3] = days[3] + [session("swim", "Threshold Swim", threshold_swim_detail(swim2_m, "B"), distance_m=swim2_m)]
     elif global_week < 18:
-        days[5] = days[5] + [session("swim", "Endurance Swim", swim_detail(swim2_m, "B"), distance_m=swim2_m)]
+        days[5] = days[5] + [session("swim", "Threshold Swim", threshold_swim_detail(swim2_m, "B"), distance_m=swim2_m)]
     else:
-        days[6] = days[6] + [session("swim", "Endurance Swim", swim_detail(swim2_m, "B"), distance_m=swim2_m)]
+        days[6] = days[6] + [session("swim", "Threshold Swim", threshold_swim_detail(swim2_m, "B"), distance_m=swim2_m)]
 
     return days
 
@@ -299,7 +329,7 @@ def phase_c_week(local_i, n, global_week):
     """Olympic Build: weeks 27-39. Same weekly shape as Phase B, higher volume, weekly brick."""
     scale = recovery_scale(global_week)
     run_m = round5(lerp(40, 50, local_i, n) * scale)
-    swim_m = round50(lerp(1200, 1800, local_i, n) * scale)
+    swim_m = max(swim_min_m(global_week), round50(lerp(3500, 5000, local_i, n) * scale))
     bike_m = round5(lerp(60, 75, local_i, n) * scale)
     bb = round5(lerp(70, 95, local_i, n) * scale)
     br = round5(lerp(20, 30, local_i, n) * scale)
@@ -319,13 +349,13 @@ def phase_c_week(local_i, n, global_week):
 
     # 2 swims + 3 bike-type sessions: extra bike on day 2 (index 1), 2nd swim on
     # day 7 (index 6) for normal weeks or day 4 (index 3) for race week 39.
-    swim2_m = max(600, round50(swim_m * 0.60))
+    swim2_m = max(swim_min_m(global_week), round50(swim_m * 0.60))
     bike3_m = max(20, round5(bike_m * 0.65))
     days[1] = days[1] + [session("bike", "Steady Bike", bike_detail(bike3_m), duration_min=bike3_m)]
     if global_week == 39:
-        days[3] = days[3] + [session("swim", "Endurance Swim", swim_detail(swim2_m, "C"), distance_m=swim2_m)]
+        days[3] = days[3] + [session("swim", "Threshold Swim", threshold_swim_detail(swim2_m, "C"), distance_m=swim2_m)]
     else:
-        days[6] = days[6] + [session("swim", "Endurance Swim", swim_detail(swim2_m, "C"), distance_m=swim2_m)]
+        days[6] = days[6] + [session("swim", "Threshold Swim", threshold_swim_detail(swim2_m, "C"), distance_m=swim2_m)]
     return days
 
 
@@ -333,7 +363,7 @@ def phase_d_week(local_i, n, global_week):
     """Half-Iron Build: weeks 40-52. Long bike grows large; brick run-finisher added from week 43."""
     scale = recovery_scale(global_week)
     run_m = round5(lerp(45, 55, local_i, n) * scale)
-    swim_m = round50(lerp(1800, 2400, local_i, n) * scale)
+    swim_m = max(swim_min_m(global_week), round50(lerp(4000, 5500, local_i, n) * scale))
     bike_m = round5(lerp(60, 75, local_i, n) * scale)
     long_bike_m = round5(lerp(95, 180, local_i, n) * scale)
     long_run_m = round5(lerp(75, 100, local_i, n) * scale)
@@ -360,13 +390,13 @@ def phase_d_week(local_i, n, global_week):
 
     # 2 swims + 3 bike-type sessions: extra bike on day 2 (index 1), 2nd swim on
     # day 7 (index 6) for normal weeks or day 4 (index 3) for race week 52.
-    swim2_m = max(800, round50(swim_m * 0.60))
+    swim2_m = max(swim_min_m(global_week), round50(swim_m * 0.60))
     bike3_m = max(20, round5(bike_m * 0.65))
     days[1] = days[1] + [session("bike", "Steady Bike", bike_detail(bike3_m), duration_min=bike3_m)]
     if global_week == 52:
-        days[3] = days[3] + [session("swim", "Endurance Swim", swim_detail(swim2_m, "D"), distance_m=swim2_m)]
+        days[3] = days[3] + [session("swim", "Threshold Swim", threshold_swim_detail(swim2_m, "D"), distance_m=swim2_m)]
     else:
-        days[6] = days[6] + [session("swim", "Endurance Swim", swim_detail(swim2_m, "D"), distance_m=swim2_m)]
+        days[6] = days[6] + [session("swim", "Threshold Swim", threshold_swim_detail(swim2_m, "D"), distance_m=swim2_m)]
     return days
 
 
@@ -379,7 +409,7 @@ def phase_e_week(local_i, n, global_week):
     scale = recovery_scale(global_week)
 
     run_m = round5(lerp(45, 60, base_i, ramp_n) * scale)
-    swim_m = round50(lerp(2400, 3800, base_i, ramp_n) * scale)
+    swim_m = max(swim_min_m(global_week), round50(lerp(4500, 5500, base_i, ramp_n) * scale))
     bike_m = round5(lerp(60, 75, base_i, ramp_n) * scale)
     long_bike_m = round5(lerp(180, 330, base_i, ramp_n) * scale)
     long_run_m = round5(lerp(100, 180, base_i, ramp_n) * scale)
@@ -392,19 +422,19 @@ def phase_e_week(local_i, n, global_week):
     days[6] = [session("run", "Long Run", long_run_detail(long_run_m) + " This is Ironman-specific endurance work — patience over pace.", duration_min=long_run_m)]
 
     # 2 swims + 3 bike sessions: extra bike on day 2 (index 1), 2nd swim on day 7 (index 6).
-    swim2_m = max(1000, round50(swim_m * 0.55))
+    swim2_m = max(swim_min_m(global_week), round50(swim_m * 0.55))
     bike3_m = max(20, round5(bike_m * 0.65))
     days[1] = days[1] + [session("bike", "Steady Bike", bike_detail(bike3_m), duration_min=bike3_m)]
-    days[6] = days[6] + [session("swim", "Endurance Swim", swim_detail(swim2_m, "E"), distance_m=swim2_m)]
+    days[6] = days[6] + [session("swim", "Threshold Swim", threshold_swim_detail(swim2_m, "E"), distance_m=swim2_m)]
     return days
 
 
 # Phase F: hand-authored taper, weeks 66-70 (local index 0-4). Not generated by interpolation.
 PHASE_F_WEEKS = [
-    {"run": 35, "swim": 2000, "bike": 50, "long_bike": 150, "brick_run": 15, "long_run": 90},
-    {"run": 30, "swim": 1500, "bike": 45, "long_bike": 100, "brick_run": None, "long_run": 60},
-    {"run": 20, "swim": 1000, "bike": 30, "long_bike": 60, "brick_run": None, "long_run": 40},
-    {"run": 15, "swim": 800, "bike": 20, "long_bike": 30, "brick_run": None, "long_run": 20},
+    {"run": 35, "swim": 3500, "bike": 50, "long_bike": 150, "brick_run": 15, "long_run": 90},
+    {"run": 30, "swim": 3000, "bike": 45, "long_bike": 100, "brick_run": None, "long_run": 60},
+    {"run": 20, "swim": 2000, "bike": 30, "long_bike": 60, "brick_run": None, "long_run": 40},
+    {"run": 15, "swim": 1500, "bike": 20, "long_bike": 30, "brick_run": None, "long_run": 20},
 ]
 
 
@@ -425,7 +455,7 @@ def phase_f_week(local_i, global_week):
         swim2_m = max(400, round50(w["swim"] * 0.60))
         bike3_m = max(15, round5(w["bike"] * 0.80))
         days[1] = days[1] + [session("bike", "Easy Bike", bike_detail(bike3_m), duration_min=bike3_m)]
-        days[6] = days[6] + [session("swim", "Taper Swim", swim_detail(swim2_m, "E"), distance_m=swim2_m)]
+        days[6] = days[6] + [session("swim", "Threshold Swim", threshold_swim_detail(swim2_m, "E"), distance_m=swim2_m)]
     else:
         # Final week: race week. Very light touches, full rest before race day.
         days[1] = [session("bike", "Easy Spin", "15 min easy spin, just to keep the legs loose. Should feel like nothing.", duration_min=15)]
