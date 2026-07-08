@@ -8,6 +8,7 @@
   const STORAGE_MILESTONE_OVERRIDES = "c2t_milestone_overrides";
   const STORAGE_EXTRA_WORKOUTS = "c2t_extra_workouts";
   const STORAGE_SESSION_MOVES = "c2t_session_moves";
+  const STORAGE_SESSION_EDITS = "c2t_session_edits";
 
   const DISCIPLINE_ICON = {
     run: "\u{1F3C3}",
@@ -73,6 +74,9 @@
   let raceFormState = null; // null | { mode: "add" } | { mode: "edit", key }
   let extraWorkoutFormState = null; // null | { mode: "add" } | { mode: "edit", id }
   let moveFormKey = null; // dayKey of the planned session currently showing its "move to another day" form
+  let sessionEdits = {}; // keyed by dayKey → { overrides: { "0": {…}|{dropped:true}, … }, added: [{id,…}] }
+  let customizeEditKey = null; // session key being edited in Customize tab
+  let customizeAddDayKey = null; // dayKey showing the "add session" form in Customize tab
 
   // ---------- date helpers (local time, no UTC surprises) ----------
 
@@ -138,8 +142,9 @@
   }
 
   function parseDayKey(key) {
-    const m = /^w(\d+)d(\d+)(?:s(\d+))?$/.exec(key);
-    return m ? { week: Number(m[1]), dayIdx: Number(m[2]), sessionIdx: Number(m[3] || 0) } : null;
+    const m = /^w(\d+)d(\d+)(?:s(\d+)|a(.+))?$/.exec(key);
+    if (!m) return null;
+    return { week: Number(m[1]), dayIdx: Number(m[2]), sessionIdx: Number(m[3] || 0), addedId: m[4] || null };
   }
 
   // A completedMap entry is either a legacy boolean (done, no log) or an
@@ -277,12 +282,79 @@
     localStorage.setItem(STORAGE_SESSION_MOVES, JSON.stringify(sessionMoves));
   }
 
+  function loadSessionEdits() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(STORAGE_SESSION_EDITS) || "null");
+      return raw && typeof raw === "object" ? raw : {};
+    } catch (e) {
+      return {};
+    }
+  }
+
+  function saveSessionEdits() {
+    localStorage.setItem(STORAGE_SESSION_EDITS, JSON.stringify(sessionEdits));
+  }
+
+  function getDayEdits(weekNum, dayIdx) {
+    return sessionEdits[dayKey(weekNum, dayIdx)] || {};
+  }
+
+  function mutateDayEdits(weekNum, dayIdx, fn) {
+    const dk = dayKey(weekNum, dayIdx);
+    const edits = sessionEdits[dk] ? { ...sessionEdits[dk] } : {};
+    fn(edits);
+    const hasOverrides = edits.overrides && Object.keys(edits.overrides).length;
+    const hasAdded = edits.added && edits.added.length;
+    if (!hasOverrides && !hasAdded) delete sessionEdits[dk];
+    else sessionEdits[dk] = edits;
+    saveSessionEdits();
+  }
+
   function getSessionForKey(key) {
     const parsed = parseDayKey(key);
     if (!parsed) return null;
     const week = plan.weeks[parsed.week - 1];
     const day = week && week.days[parsed.dayIdx];
-    return day && day.sessions.length > parsed.sessionIdx ? day.sessions[parsed.sessionIdx] : null;
+    if (!day) return null;
+
+    if (parsed.addedId) {
+      const edits = getDayEdits(parsed.week, parsed.dayIdx);
+      const a = (edits.added || []).find((x) => x.id === parsed.addedId);
+      return a ? { discipline: a.discipline, title: a.title, detail: a.detail || "", durationMin: a.durationMin, distanceM: a.distanceM } : null;
+    }
+
+    const edits = getDayEdits(parsed.week, parsed.dayIdx);
+    const override = edits.overrides && edits.overrides[String(parsed.sessionIdx)];
+    if (override && override.dropped) return null;
+    const base = day.sessions[parsed.sessionIdx];
+    if (!base) return null;
+    return override ? { ...base, ...override } : base;
+  }
+
+  // Returns [{session, key}] for all effective (non-dropped) sessions on a day,
+  // applying session overrides and appending added sessions.
+  function getEffectiveSessionsWithKeys(weekNum, dayIdx) {
+    const baseKey = dayKey(weekNum, dayIdx);
+    const week = plan.weeks[weekNum - 1];
+    const day = week && week.days[dayIdx];
+    const baseSessions = day ? day.sessions : [];
+    const edits = getDayEdits(weekNum, dayIdx);
+    const overrides = edits.overrides || {};
+    const added = edits.added || [];
+    const result = [];
+    baseSessions.forEach((s, sIdx) => {
+      const ov = overrides[String(sIdx)];
+      if (ov && ov.dropped) return;
+      const sKey = sIdx === 0 ? baseKey : `${baseKey}s${sIdx}`;
+      result.push({ session: ov ? { ...s, ...ov } : s, key: sKey });
+    });
+    added.forEach((a) => {
+      result.push({
+        session: { discipline: a.discipline, title: a.title, detail: a.detail || "", durationMin: a.durationMin, distanceM: a.distanceM },
+        key: `${baseKey}a${a.id}`,
+      });
+    });
+    return result;
   }
 
   function getOriginalDateISO(key, startDate) {
@@ -593,23 +665,23 @@
         const key = dayKey(week.week, dayIdx);
         const date = startDate ? dateForWeekDay(startDate, week.week, dayIdx) : null;
         const dateStr = date ? formatShortDate(date) : day.label;
-        const movedTo = day.sessions.length ? sessionMoves[key] : null;
+        const effective = getEffectiveSessionsWithKeys(week.week, dayIdx);
+        const movedTo = effective.length ? sessionMoves[key] : null;
 
         let plannedRowHTML;
-        if (!day.sessions.length) {
+        if (!effective.length) {
           plannedRowHTML = `<div class="day-row"><span class="day-row__label">${dateStr}</span><span class="day-row__title rest-note">Rest</span><span class="day-row__meta"></span></div>`;
         } else if (movedTo) {
           plannedRowHTML = `<div class="day-row">
             <span class="day-row__label">${dateStr}</span>
-            <span class="day-row__title rest-note">${sessionIcon(day.sessions[0].discipline)} ${escapeHtml(day.sessions[0].title)} — moved to ${escapeHtml(formatShortDate(parseISODate(movedTo)))}</span>
+            <span class="day-row__title rest-note">${sessionIcon(effective[0].session.discipline)} ${escapeHtml(effective[0].session.title)} — moved to ${escapeHtml(formatShortDate(parseISODate(movedTo)))}</span>
             <span class="day-row__meta"></span>
             <button class="row-edit-btn" data-move-toggle="${key}" aria-label="Change move date">↪</button>
             <button class="row-edit-btn" data-move-undo="${key}" aria-label="Undo move">Undo</button>
           </div>`;
         } else {
-          plannedRowHTML = day.sessions.map((s, sIdx) => {
-            const sKey = sIdx === 0 ? key : `${key}s${sIdx}`;
-            return plannedSessionRowHTML(s, sKey, sIdx === 0 ? dateStr : "", "", sIdx === 0);
+          plannedRowHTML = effective.map(({ session: s, key: sKey }, i) => {
+            return plannedSessionRowHTML(s, sKey, i === 0 ? dateStr : "", "", i === 0);
           }).join("");
         }
 
@@ -805,7 +877,9 @@
     const todayKey = dayKey(week.week, pos.dayIdx);
     const todayISO = toISODate(today);
     const movedAway = !!sessionMoves[todayKey];
-    const ownEntries = !movedAway && day.sessions.length ? day.sessions.map((s, sIdx) => ({ session: s, key: sIdx === 0 ? todayKey : `${todayKey}s${sIdx}`, movedFromISO: null })) : [];
+    const ownEntries = !movedAway
+      ? getEffectiveSessionsWithKeys(week.week, pos.dayIdx).map(({ session, key }) => ({ session, key, movedFromISO: null }))
+      : [];
     const incomingEntries = incomingMovesForDate(todayISO).map((m) => ({
       session: m.session,
       key: m.key,
@@ -1191,6 +1265,205 @@
     </div>`;
   }
 
+  // ---------- Customize view ----------
+
+  function renderCustomize() {
+    const container = document.getElementById("customize-content");
+    const startDate = getStartDate();
+
+    if (!startDate) {
+      container.innerHTML = `<div class="empty-state"><p>Set a start date on the Today tab first.</p></div>`;
+      return;
+    }
+
+    const today = startOfDay(new Date());
+    const pos = getPlanPosition(startDate, today);
+
+    if (pos.status === "complete") {
+      container.innerHTML = `<div class="empty-state"><p>Plan complete — no future weeks to customize.</p></div>`;
+      return;
+    }
+
+    const currentWeek = pos.status === "active" ? pos.week : 0;
+    const futureWeeks = plan.weeks.filter((w) => w.week > currentWeek);
+
+    if (!futureWeeks.length) {
+      container.innerHTML = `<div class="empty-state"><p>No future weeks remaining.</p></div>`;
+      return;
+    }
+
+    const hasEdits = Object.keys(sessionEdits).length > 0;
+
+    const byMonth = {};
+    futureWeeks.forEach((w) => (byMonth[w.month] = byMonth[w.month] || []).push(w));
+
+    const monthsHTML = Object.keys(byMonth)
+      .map(Number)
+      .sort((a, b) => a - b)
+      .map((month, mIdx) => {
+        const weeks = byMonth[month];
+        const weeksHTML = weeks.map((week) => customizeWeekHTML(week, startDate)).join("");
+        return `<details class="month-group" ${mIdx === 0 ? "open" : ""}>
+          <summary>Month ${month} · ${escapeHtml(weeks[0].phase)}</summary>
+          ${weeksHTML}
+        </details>`;
+      })
+      .join("");
+
+    container.innerHTML = `
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+          <div>
+            <h3 style="margin:0;">Customize workouts</h3>
+            <p style="margin:4px 0 0;">Edit, drop, swap, or add sessions for any future week. Current &amp; past weeks are locked.</p>
+          </div>
+          ${hasEdits ? `<button class="btn btn--danger" style="flex:none;width:auto;font-size:12px;padding:7px 12px;" data-revert-all-edits="1">Revert all</button>` : ""}
+        </div>
+      </div>
+      ${monthsHTML}`;
+  }
+
+  function customizeWeekHTML(week, startDate) {
+    const daysHTML = week.days.map((_, dayIdx) => customizeDayHTML(week, dayIdx, startDate)).join("");
+    return `<div class="week-block">
+      <div class="week-block__head">
+        <span>Week ${week.week} · ${escapeHtml(week.phase)}</span>
+        ${weekHeadPillsHTML(week)}
+      </div>
+      ${daysHTML}
+    </div>`;
+  }
+
+  function customizeDayHTML(week, dayIdx, startDate) {
+    const date = dateForWeekDay(startDate, week.week, dayIdx);
+    const dateStr = formatShortDate(date);
+    const baseKey = dayKey(week.week, dayIdx);
+    const day = week.days[dayIdx];
+    const baseSessions = day.sessions;
+    const edits = getDayEdits(week.week, dayIdx);
+    const overrides = edits.overrides || {};
+    const added = edits.added || [];
+
+    const baseRowsHTML = baseSessions.map((s, sIdx) => {
+      const sKey = sIdx === 0 ? baseKey : `${baseKey}s${sIdx}`;
+      const ov = overrides[String(sIdx)];
+      const isDropped = !!(ov && ov.dropped);
+      const isModified = !!(ov && !ov.dropped);
+      const effective = isModified ? { ...s, ...ov } : s;
+
+      if (customizeEditKey === sKey) return customizeEditFormHTML(effective, sKey);
+
+      const badge = isDropped
+        ? `<span class="edit-badge edit-badge--dropped">Dropped</span>`
+        : isModified
+        ? `<span class="edit-badge edit-badge--modified">Modified</span>`
+        : "";
+
+      const actions = isDropped
+        ? `<button class="row-edit-btn" data-session-revert="${sKey}">↺ Revert</button>`
+        : `<button class="row-edit-btn" data-session-edit-open="${sKey}" title="Edit">✎</button>
+           <button class="row-delete-btn" data-session-drop="${sKey}" title="Drop">✕</button>
+           ${isModified ? `<button class="row-edit-btn" data-session-revert="${sKey}" title="Revert to plan">↺</button>` : ""}`;
+
+      const meta = formatSessionMeta(effective);
+      return `<div class="day-row${isDropped ? " is-dropped" : ""}">
+        <span class="day-row__title">${sessionIcon(effective.discipline)} ${escapeHtml(effective.title)}${badge}${meta ? `<span class="session-meta">${meta}</span>` : ""}</span>
+        <span class="day-row__meta" style="display:flex;align-items:center;gap:2px;">${actions}</span>
+      </div>`;
+    }).join("");
+
+    const addedRowsHTML = added.map((a) => {
+      const aKey = `${baseKey}a${a.id}`;
+      const aSession = { discipline: a.discipline, title: a.title, durationMin: a.durationMin, distanceM: a.distanceM };
+      if (customizeEditKey === aKey) return customizeEditFormHTML(aSession, aKey);
+      const meta = formatSessionMeta(aSession);
+      return `<div class="day-row">
+        <span class="day-row__title">${sessionIcon(a.discipline)} ${escapeHtml(a.title)}<span class="edit-badge edit-badge--added">Added</span>${meta ? `<span class="session-meta">${meta}</span>` : ""}</span>
+        <span class="day-row__meta" style="display:flex;align-items:center;gap:2px;">
+          <button class="row-edit-btn" data-session-edit-open="${aKey}" title="Edit">✎</button>
+          <button class="row-delete-btn" data-session-drop="${aKey}" title="Remove">✕</button>
+        </span>
+      </div>`;
+    }).join("");
+
+    const showAddForm = customizeAddDayKey === baseKey;
+    const addAreaHTML = showAddForm
+      ? customizeAddFormHTML(baseKey)
+      : `<div class="day-row"><button class="link-btn" data-session-add-open="${baseKey}" style="font-size:11px;">+ Add session</button></div>`;
+
+    const isEmpty = !baseSessions.length && !added.length;
+
+    return `<div class="customize-day">
+      <div class="customize-day-label">${dateStr}</div>
+      ${isEmpty ? `<div class="day-row"><span class="day-row__title rest-note">Rest day</span></div>` : ""}
+      ${baseRowsHTML}${addedRowsHTML}
+      ${addAreaHTML}
+    </div>`;
+  }
+
+  function customizeEditFormHTML(session, key) {
+    const disciplines = ["run", "bike", "swim", "brick", "strength"];
+    const discOptions = disciplines.map((d) => `<option value="${d}" ${session.discipline === d ? "selected" : ""}>${DISCIPLINE_LABEL[d] || d}</option>`).join("");
+    const unit = session.discipline === "swim" ? "m" : "km";
+    const distVal = session.distanceM != null ? metersToDistanceInputValue(session.discipline, session.distanceM) : "";
+    const hasDistance = session.discipline !== "brick" && session.discipline !== "strength";
+    return `<div class="log-form" style="margin:4px 0;">
+      <label class="field">
+        <span>Discipline</span>
+        <select id="cedit-discipline-${key}">${discOptions}</select>
+      </label>
+      <label class="field">
+        <span>Title</span>
+        <input type="text" id="cedit-title-${key}" value="${escapeHtml(session.title)}" placeholder="Session name">
+      </label>
+      <label class="field">
+        <span>Duration (min)</span>
+        <input type="number" min="1" id="cedit-duration-${key}" value="${session.durationMin != null ? session.durationMin : ""}" placeholder="e.g. 45">
+      </label>
+      ${hasDistance ? `<label class="field">
+        <span>Distance (${unit})</span>
+        <input type="number" step="0.01" min="0" id="cedit-distance-${key}" value="${distVal}" placeholder="${unit === "m" ? "e.g. 1500" : "e.g. 10"}">
+      </label>` : ""}
+      <div class="log-form__actions">
+        <button class="btn btn--primary" data-session-edit-save="${key}">Save</button>
+        <button class="btn btn--ghost" data-session-edit-cancel="1">Cancel</button>
+      </div>
+    </div>`;
+  }
+
+  function customizeAddFormHTML(dayKey) {
+    const disciplines = ["run", "bike", "swim", "brick", "strength"];
+    const discOptions = disciplines.map((d) => `<option value="${d}">${DISCIPLINE_LABEL[d] || d}</option>`).join("");
+    return `<div class="log-form" style="margin:4px 0;">
+      <label class="field">
+        <span>Discipline</span>
+        <select id="cadd-discipline-${dayKey}">${discOptions}</select>
+      </label>
+      <label class="field">
+        <span>Title</span>
+        <input type="text" id="cadd-title-${dayKey}" placeholder="Session name">
+      </label>
+      <label class="field">
+        <span>Duration (min)</span>
+        <input type="number" min="1" id="cadd-duration-${dayKey}" placeholder="e.g. 45">
+      </label>
+      <label class="field">
+        <span>Distance (km or m)</span>
+        <div style="display:flex;gap:8px;">
+          <input type="number" step="0.01" min="0" id="cadd-distance-${dayKey}" placeholder="optional" style="flex:1;">
+          <select id="cadd-dist-unit-${dayKey}" style="flex:none;width:auto;">
+            <option value="km">km</option>
+            <option value="m">m</option>
+          </select>
+        </div>
+      </label>
+      <div class="log-form__actions">
+        <button class="btn btn--primary" data-session-add-save="${dayKey}">Add session</button>
+        <button class="btn btn--ghost" data-session-add-cancel="1">Cancel</button>
+      </div>
+    </div>`;
+  }
+
   // ---------- Settings view ----------
 
   function renderSettings() {
@@ -1290,6 +1563,7 @@
     renderToday();
     renderPlan();
     renderProgress();
+    renderCustomize();
     renderSettings();
   }
 
@@ -1530,6 +1804,144 @@
         renderToday();
         return;
       }
+      const revertAllBtn = e.target.closest("[data-revert-all-edits]");
+      if (revertAllBtn) {
+        if (confirm("Revert all workout customizations? This cannot be undone.")) {
+          sessionEdits = {};
+          saveSessionEdits();
+          customizeEditKey = null;
+          customizeAddDayKey = null;
+          renderAll();
+        }
+        return;
+      }
+      const sessionEditOpenBtn = e.target.closest("[data-session-edit-open]");
+      if (sessionEditOpenBtn) {
+        customizeEditKey = sessionEditOpenBtn.getAttribute("data-session-edit-open");
+        customizeAddDayKey = null;
+        renderCustomize();
+        return;
+      }
+      const sessionEditCancelBtn = e.target.closest("[data-session-edit-cancel]");
+      if (sessionEditCancelBtn) {
+        customizeEditKey = null;
+        renderCustomize();
+        return;
+      }
+      const sessionEditSaveBtn = e.target.closest("[data-session-edit-save]");
+      if (sessionEditSaveBtn) {
+        const sKey = sessionEditSaveBtn.getAttribute("data-session-edit-save");
+        const parsed = parseDayKey(sKey);
+        if (!parsed) { customizeEditKey = null; renderCustomize(); return; }
+
+        const discEl = document.getElementById(`cedit-discipline-${sKey}`);
+        const titleEl = document.getElementById(`cedit-title-${sKey}`);
+        const durEl = document.getElementById(`cedit-duration-${sKey}`);
+        const distEl = document.getElementById(`cedit-distance-${sKey}`);
+        const disc = discEl ? discEl.value : null;
+        const title = titleEl ? titleEl.value.trim() : "";
+        const durationMin = durEl && durEl.value ? Number(durEl.value) || null : null;
+        const distVal = distEl && distEl.value ? Number(distEl.value) : null;
+        const distanceM = distVal != null && distVal > 0 ? (disc === "swim" ? distVal : Math.round(distVal * 1000)) : null;
+
+        if (!title) { showToast(["Enter a title first."], "Nothing to save"); return; }
+
+        if (parsed.addedId) {
+          mutateDayEdits(parsed.week, parsed.dayIdx, (edits) => {
+            edits.added = (edits.added || []).map((a) =>
+              a.id === parsed.addedId ? { ...a, discipline: disc, title, durationMin, distanceM } : a
+            );
+          });
+        } else {
+          mutateDayEdits(parsed.week, parsed.dayIdx, (edits) => {
+            edits.overrides = { ...edits.overrides, [String(parsed.sessionIdx)]: { discipline: disc, title, durationMin, distanceM } };
+          });
+        }
+
+        customizeEditKey = null;
+        renderAll();
+        return;
+      }
+      const sessionDropBtn = e.target.closest("[data-session-drop]");
+      if (sessionDropBtn) {
+        const sKey = sessionDropBtn.getAttribute("data-session-drop");
+        const parsed = parseDayKey(sKey);
+        if (!parsed) return;
+
+        if (parsed.addedId) {
+          mutateDayEdits(parsed.week, parsed.dayIdx, (edits) => {
+            edits.added = (edits.added || []).filter((a) => a.id !== parsed.addedId);
+          });
+        } else {
+          mutateDayEdits(parsed.week, parsed.dayIdx, (edits) => {
+            edits.overrides = { ...edits.overrides, [String(parsed.sessionIdx)]: { dropped: true } };
+          });
+        }
+
+        if (customizeEditKey === sKey) customizeEditKey = null;
+        renderAll();
+        return;
+      }
+      const sessionRevertBtn = e.target.closest("[data-session-revert]");
+      if (sessionRevertBtn) {
+        const sKey = sessionRevertBtn.getAttribute("data-session-revert");
+        const parsed = parseDayKey(sKey);
+        if (!parsed) return;
+
+        mutateDayEdits(parsed.week, parsed.dayIdx, (edits) => {
+          if (edits.overrides) {
+            delete edits.overrides[String(parsed.sessionIdx)];
+            if (!Object.keys(edits.overrides).length) delete edits.overrides;
+          }
+        });
+
+        if (customizeEditKey === sKey) customizeEditKey = null;
+        renderAll();
+        return;
+      }
+      const sessionAddOpenBtn = e.target.closest("[data-session-add-open]");
+      if (sessionAddOpenBtn) {
+        customizeAddDayKey = sessionAddOpenBtn.getAttribute("data-session-add-open");
+        customizeEditKey = null;
+        renderCustomize();
+        return;
+      }
+      const sessionAddCancelBtn = e.target.closest("[data-session-add-cancel]");
+      if (sessionAddCancelBtn) {
+        customizeAddDayKey = null;
+        renderCustomize();
+        return;
+      }
+      const sessionAddSaveBtn = e.target.closest("[data-session-add-save]");
+      if (sessionAddSaveBtn) {
+        const dk = sessionAddSaveBtn.getAttribute("data-session-add-save");
+        const parsed = parseDayKey(dk);
+        if (!parsed) { customizeAddDayKey = null; renderCustomize(); return; }
+
+        const discEl = document.getElementById(`cadd-discipline-${dk}`);
+        const titleEl = document.getElementById(`cadd-title-${dk}`);
+        const durEl = document.getElementById(`cadd-duration-${dk}`);
+        const distEl = document.getElementById(`cadd-distance-${dk}`);
+        const unitEl = document.getElementById(`cadd-dist-unit-${dk}`);
+
+        const disc = discEl ? discEl.value : "run";
+        const title = titleEl ? titleEl.value.trim() : "";
+        const durationMin = durEl && durEl.value ? Number(durEl.value) || null : null;
+        const distRaw = distEl && distEl.value ? Number(distEl.value) : null;
+        const unit = unitEl ? unitEl.value : "km";
+        const distanceM = distRaw != null && distRaw > 0 ? (unit === "m" ? distRaw : Math.round(distRaw * 1000)) : null;
+
+        if (!title) { showToast(["Enter a title first."], "Nothing to save"); return; }
+        if (!durationMin && !distanceM) { showToast(["Enter a duration or distance."], "Nothing to save"); return; }
+
+        mutateDayEdits(parsed.week, parsed.dayIdx, (edits) => {
+          edits.added = [...(edits.added || []), { id: makeId(), discipline: disc, title, detail: "", durationMin, distanceM }];
+        });
+
+        customizeAddDayKey = null;
+        renderAll();
+        return;
+      }
       const moveToggleBtn = e.target.closest("[data-move-toggle]");
       if (moveToggleBtn) {
         const key = moveToggleBtn.getAttribute("data-move-toggle");
@@ -1611,6 +2023,7 @@
     milestoneOverrides = loadMilestoneOverrides();
     extraWorkouts = loadExtraWorkouts();
     sessionMoves = loadSessionMoves();
+    sessionEdits = loadSessionEdits();
     const res = await fetch("data/plan.json");
     plan = await res.json();
     setupEventListeners();

@@ -1,4 +1,4 @@
-const CACHE_NAME = "c2t-cache-v15";
+const CACHE_NAME = "c2t-cache-v16";
 const APP_SHELL = [
   "./",
   "./index.html",
