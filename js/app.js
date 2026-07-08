@@ -1347,6 +1347,12 @@
 
     const hasEdits = Object.keys(sessionEdits).length > 0;
 
+    const openMonths = new Set(
+      [...container.querySelectorAll("details.month-group[data-month]")]
+        .filter((el) => el.open)
+        .map((el) => el.dataset.month)
+    );
+
     const byMonth = {};
     futureWeeks.forEach((w) => (byMonth[w.month] = byMonth[w.month] || []).push(w));
 
@@ -1356,7 +1362,8 @@
       .map((month, mIdx) => {
         const weeks = byMonth[month];
         const weeksHTML = weeks.map((week) => customizeWeekHTML(week, startDate)).join("");
-        return `<details class="month-group" ${mIdx === 0 ? "open" : ""}>
+        const isOpen = openMonths.size > 0 ? openMonths.has(String(month)) : mIdx === 0;
+        return `<details class="month-group" data-month="${month}" ${isOpen ? "open" : ""}>
           <summary>Month ${month} · ${escapeHtml(weeks[0].phase)}</summary>
           ${weeksHTML}
         </details>`;
