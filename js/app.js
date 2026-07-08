@@ -22,7 +22,7 @@
   const DISCIPLINE_LABEL = { run: "Run", bike: "Bike", swim: "Swim", brick: "Brick", strength: "Strength" };
 
   // Disciplines that can log an actual time/distance result.
-  const LOGGABLE_DISCIPLINES = ["run", "bike", "swim", "brick"];
+  const LOGGABLE_DISCIPLINES = ["run", "bike", "swim", "brick", "race"];
   const DISTANCE_PR_DISCIPLINES = ["run", "bike", "swim"];
   const DURATION_PR_DISCIPLINES = ["run", "bike", "swim", "brick"];
   // Disciplines selectable when logging a workout outside the plan (rest day, or different from what's planned).
@@ -581,7 +581,7 @@
     const log = getLog(key);
     const unit = disciplineDistanceUnit(session.discipline);
     const distanceVal = log && log.actualDistanceM != null ? metersToDistanceInputValue(session.discipline, log.actualDistanceM) : "";
-    const hasDistanceField = session.discipline !== "brick";
+    const hasDistanceField = session.discipline !== "brick" && session.discipline !== "race";
 
     return `<div class="log-form">
       <label class="field">
@@ -660,6 +660,41 @@
     return rowHTML + logFormRowHTML;
   }
 
+  function planRaceNoticeRowHTML(session, key, week) {
+    const done = isDone(key);
+    const override = milestoneOverrides[week.week];
+    const label = (override && override.label) || session.title.replace(/^RACE DAY:\s*/i, "");
+    const milestone = week.milestone;
+    const distances = milestone ? milestone.distances : "";
+    const note = milestone ? milestone.note : session.detail;
+    const log = getLog(key);
+    const hasLog = log && log.actualDurationMin != null;
+
+    let logAreaHTML;
+    if (expandedLogKey === key) {
+      logAreaHTML = sessionLogFormHTML(session, key);
+    } else if (hasLog) {
+      logAreaHTML = `<div class="log-block">
+        <span class="log-summary">Logged: ${escapeHtml(formatRaceTime(log.actualDurationMin))}</span>
+        <button class="link-btn" data-log-toggle="${key}">Edit</button>
+      </div>`;
+    } else {
+      logAreaHTML = `<div class="log-block"><button class="link-btn" data-log-toggle="${key}">Log result</button></div>`;
+    }
+
+    return `<div class="customize-race-notice" style="margin-bottom:8px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+        <div style="flex:1;min-width:0;">
+          <div class="customize-race-notice__head">\u{1F3C1} ${escapeHtml(label)}</div>
+          ${distances ? `<div class="customize-race-notice__distances">${escapeHtml(distances)}</div>` : ""}
+          ${note ? `<div class="customize-race-notice__note">${escapeHtml(note)}</div>` : ""}
+        </div>
+        <button class="session-check ${done ? "is-checked" : ""}" data-key="${key}" aria-label="Mark complete" style="flex:none;">${done ? "✓" : ""}</button>
+      </div>
+      ${logAreaHTML}
+    </div>`;
+  }
+
   function dayRowsHTML(week, startDate) {
     return week.days
       .map((day, dayIdx) => {
@@ -682,6 +717,9 @@
           </div>`;
         } else {
           plannedRowHTML = effective.map(({ session: s, key: sKey }, i) => {
+            if (s.discipline === "race") {
+              return planRaceNoticeRowHTML(s, sKey, week);
+            }
             return plannedSessionRowHTML(s, sKey, i === 0 ? dateStr : "", "", i === 0);
           }).join("");
         }
@@ -697,7 +735,21 @@
         const extras = date ? extraWorkouts[toISODate(date)] || [] : [];
         const extraRowsHTML = extras.map((w) => extraWorkoutDayRowHTML(w)).join("");
 
-        return plannedRowHTML + moveFormRowHTML + incomingHTML + extraRowsHTML;
+        const dateISO = date ? toISODate(date) : null;
+        const customRaceRowsHTML = dateISO
+          ? customRaces
+              .filter((r) => r.date === dateISO)
+              .map((r) => {
+                const type = RACE_TYPE_BY_ID[r.typeId] || RACE_TYPE_BY_ID.other;
+                return `<div class="customize-race-notice" style="margin-bottom:8px;">
+                  <div class="customize-race-notice__head">${type.emoji} ${escapeHtml(r.label || type.label)}</div>
+                  <div class="customize-race-notice__tip">Your custom race</div>
+                </div>`;
+              })
+              .join("")
+          : "";
+
+        return plannedRowHTML + customRaceRowsHTML + moveFormRowHTML + incomingHTML + extraRowsHTML;
       })
       .join("");
   }
