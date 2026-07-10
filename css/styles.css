@@ -582,3 +582,158 @@ a { color: var(--blue); }
   font-style: italic;
   color: rgba(253,186,116,0.75);
 }
+
+/* GPS Tracker overlay */
+.tracker-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.tracker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  flex: none;
+}
+
+.tracker-session-name {
+  font-weight: 700;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tracker-close {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.tracker-stats {
+  display: flex;
+  padding: 20px 16px 14px;
+  flex: none;
+}
+
+.tracker-stat {
+  flex: 1;
+  text-align: center;
+  padding: 0 8px;
+  border-right: 1px solid var(--border);
+}
+.tracker-stat:last-child { border-right: none; }
+
+.tracker-stat__value {
+  font-size: 34px;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+.tracker-stat__value--sm { font-size: 22px; }
+
+.tracker-stat__label {
+  font-size: 11px;
+  color: var(--text-dim);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tracker-map {
+  flex: 1;
+  min-height: 0;
+  background: var(--bg-card);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 8px;
+}
+
+.tracker-map-hint {
+  font-size: 13px;
+  color: var(--text-dim);
+  text-align: center;
+}
+
+.tracker-gps-status {
+  font-size: 11px;
+  color: var(--text-dim);
+  text-align: center;
+  padding: 7px 16px;
+  flex: none;
+}
+.tracker-gps-status--error { color: #fca5a5; }
+
+.tracker-paused-badge {
+  text-align: center;
+  font-weight: 800;
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: var(--orange);
+  padding: 0 0 4px;
+  flex: none;
+}
+
+.tracker-pre-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 32px 24px;
+}
+
+.tracker-pre-hint {
+  font-size: 17px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.tracker-controls {
+  padding: 14px 16px;
+  flex: none;
+}
+
+.tracker-start-btn {
+  font-size: 18px;
+  padding: 16px;
+  letter-spacing: 0.5px;
+}
+
+.tracker-summary {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 4px 16px;
+}
+
+.tracker-summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  font-size: 14px;
+  border-top: 1px solid var(--border);
+}
+.tracker-summary-row:first-child { border-top: none; }
+.tracker-summary-row span { color: var(--text-dim); }
+.tracker-summary-row strong { font-size: 17px; }

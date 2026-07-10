@@ -78,6 +78,8 @@
   let sessionEdits = {}; // keyed by dayKey → { overrides: { "0": {…}|{dropped:true}, … }, added: [{id,…}] }
   let customizeEditKey = null; // session key being edited in Customize tab
   let customizeAddDayKey = null; // dayKey showing the "add session" form in Customize tab
+  let trackerState = null;
+  let wakeLock = null;
 
   // ---------- date helpers (local time, no UTC surprises) ----------
 
@@ -617,7 +619,11 @@
           <button class="link-btn" data-log-toggle="${key}">Edit</button>
         </div>`;
       }
-      return `<div class="log-block"><button class="link-btn" data-log-toggle="${key}">Log result</button></div>`;
+      return `<div class="log-block">
+      <button class="link-btn" data-log-toggle="${key}">Log result</button>
+      &nbsp;·&nbsp;
+      <button class="link-btn" data-track-open="${key}">📍 Track</button>
+    </div>`;
     }
 
     return `<div class="log-block">${sessionLogFormHTML(session, key)}</div>`;
@@ -643,7 +649,7 @@
     const log = loggable ? getLog(key) : null;
     const hasLog = log && (log.actualDurationMin != null || log.actualDistanceM != null);
     const logBtnHTML = loggable
-      ? `<button class="row-edit-btn" data-log-toggle="${key}" aria-label="${hasLog ? "Edit logged result" : "Log result"}">${hasLog ? "✎" : "📝"}</button>`
+      ? `<button class="row-edit-btn" data-log-toggle="${key}" aria-label="${hasLog ? "Edit logged result" : "Log result"}">${hasLog ? "✎" : "📝"}</button>${!hasLog ? `<button class="row-edit-btn" data-track-open="${key}" aria-label="Track workout">📍</button>` : ""}`
       : "";
     const moveBtnHTML = showMoveBtn
       ? `<button class="row-edit-btn" data-move-toggle="${key}" aria-label="Move this workout">↪</button>`
@@ -1634,6 +1640,309 @@
     }
   }
 
+  // ---------- GPS tracker ----------
+
+  function haversineMeters(lat1, lon1, lat2, lon2) {
+    const R = 6371000;
+    const toRad = (d) => (d * Math.PI) / 180;
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+    const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  }
+
+  function formatElapsed(totalSec) {
+    totalSec = Math.floor(totalSec);
+    const h = Math.floor(totalSec / 3600);
+    const m = Math.floor((totalSec % 3600) / 60);
+    const s = totalSec % 60;
+    if (h > 0) return `${h}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+    return `${m}:${String(s).padStart(2, "0")}`;
+  }
+
+  function trackerElapsedSec() {
+    if (!trackerState) return 0;
+    const running = trackerState.phase === "active" && trackerState.startTime ? Date.now() - trackerState.startTime : 0;
+    return (trackerState.pausedMs + running) / 1000;
+  }
+
+  function routeSVG(points) {
+    if (points.length < 2) return `<div class="tracker-map-hint">Route will appear as you move</div>`;
+    const W = 300, H = 220, pad = 20;
+    const lats = points.map((p) => p.lat);
+    const lons = points.map((p) => p.lon);
+    const minLat = Math.min(...lats), maxLat = Math.max(...lats);
+    const minLon = Math.min(...lons), maxLon = Math.max(...lons);
+    const spanLat = maxLat - minLat || 0.001;
+    const spanLon = maxLon - minLon || 0.001;
+    const scale = Math.min((W - pad * 2) / spanLon, (H - pad * 2) / spanLat);
+    const offX = (W - spanLon * scale) / 2;
+    const offY = (H - spanLat * scale) / 2;
+    const toX = (lon) => offX + (lon - minLon) * scale;
+    const toY = (lat) => H - offY - (lat - minLat) * scale;
+    const d = points.map((p, i) => `${i === 0 ? "M" : "L"}${toX(p.lon).toFixed(1)},${toY(p.lat).toFixed(1)}`).join(" ");
+    const s = points[0], e = points[points.length - 1];
+    return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:100%;">
+      <path d="${d}" fill="none" stroke="var(--blue)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="${toX(s.lon).toFixed(1)}" cy="${toY(s.lat).toFixed(1)}" r="6" fill="var(--green)"/>
+      <circle cx="${toX(e.lon).toFixed(1)}" cy="${toY(e.lat).toFixed(1)}" r="6" fill="var(--blue)" stroke="white" stroke-width="2"/>
+    </svg>`;
+  }
+
+  function openTracker(session, key) {
+    if (trackerState) return;
+    trackerState = {
+      session, key,
+      phase: "pre",
+      watchId: null, intervalId: null,
+      startTime: null, pausedMs: 0,
+      points: [], distanceM: 0, lastPoint: null,
+      gpsAccuracy: null, gpsError: null,
+      finalDurationMin: null, finalDistanceM: null,
+    };
+
+    const overlay = document.createElement("div");
+    overlay.className = "tracker-overlay";
+    overlay.id = "tracker-overlay";
+    document.body.appendChild(overlay);
+
+    overlay.addEventListener("click", (ev) => {
+      const id = ev.target.id;
+      if (id === "tracker-close-btn") {
+        if (trackerState && (trackerState.phase === "active" || trackerState.phase === "paused")) {
+          if (!confirm("Stop tracking and discard this session?")) return;
+        }
+        closeTracker();
+      } else if (id === "tracker-start-btn")   startTracking();
+      else if (id === "tracker-pause-btn")      pauseTracking();
+      else if (id === "tracker-resume-btn")     resumeTracking();
+      else if (id === "tracker-stop-btn")       stopTracking();
+      else if (id === "tracker-log-btn")        logTrackerResult();
+      else if (id === "tracker-discard-btn")    closeTracker();
+    });
+
+    renderTrackerOverlay();
+
+    // Prime GPS permission early so Start has no dialog delay
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(() => {}, () => {}, { enableHighAccuracy: true, timeout: 3000 });
+    }
+  }
+
+  function closeTracker() {
+    if (!trackerState) return;
+    if (trackerState.watchId != null) navigator.geolocation.clearWatch(trackerState.watchId);
+    if (trackerState.intervalId != null) clearInterval(trackerState.intervalId);
+    if (wakeLock) { wakeLock.release(); wakeLock = null; }
+    trackerState = null;
+    const overlay = document.getElementById("tracker-overlay");
+    if (overlay) overlay.remove();
+  }
+
+  function renderTrackerOverlay() {
+    const overlay = document.getElementById("tracker-overlay");
+    if (!overlay || !trackerState) return;
+    const { session, phase, points, distanceM, gpsAccuracy, gpsError } = trackerState;
+    const isSwim = session.discipline === "swim";
+    const unit = isSwim ? "m" : "km";
+    const elapsedSec = trackerElapsedSec();
+    const distDisplay = isSwim ? distanceM.toFixed(0) : (distanceM / 1000).toFixed(2);
+    const hasPace = distanceM > 50 && elapsedSec > 10;
+    const paceVal = hasPace
+      ? (isSwim ? formatSecToMinSec(elapsedSec / (distanceM / 100)) : formatSecToMinSec(elapsedSec / (distanceM / 1000)))
+      : "--:--";
+    const paceUnit = isSwim ? "/100m" : "/km";
+
+    const gpsHTML = `<div class="tracker-gps-status${gpsError ? " tracker-gps-status--error" : ""}" id="tracker-gps-status">${
+      gpsError ? `⚠️ ${escapeHtml(gpsError)}` : gpsAccuracy != null ? `GPS ±${Math.round(gpsAccuracy)}m` : "Acquiring GPS…"
+    }</div>`;
+
+    const statsHTML = `<div class="tracker-stats">
+      <div class="tracker-stat">
+        <div class="tracker-stat__value" id="tracker-time">${escapeHtml(formatElapsed(elapsedSec))}</div>
+        <div class="tracker-stat__label">Elapsed</div>
+      </div>
+      <div class="tracker-stat">
+        <div class="tracker-stat__value" id="tracker-dist">${escapeHtml(distDisplay)}</div>
+        <div class="tracker-stat__label">${unit}</div>
+      </div>
+      <div class="tracker-stat">
+        <div class="tracker-stat__value tracker-stat__value--sm" id="tracker-pace">${escapeHtml(paceVal)}</div>
+        <div class="tracker-stat__label">${paceUnit}</div>
+      </div>
+    </div>`;
+
+    let controlsHTML;
+    if (phase === "pre") {
+      controlsHTML = `<button class="btn btn--primary tracker-start-btn" id="tracker-start-btn">▶ Start</button>`;
+    } else if (phase === "active") {
+      controlsHTML = `<div style="display:flex;gap:12px;">
+        <button class="btn btn--ghost" style="flex:1;" id="tracker-pause-btn">⏸ Pause</button>
+        <button class="btn btn--danger" style="flex:1;" id="tracker-stop-btn">⏹ Finish</button>
+      </div>`;
+    } else if (phase === "paused") {
+      controlsHTML = `<div style="display:flex;gap:12px;">
+        <button class="btn btn--primary" style="flex:1;" id="tracker-resume-btn">▶ Resume</button>
+        <button class="btn btn--danger" style="flex:1;" id="tracker-stop-btn">⏹ Finish</button>
+      </div>`;
+    } else {
+      const finalTime = formatRaceTime(trackerState.finalDurationMin);
+      const finalDist = isSwim
+        ? `${Math.round(trackerState.finalDistanceM)} m`
+        : `${(trackerState.finalDistanceM / 1000).toFixed(2)} km`;
+      controlsHTML = `<div class="tracker-summary">
+        <div class="tracker-summary-row"><span>Time</span><strong>${escapeHtml(finalTime)}</strong></div>
+        <div class="tracker-summary-row"><span>Distance</span><strong>${escapeHtml(finalDist)}</strong></div>
+      </div>
+      <div style="display:flex;gap:12px;margin-top:12px;">
+        <button class="btn btn--primary" style="flex:2;" id="tracker-log-btn">Log this workout</button>
+        <button class="btn btn--ghost" style="flex:1;" id="tracker-discard-btn">Discard</button>
+      </div>`;
+    }
+
+    overlay.innerHTML = `
+      <div class="tracker-header">
+        <div class="tracker-session-name">${sessionIcon(session.discipline)} ${escapeHtml(session.title)}</div>
+        <button class="tracker-close" id="tracker-close-btn" aria-label="Close">✕</button>
+      </div>
+      ${phase === "pre"
+        ? `<div class="tracker-pre-area">
+            <div class="tracker-pre-hint">Ready to track your ${escapeHtml(session.title.toLowerCase())}?</div>
+            ${gpsHTML}
+          </div>`
+        : `${statsHTML}
+           <div class="tracker-map" id="tracker-map">${routeSVG(points)}</div>
+           ${gpsHTML}
+           ${phase === "paused" ? `<div class="tracker-paused-badge">PAUSED</div>` : ""}`
+      }
+      <div class="tracker-controls">${controlsHTML}</div>`;
+  }
+
+  function updateTrackerDisplay() {
+    if (!trackerState || trackerState.phase === "pre" || trackerState.phase === "done") return;
+    const { distanceM, gpsAccuracy, gpsError } = trackerState;
+    const isSwim = trackerState.session.discipline === "swim";
+    const elapsedSec = trackerElapsedSec();
+    const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+    set("tracker-time", formatElapsed(elapsedSec));
+    set("tracker-dist", isSwim ? distanceM.toFixed(0) : (distanceM / 1000).toFixed(2));
+    if (distanceM > 50 && elapsedSec > 10) {
+      set("tracker-pace", isSwim
+        ? formatSecToMinSec(elapsedSec / (distanceM / 100))
+        : formatSecToMinSec(elapsedSec / (distanceM / 1000)));
+    }
+    const gpsEl = document.getElementById("tracker-gps-status");
+    if (gpsEl) {
+      if (gpsError) {
+        gpsEl.textContent = `⚠️ ${gpsError}`;
+        gpsEl.className = "tracker-gps-status tracker-gps-status--error";
+      } else if (gpsAccuracy != null) {
+        gpsEl.textContent = `GPS ±${Math.round(gpsAccuracy)}m`;
+        gpsEl.className = "tracker-gps-status";
+      }
+    }
+  }
+
+  function startTracking() {
+    if (!trackerState || trackerState.phase !== "pre") return;
+    trackerState.phase = "active";
+    trackerState.startTime = Date.now();
+
+    if (navigator.geolocation) {
+      trackerState.watchId = navigator.geolocation.watchPosition(
+        addTrackPoint,
+        (err) => {
+          if (!trackerState) return;
+          trackerState.gpsError = err.code === 1 ? "Location access denied" : "GPS unavailable";
+          updateTrackerDisplay();
+        },
+        { enableHighAccuracy: true, maximumAge: 2000, timeout: 15000 }
+      );
+    } else {
+      trackerState.gpsError = "Geolocation not supported";
+    }
+
+    trackerState.intervalId = setInterval(updateTrackerDisplay, 1000);
+
+    if ("wakeLock" in navigator) {
+      navigator.wakeLock.request("screen").then((wl) => { wakeLock = wl; }).catch(() => {});
+    }
+
+    renderTrackerOverlay();
+  }
+
+  function pauseTracking() {
+    if (!trackerState || trackerState.phase !== "active") return;
+    trackerState.pausedMs += Date.now() - trackerState.startTime;
+    trackerState.startTime = null;
+    trackerState.phase = "paused";
+    if (trackerState.intervalId != null) { clearInterval(trackerState.intervalId); trackerState.intervalId = null; }
+    renderTrackerOverlay();
+  }
+
+  function resumeTracking() {
+    if (!trackerState || trackerState.phase !== "paused") return;
+    trackerState.phase = "active";
+    trackerState.startTime = Date.now();
+    trackerState.intervalId = setInterval(updateTrackerDisplay, 1000);
+    renderTrackerOverlay();
+  }
+
+  function stopTracking() {
+    if (!trackerState || (trackerState.phase !== "active" && trackerState.phase !== "paused")) return;
+    let totalMs = trackerState.pausedMs;
+    if (trackerState.phase === "active" && trackerState.startTime) totalMs += Date.now() - trackerState.startTime;
+    trackerState.finalDurationMin = totalMs / 60000;
+    trackerState.finalDistanceM = trackerState.distanceM;
+    trackerState.phase = "done";
+    if (trackerState.intervalId != null) { clearInterval(trackerState.intervalId); trackerState.intervalId = null; }
+    if (trackerState.watchId != null) { navigator.geolocation.clearWatch(trackerState.watchId); trackerState.watchId = null; }
+    if (wakeLock) { wakeLock.release(); wakeLock = null; }
+    renderTrackerOverlay();
+  }
+
+  function addTrackPoint(pos) {
+    if (!trackerState || trackerState.phase !== "active") return;
+    const { latitude: lat, longitude: lon, accuracy } = pos.coords;
+    trackerState.gpsAccuracy = accuracy;
+    trackerState.gpsError = null;
+    if (accuracy > 50) { updateTrackerDisplay(); return; } // ignore low-accuracy fixes
+
+    const pt = { lat, lon, ts: pos.timestamp };
+    if (trackerState.lastPoint) {
+      const dt = (pos.timestamp - trackerState.lastPoint.ts) / 1000;
+      const dm = haversineMeters(trackerState.lastPoint.lat, trackerState.lastPoint.lon, lat, lon);
+      if (dt > 0 && dm / dt < 30) { // ignore GPS teleports (>108 km/h)
+        trackerState.distanceM += dm;
+        trackerState.points.push(pt);
+      }
+    } else {
+      trackerState.points.push(pt);
+    }
+    trackerState.lastPoint = pt;
+
+    const mapEl = document.getElementById("tracker-map");
+    if (mapEl) mapEl.innerHTML = routeSVG(trackerState.points);
+    updateTrackerDisplay();
+  }
+
+  function logTrackerResult() {
+    if (!trackerState || trackerState.phase !== "done") return;
+    const { key, session, finalDurationMin, finalDistanceM } = trackerState;
+    const distM = finalDistanceM > 10 ? Math.round(finalDistanceM) : null;
+    setEntry(key, {
+      done: true,
+      actualDurationMin: Math.round(finalDurationMin * 10) / 10,
+      actualDistanceM: distM,
+      completedAt: toISODate(new Date()),
+    });
+    const achieved = recordPRs(session, { actualDurationMin: finalDurationMin, actualDistanceM: distM });
+    closeTracker();
+    renderAll();
+    if (achieved.length) showToast(achieved);
+    else showToast(["Workout logged!"], "Done");
+  }
+
   // ---------- header chip ----------
 
   function updateHeaderChip(pos) {
@@ -2044,6 +2353,13 @@
 
         customizeAddDayKey = null;
         renderAll();
+        return;
+      }
+      const trackOpenBtn = e.target.closest("[data-track-open]");
+      if (trackOpenBtn) {
+        const key = trackOpenBtn.getAttribute("data-track-open");
+        const session = getSessionForKey(key);
+        if (session) openTracker(session, key);
         return;
       }
       const moveToggleBtn = e.target.closest("[data-move-toggle]");
