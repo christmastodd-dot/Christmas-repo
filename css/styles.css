@@ -737,3 +737,34 @@ a { color: var(--blue); }
 .tracker-summary-row:first-child { border-top: none; }
 .tracker-summary-row span { color: var(--text-dim); }
 .tracker-summary-row strong { font-size: 17px; }
+
+/* ---- Triathlon per-leg form ---- */
+.tri-legs {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.tri-leg {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  background: var(--bg);
+}
+.tri-leg__label {
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+.tri-leg__fields {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.tri-leg__fields .field { margin-bottom: 0; }
+
+/* Show/hide sections based on selected discipline */
+.log-form .tri-legs { display: none; }
+.log-form[data-discipline="triathlon"] .tri-legs { display: flex; }
+.log-form[data-discipline="triathlon"] .non-tri-fields { display: none; }

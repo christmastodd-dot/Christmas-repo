@@ -17,16 +17,17 @@
     strength: "\u{1F4AA}",
     brick: "\u{1F501}",
     race: "\u{1F3C1}",
+    triathlon: "\u{1F3C1}",
   };
 
-  const DISCIPLINE_LABEL = { run: "Run", bike: "Bike", swim: "Swim", brick: "Brick", strength: "Strength" };
+  const DISCIPLINE_LABEL = { run: "Run", bike: "Bike", swim: "Swim", brick: "Brick", strength: "Strength", triathlon: "Triathlon" };
 
   // Disciplines that can log an actual time/distance result.
-  const LOGGABLE_DISCIPLINES = ["run", "bike", "swim", "brick", "race"];
+  const LOGGABLE_DISCIPLINES = ["run", "bike", "swim", "brick", "race", "triathlon"];
   const DISTANCE_PR_DISCIPLINES = ["run", "bike", "swim"];
   const DURATION_PR_DISCIPLINES = ["run", "bike", "swim", "brick"];
   // Disciplines selectable when logging a workout outside the plan (rest day, or different from what's planned).
-  const EXTRA_WORKOUT_DISCIPLINES = ["run", "bike", "swim", "brick", "strength"];
+  const EXTRA_WORKOUT_DISCIPLINES = ["run", "bike", "swim", "brick", "strength", "triathlon"];
 
   // Standard race-distance checkpoints, matched within a tolerance against a logged distance.
   const STANDARD_DISTANCES = [
@@ -184,12 +185,21 @@
   }
 
   function saveLog(key, session, values) {
-    setEntry(key, {
+    const entry = {
       done: true,
       actualDurationMin: values.actualDurationMin,
       actualDistanceM: values.actualDistanceM,
       completedAt: toISODate(new Date()),
-    });
+    };
+    if (session.discipline === "triathlon") {
+      entry.swimDurationMin = values.swimDurationMin ?? null;
+      entry.swimDistanceM = values.swimDistanceM ?? null;
+      entry.bikeDurationMin = values.bikeDurationMin ?? null;
+      entry.bikeDistanceM = values.bikeDistanceM ?? null;
+      entry.runDurationMin = values.runDurationMin ?? null;
+      entry.runDistanceM = values.runDistanceM ?? null;
+    }
+    setEntry(key, entry);
     return recordPRs(session, values);
   }
 
@@ -518,6 +528,49 @@
     return parseTimeToMinutes(`${m || "0"}:${s || "0"}`);
   }
 
+  function triathlonLegsFormHTML(prefill) {
+    function legRow(legId, icon, label, unit, distVal, durationMin) {
+      const totalSec = durationMin != null ? Math.round(durationMin * 60) : null;
+      const minVal = totalSec != null ? Math.floor(totalSec / 60) : "";
+      const secVal = totalSec != null ? totalSec % 60 : "";
+      return `<div class="tri-leg">
+        <div class="tri-leg__label">${icon} ${label}</div>
+        <div class="tri-leg__fields">
+          <label class="field"><span>Distance (${unit})</span>
+            <input type="number" step="${unit === "m" ? "1" : "0.01"}" min="0" placeholder="${unit === "m" ? "e.g. 750" : "e.g. 5"}" id="tri-${legId}-dist" value="${distVal}">
+          </label>
+          <label class="field"><span>Time (min : sec)</span>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <input type="number" inputmode="numeric" min="0" placeholder="mm" id="tri-${legId}-time-m" value="${minVal}" style="flex:1;">
+              <span style="font-weight:700;">:</span>
+              <input type="number" inputmode="numeric" min="0" max="59" placeholder="ss" id="tri-${legId}-time-s" value="${secVal}" style="flex:1;">
+            </div>
+          </label>
+        </div>
+      </div>`;
+    }
+    const swimDist = prefill && prefill.swimDistanceM != null ? prefill.swimDistanceM : "";
+    const bikeDist = prefill && prefill.bikeDistanceM != null ? String(prefill.bikeDistanceM / 1000) : "";
+    const runDist = prefill && prefill.runDistanceM != null ? String(prefill.runDistanceM / 1000) : "";
+    return `<div class="tri-legs">
+      ${legRow("swim", "\u{1F3CA}", "Swim", "m", swimDist, prefill && prefill.swimDurationMin)}
+      ${legRow("bike", "\u{1F6B4}", "Bike", "km", bikeDist, prefill && prefill.bikeDurationMin)}
+      ${legRow("run", "\u{1F3C3}", "Run", "km", runDist, prefill && prefill.runDurationMin)}
+    </div>`;
+  }
+
+  function readTriLeg(legId, isSwim) {
+    const mEl = document.getElementById(`tri-${legId}-time-m`);
+    const sEl = document.getElementById(`tri-${legId}-time-s`);
+    const m = mEl ? mEl.value.trim() : "";
+    const s = sEl ? sEl.value.trim() : "";
+    const durationMin = (m || s) ? parseTimeToMinutes(`${m || "0"}:${s || "0"}`) : null;
+    const distEl = document.getElementById(`tri-${legId}-dist`);
+    const distVal = distEl ? distEl.value.trim() : "";
+    const distanceM = distVal ? distanceInputToMeters(isSwim ? "swim" : "run", distVal) : null;
+    return { durationMin, distanceM };
+  }
+
   function formatSecToMinSec(totalSec) {
     totalSec = Math.round(totalSec);
     const m = Math.floor(totalSec / 60);
@@ -581,6 +634,17 @@
 
   function sessionLogFormHTML(session, key) {
     const log = getLog(key);
+
+    if (session.discipline === "triathlon") {
+      return `<div class="log-form">
+        ${triathlonLegsFormHTML(log)}
+        <div class="log-form__actions">
+          <button class="btn btn--primary" data-log-save="${key}">Save</button>
+          <button class="btn btn--ghost" data-log-cancel="${key}">Cancel</button>
+        </div>
+      </div>`;
+    }
+
     const unit = disciplineDistanceUnit(session.discipline);
     const distanceVal = log && log.actualDistanceM != null ? metersToDistanceInputValue(session.discipline, log.actualDistanceM) : "";
     const hasDistanceField = session.discipline !== "brick" && session.discipline !== "race";
@@ -608,14 +672,25 @@
 
     if (expandedLogKey !== key) {
       if (hasLog) {
-        const pace = formatPace(session.discipline, log.actualDurationMin, log.actualDistanceM);
-        const parts = [
-          log.actualDurationMin != null ? formatRaceTime(log.actualDurationMin) : "",
-          log.actualDistanceM != null ? formatDistance(log.actualDistanceM) : "",
-          pace,
-        ].filter(Boolean);
+        let summary;
+        if (session.discipline === "triathlon") {
+          const legs = [];
+          if (log.swimDistanceM != null) legs.push(`\u{1F3CA} ${formatDistance(log.swimDistanceM)}`);
+          if (log.bikeDistanceM != null) legs.push(`\u{1F6B4} ${formatDistance(log.bikeDistanceM)}`);
+          if (log.runDistanceM != null) legs.push(`\u{1F3C3} ${formatDistance(log.runDistanceM)}`);
+          if (log.actualDurationMin != null) legs.push(`Total: ${formatRaceTime(log.actualDurationMin)}`);
+          summary = legs.length ? legs.join(" · ") : "Logged";
+        } else {
+          const pace = formatPace(session.discipline, log.actualDurationMin, log.actualDistanceM);
+          const parts = [
+            log.actualDurationMin != null ? formatRaceTime(log.actualDurationMin) : "",
+            log.actualDistanceM != null ? formatDistance(log.actualDistanceM) : "",
+            pace,
+          ].filter(Boolean);
+          summary = parts.join(" · ");
+        }
         return `<div class="log-block">
-          <span class="log-summary">Logged: ${escapeHtml(parts.join(" · "))}</span>
+          <span class="log-summary">Logged: ${escapeHtml(summary)}</span>
           <button class="link-btn" data-log-toggle="${key}">Edit</button>
         </div>`;
       }
@@ -817,6 +892,14 @@
   }
 
   function extraWorkoutSummary(w) {
+    if (w.discipline === "triathlon") {
+      const legs = [];
+      if (w.swimDistanceM != null) legs.push(`\u{1F3CA} ${formatDistance(w.swimDistanceM)}`);
+      if (w.bikeDistanceM != null) legs.push(`\u{1F6B4} ${formatDistance(w.bikeDistanceM)}`);
+      if (w.runDistanceM != null) legs.push(`\u{1F3C3} ${formatDistance(w.runDistanceM)}`);
+      if (w.actualDurationMin != null) legs.push(`Total: ${formatRaceTime(w.actualDurationMin)}`);
+      return legs.join(" · ");
+    }
     const pace = formatPace(w.discipline, w.actualDurationMin, w.actualDistanceM);
     const parts = [
       w.actualDurationMin != null ? formatRaceTime(w.actualDurationMin) : "",
@@ -838,37 +921,42 @@
   }
 
   function extraWorkoutFormHTML(prefill) {
+    const selectedDiscipline = (prefill && prefill.discipline) || "run";
     const disciplineOptions = EXTRA_WORKOUT_DISCIPLINES.map(
-      (d) => `<option value="${d}" ${prefill && prefill.discipline === d ? "selected" : ""}>${DISCIPLINE_LABEL[d]}</option>`
+      (d) => `<option value="${d}" ${selectedDiscipline === d ? "selected" : ""}>${DISCIPLINE_LABEL[d]}</option>`
     ).join("");
     const labelVal = prefill ? escapeHtml(prefill.label || "") : "";
-    const unitVal = prefill && prefill.discipline === "swim" ? "m" : "km";
+    const unitVal = selectedDiscipline === "swim" ? "m" : "km";
     const distanceVal =
       prefill && prefill.actualDistanceM != null ? metersToDistanceInputValue(unitVal === "m" ? "swim" : "run", prefill.actualDistanceM) : "";
     const idAttr = prefill ? prefill.id : "";
-    return `<div class="log-form">
+    const isTri = selectedDiscipline === "triathlon";
+    return `<div class="log-form" data-discipline="${selectedDiscipline}">
       <label class="field">
         <span>Activity</span>
-        <select id="extra-workout-discipline">${disciplineOptions}</select>
+        <select id="extra-workout-discipline" data-discipline-select="extra-workout">${disciplineOptions}</select>
       </label>
       <label class="field">
         <span>Description (optional)</span>
         <input type="text" placeholder="e.g. Easy bike instead of run" id="extra-workout-label" value="${labelVal}">
       </label>
-      <label class="field">
-        <span>Time (min : sec)</span>
-        ${timeInputsHTML("extra-workout-time", prefill && prefill.actualDurationMin)}
-      </label>
-      <label class="field">
-        <span>Distance (optional)</span>
-        <div style="display:flex; gap:8px;">
-          <input type="number" step="0.01" min="0" placeholder="e.g. 5" id="extra-workout-distance" style="flex:1;" value="${distanceVal}">
-          <select id="extra-workout-unit" style="flex:none; width:auto;">
-            <option value="km" ${unitVal === "km" ? "selected" : ""}>km</option>
-            <option value="m" ${unitVal === "m" ? "selected" : ""}>m</option>
-          </select>
-        </div>
-      </label>
+      <div class="non-tri-fields">
+        <label class="field">
+          <span>Time (min : sec)</span>
+          ${timeInputsHTML("extra-workout-time", !isTri && prefill ? prefill.actualDurationMin : null)}
+        </label>
+        <label class="field">
+          <span>Distance (optional)</span>
+          <div style="display:flex; gap:8px;">
+            <input type="number" step="0.01" min="0" placeholder="e.g. 5" id="extra-workout-distance" style="flex:1;" value="${distanceVal}">
+            <select id="extra-workout-unit" style="flex:none; width:auto;">
+              <option value="km" ${unitVal === "km" ? "selected" : ""}>km</option>
+              <option value="m" ${unitVal === "m" ? "selected" : ""}>m</option>
+            </select>
+          </div>
+        </label>
+      </div>
+      ${triathlonLegsFormHTML(isTri ? prefill : null)}
       <div class="log-form__actions">
         <button class="btn btn--primary" data-extra-workout-save="${idAttr}">Save</button>
         ${prefill ? `<button class="btn btn--danger" data-extra-workout-remove="${idAttr}">Remove</button>` : ""}
@@ -2026,11 +2114,31 @@
           renderAll();
           return;
         }
-        const formEl = logSaveBtn.closest(".log-form");
-        const distInput = formEl.querySelector('input[id^="log-distance-"]');
-        const actualDurationMin = readTimeInputsFromContainer(formEl);
-        const actualDistanceM = distInput && distInput.value ? distanceInputToMeters(session.discipline, distInput.value) : null;
-        const newPRs = saveLog(key, session, { actualDurationMin, actualDistanceM });
+        let values;
+        if (session.discipline === "triathlon") {
+          const swim = readTriLeg("swim", true);
+          const bike = readTriLeg("bike", false);
+          const run = readTriLeg("run", false);
+          const legTimes = [swim.durationMin, bike.durationMin, run.durationMin].filter((n) => n != null);
+          values = {
+            actualDurationMin: legTimes.length ? legTimes.reduce((a, b) => a + b, 0) : null,
+            actualDistanceM: null,
+            swimDurationMin: swim.durationMin,
+            swimDistanceM: swim.distanceM,
+            bikeDurationMin: bike.durationMin,
+            bikeDistanceM: bike.distanceM,
+            runDurationMin: run.durationMin,
+            runDistanceM: run.distanceM,
+          };
+        } else {
+          const formEl = logSaveBtn.closest(".log-form");
+          const distInput = formEl.querySelector('input[id^="log-distance-"]');
+          values = {
+            actualDurationMin: readTimeInputsFromContainer(formEl),
+            actualDistanceM: distInput && distInput.value ? distanceInputToMeters(session.discipline, distInput.value) : null,
+          };
+        }
+        const newPRs = saveLog(key, session, values);
         expandedLogKey = null;
         renderAll();
         if (newPRs.length) showToast(newPRs);
@@ -2170,34 +2278,53 @@
         const id = extraWorkoutSaveBtn.getAttribute("data-extra-workout-save");
         const discipline = document.getElementById("extra-workout-discipline").value;
         const labelInput = document.getElementById("extra-workout-label");
-        const distInput = document.getElementById("extra-workout-distance");
-        const unitSel = document.getElementById("extra-workout-unit");
-
-        const actualDurationMin = readTimeInputs("extra-workout-time");
-        const actualDistanceM = distInput.value ? distanceInputToMeters(unitSel.value === "km" ? "run" : "swim", distInput.value) : null;
-
-        if (actualDurationMin == null && actualDistanceM == null) {
-          showToast(["Enter a time and/or distance first."], "Nothing to save");
-          return;
-        }
-
         const label = labelInput.value.trim();
         const dateISO = toISODate(startOfDay(new Date()));
         const list = extraWorkouts[dateISO] || (extraWorkouts[dateISO] = []);
 
+        let actualDurationMin, actualDistanceM, legData;
+
+        if (discipline === "triathlon") {
+          const swim = readTriLeg("swim", true);
+          const bike = readTriLeg("bike", false);
+          const run = readTriLeg("run", false);
+          legData = {
+            swimDurationMin: swim.durationMin,
+            swimDistanceM: swim.distanceM,
+            bikeDurationMin: bike.durationMin,
+            bikeDistanceM: bike.distanceM,
+            runDurationMin: run.durationMin,
+            runDistanceM: run.distanceM,
+          };
+          const legTimes = [swim.durationMin, bike.durationMin, run.durationMin].filter((n) => n != null);
+          actualDurationMin = legTimes.length ? legTimes.reduce((a, b) => a + b, 0) : null;
+          actualDistanceM = null;
+          if (actualDurationMin == null && !Object.values(legData).some((v) => v != null)) {
+            showToast(["Enter at least one leg distance or time."], "Nothing to save");
+            return;
+          }
+        } else {
+          const distInput = document.getElementById("extra-workout-distance");
+          const unitSel = document.getElementById("extra-workout-unit");
+          actualDurationMin = readTimeInputs("extra-workout-time");
+          actualDistanceM = distInput.value ? distanceInputToMeters(unitSel.value === "km" ? "run" : "swim", distInput.value) : null;
+          legData = {};
+          if (actualDurationMin == null && actualDistanceM == null) {
+            showToast(["Enter a time and/or distance first."], "Nothing to save");
+            return;
+          }
+        }
+
         if (id) {
           const w = list.find((x) => x.id === id);
           if (w) {
-            w.discipline = discipline;
-            w.label = label;
-            w.actualDurationMin = actualDurationMin;
-            w.actualDistanceM = actualDistanceM;
+            Object.assign(w, { discipline, label, actualDurationMin, actualDistanceM }, legData);
           }
         } else {
-          list.push({ id: makeId(), discipline, label, actualDurationMin, actualDistanceM });
+          list.push({ id: makeId(), discipline, label, actualDurationMin, actualDistanceM, ...legData });
         }
         saveExtraWorkouts();
-        const achieved = recordPRs({ discipline }, { actualDurationMin, actualDistanceM });
+        const achieved = discipline !== "triathlon" ? recordPRs({ discipline }, { actualDurationMin, actualDistanceM }) : [];
 
         extraWorkoutFormState = null;
         renderToday();
@@ -2416,6 +2543,13 @@
       }
       if (e.target.id === "jump-to-current") {
         jumpToCurrentWeek();
+      }
+    });
+
+    document.body.addEventListener("change", (e) => {
+      if (e.target.dataset.disciplineSelect) {
+        const form = e.target.closest(".log-form");
+        if (form) form.dataset.discipline = e.target.value;
       }
     });
   }
