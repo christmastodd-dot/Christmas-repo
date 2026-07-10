@@ -1080,6 +1080,13 @@
     const pos = getPlanPosition(startDate, today);
     const currentWeek = pos.status === "active" ? pos.week : pos.status === "complete" ? plan.totalWeeks : 1;
 
+    // Preserve which month groups the user has manually opened
+    const openMonths = new Set(
+      [...container.querySelectorAll("details.month-group[id]")]
+        .filter((el) => el.open)
+        .map((el) => el.id.replace("month-", ""))
+    );
+
     const byMonth = {};
     plan.weeks.forEach((w) => {
       (byMonth[w.month] = byMonth[w.month] || []).push(w);
@@ -1091,6 +1098,13 @@
       .map((month) => {
         const weeks = byMonth[month];
         const isCurrentMonth = weeks.some((w) => w.week === currentWeek);
+        // Keep a month open if the move form is active inside it
+        const hasMoveForm = moveFormKey
+          ? weeks.some((w) => w.days.some((_, dayIdx) => moveFormKey === dayKey(w.week, dayIdx)))
+          : false;
+        const isOpen = openMonths.size > 0
+          ? (openMonths.has(String(month)) || hasMoveForm)
+          : isCurrentMonth;
         const weeksHTML = weeks
           .map((week) => {
             const isCurrent = week.week === currentWeek;
@@ -1103,7 +1117,7 @@
             </div>`;
           })
           .join("");
-        return `<details class="month-group" id="month-${month}" ${isCurrentMonth ? "open" : ""}>
+        return `<details class="month-group" id="month-${month}" ${isOpen ? "open" : ""}>
           <summary>Month ${month} · ${escapeHtml(weeks[0].phase)}</summary>
           ${weeksHTML}
         </details>`;
