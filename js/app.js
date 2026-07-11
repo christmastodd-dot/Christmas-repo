@@ -2519,7 +2519,8 @@
       const moveSaveBtn = e.target.closest("[data-move-save]");
       if (moveSaveBtn) {
         const key = moveSaveBtn.getAttribute("data-move-save");
-        const dateInput = document.getElementById(`move-date-${key}`);
+        const form = moveSaveBtn.closest(".log-form");
+        const dateInput = form ? form.querySelector('input[type="date"]') : document.getElementById(`move-date-${key}`);
         const value = dateInput && dateInput.value;
         if (!value) {
           showToast(["Pick a date first."], "Nothing to save");
