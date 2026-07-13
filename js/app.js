@@ -636,7 +636,7 @@
     const log = getLog(key);
 
     if (session.discipline === "triathlon") {
-      return `<div class="log-form">
+      return `<div class="log-form" data-discipline="triathlon">
         ${triathlonLegsFormHTML(log)}
         <div class="log-form__actions">
           <button class="btn btn--primary" data-log-save="${key}">Save</button>
