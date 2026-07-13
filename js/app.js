@@ -1616,7 +1616,7 @@
   }
 
   function customizeEditFormHTML(session, key) {
-    const disciplines = ["run", "bike", "swim", "brick", "strength"];
+    const disciplines = ["run", "bike", "swim", "brick", "strength", "triathlon"];
     const discOptions = disciplines.map((d) => `<option value="${d}" ${session.discipline === d ? "selected" : ""}>${DISCIPLINE_LABEL[d] || d}</option>`).join("");
     const unit = session.discipline === "swim" ? "m" : "km";
     const distVal = session.distanceM != null ? metersToDistanceInputValue(session.discipline, session.distanceM) : "";
@@ -1646,7 +1646,7 @@
   }
 
   function customizeAddFormHTML(dayKey) {
-    const disciplines = ["run", "bike", "swim", "brick", "strength"];
+    const disciplines = ["run", "bike", "swim", "brick", "strength", "triathlon"];
     const discOptions = disciplines.map((d) => `<option value="${d}">${DISCIPLINE_LABEL[d] || d}</option>`).join("");
     return `<div class="log-form" style="margin:4px 0;">
       <label class="field">
