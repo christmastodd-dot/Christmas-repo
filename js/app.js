@@ -1446,10 +1446,10 @@
     }
 
     const currentWeek = pos.status === "active" ? pos.week : 0;
-    const futureWeeks = plan.weeks.filter((w) => w.week > currentWeek);
+    const editableWeeks = plan.weeks.filter((w) => w.week >= currentWeek);
 
-    if (!futureWeeks.length) {
-      container.innerHTML = `<div class="empty-state"><p>No future weeks remaining.</p></div>`;
+    if (!editableWeeks.length) {
+      container.innerHTML = `<div class="empty-state"><p>No weeks remaining.</p></div>`;
       return;
     }
 
@@ -1462,14 +1462,14 @@
     );
 
     const byMonth = {};
-    futureWeeks.forEach((w) => (byMonth[w.month] = byMonth[w.month] || []).push(w));
+    editableWeeks.forEach((w) => (byMonth[w.month] = byMonth[w.month] || []).push(w));
 
     const monthsHTML = Object.keys(byMonth)
       .map(Number)
       .sort((a, b) => a - b)
       .map((month, mIdx) => {
         const weeks = byMonth[month];
-        const weeksHTML = weeks.map((week) => customizeWeekHTML(week, startDate)).join("");
+        const weeksHTML = weeks.map((week) => customizeWeekHTML(week, startDate, today, currentWeek)).join("");
         const isOpen = openMonths.size > 0 ? openMonths.has(String(month)) : mIdx === 0;
         return `<details class="month-group" data-month="${month}" ${isOpen ? "open" : ""}>
           <summary>Month ${month} · ${escapeHtml(weeks[0].phase)}</summary>
@@ -1483,7 +1483,7 @@
         <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
           <div>
             <h3 style="margin:0;">Customize workouts</h3>
-            <p style="margin:4px 0 0;">Edit, drop, swap, or add sessions for any future week. Current &amp; past weeks are locked.</p>
+            <p style="margin:4px 0 0;">Edit, drop, swap, or add sessions for upcoming days. Past days are locked.</p>
           </div>
           ${hasEdits ? `<button class="btn btn--danger" style="flex:none;width:auto;font-size:12px;padding:7px 12px;" data-revert-all-edits="1">Revert all</button>` : ""}
         </div>
@@ -1491,18 +1491,19 @@
       ${monthsHTML}`;
   }
 
-  function customizeWeekHTML(week, startDate) {
-    const daysHTML = week.days.map((_, dayIdx) => customizeDayHTML(week, dayIdx, startDate)).join("");
+  function customizeWeekHTML(week, startDate, today, currentWeek) {
+    const isCurrentWeek = week.week === currentWeek;
+    const daysHTML = week.days.map((_, dayIdx) => customizeDayHTML(week, dayIdx, startDate, today)).join("");
     return `<div class="week-block">
       <div class="week-block__head">
-        <span>Week ${week.week} · ${escapeHtml(week.phase)}</span>
+        <span>Week ${week.week} · ${escapeHtml(week.phase)}${isCurrentWeek ? ` <span class="edit-badge edit-badge--current">Current week</span>` : ""}</span>
         ${weekHeadPillsHTML(week)}
       </div>
       ${daysHTML}
     </div>`;
   }
 
-  function customizeDayHTML(week, dayIdx, startDate) {
+  function customizeDayHTML(week, dayIdx, startDate, today) {
     const date = dateForWeekDay(startDate, week.week, dayIdx);
     const dateISO = toISODate(date);
     const dateStr = formatShortDate(date);
@@ -1512,6 +1513,7 @@
     const edits = getDayEdits(week.week, dayIdx);
     const overrides = edits.overrides || {};
     const added = edits.added || [];
+    const isPast = today && date < today;
 
     // Collect any plan-race or custom-race notices for this day.
     const raceNoticesHTML = customizeRaceNoticesHTML(baseSessions, dateISO, week);
@@ -1526,7 +1528,7 @@
       const isModified = !!(ov && !ov.dropped);
       const effective = isModified ? { ...s, ...ov } : s;
 
-      if (customizeEditKey === sKey) return customizeEditFormHTML(effective, sKey);
+      if (!isPast && customizeEditKey === sKey) return customizeEditFormHTML(effective, sKey);
 
       const badge = isDropped
         ? `<span class="edit-badge edit-badge--dropped">Dropped</span>`
@@ -1534,7 +1536,9 @@
         ? `<span class="edit-badge edit-badge--modified">Modified</span>`
         : "";
 
-      const actions = isDropped
+      const actions = isPast
+        ? ""
+        : isDropped
         ? `<button class="row-edit-btn" data-session-revert="${sKey}">↺ Revert</button>`
         : `<button class="row-edit-btn" data-session-edit-open="${sKey}" title="Edit">✎</button>
            <button class="row-delete-btn" data-session-drop="${sKey}" title="Drop">✕</button>
@@ -1550,26 +1554,28 @@
     const addedRowsHTML = added.map((a) => {
       const aKey = `${baseKey}a${a.id}`;
       const aSession = { discipline: a.discipline, title: a.title, durationMin: a.durationMin, distanceM: a.distanceM };
-      if (customizeEditKey === aKey) return customizeEditFormHTML(aSession, aKey);
+      if (!isPast && customizeEditKey === aKey) return customizeEditFormHTML(aSession, aKey);
       const meta = formatSessionMeta(aSession);
       return `<div class="day-row">
         <span class="day-row__title">${sessionIcon(a.discipline)} ${escapeHtml(a.title)}<span class="edit-badge edit-badge--added">Added</span>${meta ? `<span class="session-meta">${meta}</span>` : ""}</span>
-        <span class="day-row__meta" style="display:flex;align-items:center;gap:2px;">
+        ${isPast ? "" : `<span class="day-row__meta" style="display:flex;align-items:center;gap:2px;">
           <button class="row-edit-btn" data-session-edit-open="${aKey}" title="Edit">✎</button>
           <button class="row-delete-btn" data-session-drop="${aKey}" title="Remove">✕</button>
-        </span>
+        </span>`}
       </div>`;
     }).join("");
 
-    const showAddForm = customizeAddDayKey === baseKey;
-    const addAreaHTML = showAddForm
+    const showAddForm = !isPast && customizeAddDayKey === baseKey;
+    const addAreaHTML = isPast
+      ? ""
+      : showAddForm
       ? customizeAddFormHTML(baseKey)
       : `<div class="day-row"><button class="link-btn" data-session-add-open="${baseKey}" style="font-size:11px;">+ Add session</button></div>`;
 
     const nonRaceSessions = baseSessions.filter((s) => s.discipline !== "race");
     const isEmpty = !nonRaceSessions.length && !added.length;
 
-    return `<div class="customize-day">
+    return `<div class="customize-day${isPast ? " customize-day--past" : ""}">
       <div class="customize-day-label">${dateStr}</div>
       ${raceNoticesHTML}
       ${isEmpty && !raceNoticesHTML ? `<div class="day-row"><span class="day-row__title rest-note">Rest day</span></div>` : ""}

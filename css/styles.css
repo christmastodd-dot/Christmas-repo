@@ -532,11 +532,13 @@ a { color: var(--blue); }
 .edit-badge--modified { background: rgba(14,165,233,0.2); color: #7dd3fc; }
 .edit-badge--dropped  { background: rgba(239,68,68,0.15);  color: #fca5a5; }
 .edit-badge--added    { background: rgba(34,197,94,0.2);   color: #86efac; }
+.edit-badge--current  { background: rgba(234,179,8,0.2);   color: #fde047; }
 
 .day-row.is-dropped { opacity: 0.4; text-decoration: line-through; }
 
 .customize-day { padding: 4px 0 8px; border-top: 1px solid var(--border); }
 .customize-day:first-child { border-top: none; }
+.customize-day--past { opacity: 0.45; pointer-events: none; }
 
 .customize-day-label {
   font-size: 11px;
