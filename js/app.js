@@ -1528,7 +1528,7 @@
       const isModified = !!(ov && !ov.dropped);
       const effective = isModified ? { ...s, ...ov } : s;
 
-      if (!isPast && customizeEditKey === sKey) return customizeEditFormHTML(effective, sKey);
+      if (customizeEditKey === sKey) return customizeEditFormHTML(effective, sKey);
 
       const badge = isDropped
         ? `<span class="edit-badge edit-badge--dropped">Dropped</span>`
@@ -1536,9 +1536,7 @@
         ? `<span class="edit-badge edit-badge--modified">Modified</span>`
         : "";
 
-      const actions = isPast
-        ? ""
-        : isDropped
+      const actions = isDropped
         ? `<button class="row-edit-btn" data-session-revert="${sKey}">↺ Revert</button>`
         : `<button class="row-edit-btn" data-session-edit-open="${sKey}" title="Edit">✎</button>
            <button class="row-delete-btn" data-session-drop="${sKey}" title="Drop">✕</button>
@@ -1554,21 +1552,19 @@
     const addedRowsHTML = added.map((a) => {
       const aKey = `${baseKey}a${a.id}`;
       const aSession = { discipline: a.discipline, title: a.title, durationMin: a.durationMin, distanceM: a.distanceM };
-      if (!isPast && customizeEditKey === aKey) return customizeEditFormHTML(aSession, aKey);
+      if (customizeEditKey === aKey) return customizeEditFormHTML(aSession, aKey);
       const meta = formatSessionMeta(aSession);
       return `<div class="day-row">
         <span class="day-row__title">${sessionIcon(a.discipline)} ${escapeHtml(a.title)}<span class="edit-badge edit-badge--added">Added</span>${meta ? `<span class="session-meta">${meta}</span>` : ""}</span>
-        ${isPast ? "" : `<span class="day-row__meta" style="display:flex;align-items:center;gap:2px;">
+        <span class="day-row__meta" style="display:flex;align-items:center;gap:2px;">
           <button class="row-edit-btn" data-session-edit-open="${aKey}" title="Edit">✎</button>
           <button class="row-delete-btn" data-session-drop="${aKey}" title="Remove">✕</button>
-        </span>`}
+        </span>
       </div>`;
     }).join("");
 
-    const showAddForm = !isPast && customizeAddDayKey === baseKey;
-    const addAreaHTML = isPast
-      ? ""
-      : showAddForm
+    const showAddForm = customizeAddDayKey === baseKey;
+    const addAreaHTML = showAddForm
       ? customizeAddFormHTML(baseKey)
       : `<div class="day-row"><button class="link-btn" data-session-add-open="${baseKey}" style="font-size:11px;">+ Add session</button></div>`;
 
