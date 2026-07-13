@@ -79,6 +79,7 @@
   let sessionEdits = {}; // keyed by dayKey → { overrides: { "0": {…}|{dropped:true}, … }, added: [{id,…}] }
   let customizeEditKey = null; // session key being edited in Customize tab
   let customizeAddDayKey = null; // dayKey showing the "add session" form in Customize tab
+  let pendingFormSets = []; // sets being built in whichever customize/log form is open
   let trackerState = null;
   let wakeLock = null;
 
@@ -199,6 +200,7 @@
       entry.runDurationMin = values.runDurationMin ?? null;
       entry.runDistanceM = values.runDistanceM ?? null;
     }
+    if (values.sets && values.sets.length) entry.sets = values.sets;
     setEntry(key, entry);
     return recordPRs(session, values);
   }
@@ -333,7 +335,7 @@
     if (parsed.addedId) {
       const edits = getDayEdits(parsed.week, parsed.dayIdx);
       const a = (edits.added || []).find((x) => x.id === parsed.addedId);
-      return a ? { discipline: a.discipline, title: a.title, detail: a.detail || "", durationMin: a.durationMin, distanceM: a.distanceM } : null;
+      return a ? { discipline: a.discipline, title: a.title, detail: a.detail || "", durationMin: a.durationMin, distanceM: a.distanceM, sets: a.sets } : null;
     }
 
     const edits = getDayEdits(parsed.week, parsed.dayIdx);
@@ -363,7 +365,7 @@
     });
     added.forEach((a) => {
       result.push({
-        session: { discipline: a.discipline, title: a.title, detail: a.detail || "", durationMin: a.durationMin, distanceM: a.distanceM },
+        session: { discipline: a.discipline, title: a.title, detail: a.detail || "", durationMin: a.durationMin, distanceM: a.distanceM, sets: a.sets },
         key: `${baseKey}a${a.id}`,
       });
     });
@@ -460,10 +462,21 @@
       : `${distanceM} m`;
   }
 
+  function formatSetsSummary(sets) {
+    if (!sets || !sets.length) return "";
+    return sets.map((s) => {
+      if (s.distanceM != null) return `${s.reps} × ${formatDistance(s.distanceM)}`;
+      if (s.durationMin != null) return `${s.reps} × ${s.durationMin}min`;
+      return `${s.reps} sets`;
+    }).join(" · ");
+  }
+
   function formatSessionMeta(session) {
-    if (session.durationMin != null) return `${session.durationMin} min`;
-    if (session.distanceM != null) return formatDistance(session.distanceM);
-    return "";
+    const parts = [];
+    if (session.durationMin != null) parts.push(`${session.durationMin} min`);
+    else if (session.distanceM != null) parts.push(formatDistance(session.distanceM));
+    if (session.sets && session.sets.length) parts.push(formatSetsSummary(session.sets));
+    return parts.join(" · ");
   }
 
   function sessionIcon(discipline) {
@@ -638,6 +651,7 @@
     if (session.discipline === "triathlon") {
       return `<div class="log-form" data-discipline="triathlon">
         ${triathlonLegsFormHTML(log)}
+        ${setsFormSectionHTML()}
         <div class="log-form__actions">
           <button class="btn btn--primary" data-log-save="${key}">Save</button>
           <button class="btn btn--ghost" data-log-cancel="${key}">Cancel</button>
@@ -658,6 +672,7 @@
         <span>Distance (${unit})</span>
         <input type="number" step="0.01" min="0" placeholder="e.g. ${unit === "m" ? "1500" : "5"}" id="log-distance-${key}" value="${distanceVal}">
       </label>` : ""}
+      ${setsFormSectionHTML()}
       <div class="log-form__actions">
         <button class="btn btn--primary" data-log-save="${key}">Save</button>
         <button class="btn btn--ghost" data-log-cancel="${key}">Cancel</button>
@@ -686,6 +701,7 @@
             log.actualDurationMin != null ? formatRaceTime(log.actualDurationMin) : "",
             log.actualDistanceM != null ? formatDistance(log.actualDistanceM) : "",
             pace,
+            log.sets && log.sets.length ? formatSetsSummary(log.sets) : "",
           ].filter(Boolean);
           summary = parts.join(" · ");
         }
@@ -1551,7 +1567,7 @@
 
     const addedRowsHTML = added.map((a) => {
       const aKey = `${baseKey}a${a.id}`;
-      const aSession = { discipline: a.discipline, title: a.title, durationMin: a.durationMin, distanceM: a.distanceM };
+      const aSession = { discipline: a.discipline, title: a.title, durationMin: a.durationMin, distanceM: a.distanceM, sets: a.sets };
       if (customizeEditKey === aKey) return customizeEditFormHTML(aSession, aKey);
       const meta = formatSessionMeta(aSession);
       return `<div class="day-row">
@@ -1615,6 +1631,33 @@
     return notices.join("");
   }
 
+  function setsFormSectionHTML() {
+    const listHTML = pendingFormSets.map((s, i) => {
+      const label = s.distanceM != null
+        ? `${s.reps} × ${formatDistance(s.distanceM)}`
+        : `${s.reps} × ${s.durationMin}min`;
+      return `<div class="set-row">
+        <span class="set-row__label">${escapeHtml(label)}</span>
+        <button class="row-delete-btn" data-set-remove="${i}" title="Remove">✕</button>
+      </div>`;
+    }).join("");
+    return `<div class="sets-section">
+      <div class="sets-section__head">Intervals / sets</div>
+      ${listHTML}
+      <div class="sets-add-row">
+        <input type="number" id="pending-set-reps" placeholder="Reps" min="1" style="width:58px;flex:none;">
+        <span style="font-weight:700;padding:0 2px;">×</span>
+        <input type="number" id="pending-set-val" placeholder="Amount" min="0" step="any" style="flex:1;">
+        <select id="pending-set-unit" style="flex:none;width:auto;">
+          <option value="m">m</option>
+          <option value="km">km</option>
+          <option value="min">min</option>
+        </select>
+        <button class="btn btn--ghost" data-set-add="1" style="flex:none;padding:6px 10px;font-size:12px;">Add</button>
+      </div>
+    </div>`;
+  }
+
   function customizeEditFormHTML(session, key) {
     const disciplines = ["run", "bike", "swim", "brick", "strength", "triathlon"];
     const discOptions = disciplines.map((d) => `<option value="${d}" ${session.discipline === d ? "selected" : ""}>${DISCIPLINE_LABEL[d] || d}</option>`).join("");
@@ -1638,6 +1681,7 @@
         <span>Distance (${unit})</span>
         <input type="number" step="0.01" min="0" id="cedit-distance-${key}" value="${distVal}" placeholder="${unit === "m" ? "e.g. 1500" : "e.g. 10"}">
       </label>` : ""}
+      ${setsFormSectionHTML()}
       <div class="log-form__actions">
         <button class="btn btn--primary" data-session-edit-save="${key}">Save</button>
         <button class="btn btn--ghost" data-session-edit-cancel="1">Cancel</button>
@@ -1671,6 +1715,7 @@
           </select>
         </div>
       </label>
+      ${setsFormSectionHTML()}
       <div class="log-form__actions">
         <button class="btn btn--primary" data-session-add-save="${dayKey}">Add session</button>
         <button class="btn btn--ghost" data-session-add-cancel="1">Cancel</button>
@@ -2111,13 +2156,21 @@
       const logToggleBtn = e.target.closest("[data-log-toggle]");
       if (logToggleBtn) {
         const key = logToggleBtn.dataset.logToggle;
-        expandedLogKey = expandedLogKey === key ? null : key;
+        if (expandedLogKey === key) {
+          expandedLogKey = null;
+          pendingFormSets = [];
+        } else {
+          expandedLogKey = key;
+          const existingLog = getLog(key);
+          pendingFormSets = (existingLog && existingLog.sets) ? [...existingLog.sets] : [];
+        }
         renderAll();
         return;
       }
       const logCancelBtn = e.target.closest("[data-log-cancel]");
       if (logCancelBtn) {
         expandedLogKey = null;
+        pendingFormSets = [];
         renderAll();
         return;
       }
@@ -2154,8 +2207,10 @@
             actualDistanceM: distInput && distInput.value ? distanceInputToMeters(session.discipline, distInput.value) : null,
           };
         }
+        if (pendingFormSets.length) values.sets = [...pendingFormSets];
         const newPRs = saveLog(key, session, values);
         expandedLogKey = null;
+        pendingFormSets = [];
         renderAll();
         if (newPRs.length) showToast(newPRs);
         return;
@@ -2375,12 +2430,25 @@
       if (sessionEditOpenBtn) {
         customizeEditKey = sessionEditOpenBtn.getAttribute("data-session-edit-open");
         customizeAddDayKey = null;
+        const parsed = parseDayKey(customizeEditKey);
+        pendingFormSets = [];
+        if (parsed) {
+          const edits = getDayEdits(parsed.week, parsed.dayIdx);
+          if (parsed.addedId) {
+            const a = (edits.added || []).find((x) => x.id === parsed.addedId);
+            pendingFormSets = (a && a.sets) ? [...a.sets] : [];
+          } else {
+            const ov = edits.overrides && edits.overrides[String(parsed.sessionIdx)];
+            pendingFormSets = (ov && ov.sets) ? [...ov.sets] : [];
+          }
+        }
         renderCustomize();
         return;
       }
       const sessionEditCancelBtn = e.target.closest("[data-session-edit-cancel]");
       if (sessionEditCancelBtn) {
         customizeEditKey = null;
+        pendingFormSets = [];
         renderCustomize();
         return;
       }
@@ -2402,19 +2470,21 @@
 
         if (!title) { showToast(["Enter a title first."], "Nothing to save"); return; }
 
+        const sets = pendingFormSets.length ? [...pendingFormSets] : undefined;
         if (parsed.addedId) {
           mutateDayEdits(parsed.week, parsed.dayIdx, (edits) => {
             edits.added = (edits.added || []).map((a) =>
-              a.id === parsed.addedId ? { ...a, discipline: disc, title, durationMin, distanceM } : a
+              a.id === parsed.addedId ? { ...a, discipline: disc, title, durationMin, distanceM, ...(sets ? { sets } : {}) } : a
             );
           });
         } else {
           mutateDayEdits(parsed.week, parsed.dayIdx, (edits) => {
-            edits.overrides = { ...edits.overrides, [String(parsed.sessionIdx)]: { discipline: disc, title, durationMin, distanceM } };
+            edits.overrides = { ...edits.overrides, [String(parsed.sessionIdx)]: { discipline: disc, title, durationMin, distanceM, ...(sets ? { sets } : {}) } };
           });
         }
 
         customizeEditKey = null;
+        pendingFormSets = [];
         renderAll();
         return;
       }
@@ -2459,12 +2529,14 @@
       if (sessionAddOpenBtn) {
         customizeAddDayKey = sessionAddOpenBtn.getAttribute("data-session-add-open");
         customizeEditKey = null;
+        pendingFormSets = [];
         renderCustomize();
         return;
       }
       const sessionAddCancelBtn = e.target.closest("[data-session-add-cancel]");
       if (sessionAddCancelBtn) {
         customizeAddDayKey = null;
+        pendingFormSets = [];
         renderCustomize();
         return;
       }
@@ -2488,14 +2560,45 @@
         const distanceM = distRaw != null && distRaw > 0 ? (unit === "m" ? distRaw : Math.round(distRaw * 1000)) : null;
 
         if (!title) { showToast(["Enter a title first."], "Nothing to save"); return; }
-        if (!durationMin && !distanceM) { showToast(["Enter a duration or distance."], "Nothing to save"); return; }
+        if (!durationMin && !distanceM && !pendingFormSets.length) { showToast(["Enter a duration, distance, or sets."], "Nothing to save"); return; }
 
+        const sets = pendingFormSets.length ? [...pendingFormSets] : undefined;
         mutateDayEdits(parsed.week, parsed.dayIdx, (edits) => {
-          edits.added = [...(edits.added || []), { id: makeId(), discipline: disc, title, detail: "", durationMin, distanceM }];
+          edits.added = [...(edits.added || []), { id: makeId(), discipline: disc, title, detail: "", durationMin, distanceM, ...(sets ? { sets } : {}) }];
         });
 
         customizeAddDayKey = null;
+        pendingFormSets = [];
         renderAll();
+        return;
+      }
+      const setAddBtn = e.target.closest("[data-set-add]");
+      if (setAddBtn) {
+        const repsEl = document.getElementById("pending-set-reps");
+        const valEl = document.getElementById("pending-set-val");
+        const unitEl = document.getElementById("pending-set-unit");
+        const reps = repsEl && repsEl.value ? Math.round(Number(repsEl.value)) : 0;
+        const val = valEl && valEl.value ? parseFloat(valEl.value) : 0;
+        const unit = unitEl ? unitEl.value : "m";
+        if (!reps || reps < 1 || !val || val <= 0) {
+          showToast(["Enter reps and an amount."], "Incomplete");
+          return;
+        }
+        let distanceM = null, durationMin = null;
+        if (unit === "m") distanceM = Math.round(val);
+        else if (unit === "km") distanceM = Math.round(val * 1000);
+        else durationMin = val;
+        pendingFormSets = [...pendingFormSets, { reps, distanceM, durationMin }];
+        if (customizeEditKey || customizeAddDayKey) renderCustomize();
+        else renderAll();
+        return;
+      }
+      const setRemoveBtn = e.target.closest("[data-set-remove]");
+      if (setRemoveBtn) {
+        const idx = parseInt(setRemoveBtn.getAttribute("data-set-remove"), 10);
+        pendingFormSets = pendingFormSets.filter((_, i) => i !== idx);
+        if (customizeEditKey || customizeAddDayKey) renderCustomize();
+        else renderAll();
         return;
       }
       const trackOpenBtn = e.target.closest("[data-track-open]");

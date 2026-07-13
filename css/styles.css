@@ -540,6 +540,13 @@ a { color: var(--blue); }
 .customize-day:first-child { border-top: none; }
 .customize-day--past .customize-day-label { opacity: 0.5; }
 
+/* ---- Intervals / sets form section ---- */
+.sets-section { margin: 8px 0 4px; }
+.sets-section__head { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 6px; }
+.set-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 4px 0; border-bottom: 1px solid var(--border); }
+.set-row__label { font-size: 13px; }
+.sets-add-row { display: flex; align-items: center; gap: 6px; margin-top: 8px; }
+
 .customize-day-label {
   font-size: 11px;
   font-weight: 700;
