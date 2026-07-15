@@ -290,6 +290,14 @@
     localStorage.setItem(STORAGE_EXTRA_WORKOUTS, JSON.stringify(extraWorkouts));
   }
 
+  function findExtraWorkoutById(id) {
+    for (const [dateISO, list] of Object.entries(extraWorkouts)) {
+      const w = list.find((x) => x.id === id);
+      if (w) return { dateISO, workout: w };
+    }
+    return null;
+  }
+
   // ---------- session moves (reschedule a planned workout to a different date) ----------
   // Maps a session's original dayKey -> the ISO date it's been moved to. The session's
   // identity (and its completedMap entry) stays keyed by the original dayKey; only where
@@ -953,11 +961,15 @@
   }
 
   function extraWorkoutDayRowHTML(w) {
+    if (extraWorkoutFormState && extraWorkoutFormState.mode === "edit" && extraWorkoutFormState.id === w.id) {
+      return extraWorkoutFormHTML(w);
+    }
     return `<div class="day-row">
       <span class="day-row__label"></span>
       <span class="day-row__title">${sessionIcon(w.discipline)} ${escapeHtml(w.label || DISCIPLINE_LABEL[w.discipline])}</span>
       <span class="day-row__meta">${escapeHtml(extraWorkoutSummary(w))}</span>
-      <span class="day-row__check-static" aria-label="Logged">✓</span>
+      <button class="row-edit-btn" data-extra-workout-edit="${w.id}" aria-label="Edit workout">✎</button>
+      <button class="row-delete-btn" data-extra-workout-remove="${w.id}" aria-label="Remove workout">✕</button>
     </div>`;
   }
 
@@ -2476,13 +2488,13 @@
       const extraWorkoutEditBtn = e.target.closest("[data-extra-workout-edit]");
       if (extraWorkoutEditBtn) {
         extraWorkoutFormState = { mode: "edit", id: extraWorkoutEditBtn.getAttribute("data-extra-workout-edit") };
-        renderToday();
+        renderAll();
         return;
       }
       const extraWorkoutCancelBtn = e.target.closest("[data-extra-workout-cancel]");
       if (extraWorkoutCancelBtn) {
         extraWorkoutFormState = null;
-        renderToday();
+        renderAll();
         return;
       }
       const extraWorkoutSaveBtn = e.target.closest("[data-extra-workout-save]");
@@ -2491,9 +2503,6 @@
         const discipline = document.getElementById("extra-workout-discipline").value;
         const labelInput = document.getElementById("extra-workout-label");
         const label = labelInput.value.trim();
-        const dateISO = toISODate(startOfDay(new Date()));
-        const list = extraWorkouts[dateISO] || (extraWorkouts[dateISO] = []);
-
         let actualDurationMin, actualDistanceM, legData;
 
         if (discipline === "triathlon") {
@@ -2528,32 +2537,35 @@
         }
 
         if (id) {
-          const w = list.find((x) => x.id === id);
-          if (w) {
-            Object.assign(w, { discipline, label, actualDurationMin, actualDistanceM }, legData);
+          const found = findExtraWorkoutById(id);
+          if (found) {
+            Object.assign(found.workout, { discipline, label, actualDurationMin, actualDistanceM }, legData);
+            saveExtraWorkouts();
           }
         } else {
+          const dateISO = toISODate(startOfDay(new Date()));
+          const list = extraWorkouts[dateISO] || (extraWorkouts[dateISO] = []);
           list.push({ id: makeId(), discipline, label, actualDurationMin, actualDistanceM, ...legData });
+          saveExtraWorkouts();
         }
-        saveExtraWorkouts();
         const achieved = discipline !== "triathlon" ? recordPRs({ discipline }, { actualDurationMin, actualDistanceM }) : [];
 
         extraWorkoutFormState = null;
-        renderToday();
+        renderAll();
         if (achieved.length) showToast(achieved);
         return;
       }
       const extraWorkoutRemoveBtn = e.target.closest("[data-extra-workout-remove]");
       if (extraWorkoutRemoveBtn) {
         const id = extraWorkoutRemoveBtn.getAttribute("data-extra-workout-remove");
-        const dateISO = toISODate(startOfDay(new Date()));
-        if (extraWorkouts[dateISO]) {
-          extraWorkouts[dateISO] = extraWorkouts[dateISO].filter((x) => x.id !== id);
-          if (!extraWorkouts[dateISO].length) delete extraWorkouts[dateISO];
+        const found = findExtraWorkoutById(id);
+        if (found) {
+          extraWorkouts[found.dateISO] = extraWorkouts[found.dateISO].filter((x) => x.id !== id);
+          if (!extraWorkouts[found.dateISO].length) delete extraWorkouts[found.dateISO];
           saveExtraWorkouts();
         }
         if (extraWorkoutFormState && extraWorkoutFormState.id === id) extraWorkoutFormState = null;
-        renderToday();
+        renderAll();
         return;
       }
       const revertAllBtn = e.target.closest("[data-revert-all-edits]");
