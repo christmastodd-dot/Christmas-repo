@@ -483,13 +483,23 @@ a { color: var(--blue); }
 .milestone-row {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   padding: 10px 0;
   border-top: 1px solid var(--border);
 }
 .milestone-row:first-of-type { border-top: none; }
 
 .milestone-row.is-done { opacity: 0.55; }
+
+.milestone-row__left { display: flex; flex-direction: column; gap: 2px; }
+
+.milestone-goal {
+  font-size: 11px;
+  color: var(--text-dim);
+  padding-left: 2px;
+}
+
+.milestone-row .day-row__meta { padding-top: 1px; }
 
 .row-delete-btn,
 .row-edit-btn {

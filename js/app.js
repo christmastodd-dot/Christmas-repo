@@ -1345,6 +1345,7 @@
           emoji: (overrideType && overrideType.emoji) || m.emoji,
           label: (override && override.label) || m.label,
           typeId: (override && override.typeId) || RACE_TYPE_BY_LABEL[m.label] || "other",
+          goalTimeMin: override ? (override.goalTimeMin ?? null) : null,
           done: isDone(sessionKey) || daysOut < 0,
           statusText,
         };
@@ -1363,6 +1364,7 @@
         emoji: type.emoji,
         label: r.label || type.label,
         typeId: r.typeId,
+        goalTimeMin: r.goalTimeMin ?? null,
         done: daysOut < 0,
         statusText,
       };
@@ -1373,10 +1375,16 @@
     const rowsHTML = items
       .map((it) => {
         if (raceFormState && raceFormState.mode === "edit" && raceFormState.key === it.key) {
-          return raceFormHTML(today, { key: it.key, typeId: it.typeId, label: it.label, date: toISODate(it.date) });
+          return raceFormHTML(today, { key: it.key, typeId: it.typeId, label: it.label, date: toISODate(it.date), goalTimeMin: it.goalTimeMin });
         }
+        const goalHTML = it.goalTimeMin != null
+          ? `<div class="milestone-goal">Goal: ${escapeHtml(formatRaceTime(it.goalTimeMin))}</div>`
+          : "";
         return `<div class="milestone-row ${it.done ? "is-done" : ""}">
-          <span>${it.emoji} ${escapeHtml(it.label)}</span>
+          <div class="milestone-row__left">
+            <span>${it.emoji} ${escapeHtml(it.label)}</span>
+            ${goalHTML}
+          </div>
           <span class="day-row__meta">
             ${it.statusText}
             <button class="row-edit-btn" data-race-edit="${escapeHtml(it.key)}" aria-label="Edit race">✎</button>
@@ -1396,6 +1404,34 @@
       : "";
 
     return rowsHTML + hiddenHTML;
+  }
+
+  function raceGoalInputsHTML(durationMin) {
+    let hVal = "", mVal = "", sVal = "";
+    if (durationMin != null) {
+      const totalSec = Math.round(durationMin * 60);
+      hVal = Math.floor(totalSec / 3600);
+      mVal = Math.floor((totalSec % 3600) / 60);
+      sVal = totalSec % 60;
+    }
+    return `<div style="display:flex;gap:8px;align-items:center;">
+      <input type="number" inputmode="numeric" min="0" placeholder="h" id="race-goal-h" value="${hVal}" style="width:52px;flex:none;">
+      <span style="font-weight:700;">:</span>
+      <input type="number" inputmode="numeric" min="0" max="59" placeholder="mm" id="race-goal-m" value="${mVal}" style="width:56px;flex:none;">
+      <span style="font-weight:700;">:</span>
+      <input type="number" inputmode="numeric" min="0" max="59" placeholder="ss" id="race-goal-s" value="${sVal}" style="width:56px;flex:none;">
+    </div>`;
+  }
+
+  function readRaceGoalInputs() {
+    const h = document.getElementById("race-goal-h");
+    const m = document.getElementById("race-goal-m");
+    const s = document.getElementById("race-goal-s");
+    const hv = h ? h.value.trim() : "";
+    const mv = m ? m.value.trim() : "";
+    const sv = s ? s.value.trim() : "";
+    if (!hv && !mv && !sv) return null;
+    return Number(hv || 0) * 60 + Number(mv || 0) + Number(sv || 0) / 60;
   }
 
   function raceFormHTML(today, prefill) {
@@ -1418,6 +1454,10 @@
       <label class="field">
         <span>Race date</span>
         <input type="date" id="race-form-date" value="${dateVal}">
+      </label>
+      <label class="field">
+        <span>Goal time (optional, h : mm : ss)</span>
+        ${raceGoalInputsHTML(prefill ? prefill.goalTimeMin : null)}
       </label>
       <div class="log-form__actions">
         <button class="btn btn--primary" data-race-form-save="${keyAttr}">Save race</button>
@@ -2379,9 +2419,10 @@
           return;
         }
         const label = labelInput.value.trim();
+        const goalTimeMin = readRaceGoalInputs();
 
         if (!key) {
-          customRaces.push({ id: makeId(), typeId, label, date: dateInput.value });
+          customRaces.push({ id: makeId(), typeId, label, date: dateInput.value, goalTimeMin });
           saveCustomRaces();
         } else if (key.startsWith("c:")) {
           const id = key.slice(2);
@@ -2390,11 +2431,12 @@
             race.typeId = typeId;
             race.label = label;
             race.date = dateInput.value;
+            race.goalTimeMin = goalTimeMin;
             saveCustomRaces();
           }
         } else if (key.startsWith("m:")) {
           const week = Number(key.slice(2));
-          milestoneOverrides[week] = { typeId, label: label || null, date: dateInput.value };
+          milestoneOverrides[week] = { ...milestoneOverrides[week], typeId, label: label || null, date: dateInput.value, goalTimeMin };
           saveMilestoneOverrides();
         }
         raceFormState = null;
