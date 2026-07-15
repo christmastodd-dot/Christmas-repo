@@ -45,6 +45,15 @@
     { id: "bike-180k", discipline: "bike", label: "180K (Full Iron bike)", meters: 180000, tolerance: 0.05 },
   ];
 
+  // Total-distance matching for triathlon PRs (swim + bike + run must all be present).
+  // Tolerance is applied against the sum so partial-entry logs never accidentally match.
+  const TRIATHLON_STANDARDS = [
+    { id: "tri-sprint",  label: "Sprint Triathlon",   swim: 750,  bike: 20000,  run: 5000,  tolerance: 0.15 },
+    { id: "tri-olympic", label: "Olympic Triathlon",   swim: 1500, bike: 40000,  run: 10000, tolerance: 0.10 },
+    { id: "tri-703",     label: "70.3 (Half-Iron)",    swim: 1900, bike: 90000,  run: 21097, tolerance: 0.08 },
+    { id: "tri-ironman", label: "Ironman (140.6)",     swim: 3800, bike: 180000, run: 42195, tolerance: 0.05 },
+  ];
+
   // Race types selectable when manually adding a race to the countdown.
   const RACE_TYPES = [
     { id: "sprint", label: "Sprint Triathlon", emoji: "\u{1F3C1}" },
@@ -417,7 +426,17 @@
     return best;
   }
 
-  function recordPRs(session, { actualDurationMin, actualDistanceM }, dateOverride) {
+  function findTriathlonMatch(swimM, bikeM, runM) {
+    if (swimM == null || bikeM == null || runM == null) return null;
+    const total = swimM + bikeM + runM;
+    for (const std of TRIATHLON_STANDARDS) {
+      const stdTotal = std.swim + std.bike + std.run;
+      if (Math.abs(total - stdTotal) / stdTotal <= std.tolerance) return std;
+    }
+    return null;
+  }
+
+  function recordPRs(session, { actualDurationMin, actualDistanceM, swimDistanceM, bikeDistanceM, runDistanceM } = {}, dateOverride) {
     const discipline = session.discipline;
     const today = dateOverride || toISODate(new Date());
     const achieved = [];
@@ -447,6 +466,18 @@
         const prev = prs.standard[std.id];
         if (!prev || actualDurationMin < prev.timeMin) {
           prs.standard[std.id] = { timeMin: actualDurationMin, distanceM: actualDistanceM, date: today };
+          achieved.push(`${std.label} PR: ${formatRaceTime(actualDurationMin)}`);
+          changed = true;
+        }
+      }
+    }
+
+    if (discipline === "triathlon" && actualDurationMin != null) {
+      const std = findTriathlonMatch(swimDistanceM, bikeDistanceM, runDistanceM);
+      if (std) {
+        const prev = prs.standard[std.id];
+        if (!prev || actualDurationMin < prev.timeMin) {
+          prs.standard[std.id] = { timeMin: actualDurationMin, date: today };
           achieved.push(`${std.label} PR: ${formatRaceTime(actualDurationMin)}`);
           changed = true;
         }
@@ -1480,8 +1511,11 @@
   }
 
   function personalBestsHTML() {
-    const stdById = Object.fromEntries(STANDARD_DISTANCES.map((s) => [s.id, s]));
+    const stdById = Object.fromEntries(
+      [...STANDARD_DISTANCES, ...TRIATHLON_STANDARDS].map((s) => [s.id, s])
+    );
     const groups = [
+      { disc: "triathlon", ids: ["tri-sprint", "tri-olympic", "tri-703", "tri-ironman"] },
       { disc: "run", ids: ["run-5k", "run-10k", "run-half", "run-marathon"] },
       { disc: "swim", ids: ["swim-750", "swim-1500", "swim-1900", "swim-3800"] },
       { disc: "bike", ids: ["bike-20k", "bike-40k", "bike-90k", "bike-180k"] },
@@ -2548,7 +2582,7 @@
           list.push({ id: makeId(), discipline, label, actualDurationMin, actualDistanceM, ...legData });
           saveExtraWorkouts();
         }
-        const achieved = discipline !== "triathlon" ? recordPRs({ discipline }, { actualDurationMin, actualDistanceM }) : [];
+        const achieved = recordPRs({ discipline }, { actualDurationMin, actualDistanceM, ...legData });
 
         extraWorkoutFormState = null;
         renderAll();
