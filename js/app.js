@@ -753,7 +753,7 @@
       ${moveBtnHTML}
       <button class="session-check ${done ? "is-checked" : ""}" data-key="${key}" aria-label="Mark complete" style="margin-left:8px;">${done ? "✓" : ""}</button>
     </div>`;
-    const logFormRowHTML = loggable && expandedLogKey === key ? sessionLogFormHTML(session, key) : "";
+    const logFormRowHTML = loggable ? logFormHTML(session, key) : "";
     return rowHTML + logFormRowHTML;
   }
 
