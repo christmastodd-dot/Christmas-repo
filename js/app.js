@@ -185,6 +185,17 @@
     renderAll();
   }
 
+  function deleteLog(key) {
+    const current = normalizeEntry(completedMap[key]) || {};
+    const stripped = { done: current.done || false };
+    if (!stripped.done) {
+      delete completedMap[key];
+    } else {
+      completedMap[key] = stripped;
+    }
+    saveCompleted();
+  }
+
   function saveLog(key, session, values) {
     const entry = {
       done: true,
@@ -471,6 +482,13 @@
     }).join(" · ");
   }
 
+  function logHasData(log) {
+    if (!log) return false;
+    return log.actualDurationMin != null || log.actualDistanceM != null ||
+      log.swimDistanceM != null || log.bikeDistanceM != null || log.runDistanceM != null ||
+      log.swimDurationMin != null || log.bikeDurationMin != null || log.runDurationMin != null;
+  }
+
   function formatSessionMeta(session) {
     const parts = [];
     if (session.durationMin != null) parts.push(`${session.durationMin} min`);
@@ -649,12 +667,14 @@
     const log = getLog(key);
 
     if (session.discipline === "triathlon") {
+      const hasExisting = logHasData(log);
       return `<div class="log-form" data-discipline="triathlon">
         ${triathlonLegsFormHTML(log)}
         ${setsFormSectionHTML()}
         <div class="log-form__actions">
           <button class="btn btn--primary" data-log-save="${key}">Save</button>
           <button class="btn btn--ghost" data-log-cancel="${key}">Cancel</button>
+          ${hasExisting ? `<button class="btn btn--danger" data-log-delete="${key}">Delete log</button>` : ""}
         </div>
       </div>`;
     }
@@ -663,6 +683,7 @@
     const distanceVal = log && log.actualDistanceM != null ? metersToDistanceInputValue(session.discipline, log.actualDistanceM) : "";
     const hasDistanceField = session.discipline !== "brick" && session.discipline !== "race";
 
+    const hasExisting = logHasData(log);
     return `<div class="log-form">
       <label class="field">
         <span>Time (min : sec)</span>
@@ -676,6 +697,7 @@
       <div class="log-form__actions">
         <button class="btn btn--primary" data-log-save="${key}">Save</button>
         <button class="btn btn--ghost" data-log-cancel="${key}">Cancel</button>
+        ${hasExisting ? `<button class="btn btn--danger" data-log-delete="${key}">Delete log</button>` : ""}
       </div>
     </div>`;
   }
@@ -683,7 +705,7 @@
   function logFormHTML(session, key) {
     if (!LOGGABLE_DISCIPLINES.includes(session.discipline)) return "";
     const log = getLog(key);
-    const hasLog = log && (log.actualDurationMin != null || log.actualDistanceM != null);
+    const hasLog = logHasData(log);
 
     if (expandedLogKey !== key) {
       if (hasLog) {
@@ -738,7 +760,7 @@
     const meta = formatSessionMeta(session);
     const loggable = LOGGABLE_DISCIPLINES.includes(session.discipline);
     const log = loggable ? getLog(key) : null;
-    const hasLog = log && (log.actualDurationMin != null || log.actualDistanceM != null);
+    const hasLog = logHasData(log);
     const logBtnHTML = loggable
       ? `<button class="row-edit-btn" data-log-toggle="${key}" aria-label="${hasLog ? "Edit logged result" : "Log result"}">${hasLog ? "✎" : "📝"}</button>${!hasLog ? `<button class="row-edit-btn" data-track-open="${key}" aria-label="Track workout">📍</button>` : ""}`
       : "";
@@ -765,14 +787,15 @@
     const distances = milestone ? milestone.distances : "";
     const note = milestone ? milestone.note : session.detail;
     const log = getLog(key);
-    const hasLog = log && log.actualDurationMin != null;
+    const hasLog = logHasData(log);
 
     let logAreaHTML;
     if (expandedLogKey === key) {
       logAreaHTML = sessionLogFormHTML(session, key);
     } else if (hasLog) {
+      const raceSummary = log.actualDurationMin != null ? formatRaceTime(log.actualDurationMin) : "Logged";
       logAreaHTML = `<div class="log-block">
-        <span class="log-summary">Logged: ${escapeHtml(formatRaceTime(log.actualDurationMin))}</span>
+        <span class="log-summary">Logged: ${escapeHtml(raceSummary)}</span>
         <button class="link-btn" data-log-toggle="${key}">Edit</button>
       </div>`;
     } else {
@@ -2172,6 +2195,16 @@
         expandedLogKey = null;
         pendingFormSets = [];
         renderAll();
+        return;
+      }
+      const logDeleteBtn = e.target.closest("[data-log-delete]");
+      if (logDeleteBtn) {
+        const key = logDeleteBtn.dataset.logDelete;
+        deleteLog(key);
+        expandedLogKey = null;
+        pendingFormSets = [];
+        renderAll();
+        showToast(["Log entry removed."], "Deleted");
         return;
       }
       const logSaveBtn = e.target.closest("[data-log-save]");
