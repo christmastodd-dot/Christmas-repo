@@ -489,6 +489,62 @@
       log.swimDurationMin != null || log.bikeDurationMin != null || log.runDurationMin != null;
   }
 
+  // Typical training paces used to estimate duration from distance when no time is logged.
+  const PACE_MIN_PER_M = {
+    run:  6 / 1000,    // 6:00/km
+    bike: 2.4 / 1000,  // 25 km/h
+    swim: 2 / 100,     // 2:00/100m
+  };
+
+  // Returns the best minute estimate for a completed session.
+  // Priority: actual logged time > per-leg actuals/estimates (triathlon) >
+  //           distance-derived estimate > planned duration.
+  function estimateSessionMinutes(session, log) {
+    if (log && log.actualDurationMin != null) return log.actualDurationMin;
+
+    if (session.discipline === "triathlon" && log) {
+      let total = 0, hasAny = false;
+      for (const [dur, dist, disc] of [
+        [log.swimDurationMin, log.swimDistanceM, "swim"],
+        [log.bikeDurationMin, log.bikeDistanceM, "bike"],
+        [log.runDurationMin,  log.runDistanceM,  "run"],
+      ]) {
+        if (dur != null)       { total += dur; hasAny = true; }
+        else if (dist != null) { total += dist * (PACE_MIN_PER_M[disc] || 0); hasAny = true; }
+      }
+      if (hasAny) return total;
+    }
+
+    if (log && log.actualDistanceM != null) {
+      const pace = PACE_MIN_PER_M[session.discipline];
+      if (pace != null) return log.actualDistanceM * pace;
+    }
+
+    return session.durationMin ?? null;
+  }
+
+  // Same logic for extra workout objects (no planned-duration fallback).
+  function estimateExtraMinutes(w) {
+    if (w.actualDurationMin != null) return w.actualDurationMin;
+    if (w.discipline === "triathlon") {
+      let total = 0, hasAny = false;
+      for (const [dur, dist, disc] of [
+        [w.swimDurationMin, w.swimDistanceM, "swim"],
+        [w.bikeDurationMin, w.bikeDistanceM, "bike"],
+        [w.runDurationMin,  w.runDistanceM,  "run"],
+      ]) {
+        if (dur != null)       { total += dur; hasAny = true; }
+        else if (dist != null) { total += dist * (PACE_MIN_PER_M[disc] || 0); hasAny = true; }
+      }
+      return hasAny ? total : null;
+    }
+    if (w.actualDistanceM != null) {
+      const pace = PACE_MIN_PER_M[w.discipline];
+      if (pace != null) return w.actualDistanceM * pace;
+    }
+    return null;
+  }
+
   function formatSessionMeta(session) {
     const parts = [];
     if (session.durationMin != null) parts.push(`${session.durationMin} min`);
@@ -1198,22 +1254,32 @@
 
     let totalSessions = 0;
     let completedCount = 0;
+    let extraCount = 0;
     let totalMinutes = 0;
-    const activeDayKeys = [];
+    const activeDayKeys = []; // one per day (for streak), not per-session
 
     plan.weeks.forEach((week) => {
-      week.days.forEach((day, dayIdx) => {
-        if (!day.sessions.length) return;
-        totalSessions++;
-        const key = dayKey(week.week, dayIdx);
-        activeDayKeys.push(key);
-        if (isDone(key)) {
-          completedCount++;
-          const s = day.sessions[0];
-          const log = getLog(key);
-          const minutes = log && log.actualDurationMin != null ? log.actualDurationMin : s.durationMin;
-          if (minutes != null) totalMinutes += minutes;
-        }
+      week.days.forEach((_, dayIdx) => {
+        const effective = getEffectiveSessionsWithKeys(week.week, dayIdx);
+        if (!effective.length) return;
+        activeDayKeys.push(dayKey(week.week, dayIdx));
+        effective.forEach(({ session, key }) => {
+          totalSessions++;
+          if (isDone(key)) {
+            completedCount++;
+            const mins = estimateSessionMinutes(session, getLog(key));
+            if (mins != null) totalMinutes += mins;
+          }
+        });
+      });
+    });
+
+    // Extra (add-on) workouts are always completed by definition.
+    Object.values(extraWorkouts).forEach((dayList) => {
+      dayList.forEach((w) => {
+        extraCount++;
+        const mins = estimateExtraMinutes(w);
+        if (mins != null) totalMinutes += mins;
       });
     });
 
@@ -1239,9 +1305,9 @@
         <h3>Overall progress</h3>
         <div class="stat-grid">
           <div class="stat-box"><div class="stat-box__value">${percent}%</div><div class="stat-box__label">Plan completed</div></div>
-          <div class="stat-box"><div class="stat-box__value">${completedCount}/${totalSessions}</div><div class="stat-box__label">Sessions done</div></div>
+          <div class="stat-box"><div class="stat-box__value">${completedCount}/${totalSessions}</div><div class="stat-box__label">Sessions done${extraCount ? ` (+${extraCount} extra)` : ""}</div></div>
           <div class="stat-box"><div class="stat-box__value">${streak}</div><div class="stat-box__label">Day streak</div></div>
-          <div class="stat-box"><div class="stat-box__value">${formatTrainingTime(totalMinutes)}</div><div class="stat-box__label">Est. training time</div></div>
+          <div class="stat-box"><div class="stat-box__value">${formatTrainingTime(totalMinutes)}</div><div class="stat-box__label">Est. training time${extraCount ? " (incl. extras)" : ""}</div></div>
         </div>
       </div>
       <div class="card">
