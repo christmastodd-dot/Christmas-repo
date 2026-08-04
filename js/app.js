@@ -1631,16 +1631,10 @@
     const today = startOfDay(new Date());
     const pos = getPlanPosition(startDate, today);
 
-    if (pos.status === "complete") {
-      container.innerHTML = `<div class="empty-state"><p>Plan complete — no future weeks to customize.</p></div>`;
-      return;
-    }
-
     const currentWeek = pos.status === "active" ? pos.week : 0;
-    const editableWeeks = plan.weeks.filter((w) => w.week >= currentWeek);
 
-    if (!editableWeeks.length) {
-      container.innerHTML = `<div class="empty-state"><p>No weeks remaining.</p></div>`;
+    if (!plan.weeks.length) {
+      container.innerHTML = `<div class="empty-state"><p>No weeks in plan.</p></div>`;
       return;
     }
 
@@ -1653,15 +1647,21 @@
     );
 
     const byMonth = {};
-    editableWeeks.forEach((w) => (byMonth[w.month] = byMonth[w.month] || []).push(w));
+    plan.weeks.forEach((w) => (byMonth[w.month] = byMonth[w.month] || []).push(w));
+
+    // Default: open the month containing the current week (or last month if plan complete)
+    const currentWeekObj = plan.weeks.find((w) => w.week === currentWeek);
+    const defaultOpenMonth = currentWeekObj
+      ? currentWeekObj.month
+      : plan.weeks[plan.weeks.length - 1].month;
 
     const monthsHTML = Object.keys(byMonth)
       .map(Number)
       .sort((a, b) => a - b)
-      .map((month, mIdx) => {
+      .map((month) => {
         const weeks = byMonth[month];
         const weeksHTML = weeks.map((week) => customizeWeekHTML(week, startDate, today, currentWeek)).join("");
-        const isOpen = openMonths.size > 0 ? openMonths.has(String(month)) : mIdx === 0;
+        const isOpen = openMonths.size > 0 ? openMonths.has(String(month)) : month === defaultOpenMonth;
         return `<details class="month-group" data-month="${month}" ${isOpen ? "open" : ""}>
           <summary>Month ${month} · ${escapeHtml(weeks[0].phase)}</summary>
           ${weeksHTML}
@@ -1674,7 +1674,7 @@
         <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
           <div>
             <h3 style="margin:0;">Customize workouts</h3>
-            <p style="margin:4px 0 0;">Edit, drop, swap, or add sessions for upcoming days. Past days are locked.</p>
+            <p style="margin:4px 0 0;">Edit, drop, or add sessions for any week. Log results for past workouts.</p>
           </div>
           ${hasEdits ? `<button class="btn btn--danger" style="flex:none;width:auto;font-size:12px;padding:7px 12px;" data-revert-all-edits="1">Revert all</button>` : ""}
         </div>
@@ -1734,10 +1734,11 @@
            ${isModified ? `<button class="row-edit-btn" data-session-revert="${sKey}" title="Revert to plan">↺</button>` : ""}`;
 
       const meta = formatSessionMeta(effective);
+      const logHTML = !isDropped ? logFormHTML(effective, sKey) : "";
       return `<div class="day-row${isDropped ? " is-dropped" : ""}">
         <span class="day-row__title">${sessionIcon(effective.discipline)} ${escapeHtml(effective.title)}${badge}${meta ? `<span class="session-meta">${meta}</span>` : ""}</span>
         <span class="day-row__meta" style="display:flex;align-items:center;gap:2px;">${actions}</span>
-      </div>`;
+      </div>${logHTML}`;
     }).join("");
 
     const addedRowsHTML = added.map((a) => {
@@ -1751,7 +1752,7 @@
           <button class="row-edit-btn" data-session-edit-open="${aKey}" title="Edit">✎</button>
           <button class="row-delete-btn" data-session-drop="${aKey}" title="Remove">✕</button>
         </span>
-      </div>`;
+      </div>${logFormHTML(aSession, aKey)}`;
     }).join("");
 
     const showAddForm = customizeAddDayKey === baseKey;
@@ -2629,14 +2630,14 @@
             pendingFormSets = (ov && ov.sets) ? [...ov.sets] : [];
           }
         }
-        renderCustomize();
+        renderAll();
         return;
       }
       const sessionEditCancelBtn = e.target.closest("[data-session-edit-cancel]");
       if (sessionEditCancelBtn) {
         customizeEditKey = null;
         pendingFormSets = [];
-        renderCustomize();
+        renderAll();
         return;
       }
       const sessionEditSaveBtn = e.target.closest("[data-session-edit-save]");
@@ -2717,14 +2718,14 @@
         customizeAddDayKey = sessionAddOpenBtn.getAttribute("data-session-add-open");
         customizeEditKey = null;
         pendingFormSets = [];
-        renderCustomize();
+        renderAll();
         return;
       }
       const sessionAddCancelBtn = e.target.closest("[data-session-add-cancel]");
       if (sessionAddCancelBtn) {
         customizeAddDayKey = null;
         pendingFormSets = [];
-        renderCustomize();
+        renderAll();
         return;
       }
       const sessionAddSaveBtn = e.target.closest("[data-session-add-save]");
