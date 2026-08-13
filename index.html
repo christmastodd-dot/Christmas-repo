@@ -1033,6 +1033,27 @@ function drawFoodChart() {
     const x = xScale(s.t), y = yScale(s.v);
     ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI*2); ctx.fill();
   });
+  if (series.length >= 2) {
+    let n=0, sx=0, sy=0, sxy=0, sxx=0;
+    for (const s of series) { n++; sx += s.t; sy += s.v; sxy += s.t*s.v; sxx += s.t*s.t; }
+    const denom = n*sxx - sx*sx;
+    if (denom !== 0) {
+      const slope = (n*sxy - sx*sy) / denom;
+      const intercept = (sy - slope*sx) / n;
+      const yA = slope*xMin + intercept, yB = slope*xMax + intercept;
+      ctx.strokeStyle = "#7ed492"; ctx.lineWidth = 1.5;
+      ctx.setLineDash([]);
+      ctx.beginPath();
+      ctx.moveTo(xScale(xMin), yScale(yA));
+      ctx.lineTo(xScale(xMax), yScale(yB));
+      ctx.stroke();
+      const perDay = slope * 86400000;
+      const arrow = perDay > 0.5 ? "▲" : (perDay < -0.5 ? "▼" : "→");
+      ctx.fillStyle = "#7ed492"; ctx.font = "10px sans-serif"; ctx.textAlign = "right";
+      ctx.fillText(`trend ${arrow} ${Math.round(perDay) >= 0 ? "+" : ""}${Math.round(perDay)}/day`,
+                   rect.width - pad, yScale(yB) - 6);
+    }
+  }
   ctx.fillStyle = "#8a93a3"; ctx.font = "11px sans-serif"; ctx.textAlign = "right";
   ctx.fillText(Math.round(yMax), pad-4, pad+4);
   ctx.fillText("0", pad-4, rect.height-pad+4);
