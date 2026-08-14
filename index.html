@@ -1,0 +1,1756 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Glow" />
+<meta name="theme-color" content="#0f1115" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png" />
+<link rel="apple-touch-icon" href="icon-180.png" />
+<title>Glow Tracker</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --panel: #181b22;
+    --panel2: #20242d;
+    --text: #e8ecf1;
+    --muted: #8a93a3;
+    --accent: #7cc4ff;
+    --good: #7ed492;
+    --warn: #f5b971;
+    --bad: #f08a8a;
+    --border: #2a2f3a;
+  }
+  body.light {
+    --bg: #f5f6f8;
+    --panel: #ffffff;
+    --panel2: #eef0f4;
+    --text: #1a1d23;
+    --muted: #5a6270;
+    --accent: #2c7be5;
+    --good: #2ea44f;
+    --warn: #b45309;
+    --bad: #c53030;
+    --border: #d9dde3;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { overscroll-behavior-y: contain; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.4;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  header {
+    padding: 16px 16px 12px;
+    padding-top: calc(env(safe-area-inset-top) + 14px);
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+  h1 { margin: 0; font-size: 20px; font-weight: 600; }
+  .sub { color: var(--muted); font-size: 12px; }
+  nav {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    margin: 0 -16px;
+    padding: 0 16px 2px;
+  }
+  nav::-webkit-scrollbar { display: none; }
+  nav button {
+    background: var(--panel);
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 9px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 13px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    min-height: 38px;
+  }
+  nav button.active { background: var(--accent); color: #0b0d12; border-color: var(--accent); }
+  main { padding: 16px 16px 60px; max-width: 900px; margin: 0 auto; }
+  @media (min-width: 640px) {
+    header { padding: 20px 24px; }
+    main { padding: 20px 24px 60px; }
+    h1 { font-size: 22px; }
+    nav { margin: 0; padding: 0; }
+  }
+  section { display: none; }
+  section.active { display: block; }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 18px;
+    margin-bottom: 16px;
+  }
+  .card h2 {
+    margin: 0 0 4px;
+    font-size: 16px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .card .meta {
+    color: var(--muted);
+    font-size: 12px;
+    margin-bottom: 12px;
+  }
+  ul.checklist { list-style: none; padding: 0; margin: 0; }
+  ul.checklist li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    user-select: none;
+    min-height: 44px;
+  }
+  ul.checklist li:hover { background: var(--panel2); }
+  ul.checklist li:active { background: var(--panel2); }
+  ul.checklist li.done .label { text-decoration: line-through; color: var(--muted); }
+  .box {
+    width: 24px; height: 24px;
+    border: 2px solid var(--border);
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  li.done .box { background: var(--good); border-color: var(--good); }
+  li.done .box::after { content: "\2713"; color: #0b0d12; font-weight: 700; font-size: 15px; }
+  .label { flex: 1; font-size: 15px; }
+  .due {
+    font-size: 11px;
+    color: var(--muted);
+    background: var(--panel2);
+    padding: 2px 8px;
+    border-radius: 999px;
+  }
+  li.overdue .due { color: var(--bad); }
+  li.soon .due { color: var(--warn); }
+  .add-row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+  .add-row input[type=text] {
+    flex: 1;
+    min-width: 0;
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 16px;
+    min-height: 42px;
+  }
+  button.btn {
+    background: var(--accent);
+    color: #0b0d12;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 14px;
+    min-height: 42px;
+  }
+  button.ghost {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  button.danger { background: var(--bad); color: #fff; }
+  .del {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 20px;
+    padding: 6px 10px;
+    min-width: 36px;
+    min-height: 36px;
+  }
+  .del:hover { color: var(--bad); }
+  .edit {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 15px;
+    padding: 6px 8px;
+    min-width: 36px;
+    min-height: 36px;
+  }
+  .edit:hover { color: var(--accent); }
+  .edit-input {
+    flex: 1;
+    background: var(--panel2);
+    border: 1px solid var(--accent);
+    color: var(--text);
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 15px;
+    min-height: 32px;
+  }
+  .edit-days {
+    width: 70px;
+    background: var(--panel2);
+    border: 1px solid var(--accent);
+    color: var(--text);
+    padding: 6px 8px;
+    border-radius: 6px;
+    font-size: 15px;
+    min-height: 32px;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .row > * { flex: 1; min-width: 130px; }
+  input[type=number], input[type=date], input[type=text], input[type=time] {
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 16px;
+    width: 100%;
+    min-height: 42px;
+  }
+  label { font-size: 12px; color: var(--muted); display: block; margin-bottom: 4px; }
+  canvas { width: 100%; height: 220px; background: var(--panel2); border-radius: 10px; display: block; }
+  .toggle {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 0; cursor: pointer;
+  }
+  .toggle input { width: 20px; height: 20px; accent-color: var(--accent); }
+  .toggle span { font-size: 14px; }
+  .settings-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 0; border-bottom: 1px solid var(--border); gap: 12px;
+  }
+  .settings-row:last-child { border-bottom: none; }
+  .settings-row .label-block { flex: 1; min-width: 0; }
+  .settings-row .label-block .t { font-size: 14px; }
+  .settings-row .label-block .d { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .settings-row .ctrl { flex-shrink: 0; }
+  .switch {
+    position: relative; width: 44px; height: 26px;
+    background: var(--panel2); border-radius: 999px;
+    border: 1px solid var(--border); cursor: pointer;
+    transition: background 0.15s;
+  }
+  .switch::after {
+    content: ""; position: absolute; top: 2px; left: 2px;
+    width: 20px; height: 20px; border-radius: 50%;
+    background: var(--muted); transition: transform 0.15s, background 0.15s;
+  }
+  .switch.on { background: var(--accent); border-color: var(--accent); }
+  .switch.on::after { transform: translateX(18px); background: #0b0d12; }
+  .photos {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .photo {
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    aspect-ratio: 3/4;
+    background: var(--panel2);
+  }
+  .photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .photo .date {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.7));
+    color: white;
+    font-size: 11px;
+    padding: 16px 8px 6px;
+  }
+  .photo .rm {
+    position: absolute; top: 6px; right: 6px;
+    background: rgba(0,0,0,0.5);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px; height: 24px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+  th, td { text-align: left; padding: 6px 4px; border-bottom: 1px solid var(--border); }
+  th { color: var(--muted); font-weight: 500; font-size: 12px; }
+  .streak { font-size: 24px; font-weight: 700; color: var(--accent); }
+  .streak-row { display: flex; gap: 20px; margin-bottom: 4px; }
+  .streak-row div { text-align: center; flex: 1; }
+  .streak-row .lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .date-nav { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+  .date-nav .btn { padding: 6px 14px; font-size: 18px; }
+  .totals { display: grid; grid-template-columns: repeat(auto-fit, minmax(58px, 1fr)); gap: 8px; text-align: center; }
+  .totals .v { font-size: 20px; font-weight: 700; color: var(--accent); }
+  .totals .k { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .meal {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+  }
+  .meal-head { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
+  .meal-name { flex: 1; font-weight: 600; }
+  .macro-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .macro-grid label {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px; margin-bottom: 4px;
+  }
+  .cal-reset {
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    color: var(--accent);
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .chip-row {
+    display: flex; gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+  .chip {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--panel2); border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 999px; padding: 8px 12px;
+    font-size: 13px; cursor: pointer;
+    flex-shrink: 0; min-height: 38px; white-space: nowrap;
+  }
+  .chip:active { background: var(--accent); color: #0b0d12; }
+  .chip-x {
+    background: transparent; border: none;
+    color: var(--muted); cursor: pointer;
+    padding: 0 4px; font-size: 16px; line-height: 1;
+  }
+  .chip-x:hover { color: var(--bad); }
+  .save-meal {
+    background: transparent; border: none;
+    color: var(--muted); font-size: 18px;
+    cursor: pointer; padding: 4px 8px;
+    min-width: 36px; min-height: 36px;
+  }
+  .save-meal:hover { color: var(--warn); }
+  .save-meal.saved { color: var(--good); }
+  .metric-tabs { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+  .metric-tabs button {
+    background: var(--panel2); border: 1px solid var(--border);
+    color: var(--text); padding: 6px 12px; border-radius: 999px;
+    cursor: pointer; font-size: 12px; min-height: 32px;
+  }
+  .metric-tabs button.active {
+    background: var(--accent); color: #0b0d12; border-color: var(--accent);
+  }
+  .empty {
+    color: var(--muted);
+    font-size: 13px;
+    text-align: center;
+    padding: 14px 8px;
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+  }
+  .bell {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 15px;
+    padding: 6px 8px;
+    min-width: 36px;
+    min-height: 36px;
+  }
+  .bell.on { color: var(--accent); }
+  .bell:hover { color: var(--accent); }
+  .alarm-badge {
+    font-size: 11px;
+    color: var(--accent);
+    background: var(--panel2);
+    padding: 2px 8px;
+    border-radius: 999px;
+    margin-left: 6px;
+    white-space: nowrap;
+  }
+  .modal {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 100; padding: 20px;
+  }
+  .modal.hidden { display: none; }
+  .modal-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px;
+    max-width: 400px;
+    width: 100%;
+  }
+  .modal-card h3 { margin: 0 0 14px; font-size: 16px; }
+  .modal-actions {
+    display: flex; gap: 8px; justify-content: flex-end;
+    margin-top: 14px; flex-wrap: wrap;
+  }
+  .modal-actions .btn { flex: 0 1 auto; }
+</style>
+</head>
+<body>
+<header>
+  <div class="header-top">
+    <div>
+      <h1>Glow Tracker</h1>
+      <div class="sub" id="today"></div>
+    </div>
+  </div>
+  <nav id="nav">
+    <button data-tab="today" class="active">Today</button>
+    <button data-tab="weekly">Weekly</button>
+    <button data-tab="monthly">Monthly</button>
+    <button data-tab="food">Food</button>
+    <button data-tab="body">Body</button>
+    <button data-tab="photos">Photos</button>
+    <button data-tab="settings">Settings</button>
+  </nav>
+</header>
+
+<main>
+  <section id="tab-today" class="active">
+    <div class="card">
+      <div class="date-nav">
+        <button class="btn ghost" id="todayPrev">&lsaquo;</button>
+        <div style="text-align:center;flex:1">
+          <div id="todayDateLabel" style="font-weight:600"></div>
+          <button class="btn ghost" id="todayToToday" style="margin-top:4px;padding:4px 10px;min-height:0;font-size:12px">Jump to today</button>
+        </div>
+        <button class="btn ghost" id="todayNext">&rsaquo;</button>
+      </div>
+      <div class="streak-row">
+        <div><div class="streak" id="streakDaily">0</div><div class="lbl">Daily streak</div></div>
+        <div><div class="streak" id="todayDone">0/0</div><div class="lbl">Done</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Morning</h2>
+      <ul class="checklist" data-group="morning"></ul>
+      <div class="add-row">
+        <input type="text" placeholder="Add morning habit..." data-add="morning" />
+        <button class="btn" data-addbtn="morning">Add</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Mid-day</h2>
+      <ul class="checklist" data-group="midday"></ul>
+      <div class="add-row">
+        <input type="text" placeholder="Add mid-day habit..." data-add="midday" />
+        <button class="btn" data-addbtn="midday">Add</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Evening</h2>
+      <ul class="checklist" data-group="evening"></ul>
+      <div class="add-row">
+        <input type="text" placeholder="Add evening habit..." data-add="evening" />
+        <button class="btn" data-addbtn="evening">Add</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Fitness &amp; nutrition</h2>
+      <ul class="checklist" data-group="fitness"></ul>
+      <div class="add-row">
+        <input type="text" placeholder="Add fitness habit..." data-add="fitness" />
+        <button class="btn" data-addbtn="fitness">Add</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="tab-weekly">
+    <div class="card">
+      <h2>Weekly maintenance</h2>
+      <div class="meta">Resets every Monday. Items show overdue if missed.</div>
+      <ul class="checklist" data-group="weekly"></ul>
+      <div class="add-row">
+        <input type="text" placeholder="Add weekly task..." data-add="weekly" />
+        <button class="btn" data-addbtn="weekly">Add</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="tab-monthly">
+    <div class="card">
+      <h2>Monthly maintenance</h2>
+      <div class="meta">Tracked by interval (in days). Tap to mark done; due date is recalculated.</div>
+      <ul class="checklist" data-group="monthly"></ul>
+      <div class="add-row">
+        <input type="text" placeholder="Add task (e.g. Haircut)" data-add="monthly" id="monthlyName" />
+        <input type="number" min="1" placeholder="days" id="monthlyDays" style="max-width:90px" />
+        <button class="btn" id="monthlyAdd">Add</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="tab-food">
+    <div class="card">
+      <div class="date-nav">
+        <button class="btn ghost" id="foodPrev">&lsaquo;</button>
+        <div style="text-align:center;flex:1">
+          <div id="foodDateLabel" style="font-weight:600"></div>
+          <button class="btn ghost" id="foodToday" style="margin-top:4px;padding:4px 10px;min-height:0;font-size:12px">Jump to today</button>
+        </div>
+        <button class="btn ghost" id="foodNext">&rsaquo;</button>
+      </div>
+      <div class="totals">
+        <div><div class="v" id="totCal">0</div><div class="k">kcal</div></div>
+        <div><div class="v" id="totP">0g</div><div class="k">protein</div></div>
+        <div><div class="v" id="totC">0g</div><div class="k">carbs</div></div>
+        <div><div class="v" id="totF">0g</div><div class="k">fat</div></div>
+        <div><div class="v" id="totA">0g</div><div class="k">alcohol</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Saved meals</h2>
+      <div class="meta">Tap a chip to add it to today; tap &#9733; on a meal below to save one.</div>
+      <div id="savedMealList" class="chip-row"></div>
+    </div>
+    <div id="mealList"></div>
+    <button class="btn ghost" id="addMeal" style="width:100%">+ Add meal</button>
+    <div class="card" style="margin-top:16px">
+      <h2>Trend</h2>
+      <div class="metric-tabs" id="foodMetricTabs">
+        <button data-metric="cal" class="active">Calories</button>
+        <button data-metric="p">Protein</button>
+        <button data-metric="c">Carbs</button>
+        <button data-metric="f">Fat</button>
+        <button data-metric="a">Alcohol</button>
+      </div>
+      <div class="meta" id="foodTrendAvg" style="margin-bottom:10px"></div>
+      <canvas id="foodChart"></canvas>
+    </div>
+    <div class="card">
+      <h2>Daily history</h2>
+      <table id="foodHistoryTable">
+        <thead><tr><th>Date</th><th>kcal</th><th>P</th><th>C</th><th>F</th><th>Alc</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="tab-body">
+    <div class="card">
+      <h2>Log measurement</h2>
+      <div style="margin-bottom:10px">
+        <label>Date</label>
+        <input type="date" id="bDate" style="max-width:220px" />
+      </div>
+      <div class="row">
+        <div><label>Weight</label><input type="number" step="0.1" id="bWeight" /></div>
+        <div><label>Waist</label><input type="number" step="0.1" id="bWaist" /></div>
+        <div><label>Chest</label><input type="number" step="0.1" id="bChest" /></div>
+        <div><label>Arm</label><input type="number" step="0.1" id="bArm" /></div>
+      </div>
+      <div class="add-row" style="margin-top:12px">
+        <button class="btn" id="bSave">Save entry</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Weight trend</h2>
+      <canvas id="chart"></canvas>
+    </div>
+    <div class="card">
+      <h2>History</h2>
+      <table id="bTable"><thead><tr><th>Date</th><th>Weight</th><th>Waist</th><th>Chest</th><th>Arm</th><th></th></tr></thead><tbody></tbody></table>
+    </div>
+  </section>
+
+  <section id="tab-photos">
+    <div class="card">
+      <h2>Progress photos</h2>
+      <div class="meta">Stored locally in your browser only. Nothing is uploaded.</div>
+      <div class="add-row">
+        <input type="file" id="photoIn" accept="image/*" capture="environment" />
+      </div>
+      <div class="photos" id="photoGrid"></div>
+    </div>
+  </section>
+
+  <section id="tab-settings">
+    <div class="card">
+      <h2>Appearance</h2>
+      <div class="settings-row">
+        <div class="label-block">
+          <div class="t">Light theme</div>
+          <div class="d">Switch between dark and light colors</div>
+        </div>
+        <div class="ctrl"><div class="switch" id="themeSwitch"></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Reminders</h2>
+      <div class="settings-row">
+        <div class="label-block">
+          <div class="t">Daily reminder</div>
+          <div class="d">Notifies you if anything's still undone (requires permission; works while the app is open)</div>
+        </div>
+        <div class="ctrl"><div class="switch" id="remindSwitch"></div></div>
+      </div>
+      <div class="settings-row">
+        <div class="label-block">
+          <div class="t">Reminder time</div>
+          <div class="d">When to nudge you each day</div>
+        </div>
+        <div class="ctrl"><input type="time" id="remindTime" style="width:120px" /></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Data</h2>
+      <div class="settings-row">
+        <div class="label-block">
+          <div class="t">Export</div>
+          <div class="d">Download all your data as JSON</div>
+        </div>
+        <div class="ctrl"><button class="btn ghost" id="exportBtn">Export</button></div>
+      </div>
+      <div class="settings-row">
+        <div class="label-block">
+          <div class="t">Import</div>
+          <div class="d">Replace current data with a backup file</div>
+        </div>
+        <div class="ctrl"><button class="btn ghost" id="importBtn">Import</button></div>
+      </div>
+      <div class="settings-row">
+        <div class="label-block">
+          <div class="t">Reset everything</div>
+          <div class="d">Wipe all habits, body log, and photos</div>
+        </div>
+        <div class="ctrl"><button class="btn danger" id="resetBtn">Reset</button></div>
+      </div>
+      <input type="file" id="importFile" accept="application/json" style="display:none" />
+    </div>
+    <div class="card">
+      <h2>Calendar alarms</h2>
+      <div class="meta">Tap the bell on any task to set a reminder time and download a .ics file. Open it on iPhone &rarr; Apple Calendar gives you native lock-screen alarms.</div>
+      <div class="settings-row">
+        <div class="label-block">
+          <div class="t">Export all alarms</div>
+          <div class="d">One .ics file with every task that has an alarm set</div>
+        </div>
+        <div class="ctrl"><button class="btn ghost" id="exportAlarmsBtn">Export</button></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Install</h2>
+      <div class="meta">On iPhone: Share &rarr; Add to Home Screen. On Android/Chrome: tap the install prompt or use the browser menu &rarr; Install app. Once installed, it works offline.</div>
+    </div>
+  </section>
+</main>
+
+<div id="alarmModal" class="modal hidden">
+  <div class="modal-card">
+    <h3 id="alarmTitle"></h3>
+    <div id="alarmFields"></div>
+    <div class="meta" style="margin-top:10px">In-app reminder while the Glow Tracker is open. For lock-screen alarms on iPhone, tap "Add to Calendar".</div>
+    <div class="modal-actions">
+      <button class="btn ghost" id="alarmCancel">Cancel</button>
+      <button class="btn ghost" id="alarmRemove">Remove</button>
+      <button class="btn" id="alarmSave">Save</button>
+    </div>
+    <button class="btn ghost" id="alarmIcs" style="width:100%;margin-top:10px">Add to iPhone Calendar (.ics)</button>
+  </div>
+</div>
+
+<script>
+const KEY = "glowtracker.v1";
+const DEFAULTS = { morning: [], midday: [], evening: [], fitness: [], weekly: [], monthly: [] };
+
+let data = load();
+
+function load() {
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (!raw) return seed();
+    const d = JSON.parse(raw);
+    if (!d.items) return seed();
+    return d;
+  } catch (e) { return seed(); }
+}
+function seed() {
+  const items = {};
+  for (const g of ["morning","midday","evening","fitness","weekly"]) {
+    items[g] = DEFAULTS[g].map((name, i) => ({ id: g+"-"+i+"-"+Date.now(), name, last: 0 }));
+  }
+  items.monthly = DEFAULTS.monthly.map((m, i) => ({
+    id: "m-"+i+"-"+Date.now(), name: m.name, days: m.days, last: 0
+  }));
+  return {
+    items, body: [], photos: [], food: {}, savedMeals: [],
+    streak: { count: 0, lastDay: null },
+    settings: { theme: "dark", remind: false, remindTime: "21:00", lastNotified: null }
+  };
+}
+function save() { localStorage.setItem(KEY, JSON.stringify(data)); }
+if (!data.settings) data.settings = { theme: "dark", remind: false, remindTime: "21:00", lastNotified: null };
+if (!data.food) data.food = {};
+if (!data.items.midday) data.items.midday = [];
+if (!data.savedMeals) data.savedMeals = [];
+for (const g of ["morning","midday","evening","fitness"]) {
+  for (const it of (data.items[g] || [])) {
+    if (!it.done) it.done = {};
+    if (it.last && it.last > 0) {
+      const d = new Date(it.last);
+      const ds = d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+      it.done[ds] = true;
+    }
+  }
+}
+
+function todayStr() {
+  const d = new Date();
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+function startOfDay(ts) { const d = new Date(ts); d.setHours(0,0,0,0); return d.getTime(); }
+function startOfWeek() {
+  const d = new Date(); d.setHours(0,0,0,0);
+  const dow = (d.getDay() + 6) % 7;
+  d.setDate(d.getDate() - dow);
+  return d.getTime();
+}
+function daysBetween(a, b) { return Math.floor((b - a) / 86400000); }
+
+const DAILY_GROUPS = ["morning","midday","evening","fitness"];
+let todayViewDate = todayStr();
+
+function dateStrOf(d) {
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+function shiftTodayDate(delta) {
+  const d = new Date(todayViewDate + "T00:00:00");
+  d.setDate(d.getDate() + delta);
+  todayViewDate = dateStrOf(d);
+  render();
+}
+function todayDateLabel(d) {
+  if (d === todayStr()) return "Today";
+  const dt = new Date(d + "T00:00:00");
+  return dt.toLocaleDateString(undefined, { weekday:"short", month:"short", day:"numeric" });
+}
+
+function isDone(item, group, dateStr) {
+  if (group === "weekly") return item.last >= startOfWeek();
+  if (group === "monthly") return false;
+  const ds = dateStr || todayViewDate;
+  return !!(item.done && item.done[ds]);
+}
+
+function render() {
+  document.getElementById("today").textContent =
+    new Date().toLocaleDateString(undefined, { weekday:"long", month:"long", day:"numeric" });
+  document.getElementById("todayDateLabel").textContent = todayDateLabel(todayViewDate);
+  for (const g of ["morning","midday","evening","fitness","weekly"]) renderList(g);
+  renderMonthly();
+  renderStreaks();
+  renderFood();
+  renderBody();
+  renderPhotos();
+}
+
+let foodDate = todayStr();
+
+function mealSeed(name) {
+  return { id: "meal-" + Math.random().toString(36).slice(2) + Date.now(),
+           name, protein: 0, carbs: 0, fat: 0, alcohol: 0, cal: 0, calOverride: false };
+}
+function autoCal(m) {
+  return Math.round((+m.protein||0)*4 + (+m.carbs||0)*4 + (+m.fat||0)*9 + (+m.alcohol||0)*7);
+}
+function ensureFoodDay(d) {
+  if (!data.food) data.food = {};
+  if (!data.food[d]) { data.food[d] = []; save(); }
+  return data.food[d];
+}
+function foodDateLabel(d) {
+  if (d === todayStr()) return "Today";
+  return new Date(d + "T00:00:00").toLocaleDateString(undefined,
+    { weekday:"short", month:"short", day:"numeric" });
+}
+function shiftFoodDate(delta) {
+  const dt = new Date(foodDate + "T00:00:00");
+  dt.setDate(dt.getDate() + delta);
+  foodDate = dt.getFullYear()+"-"+String(dt.getMonth()+1).padStart(2,"0")+"-"+String(dt.getDate()).padStart(2,"0");
+  renderFood();
+}
+function updateFoodTotals() {
+  const meals = data.food[foodDate] || [];
+  let p=0,c=0,f=0,a=0,cal=0;
+  for (const m of meals) {
+    p += +m.protein||0; c += +m.carbs||0; f += +m.fat||0; a += +m.alcohol||0;
+    cal += m.calOverride ? (+m.cal||0) : autoCal(m);
+  }
+  document.getElementById("totCal").textContent = Math.round(cal);
+  document.getElementById("totP").textContent = Math.round(p)+"g";
+  document.getElementById("totC").textContent = Math.round(c)+"g";
+  document.getElementById("totF").textContent = Math.round(f)+"g";
+  document.getElementById("totA").textContent = Math.round(a)+"g";
+  drawFoodChart();
+  renderFoodHistory();
+}
+function mealNode(m) {
+  const div = document.createElement("div");
+  div.className = "meal";
+  const head = document.createElement("div");
+  head.className = "meal-head";
+  const name = document.createElement("input");
+  name.type = "text"; name.className = "meal-name"; name.value = m.name;
+  name.addEventListener("input", () => { m.name = name.value; save(); });
+  const star = document.createElement("button");
+  star.className = "save-meal"; star.type = "button";
+  star.title = "Save meal for later"; star.textContent = "★";
+  star.addEventListener("click", () => {
+    if (!m.name.trim()) { alert("Name the meal before saving."); return; }
+    if (!data.savedMeals) data.savedMeals = [];
+    data.savedMeals.push({
+      id: "sm-" + Math.random().toString(36).slice(2) + Date.now(),
+      name: m.name.trim(),
+      protein: +m.protein || 0,
+      carbs: +m.carbs || 0,
+      fat: +m.fat || 0,
+      alcohol: +m.alcohol || 0,
+      cal: m.calOverride ? (+m.cal || 0) : autoCal(m),
+      calOverride: !!m.calOverride
+    });
+    save(); renderSavedMeals();
+    star.classList.add("saved");
+    setTimeout(() => star.classList.remove("saved"), 1200);
+  });
+  const del = document.createElement("button");
+  del.className = "del"; del.innerHTML = "&times;"; del.title = "Remove meal";
+  del.addEventListener("click", () => {
+    data.food[foodDate] = data.food[foodDate].filter(x => x.id !== m.id);
+    save(); renderFood();
+  });
+  head.appendChild(name); head.appendChild(star); head.appendChild(del);
+
+  const grid = document.createElement("div");
+  grid.className = "macro-grid";
+  const inputs = {};
+  for (const [key, labelTxt] of [["protein","Protein (g)"],["carbs","Carbs (g)"],["fat","Fat (g)"],["alcohol","Alcohol (g)"],["cal","Calories"]]) {
+    const cell = document.createElement("div");
+    const lab = document.createElement("label");
+    lab.appendChild(document.createTextNode(labelTxt));
+    const inp = document.createElement("input");
+    inp.type = "number"; inp.min = "0"; inp.inputMode = "decimal";
+    inp.value = key === "cal" ? (m.calOverride ? (+m.cal||0) : autoCal(m)) : (+m[key]||0);
+    inputs[key] = inp;
+    if (key === "cal") {
+      const reset = document.createElement("button");
+      reset.type = "button"; reset.className = "cal-reset"; reset.textContent = "auto";
+      reset.title = "Recalculate from macros";
+      reset.addEventListener("click", () => {
+        m.calOverride = false; m.cal = autoCal(m); inp.value = m.cal;
+        save(); updateFoodTotals();
+      });
+      lab.appendChild(reset);
+    }
+    cell.appendChild(lab); cell.appendChild(inp);
+    grid.appendChild(cell);
+  }
+  for (const key of ["protein","carbs","fat","alcohol"]) {
+    inputs[key].addEventListener("input", () => {
+      m[key] = parseFloat(inputs[key].value) || 0;
+      if (!m.calOverride) { m.cal = autoCal(m); inputs.cal.value = m.cal; }
+      save(); updateFoodTotals();
+    });
+  }
+  inputs.cal.addEventListener("input", () => {
+    m.cal = parseFloat(inputs.cal.value) || 0;
+    m.calOverride = true;
+    save(); updateFoodTotals();
+  });
+  div.appendChild(head); div.appendChild(grid);
+  return div;
+}
+function renderSavedMeals() {
+  const wrap = document.getElementById("savedMealList");
+  if (!wrap) return;
+  if (!data.savedMeals) data.savedMeals = [];
+  wrap.innerHTML = "";
+  if (data.savedMeals.length === 0) {
+    const e = document.createElement("div");
+    e.className = "empty"; e.style.flex = "1";
+    e.textContent = "No saved meals yet.";
+    wrap.appendChild(e);
+    return;
+  }
+  for (const sm of data.savedMeals) {
+    const cal = sm.calOverride ? (+sm.cal||0) : autoCal(sm);
+    const chip = document.createElement("button");
+    chip.className = "chip"; chip.type = "button";
+    const almt = +sm.alcohol || 0;
+    chip.title = `P${Math.round(sm.protein)} C${Math.round(sm.carbs)} F${Math.round(sm.fat)}${almt?` A${Math.round(almt)}`:""} · ${Math.round(cal)} kcal`;
+    const lbl = document.createElement("span");
+    lbl.textContent = `${sm.name} · ${Math.round(cal)} kcal`;
+    const x = document.createElement("span");
+    x.className = "chip-x"; x.innerHTML = "&times;"; x.title = "Remove from library";
+    x.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (!confirm(`Remove "${sm.name}" from saved meals?`)) return;
+      data.savedMeals = data.savedMeals.filter(z => z.id !== sm.id);
+      save(); renderSavedMeals();
+    });
+    chip.appendChild(lbl); chip.appendChild(x);
+    chip.addEventListener("click", () => {
+      const meals = ensureFoodDay(foodDate);
+      meals.push({
+        id: "meal-" + Math.random().toString(36).slice(2) + Date.now(),
+        name: sm.name,
+        protein: +sm.protein || 0,
+        carbs: +sm.carbs || 0,
+        fat: +sm.fat || 0,
+        alcohol: +sm.alcohol || 0,
+        cal: +sm.cal || 0,
+        calOverride: !!sm.calOverride
+      });
+      save(); renderFood();
+    });
+    wrap.appendChild(chip);
+  }
+}
+
+function dayTotals(dayMeals) {
+  let p=0,c=0,f=0,a=0,cal=0;
+  for (const m of dayMeals||[]) {
+    p += +m.protein||0; c += +m.carbs||0; f += +m.fat||0; a += +m.alcohol||0;
+    cal += m.calOverride ? (+m.cal||0) : autoCal(m);
+  }
+  return { p, c, f, a, cal };
+}
+function foodHistoryDays() {
+  if (!data.food) return [];
+  return Object.keys(data.food)
+    .filter(d => (data.food[d]||[]).length > 0)
+    .sort();
+}
+let foodTrendMetric = "cal";
+const METRIC_LABEL = { cal: "kcal", p: "g protein", c: "g carbs", f: "g fat", a: "g alcohol" };
+const METRIC_KEY   = { cal: "cal", p: "p", c: "c", f: "f", a: "a" };
+
+function last7DayAverage(metricKey) {
+  const now = new Date();
+  let sum = 0, count = 0;
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(now); d.setDate(d.getDate() - i);
+    const ds = dateStrOf(d);
+    const meals = data.food && data.food[ds];
+    if (!meals || meals.length === 0) continue;
+    sum += dayTotals(meals)[metricKey];
+    count++;
+  }
+  return count ? { avg: sum / count, count } : { avg: null, count: 0 };
+}
+function updateFoodTrendAvg() {
+  const el = document.getElementById("foodTrendAvg");
+  if (!el) return;
+  const { avg, count } = last7DayAverage(METRIC_KEY[foodTrendMetric]);
+  if (avg === null) { el.textContent = "7-day avg: — (log meals to see it)"; return; }
+  el.textContent = `7-day avg: ${Math.round(avg).toLocaleString()} ${METRIC_LABEL[foodTrendMetric]} (${count} day${count>1?"s":""} logged)`;
+}
+
+function drawFoodChart() {
+  updateFoodTrendAvg();
+  const c = document.getElementById("foodChart");
+  if (!c) return;
+  const dpr = window.devicePixelRatio || 1;
+  const rect = c.getBoundingClientRect();
+  c.width = rect.width * dpr; c.height = rect.height * dpr;
+  const ctx = c.getContext("2d");
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, rect.width, rect.height);
+  const days = foodHistoryDays();
+  if (days.length === 0) {
+    ctx.fillStyle = "#8a93a3"; ctx.font = "13px sans-serif"; ctx.textAlign = "center";
+    ctx.fillText("Log meals to see the trend", rect.width/2, rect.height/2);
+    return;
+  }
+  const series = days.map(d => ({
+    t: new Date(d + "T00:00:00").getTime(),
+    v: dayTotals(data.food[d])[METRIC_KEY[foodTrendMetric]]
+  }));
+  const avg7 = last7DayAverage(METRIC_KEY[foodTrendMetric]).avg;
+  const pad = 30;
+  const xMin = Math.min(...series.map(s=>s.t));
+  const xMax = Math.max(...series.map(s=>s.t));
+  const yMax = Math.max(...series.map(s=>s.v), avg7 || 0, 1) * 1.1;
+  const xScale = x => pad + ((x - xMin) / Math.max(1, xMax - xMin)) * (rect.width - pad*2);
+  const yScale = y => rect.height - pad - (y / Math.max(0.1, yMax)) * (rect.height - pad*2);
+  ctx.strokeStyle = "#2a2f3a"; ctx.lineWidth = 1;
+  for (let i = 0; i < 5; i++) {
+    const y = pad + i * (rect.height - pad*2) / 4;
+    ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(rect.width-pad, y); ctx.stroke();
+  }
+  if (avg7 !== null && avg7 > 0) {
+    const y = yScale(avg7);
+    ctx.save();
+    ctx.setLineDash([4, 4]);
+    ctx.strokeStyle = "#f5b971"; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(rect.width-pad, y); ctx.stroke();
+    ctx.restore();
+    ctx.fillStyle = "#f5b971"; ctx.font = "10px sans-serif"; ctx.textAlign = "left";
+    ctx.fillText("7d avg " + Math.round(avg7), rect.width - pad - 70, y - 4);
+  }
+  ctx.strokeStyle = "#7cc4ff"; ctx.lineWidth = 2;
+  ctx.beginPath();
+  series.forEach((s, i) => {
+    const x = xScale(s.t), y = yScale(s.v);
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  });
+  ctx.stroke();
+  ctx.fillStyle = "#7cc4ff";
+  series.forEach(s => {
+    const x = xScale(s.t), y = yScale(s.v);
+    ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI*2); ctx.fill();
+  });
+  if (series.length >= 2) {
+    const dayMs = 86400000;
+    let n=0, sx=0, sy=0, sxy=0, sxx=0;
+    for (const s of series) {
+      const x = (s.t - xMin) / dayMs;
+      const y = s.v;
+      n++; sx += x; sy += y; sxy += x*y; sxx += x*x;
+    }
+    const denom = n*sxx - sx*sx;
+    if (denom !== 0) {
+      const slope = (n*sxy - sx*sy) / denom;
+      const intercept = (sy - slope*sx) / n;
+      const xMaxNorm = (xMax - xMin) / dayMs;
+      const yA = intercept;
+      const yB = intercept + slope * xMaxNorm;
+      ctx.strokeStyle = "#7ed492"; ctx.lineWidth = 1.5;
+      ctx.setLineDash([]);
+      ctx.beginPath();
+      ctx.moveTo(xScale(xMin), yScale(yA));
+      ctx.lineTo(xScale(xMax), yScale(yB));
+      ctx.stroke();
+      const arrow = slope > 0.5 ? "▲" : (slope < -0.5 ? "▼" : "→");
+      const labelY = Math.max(pad + 12, yScale(yB) - 6);
+      ctx.fillStyle = "#7ed492"; ctx.font = "10px sans-serif"; ctx.textAlign = "right";
+      ctx.fillText(`trend ${arrow} ${slope >= 0 ? "+" : ""}${Math.round(slope)}/day`,
+                   rect.width - pad, labelY);
+    }
+  }
+  ctx.fillStyle = "#8a93a3"; ctx.font = "11px sans-serif"; ctx.textAlign = "right";
+  ctx.fillText(Math.round(yMax), pad-4, pad+4);
+  ctx.fillText("0", pad-4, rect.height-pad+4);
+  ctx.textAlign = "left";
+  ctx.fillText(METRIC_LABEL[foodTrendMetric], pad, 14);
+}
+
+function renderFoodHistory() {
+  const tbody = document.querySelector("#foodHistoryTable tbody");
+  if (!tbody) return;
+  tbody.innerHTML = "";
+  const days = foodHistoryDays().reverse();
+  if (days.length === 0) {
+    const tr = document.createElement("tr");
+    const td = document.createElement("td");
+    td.colSpan = 6; td.style.color = "var(--muted)"; td.style.textAlign = "center"; td.style.padding = "12px 0";
+    td.textContent = "No days logged yet.";
+    tr.appendChild(td); tbody.appendChild(tr);
+    return;
+  }
+  for (const d of days) {
+    const t = dayTotals(data.food[d]);
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td></td><td></td><td></td><td></td><td></td><td></td>`;
+    const cells = tr.querySelectorAll("td");
+    cells[0].textContent = d === todayStr() ? "Today" : d;
+    cells[1].textContent = Math.round(t.cal);
+    cells[2].textContent = Math.round(t.p) + "g";
+    cells[3].textContent = Math.round(t.c) + "g";
+    cells[4].textContent = Math.round(t.f) + "g";
+    cells[5].textContent = Math.round(t.a) + "g";
+    tbody.appendChild(tr);
+  }
+}
+
+function renderFood() {
+  const meals = ensureFoodDay(foodDate);
+  document.getElementById("foodDateLabel").textContent = foodDateLabel(foodDate);
+  renderSavedMeals();
+  const list = document.getElementById("mealList");
+  list.innerHTML = "";
+  if (meals.length === 0) {
+    const div = document.createElement("div");
+    div.className = "empty";
+    div.style.marginBottom = "10px";
+    div.textContent = "No meals logged yet — tap +Add meal to start.";
+    list.appendChild(div);
+  } else {
+    for (const m of meals) list.appendChild(mealNode(m));
+  }
+  updateFoodTotals();
+  drawFoodChart();
+  renderFoodHistory();
+}
+
+function startEdit(li, item, group, isMonthly) {
+  const label = li.querySelector(".label");
+  if (!label) return;
+  const due = li.querySelector(".due");
+  const input = document.createElement("input");
+  input.type = "text";
+  input.className = "edit-input";
+  input.value = item.name;
+  let daysInput = null;
+  if (isMonthly) {
+    daysInput = document.createElement("input");
+    daysInput.type = "number";
+    daysInput.min = "1";
+    daysInput.className = "edit-days";
+    daysInput.value = item.days;
+  }
+  label.replaceWith(input);
+  if (due && daysInput) due.replaceWith(daysInput);
+  input.focus();
+  input.select();
+  let saved = false;
+  const commit = () => {
+    if (saved) return;
+    saved = true;
+    const name = input.value.trim();
+    if (name) item.name = name;
+    if (daysInput) {
+      const d = parseInt(daysInput.value, 10);
+      if (d > 0) item.days = d;
+    }
+    save(); render();
+  };
+  const cancel = () => { if (saved) return; saved = true; render(); };
+  const onKey = (e) => {
+    e.stopPropagation();
+    if (e.key === "Enter") commit();
+    else if (e.key === "Escape") cancel();
+  };
+  input.addEventListener("keydown", onKey);
+  input.addEventListener("blur", commit);
+  if (daysInput) {
+    daysInput.addEventListener("keydown", onKey);
+    daysInput.addEventListener("blur", commit);
+  }
+}
+
+function renderList(group) {
+  const ul = document.querySelector(`ul[data-group="${group}"]`);
+  if (!ul) return;
+  ul.innerHTML = "";
+  if (data.items[group].length === 0) {
+    const li = document.createElement("li");
+    li.className = "empty";
+    li.textContent = "Nothing here yet — add your first habit below.";
+    ul.appendChild(li);
+    return;
+  }
+  for (const item of data.items[group]) {
+    const li = document.createElement("li");
+    if (isDone(item, group)) li.classList.add("done");
+    li.innerHTML = `<span class="box"></span><span class="label"></span><button class="bell" title="Reminder">&#128276;</button><button class="edit" title="Edit">&#9998;</button><button class="del" title="Remove">&times;</button>`;
+    const labelEl = li.querySelector(".label");
+    labelEl.textContent = item.name;
+    if (item.alarm && item.alarm.time) {
+      const badge = document.createElement("span");
+      badge.className = "alarm-badge";
+      badge.textContent = "⏰ " + alarmLabel(item, group);
+      labelEl.appendChild(badge);
+      li.querySelector(".bell").classList.add("on");
+    }
+    li.addEventListener("click", (e) => {
+      if (e.target.closest(".del") || e.target.closest(".edit") || e.target.closest(".bell") || e.target.classList.contains("edit-input")) return;
+      if (DAILY_GROUPS.includes(group)) {
+        if (!item.done) item.done = {};
+        if (item.done[todayViewDate]) delete item.done[todayViewDate];
+        else item.done[todayViewDate] = true;
+      } else {
+        item.last = isDone(item, group) ? 0 : Date.now();
+      }
+      save(); render();
+    });
+    li.querySelector(".edit").addEventListener("click", (e) => {
+      e.stopPropagation();
+      startEdit(li, item, group, false);
+    });
+    li.querySelector(".bell").addEventListener("click", (e) => {
+      e.stopPropagation();
+      openAlarm(item, group);
+    });
+    li.querySelector(".del").addEventListener("click", (e) => {
+      e.stopPropagation();
+      data.items[group] = data.items[group].filter(x => x.id !== item.id);
+      save(); render();
+    });
+    ul.appendChild(li);
+  }
+}
+
+function renderMonthly() {
+  const ul = document.querySelector(`ul[data-group="monthly"]`);
+  ul.innerHTML = "";
+  if (data.items.monthly.length === 0) {
+    const li = document.createElement("li");
+    li.className = "empty";
+    li.textContent = "No tasks yet — add one below (e.g. Haircut, every 30 days).";
+    ul.appendChild(li);
+    return;
+  }
+  for (const item of data.items.monthly) {
+    const since = item.last ? daysBetween(item.last, Date.now()) : null;
+    const left = item.last ? item.days - since : null;
+    const li = document.createElement("li");
+    let dueText, cls = "";
+    if (item.last === 0) { dueText = "never done"; cls = "soon"; }
+    else if (left < 0) { dueText = `${-left}d overdue`; cls = "overdue"; }
+    else if (left <= 3) { dueText = `due in ${left}d`; cls = "soon"; }
+    else { dueText = `due in ${left}d`; }
+    if (cls) li.classList.add(cls);
+    li.innerHTML = `<span class="box"></span><span class="label"></span><span class="due"></span><button class="bell" title="Reminder">&#128276;</button><button class="edit" title="Edit">&#9998;</button><button class="del" title="Remove">&times;</button>`;
+    const labelEl = li.querySelector(".label");
+    labelEl.textContent = `${item.name} (every ${item.days}d)`;
+    if (item.alarm && item.alarm.time) {
+      const badge = document.createElement("span");
+      badge.className = "alarm-badge";
+      badge.textContent = "⏰ " + alarmLabel(item, "monthly");
+      labelEl.appendChild(badge);
+      li.querySelector(".bell").classList.add("on");
+    }
+    li.querySelector(".due").textContent = dueText;
+    if (item.last && since < 1) li.classList.add("done");
+    li.addEventListener("click", (e) => {
+      if (e.target.closest(".del") || e.target.closest(".edit") || e.target.closest(".bell") || e.target.classList.contains("edit-input") || e.target.classList.contains("edit-days")) return;
+      item.last = Date.now();
+      save(); render();
+    });
+    li.querySelector(".edit").addEventListener("click", (e) => {
+      e.stopPropagation();
+      startEdit(li, item, "monthly", true);
+    });
+    li.querySelector(".bell").addEventListener("click", (e) => {
+      e.stopPropagation();
+      openAlarm(item, "monthly");
+    });
+    li.querySelector(".del").addEventListener("click", (e) => {
+      e.stopPropagation();
+      data.items.monthly = data.items.monthly.filter(x => x.id !== item.id);
+      save(); render();
+    });
+    ul.appendChild(li);
+  }
+}
+
+function computeDailyStreak() {
+  const allDaily = [...data.items.morning, ...(data.items.midday||[]), ...data.items.evening, ...data.items.fitness];
+  if (allDaily.length === 0) return 0;
+  const allDoneOn = (ds) => allDaily.every(it => it.done && it.done[ds]);
+  let streak = 0;
+  const d = new Date();
+  if (allDoneOn(dateStrOf(d))) streak++;
+  d.setDate(d.getDate() - 1);
+  for (let i = 0; i < 365; i++) {
+    if (allDoneOn(dateStrOf(d))) { streak++; d.setDate(d.getDate() - 1); }
+    else break;
+  }
+  return streak;
+}
+
+function renderStreaks() {
+  const allDaily = [...data.items.morning, ...(data.items.midday||[]), ...data.items.evening, ...data.items.fitness];
+  const doneOn = allDaily.filter(i => i.done && i.done[todayViewDate]).length;
+  document.getElementById("todayDone").textContent = `${doneOn}/${allDaily.length}`;
+  document.getElementById("streakDaily").textContent = computeDailyStreak();
+}
+
+function addItem(group, name, extra = {}) {
+  const id = group + "-" + Date.now();
+  const base = { id, name, last: 0 };
+  if (DAILY_GROUPS.includes(group)) base.done = {};
+  data.items[group].push({ ...base, ...extra });
+  save(); render();
+}
+
+document.querySelectorAll("[data-addbtn]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const g = btn.dataset.addbtn;
+    const input = document.querySelector(`[data-add="${g}"]`);
+    const v = input.value.trim();
+    if (v) { addItem(g, v); input.value = ""; }
+  });
+});
+document.querySelectorAll("[data-add]").forEach(inp => {
+  inp.addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+      const btn = document.querySelector(`[data-addbtn="${inp.dataset.add}"]`);
+      if (btn) btn.click();
+    }
+  });
+});
+document.getElementById("monthlyAdd").addEventListener("click", () => {
+  const name = document.getElementById("monthlyName").value.trim();
+  const days = parseInt(document.getElementById("monthlyDays").value, 10);
+  if (name && days > 0) {
+    addItem("monthly", name, { days });
+    document.getElementById("monthlyName").value = "";
+    document.getElementById("monthlyDays").value = "";
+  }
+});
+
+document.getElementById("todayPrev").addEventListener("click", () => shiftTodayDate(-1));
+document.getElementById("todayNext").addEventListener("click", () => shiftTodayDate(1));
+document.getElementById("todayToToday").addEventListener("click", () => { todayViewDate = todayStr(); render(); });
+document.getElementById("foodPrev").addEventListener("click", () => shiftFoodDate(-1));
+document.getElementById("foodNext").addEventListener("click", () => shiftFoodDate(1));
+document.getElementById("foodToday").addEventListener("click", () => { foodDate = todayStr(); renderFood(); });
+document.getElementById("addMeal").addEventListener("click", () => {
+  const meals = ensureFoodDay(foodDate);
+  meals.push(mealSeed("Meal " + (meals.length + 1)));
+  save(); renderFood();
+});
+
+document.getElementById("nav").addEventListener("click", e => {
+  if (e.target.tagName !== "BUTTON") return;
+  document.querySelectorAll("#nav button").forEach(b => b.classList.remove("active"));
+  e.target.classList.add("active");
+  document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
+  document.getElementById("tab-" + e.target.dataset.tab).classList.add("active");
+});
+
+document.getElementById("bDate").value = todayStr();
+document.getElementById("bSave").addEventListener("click", () => {
+  const entry = {
+    date: document.getElementById("bDate").value,
+    weight: parseFloat(document.getElementById("bWeight").value) || null,
+    waist: parseFloat(document.getElementById("bWaist").value) || null,
+    chest: parseFloat(document.getElementById("bChest").value) || null,
+    arm: parseFloat(document.getElementById("bArm").value) || null
+  };
+  if (!entry.date) return;
+  data.body = data.body.filter(e => e.date !== entry.date);
+  data.body.push(entry);
+  data.body.sort((a,b) => a.date.localeCompare(b.date));
+  save(); renderBody();
+  ["bWeight","bWaist","bChest","bArm"].forEach(id => document.getElementById(id).value = "");
+});
+
+function renderBody() {
+  const tbody = document.querySelector("#bTable tbody");
+  tbody.innerHTML = "";
+  for (const e of [...data.body].reverse()) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td></td><td></td><td></td><td></td><td></td><td><button class="del">&times;</button></td>`;
+    const cells = tr.querySelectorAll("td");
+    cells[0].textContent = e.date;
+    cells[1].textContent = e.weight ?? "";
+    cells[2].textContent = e.waist ?? "";
+    cells[3].textContent = e.chest ?? "";
+    cells[4].textContent = e.arm ?? "";
+    tr.querySelector(".del").addEventListener("click", () => {
+      data.body = data.body.filter(x => x.date !== e.date);
+      save(); renderBody();
+    });
+    tbody.appendChild(tr);
+  }
+  drawChart();
+}
+
+function drawChart() {
+  const c = document.getElementById("chart");
+  const dpr = window.devicePixelRatio || 1;
+  const rect = c.getBoundingClientRect();
+  c.width = rect.width * dpr; c.height = rect.height * dpr;
+  const ctx = c.getContext("2d");
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0,0,rect.width, rect.height);
+  const points = data.body.filter(e => e.weight != null);
+  if (points.length === 0) {
+    ctx.fillStyle = "#8a93a3"; ctx.font = "13px sans-serif"; ctx.textAlign = "center";
+    ctx.fillText("Log a weight to see the trend", rect.width/2, rect.height/2);
+    return;
+  }
+  const pad = 30;
+  const xs = points.map(p => new Date(p.date).getTime());
+  const ys = points.map(p => p.weight);
+  const xMin = Math.min(...xs), xMax = Math.max(...xs);
+  const yMin = Math.min(...ys) - 1, yMax = Math.max(...ys) + 1;
+  const xScale = x => pad + ((x - xMin) / Math.max(1, xMax - xMin)) * (rect.width - pad*2);
+  const yScale = y => rect.height - pad - ((y - yMin) / Math.max(0.1, yMax - yMin)) * (rect.height - pad*2);
+  ctx.strokeStyle = "#2a2f3a"; ctx.lineWidth = 1;
+  for (let i=0; i<5; i++) {
+    const y = pad + i * (rect.height - pad*2) / 4;
+    ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(rect.width-pad, y); ctx.stroke();
+  }
+  ctx.strokeStyle = "#7cc4ff"; ctx.lineWidth = 2;
+  ctx.beginPath();
+  points.forEach((p, i) => {
+    const x = xScale(new Date(p.date).getTime()), y = yScale(p.weight);
+    if (i === 0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  });
+  ctx.stroke();
+  ctx.fillStyle = "#7cc4ff";
+  points.forEach(p => {
+    const x = xScale(new Date(p.date).getTime()), y = yScale(p.weight);
+    ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI*2); ctx.fill();
+  });
+  ctx.fillStyle = "#8a93a3"; ctx.font = "11px sans-serif"; ctx.textAlign = "right";
+  ctx.fillText(yMax.toFixed(1), pad-4, pad+4);
+  ctx.fillText(yMin.toFixed(1), pad-4, rect.height-pad+4);
+}
+
+document.getElementById("photoIn").addEventListener("change", e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      const max = 800;
+      const scale = Math.min(1, max / Math.max(img.width, img.height));
+      const cv = document.createElement("canvas");
+      cv.width = img.width * scale; cv.height = img.height * scale;
+      cv.getContext("2d").drawImage(img, 0, 0, cv.width, cv.height);
+      const dataUrl = cv.toDataURL("image/jpeg", 0.75);
+      data.photos.push({ id: Date.now(), date: todayStr(), src: dataUrl });
+      save(); renderPhotos();
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+  e.target.value = "";
+});
+
+function renderPhotos() {
+  const grid = document.getElementById("photoGrid");
+  grid.innerHTML = "";
+  for (const p of [...data.photos].reverse()) {
+    const div = document.createElement("div");
+    div.className = "photo";
+    div.innerHTML = `<img /><div class="date"></div><button class="rm">&times;</button>`;
+    div.querySelector("img").src = p.src;
+    div.querySelector(".date").textContent = p.date;
+    div.querySelector(".rm").addEventListener("click", () => {
+      data.photos = data.photos.filter(x => x.id !== p.id);
+      save(); renderPhotos();
+    });
+    grid.appendChild(div);
+  }
+}
+
+window.addEventListener("resize", () => { drawChart(); drawFoodChart(); });
+document.querySelectorAll("#foodMetricTabs button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("#foodMetricTabs button").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    foodTrendMetric = btn.dataset.metric;
+    drawFoodChart();
+  });
+});
+
+function applyTheme() {
+  document.body.classList.toggle("light", data.settings.theme === "light");
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute("content", data.settings.theme === "light" ? "#f5f6f8" : "#0f1115");
+  document.getElementById("themeSwitch").classList.toggle("on", data.settings.theme === "light");
+}
+document.getElementById("themeSwitch").addEventListener("click", () => {
+  data.settings.theme = data.settings.theme === "light" ? "dark" : "light";
+  save(); applyTheme();
+});
+
+function applyRemindUI() {
+  document.getElementById("remindSwitch").classList.toggle("on", !!data.settings.remind);
+  document.getElementById("remindTime").value = data.settings.remindTime || "21:00";
+}
+document.getElementById("remindSwitch").addEventListener("click", async () => {
+  if (!data.settings.remind) {
+    if ("Notification" in window && Notification.permission !== "granted") {
+      const r = await Notification.requestPermission();
+      if (r !== "granted") { alert("Notification permission denied."); return; }
+    }
+    data.settings.remind = true;
+  } else {
+    data.settings.remind = false;
+  }
+  save(); applyRemindUI();
+});
+document.getElementById("remindTime").addEventListener("change", e => {
+  data.settings.remindTime = e.target.value || "21:00";
+  save();
+});
+
+const DAYNAMES_SHORT = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const DAYNAMES_ICS = ["SU","MO","TU","WE","TH","FR","SA"];
+
+function alarmLabel(item, group) {
+  const t = item.alarm.time;
+  if (group === "weekly" && item.alarm.weekday !== undefined) {
+    return DAYNAMES_SHORT[item.alarm.weekday] + " " + t;
+  }
+  return t;
+}
+
+function pad(n) { return String(n).padStart(2, "0"); }
+function fmtICSLocal(d) {
+  return d.getFullYear() + pad(d.getMonth()+1) + pad(d.getDate()) + "T" +
+         pad(d.getHours()) + pad(d.getMinutes()) + "00";
+}
+function fmtICSUtc(d) {
+  return d.getUTCFullYear() + pad(d.getUTCMonth()+1) + pad(d.getUTCDate()) + "T" +
+         pad(d.getUTCHours()) + pad(d.getUTCMinutes()) + "00Z";
+}
+function nextAlarmDate(item, group) {
+  const [h, m] = item.alarm.time.split(":").map(Number);
+  const now = new Date();
+  const target = new Date(now);
+  target.setHours(h, m, 0, 0);
+  if (group === "weekly" && item.alarm.weekday !== undefined) {
+    const diff = (item.alarm.weekday - target.getDay() + 7) % 7;
+    if (diff === 0 && target <= now) target.setDate(target.getDate() + 7);
+    else target.setDate(target.getDate() + diff);
+  } else if (target <= now) {
+    target.setDate(target.getDate() + 1);
+  }
+  return target;
+}
+function escIcs(s) { return String(s).replace(/[\\;,]/g, x => "\\" + x).replace(/\n/g, "\\n"); }
+function buildVEvent(item, group) {
+  if (!item.alarm || !item.alarm.time) return null;
+  const start = nextAlarmDate(item, group);
+  let rrule;
+  if (group === "weekly") {
+    const day = item.alarm.weekday !== undefined ? DAYNAMES_ICS[item.alarm.weekday] : DAYNAMES_ICS[start.getDay()];
+    rrule = `RRULE:FREQ=WEEKLY;BYDAY=${day}`;
+  } else if (group === "monthly") {
+    rrule = `RRULE:FREQ=DAILY;INTERVAL=${item.days || 30}`;
+  } else {
+    rrule = "RRULE:FREQ=DAILY";
+  }
+  const uid = `glow-${item.id}@glowtracker.local`;
+  return [
+    "BEGIN:VEVENT",
+    `UID:${uid}`,
+    `DTSTAMP:${fmtICSUtc(new Date())}`,
+    `DTSTART:${fmtICSLocal(start)}`,
+    "DURATION:PT5M",
+    rrule,
+    `SUMMARY:${escIcs(item.name)}`,
+    "BEGIN:VALARM",
+    "ACTION:DISPLAY",
+    "TRIGGER:PT0M",
+    `DESCRIPTION:${escIcs(item.name)}`,
+    "END:VALARM",
+    "END:VEVENT"
+  ].join("\r\n");
+}
+function buildICS(events) {
+  return [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//Glow Tracker//EN",
+    "CALSCALE:GREGORIAN",
+    ...events,
+    "END:VCALENDAR"
+  ].join("\r\n");
+}
+function downloadFile(filename, body, type) {
+  const blob = new Blob([body], { type });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+let alarmCtx = null;
+function openAlarm(item, group) {
+  alarmCtx = { item, group };
+  document.getElementById("alarmTitle").textContent = "Reminder · " + item.name;
+  const fields = document.getElementById("alarmFields");
+  fields.innerHTML = "";
+  const timeLabel = document.createElement("label");
+  timeLabel.textContent = "Time";
+  const time = document.createElement("input");
+  time.type = "time"; time.id = "alarmTime";
+  time.value = (item.alarm && item.alarm.time) || "08:00";
+  fields.appendChild(timeLabel); fields.appendChild(time);
+  if (group === "weekly") {
+    const wlabel = document.createElement("label");
+    wlabel.textContent = "Day of week"; wlabel.style.marginTop = "10px";
+    const sel = document.createElement("select");
+    sel.id = "alarmDay";
+    sel.style.cssText = "background:var(--panel2);border:1px solid var(--border);color:var(--text);padding:10px;border-radius:8px;font-size:16px;width:100%;min-height:42px";
+    ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"].forEach((n, i) => {
+      const o = document.createElement("option");
+      o.value = i; o.textContent = n;
+      if ((item.alarm && item.alarm.weekday) === i) o.selected = true;
+      sel.appendChild(o);
+    });
+    fields.appendChild(wlabel); fields.appendChild(sel);
+  }
+  document.getElementById("alarmRemove").style.display = item.alarm ? "" : "none";
+  document.getElementById("alarmIcs").style.display = item.alarm ? "" : "none";
+  document.getElementById("alarmModal").classList.remove("hidden");
+}
+function closeAlarm() {
+  document.getElementById("alarmModal").classList.add("hidden");
+  alarmCtx = null;
+}
+document.getElementById("alarmCancel").addEventListener("click", closeAlarm);
+document.getElementById("alarmModal").addEventListener("click", e => {
+  if (e.target.id === "alarmModal") closeAlarm();
+});
+document.getElementById("alarmRemove").addEventListener("click", () => {
+  if (!alarmCtx) return;
+  delete alarmCtx.item.alarm;
+  save(); render(); closeAlarm();
+});
+document.getElementById("alarmSave").addEventListener("click", async () => {
+  if (!alarmCtx) return;
+  const t = document.getElementById("alarmTime").value;
+  if (!t) return;
+  const a = { time: t };
+  const dayEl = document.getElementById("alarmDay");
+  if (dayEl) a.weekday = parseInt(dayEl.value, 10);
+  alarmCtx.item.alarm = a;
+  if ("Notification" in window && Notification.permission === "default") {
+    try { await Notification.requestPermission(); } catch(e) {}
+  }
+  save(); render(); closeAlarm();
+});
+document.getElementById("alarmIcs").addEventListener("click", () => {
+  if (!alarmCtx || !alarmCtx.item.alarm) return;
+  const ev = buildVEvent(alarmCtx.item, alarmCtx.group);
+  if (!ev) return;
+  const slug = alarmCtx.item.name.replace(/[^a-z0-9]+/gi, "-").slice(0, 40) || "task";
+  downloadFile(`glow-${slug}.ics`, buildICS([ev]), "text/calendar");
+});
+document.getElementById("exportAlarmsBtn").addEventListener("click", () => {
+  const events = [];
+  for (const g of ["morning","midday","evening","fitness","weekly","monthly"]) {
+    for (const it of data.items[g] || []) {
+      const ev = buildVEvent(it, g);
+      if (ev) events.push(ev);
+    }
+  }
+  if (events.length === 0) { alert("No alarms set yet. Tap the bell on any task first."); return; }
+  downloadFile("glow-tracker-alarms.ics", buildICS(events), "text/calendar");
+});
+
+function checkReminder() {
+  if (!("Notification" in window) || Notification.permission !== "granted") return;
+  const now = new Date();
+  const today = todayStr();
+  if (!checkReminder._fired) checkReminder._fired = {};
+  const fired = checkReminder._fired;
+  for (const g of ["morning","midday","evening","fitness","weekly","monthly"]) {
+    for (const it of data.items[g] || []) {
+      if (!it.alarm || !it.alarm.time) continue;
+      if (g === "weekly" && it.alarm.weekday !== undefined && now.getDay() !== it.alarm.weekday) continue;
+      if (g === "monthly" && it.last && daysBetween(it.last, Date.now()) < it.days) continue;
+      const [h, m] = it.alarm.time.split(":").map(Number);
+      const due = new Date(now); due.setHours(h, m, 0, 0);
+      if (now < due) continue;
+      if (isDone(it, g, todayStr())) continue;
+      const key = `${it.id}@${today}`;
+      if (fired[key]) continue;
+      try { new Notification("Glow Tracker · " + it.name, { body: "Time for: " + it.name, icon: "icon-192.png" }); } catch (e) {}
+      fired[key] = true;
+    }
+  }
+  if (data.settings.remind) {
+    const [h, m] = (data.settings.remindTime || "21:00").split(":").map(Number);
+    if (data.settings.lastNotified !== today &&
+        (now.getHours() > h || (now.getHours() === h && now.getMinutes() >= m))) {
+      const allDaily = [...(data.items.morning||[]), ...(data.items.midday||[]), ...(data.items.evening||[]), ...(data.items.fitness||[])];
+      const undone = allDaily.filter(i => i.last < startOfDay(Date.now())).length;
+      const overdue = (data.items.monthly||[]).filter(i => i.last && (daysBetween(i.last, Date.now()) > i.days)).length;
+      if (undone === 0 && overdue === 0) { data.settings.lastNotified = today; save(); return; }
+      const parts = [];
+      if (undone) parts.push(`${undone} habit${undone>1?"s":""} left today`);
+      if (overdue) parts.push(`${overdue} overdue maintenance task${overdue>1?"s":""}`);
+      try { new Notification("Glow Tracker", { body: parts.join(" • "), icon: "icon-192.png" }); } catch (e) {}
+      data.settings.lastNotified = today; save();
+    }
+  }
+}
+setInterval(checkReminder, 60000);
+
+document.getElementById("exportBtn").addEventListener("click", () => {
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `glow-tracker-${todayStr()}.json`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+});
+document.getElementById("importBtn").addEventListener("click", () => {
+  document.getElementById("importFile").click();
+});
+document.getElementById("importFile").addEventListener("change", e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const parsed = JSON.parse(ev.target.result);
+      if (!parsed.items) throw new Error("missing items");
+      if (!confirm("Replace all current data with this backup?")) return;
+      data = parsed;
+      if (!data.settings) data.settings = { theme: "dark", remind: false, remindTime: "21:00", lastNotified: null };
+      save(); applyTheme(); applyRemindUI(); render();
+      alert("Imported successfully.");
+    } catch (err) {
+      alert("Couldn't import: " + err.message);
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = "";
+});
+document.getElementById("resetBtn").addEventListener("click", () => {
+  if (!confirm("Wipe ALL habits, body log, photos, and settings? This cannot be undone.")) return;
+  localStorage.removeItem(KEY);
+  data = seed();
+  save(); applyTheme(); applyRemindUI(); render();
+});
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("sw.js").catch(() => {});
+  });
+}
+
+applyTheme();
+applyRemindUI();
+render();
+checkReminder();
+</script>
+</body>
+</html>
